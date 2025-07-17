@@ -1,26 +1,334 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #000000;
+  --foreground: #ffffff;
+  
+  /* Custom color palette for gym management software - Dark Theme */
+  --color-primary: #991b1b; /* Red-800 - darker */
+  --color-primary-dark: #7f1d1d; /* Red-900 - even darker */
+  --color-primary-light: #b91c1c; /* Red-700 - darker than before */
+  --color-secondary: #1f2937; /* Gray-800 */
+  --color-accent: #1f1f1f; /* Dark gray */
+  --color-surface: #111111; /* Darker surface */
+  --color-border: #333333; /* Dark border */
+  --color-text-primary: #ffffff; /* White text */
+  --color-text-secondary: #e4e4e7; /* Light gray text */
+  --color-text-muted: #a1a1aa; /* Muted text */
+  --color-success: #059669; /* Emerald-600 */
+  --color-warning: #d97706; /* Amber-600 */
+  --color-danger: #991b1b; /* Red-800 - darker */
+  --color-info: #2563eb; /* Blue-600 */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  
+  /* Custom colors */
+  --color-primary: var(--color-primary);
+  --color-primary-dark: var(--color-primary-dark);
+  --color-primary-light: var(--color-primary-light);
+  --color-secondary: var(--color-secondary);
+  --color-accent: var(--color-accent);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-danger: var(--color-danger);
+  --color-info: var(--color-info);
 }
 
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #171717;
+    --color-accent: #f3f4f6;
+    --color-surface: #ffffff;
+    --color-border: #e5e7eb;
+    --color-text-primary: #171717;
+    --color-text-secondary: #374151;
+    --color-text-muted: #6b7280;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  font-variation-settings: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Custom utility classes for the gym management theme */
+@layer utilities {
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-primary-dark { background-color: var(--color-primary-dark); }
+  .bg-primary-light { background-color: var(--color-primary-light); }
+  .bg-secondary { background-color: var(--color-secondary); }
+  .bg-accent { background-color: var(--color-accent); }
+  .bg-surface { background-color: var(--color-surface); }
+  
+  .text-primary { color: var(--color-primary); }
+  .text-primary-dark { color: var(--color-primary-dark); }
+  .text-primary-light { color: var(--color-primary-light); }
+  .text-secondary { color: var(--color-secondary); }
+  .text-accent { color: var(--color-accent); }
+  .text-primary-text { color: var(--color-text-primary); }
+  .text-secondary-text { color: var(--color-text-secondary); }
+  .text-muted { color: var(--color-text-muted); }
+  
+  .border-primary { border-color: var(--color-primary); }
+  .border-secondary { border-color: var(--color-secondary); }
+  .border-accent { border-color: var(--color-accent); }
+  .border-surface { border-color: var(--color-border); }
+  
+  /* Typography utilities */
+  .font-display { font-family: 'Inter', sans-serif; font-weight: 700; }
+  .font-heading { font-family: 'Inter', sans-serif; font-weight: 600; }
+  .font-body { font-family: 'Inter', sans-serif; font-weight: 400; }
+  .font-medium { font-family: 'Inter', sans-serif; font-weight: 500; }
+  .font-light { font-family: 'Inter', sans-serif; font-weight: 300; }
+  
+  /* Text sizes with consistent line heights */
+  .text-display-1 { font-size: 3.5rem; line-height: 1.1; font-weight: 800; }
+  .text-display-2 { font-size: 3rem; line-height: 1.1; font-weight: 700; }
+  .text-display-3 { font-size: 2.5rem; line-height: 1.2; font-weight: 700; }
+  .text-h1 { font-size: 2.25rem; line-height: 1.2; font-weight: 600; }
+  .text-h2 { font-size: 1.875rem; line-height: 1.3; font-weight: 600; }
+  .text-h3 { font-size: 1.5rem; line-height: 1.4; font-weight: 600; }
+  .text-h4 { font-size: 1.25rem; line-height: 1.4; font-weight: 600; }
+  .text-h5 { font-size: 1.125rem; line-height: 1.5; font-weight: 600; }
+  .text-h6 { font-size: 1rem; line-height: 1.5; font-weight: 600; }
+  .text-body-lg { font-size: 1.125rem; line-height: 1.6; font-weight: 400; }
+  .text-body { font-size: 1rem; line-height: 1.6; font-weight: 400; }
+  .text-body-sm { font-size: 0.875rem; line-height: 1.5; font-weight: 400; }
+  .text-caption { font-size: 0.75rem; line-height: 1.4; font-weight: 400; }
+}
+
+/* FullCalendar Custom Styles - Black & White Theme */
+.fc {
+  font-family: 'Inter', sans-serif !important;
+  background-color: #111827 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.fc-theme-standard .fc-scrollgrid {
+  border-color: #374151 !important;
+  background-color: #111827 !important;
+  border-radius: 12px !important;
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+  border-color: #374151 !important;
+  background-color: #111827 !important;
+}
+
+.fc-theme-standard .fc-daygrid-day.fc-day-today {
+  background-color: #1f2937 !important;
+}
+
+.fc-theme-standard .fc-highlight {
+  background-color: #1f2937 !important;
+}
+
+/* Red Button Styling with Better Spacing */
+.fc .fc-button-primary {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  padding: 12px 24px !important;
+  font-size: 0.875rem !important;
+  transition: all 0.2s ease-in-out !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  margin: 0 4px !important;
+}
+
+.fc .fc-button-primary:hover {
+  background-color: #b91c1c !important;
+  border-color: #b91c1c !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3) !important;
+}
+
+.fc .fc-button-primary:disabled {
+  background-color: #6b7280 !important;
+  border-color: #6b7280 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.fc .fc-button-primary:not(:disabled):active,
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #991b1b !important;
+  border-color: #991b1b !important;
+  transform: translateY(0) !important;
+}
+
+/* Toolbar Styling */
+.fc .fc-toolbar {
+  padding: 24px 24px 16px 24px !important;
+  background-color: #1f2937 !important;
+  border-radius: 12px 12px 0 0 !important;
+  border-bottom: 1px solid #374151 !important;
+}
+
+.fc .fc-toolbar-title {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  font-size: 1.5rem !important;
+  letter-spacing: -0.025em !important;
+}
+
+.fc .fc-toolbar-chunk {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+/* Header Styling */
+.fc .fc-col-header {
+  background-color: #1f2937 !important;
+}
+
+.fc .fc-col-header-cell-cushion {
+  color: #d1d5db !important;
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 16px 8px !important;
+}
+
+/* Day Numbers */
+.fc .fc-daygrid-day-number {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 0.875rem !important;
+  padding: 8px !important;
+}
+
+.fc .fc-daygrid-day.fc-day-other .fc-daygrid-day-number {
+  color: #6b7280 !important;
+}
+
+/* Events - Colorful strips */
+.fc .fc-event {
+  border-radius: 4px !important;
+  border: none !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease-in-out !important;
+  margin: 1px 1px !important;
+  min-height: 20px !important;
+  max-height: 24px !important;
+  overflow: hidden !important;
+}
+
+.fc .fc-event:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+.fc .fc-event-main {
+  padding: 2px 6px !important;
+  font-size: 0.7rem !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Hide "more" links and show all events as strips */
+.fc .fc-daygrid-more-link {
+  display: none !important;
+}
+
+.fc .fc-daygrid-day-events {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.fc .fc-daygrid-event-dot {
+  display: none !important;
+}
+
+/* Time Grid */
+.fc .fc-timegrid-slot {
+  color: #9ca3af !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+}
+
+.fc .fc-timegrid-axis {
+  color: #d1d5db !important;
+  font-weight: 600 !important;
+  background-color: #1f2937 !important;
+}
+
+/* List View */
+.fc .fc-list-event-dot {
+  border-color: #dc2626 !important;
+}
+
+.fc .fc-list-event-title a {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.fc .fc-list-event-time {
+  color: #9ca3af !important;
+  font-weight: 500 !important;
+}
+
+/* Day Grid */
+.fc .fc-daygrid-day {
+  background-color: #111827 !important;
+  min-height: 140px !important;
+}
+
+.fc .fc-daygrid-day:hover {
+  background-color: #1f2937 !important;
+}
+
+.fc .fc-daygrid-day-frame {
+  min-height: 140px !important;
+}
+
+/* Time Grid Slots */
+.fc .fc-timegrid-slot {
+  background-color: #111827 !important;
+  min-height: 40px !important;
+}
+
+.fc .fc-timegrid-slot:hover {
+  background-color: #1f2937 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .fc .fc-toolbar {
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding: 16px !important;
+  }
+  
+  .fc .fc-toolbar-chunk {
+    justify-content: center !important;
+  }
+  
+  .fc .fc-toolbar-title {
+    font-size: 1.25rem !important;
+  }
 }
