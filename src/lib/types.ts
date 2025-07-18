@@ -34,35 +34,51 @@ export interface Client {
 export interface Program {
   id: string
   name: string
-  description: string
+  description?: string
   color: string
   category: 'fitness' | 'strength' | 'cardio' | 'yoga' | 'martial-arts'
-  duration: number // in minutes
-  maxCapacity: number
   isActive: boolean
   createdAt: Date
 }
 
+export interface RecurrencePattern {
+  frequency: 'daily' | 'weekly' | 'monthly'
+  daysOfWeek?: number[]
+  endDate?: Date
+}
+
 export interface Class {
   id: string
+  name: string
   programId: string
-  program: Program
   coachId: string
-  coach: User
   date: Date
   startTime: string
   endTime: string
   capacity: number
-  enrolledCount: number
+  enrolled: number
+  location: string
   isRecurring: boolean
-  recurringPattern?: {
-    frequency: 'daily' | 'weekly' | 'monthly'
-    daysOfWeek?: number[]
-    endDate?: Date
-  }
-  status: 'scheduled' | 'in-progress' | 'completed' | 'cancelled'
+  recurrencePattern?: RecurrencePattern
+  status: 'scheduled' | 'confirmed' | 'cancelled' | 'completed'
   notes?: string
-  createdAt: Date
+}
+
+// Coach Entity (extending User with coach-specific properties)
+export interface Coach extends User {
+  specialties: string[]
+  isActive: boolean
+}
+
+// Reservation Settings
+export interface ReservationSettings {
+  reservationOpenHours: number
+  reservationCloseHours: number
+  cancellationDeadlineHours: number
+  lateCancellationFee: number
+  noShowFee: number
+  noShowPenaltyEnabled: boolean
+  autoWaitlistEnabled: boolean
 }
 
 // Reservation Types

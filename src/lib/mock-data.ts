@@ -1,4 +1,4 @@
-import { User, Client, Program, Class, Reservation, Exercise, Workout, DashboardStats } from './types'
+import { User, Client, Program, Class, Reservation, Exercise, Workout, DashboardStats, Coach, ReservationSettings } from './types'
 
 // Mock Users/Coaches
 export const mockUsers: User[] = [
@@ -28,11 +28,81 @@ export const mockUsers: User[] = [
   },
   {
     id: '4',
+    name: 'Alex Rodriguez',
+    email: 'alex@fitnesspro.com',
+    role: 'coach',
+    avatar: '/avatars/alex.jpg',
+    createdAt: new Date('2023-04-05'),
+  },
+  {
+    id: '5',
+    name: 'Lisa Park',
+    email: 'lisa@fitnesspro.com',
+    role: 'coach',
+    avatar: '/avatars/lisa.jpg',
+    createdAt: new Date('2023-05-12'),
+  },
+  {
+    id: '6',
     name: 'Admin User',
     email: 'admin@fitnesspro.com',
     role: 'admin',
     avatar: '/avatars/admin.jpg',
     createdAt: new Date('2023-01-01'),
+  },
+]
+
+// Mock Coaches with specialties
+export const mockCoaches: Coach[] = [
+  {
+    id: '1',
+    name: 'Sarah Johnson',
+    email: 'sarah@fitnesspro.com',
+    role: 'coach',
+    avatar: '/avatars/sarah.jpg',
+    createdAt: new Date('2023-01-15'),
+    specialties: ['HIIT', 'Cardio', 'Boxing', 'Weight Loss'],
+    isActive: true,
+  },
+  {
+    id: '2',
+    name: 'Mike Chen',
+    email: 'mike@fitnesspro.com',
+    role: 'coach',
+    avatar: '/avatars/mike.jpg',
+    createdAt: new Date('2023-02-20'),
+    specialties: ['Strength Training', 'Powerlifting', 'Functional Fitness', 'Sports Performance'],
+    isActive: true,
+  },
+  {
+    id: '3',
+    name: 'Emma Davis',
+    email: 'emma@fitnesspro.com',
+    role: 'coach',
+    avatar: '/avatars/emma.jpg',
+    createdAt: new Date('2023-03-10'),
+    specialties: ['Yoga', 'Pilates', 'Flexibility', 'Mindfulness', 'Rehabilitation'],
+    isActive: true,
+  },
+  {
+    id: '4',
+    name: 'Alex Rodriguez',
+    email: 'alex@fitnesspro.com',
+    role: 'coach',
+    avatar: '/avatars/alex.jpg',
+    createdAt: new Date('2023-04-05'),
+    specialties: ['Boxing', 'Martial Arts', 'Self Defense', 'Conditioning'],
+    isActive: true,
+  },
+  {
+    id: '5',
+    name: 'Lisa Park',
+    email: 'lisa@fitnesspro.com',
+    role: 'coach',
+    avatar: '/avatars/lisa.jpg',
+    createdAt: new Date('2023-05-12'),
+    specialties: ['Spin', 'Cycling', 'Endurance', 'Cardio', 'Group Fitness'],
+    isActive: true,
   },
 ]
 
@@ -44,8 +114,6 @@ export const mockPrograms: Program[] = [
     description: 'High-intensity interval training for maximum calorie burn',
     color: '#dc2626', // Red
     category: 'cardio',
-    duration: 45,
-    maxCapacity: 20,
     isActive: true,
     createdAt: new Date('2023-01-01'),
   },
@@ -55,8 +123,6 @@ export const mockPrograms: Program[] = [
     description: 'Build muscle and increase strength with compound movements',
     color: '#1f2937', // Dark gray
     category: 'strength',
-    duration: 60,
-    maxCapacity: 15,
     isActive: true,
     createdAt: new Date('2023-01-01'),
   },
@@ -66,8 +132,6 @@ export const mockPrograms: Program[] = [
     description: 'Mindful movement and flexibility training',
     color: '#059669', // Green
     category: 'yoga',
-    duration: 60,
-    maxCapacity: 25,
     isActive: true,
     createdAt: new Date('2023-01-01'),
   },
@@ -77,8 +141,6 @@ export const mockPrograms: Program[] = [
     description: 'Learn boxing fundamentals and get a great workout',
     color: '#d97706', // Orange
     category: 'martial-arts',
-    duration: 50,
-    maxCapacity: 12,
     isActive: true,
     createdAt: new Date('2023-01-01'),
   },
@@ -88,8 +150,33 @@ export const mockPrograms: Program[] = [
     description: 'Real-world movement patterns for everyday strength',
     color: '#2563eb', // Blue
     category: 'fitness',
-    duration: 45,
-    maxCapacity: 18,
+    isActive: true,
+    createdAt: new Date('2023-01-01'),
+  },
+  {
+    id: '6',
+    name: 'Pilates Core',
+    description: 'Core strengthening through controlled movements',
+    color: '#7c3aed', // Purple
+    category: 'fitness',
+    isActive: true,
+    createdAt: new Date('2023-01-01'),
+  },
+  {
+    id: '7',
+    name: 'Spin Class',
+    description: 'High-energy indoor cycling workout',
+    color: '#ea580c', // Orange-red
+    category: 'cardio',
+    isActive: true,
+    createdAt: new Date('2023-01-01'),
+  },
+  {
+    id: '8',
+    name: 'Power Yoga',
+    description: 'Dynamic and challenging yoga practice',
+    color: '#16a34a', // Green
+    category: 'yoga',
     isActive: true,
     createdAt: new Date('2023-01-01'),
   },
@@ -190,102 +277,427 @@ export const mockClients: Client[] = [
   },
 ]
 
-// Mock Classes
+// Mock Classes - Comprehensive scheduling data
 export const mockClasses: Class[] = [
+  // Monday Classes
   {
     id: '1',
+    name: 'Morning HIIT Blast',
     programId: '1',
-    program: mockPrograms[0],
     coachId: '1',
-    coach: mockUsers[0],
-    date: new Date('2024-01-15'),
+    date: new Date('2024-07-22'), // Monday
     startTime: '06:00',
     endTime: '06:45',
     capacity: 20,
-    enrolledCount: 15,
+    enrolled: 18,
+    location: 'Studio A',
     isRecurring: true,
-    recurringPattern: {
+    recurrencePattern: {
       frequency: 'weekly',
       daysOfWeek: [1], // Monday
     },
     status: 'scheduled',
-    createdAt: new Date('2023-12-01'),
+    notes: 'High-energy start to the week',
   },
   {
     id: '2',
+    name: 'Strength Foundations',
     programId: '2',
-    program: mockPrograms[1],
     coachId: '2',
-    coach: mockUsers[1],
-    date: new Date('2024-01-15'),
+    date: new Date('2024-07-22'), // Monday
     startTime: '07:00',
     endTime: '08:00',
     capacity: 15,
-    enrolledCount: 12,
+    enrolled: 12,
+    location: 'Weight Room',
     isRecurring: true,
-    recurringPattern: {
+    recurrencePattern: {
       frequency: 'weekly',
       daysOfWeek: [1, 3, 5], // Mon, Wed, Fri
     },
     status: 'scheduled',
-    createdAt: new Date('2023-12-01'),
   },
   {
     id: '3',
+    name: 'Evening Yoga Flow',
     programId: '3',
-    program: mockPrograms[2],
     coachId: '3',
-    coach: mockUsers[2],
-    date: new Date('2024-01-15'),
+    date: new Date('2024-07-22'), // Monday
     startTime: '18:00',
     endTime: '19:00',
     capacity: 25,
-    enrolledCount: 20,
+    enrolled: 22,
+    location: 'Studio B',
     isRecurring: true,
-    recurringPattern: {
+    recurrencePattern: {
       frequency: 'weekly',
-      daysOfWeek: [2, 4], // Tue, Thu
+      daysOfWeek: [1, 4], // Mon, Thu
     },
     status: 'scheduled',
-    createdAt: new Date('2023-12-01'),
   },
+
+  // Tuesday Classes
   {
     id: '4',
+    name: 'Boxing Fundamentals',
     programId: '4',
-    program: mockPrograms[3],
-    coachId: '1',
-    coach: mockUsers[0],
-    date: new Date('2024-01-16'),
-    startTime: '19:00',
-    endTime: '19:50',
+    coachId: '4',
+    date: new Date('2024-07-23'), // Tuesday
+    startTime: '06:30',
+    endTime: '07:20',
     capacity: 12,
-    enrolledCount: 8,
+    enrolled: 10,
+    location: 'Boxing Studio',
     isRecurring: true,
-    recurringPattern: {
+    recurrencePattern: {
       frequency: 'weekly',
       daysOfWeek: [2, 4], // Tue, Thu
     },
     status: 'scheduled',
-    createdAt: new Date('2023-12-01'),
   },
   {
     id: '5',
+    name: 'Functional Movement',
     programId: '5',
-    program: mockPrograms[4],
     coachId: '2',
-    coach: mockUsers[1],
-    date: new Date('2024-01-16'),
-    startTime: '06:30',
-    endTime: '07:15',
+    date: new Date('2024-07-23'), // Tuesday
+    startTime: '07:30',
+    endTime: '08:15',
     capacity: 18,
-    enrolledCount: 14,
+    enrolled: 15,
+    location: 'Functional Area',
     isRecurring: true,
-    recurringPattern: {
+    recurrencePattern: {
       frequency: 'weekly',
       daysOfWeek: [2, 4, 6], // Tue, Thu, Sat
     },
     status: 'scheduled',
-    createdAt: new Date('2023-12-01'),
+  },
+  {
+    id: '6',
+    name: 'Pilates Core Power',
+    programId: '6',
+    coachId: '3',
+    date: new Date('2024-07-23'), // Tuesday
+    startTime: '12:00',
+    endTime: '12:45',
+    capacity: 16,
+    enrolled: 14,
+    location: 'Studio B',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [2, 5], // Tue, Fri
+    },
+    status: 'scheduled',
+  },
+  {
+    id: '7',
+    name: 'Spin & Burn',
+    programId: '7',
+    coachId: '5',
+    date: new Date('2024-07-23'), // Tuesday
+    startTime: '18:30',
+    endTime: '19:15',
+    capacity: 20,
+    enrolled: 20,
+    location: 'Spin Studio',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [2, 4, 6], // Tue, Thu, Sat
+    },
+    status: 'confirmed',
+    notes: 'Class is full - waitlist available',
+  },
+
+  // Wednesday Classes
+  {
+    id: '8',
+    name: 'Midweek Strength',
+    programId: '2',
+    coachId: '2',
+    date: new Date('2024-07-24'), // Wednesday
+    startTime: '07:00',
+    endTime: '08:00',
+    capacity: 15,
+    enrolled: 13,
+    location: 'Weight Room',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [1, 3, 5], // Mon, Wed, Fri
+    },
+    status: 'scheduled',
+  },
+  {
+    id: '9',
+    name: 'Power Yoga Flow',
+    programId: '8',
+    coachId: '3',
+    date: new Date('2024-07-24'), // Wednesday
+    startTime: '12:15',
+    endTime: '13:00',
+    capacity: 20,
+    enrolled: 16,
+    location: 'Studio A',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [3, 6], // Wed, Sat
+    },
+    status: 'scheduled',
+  },
+  {
+    id: '10',
+    name: 'HIIT Express',
+    programId: '1',
+    coachId: '1',
+    date: new Date('2024-07-24'), // Wednesday
+    startTime: '17:45',
+    endTime: '18:30',
+    capacity: 20,
+    enrolled: 17,
+    location: 'Studio A',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [3], // Wed
+    },
+    status: 'scheduled',
+  },
+
+  // Thursday Classes
+  {
+    id: '11',
+    name: 'Boxing Skills',
+    programId: '4',
+    coachId: '4',
+    date: new Date('2024-07-25'), // Thursday
+    startTime: '06:30',
+    endTime: '07:20',
+    capacity: 12,
+    enrolled: 11,
+    location: 'Boxing Studio',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [2, 4], // Tue, Thu
+    },
+    status: 'scheduled',
+  },
+  {
+    id: '12',
+    name: 'Functional Training',
+    programId: '5',
+    coachId: '2',
+    date: new Date('2024-07-25'), // Thursday
+    startTime: '07:30',
+    endTime: '08:15',
+    capacity: 18,
+    enrolled: 16,
+    location: 'Functional Area',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [2, 4, 6], // Tue, Thu, Sat
+    },
+    status: 'scheduled',
+  },
+  {
+    id: '13',
+    name: 'Yoga & Mindfulness',
+    programId: '3',
+    coachId: '3',
+    date: new Date('2024-07-25'), // Thursday
+    startTime: '18:00',
+    endTime: '19:00',
+    capacity: 25,
+    enrolled: 19,
+    location: 'Studio B',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [1, 4], // Mon, Thu
+    },
+    status: 'scheduled',
+  },
+  {
+    id: '14',
+    name: 'Spin Revolution',
+    programId: '7',
+    coachId: '5',
+    date: new Date('2024-07-25'), // Thursday
+    startTime: '18:30',
+    endTime: '19:15',
+    capacity: 20,
+    enrolled: 18,
+    location: 'Spin Studio',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [2, 4, 6], // Tue, Thu, Sat
+    },
+    status: 'scheduled',
+  },
+
+  // Friday Classes
+  {
+    id: '15',
+    name: 'Friday Strength',
+    programId: '2',
+    coachId: '2',
+    date: new Date('2024-07-26'), // Friday
+    startTime: '07:00',
+    endTime: '08:00',
+    capacity: 15,
+    enrolled: 14,
+    location: 'Weight Room',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [1, 3, 5], // Mon, Wed, Fri
+    },
+    status: 'scheduled',
+  },
+  {
+    id: '16',
+    name: 'Pilates Flow',
+    programId: '6',
+    coachId: '3',
+    date: new Date('2024-07-26'), // Friday
+    startTime: '12:00',
+    endTime: '12:45',
+    capacity: 16,
+    enrolled: 12,
+    location: 'Studio B',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [2, 5], // Tue, Fri
+    },
+    status: 'scheduled',
+  },
+  {
+    id: '17',
+    name: 'TGIF HIIT',
+    programId: '1',
+    coachId: '1',
+    date: new Date('2024-07-26'), // Friday
+    startTime: '17:30',
+    endTime: '18:15',
+    capacity: 20,
+    enrolled: 19,
+    location: 'Studio A',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [5], // Fri
+    },
+    status: 'scheduled',
+  },
+
+  // Saturday Classes
+  {
+    id: '18',
+    name: 'Weekend Warrior',
+    programId: '5',
+    coachId: '2',
+    date: new Date('2024-07-27'), // Saturday
+    startTime: '08:00',
+    endTime: '08:45',
+    capacity: 18,
+    enrolled: 16,
+    location: 'Functional Area',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [2, 4, 6], // Tue, Thu, Sat
+    },
+    status: 'scheduled',
+  },
+  {
+    id: '19',
+    name: 'Power Yoga Weekend',
+    programId: '8',
+    coachId: '3',
+    date: new Date('2024-07-27'), // Saturday
+    startTime: '09:00',
+    endTime: '09:45',
+    capacity: 20,
+    enrolled: 17,
+    location: 'Studio A',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [3, 6], // Wed, Sat
+    },
+    status: 'scheduled',
+  },
+  {
+    id: '20',
+    name: 'Saturday Spin',
+    programId: '7',
+    coachId: '5',
+    date: new Date('2024-07-27'), // Saturday
+    startTime: '10:00',
+    endTime: '10:45',
+    capacity: 20,
+    enrolled: 15,
+    location: 'Spin Studio',
+    isRecurring: true,
+    recurrencePattern: {
+      frequency: 'weekly',
+      daysOfWeek: [2, 4, 6], // Tue, Thu, Sat
+    },
+    status: 'scheduled',
+  },
+
+  // One-time special classes
+  {
+    id: '21',
+    name: 'Boxing Workshop',
+    programId: '4',
+    coachId: '4',
+    date: new Date('2024-07-28'), // Sunday
+    startTime: '14:00',
+    endTime: '15:30',
+    capacity: 15,
+    enrolled: 8,
+    location: 'Boxing Studio',
+    isRecurring: false,
+    status: 'scheduled',
+    notes: 'Special workshop for beginners',
+  },
+  {
+    id: '22',
+    name: 'Yoga Retreat Session',
+    programId: '3',
+    coachId: '3',
+    date: new Date('2024-08-03'), // Next Saturday
+    startTime: '10:00',
+    endTime: '12:00',
+    capacity: 30,
+    enrolled: 5,
+    location: 'Main Studio',
+    isRecurring: false,
+    status: 'scheduled',
+    notes: 'Extended session with meditation',
+  },
+  {
+    id: '23',
+    name: 'Cancelled Class Example',
+    programId: '1',
+    coachId: '1',
+    date: new Date('2024-07-29'), // Monday next week
+    startTime: '06:00',
+    endTime: '06:45',
+    capacity: 20,
+    enrolled: 0,
+    location: 'Studio A',
+    isRecurring: false,
+    status: 'cancelled',
+    notes: 'Cancelled due to coach illness',
   },
 ]
 
@@ -498,4 +910,15 @@ export const mockDashboardStats: DashboardStats = {
   pendingReservations: 23,
   averageClassAttendance: 78.5,
   newMembersThisMonth: 12,
+}
+
+// Mock Reservation Settings
+export const mockReservationSettings: ReservationSettings = {
+  reservationOpenHours: 168, // 7 days (7 * 24 hours)
+  reservationCloseHours: 2, // 2 hours before class
+  cancellationDeadlineHours: 12, // 12 hours before class
+  lateCancellationFee: 15.00, // $15 fee for late cancellation
+  noShowFee: 25.00, // $25 fee for no-show
+  noShowPenaltyEnabled: true,
+  autoWaitlistEnabled: true,
 } 

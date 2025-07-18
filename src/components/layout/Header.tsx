@@ -36,14 +36,14 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
       <header
         ref={ref}
         className={cn(
-          'bg-surface border-b border-surface px-4 py-3',
+          'bg-surface border-b border-surface px-3 sm:px-4 py-3',
           className
         )}
         {...props}
       >
         <div className="flex items-center justify-between">
           {/* Left Section */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Mobile Menu Button */}
             <button
               onClick={onMenuToggle}
@@ -54,12 +54,14 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
 
             {/* Breadcrumbs */}
             {breadcrumbs && breadcrumbs.length > 0 && (
-              <Breadcrumb items={breadcrumbs} />
+              <div className="hidden sm:block">
+                <Breadcrumb items={breadcrumbs} />
+              </div>
             )}
           </div>
 
           {/* Center Section - Search */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          <div className="hidden md:flex flex-1 max-w-md mx-4 lg:mx-8">
             <Input
               placeholder="Search..."
               leftIcon={<MagnifyingGlassIcon className="h-4 w-4" />}
@@ -68,7 +70,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
           </div>
 
           {/* Right Section */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Notifications */}
             <button className="relative p-2 rounded-md hover:bg-accent text-secondary-text hover:text-primary-text transition-colors">
               <BellIcon className="h-5 w-5" />
@@ -80,7 +82,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
             </button>
 
             {/* User Profile */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               {user ? (
                 <div className="flex items-center space-x-2">
                   <div className="text-right hidden sm:block">
@@ -100,7 +102,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
                   </button>
                 </div>
               ) : (
-                <Button variant="primary" size="sm">
+                <Button variant="primary" size="sm" className="hidden sm:inline-flex">
                   Sign In
                 </Button>
               )}
@@ -116,6 +118,13 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
             className="bg-accent border-surface"
           />
         </div>
+
+        {/* Mobile Breadcrumbs */}
+        {breadcrumbs && breadcrumbs.length > 0 && (
+          <div className="mt-3 sm:hidden">
+            <Breadcrumb items={breadcrumbs} />
+          </div>
+        )}
       </header>
     )
   }

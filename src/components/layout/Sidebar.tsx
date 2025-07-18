@@ -5,15 +5,19 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { 
   ChevronDownIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline'
 import { NavigationItem, navigationConfig } from '@/lib/navigation'
 
-export interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
+  onClose?: () => void
+}
 
 const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
   ({ 
     className, 
+    onClose,
     ...props 
   }, ref) => {
     const pathname = usePathname()
@@ -27,6 +31,13 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         newExpanded.add(itemId)
       }
       setExpandedItems(newExpanded)
+    }
+
+    const handleNavigation = () => {
+      // Close mobile menu when navigating
+      if (onClose) {
+        onClose()
+      }
     }
 
     const isItemActive = (item: NavigationItem): boolean => {
@@ -45,19 +56,27 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
       <div
         ref={ref}
         className={cn(
-          'flex flex-col bg-surface border-r border-surface h-full w-64',
+          'flex flex-col bg-surface border-r border-surface h-full w-64 lg:w-64',
           className
         )}
         {...props}
       >
         {/* Logo Area */}
-        <div className="flex items-center p-4 border-b border-surface flex-shrink-0">
+        <div className="flex items-center justify-between p-4 border-b border-surface flex-shrink-0">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">G</span>
             </div>
             <span className="text-primary-text font-semibold text-lg">GymPro</span>
           </div>
+          
+          {/* Mobile Close Button */}
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1 rounded-md hover:bg-accent text-secondary-text hover:text-primary-text transition-colors"
+          >
+            <XMarkIcon className="h-5 w-5" />
+          </button>
         </div>
 
         {/* Navigation Items - Scrollable */}
@@ -106,6 +125,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                             <Link
                               key={subItem.href}
                               href={subItem.href}
+                              onClick={handleNavigation}
                               className={cn(
                                 'block px-3 py-2 rounded-lg text-sm transition-colors',
                                 isSubItemActive(subItem.href)
@@ -133,6 +153,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                 ) : (
                   <Link
                     href={item.href}
+                    onClick={handleNavigation}
                     className={cn(
                       'w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors',
                       isActive
