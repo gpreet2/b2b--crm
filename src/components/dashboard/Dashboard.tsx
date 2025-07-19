@@ -200,7 +200,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
               Good morning, Admin 👋
             </h1>
             <p className="text-body text-secondary-text">
-              Here&apos;s what&apos;s happening at your gym today
+              Here&rsquo;s what&rsquo;s happening at your gym today
             </p>
           </div>
           <div className="flex items-center space-x-3">
@@ -292,7 +292,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
                 <div>
                   <CardTitle className="flex items-center space-x-2">
                     <CalendarIcon className="h-5 w-5 text-primary" />
-                    <span>Today&apos;s Schedule</span>
+                    <span>Today&rsquo;s Schedule</span>
                   </CardTitle>
                   <CardDescription>Upcoming classes and sessions</CardDescription>
                 </div>

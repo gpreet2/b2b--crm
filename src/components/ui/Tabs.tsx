@@ -68,8 +68,6 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
     const [internalValue, setInternalValue] = useState(defaultValue || '')
     const currentValue = value || activeTab || internalValue
     const handleValueChange = onValueChange || onTabChange || setInternalValue
-
-
     
     const variants = {
       default: 'border-b border-surface',

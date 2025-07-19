@@ -301,7 +301,8 @@ export default function CalendarPage() {
 
   // Handle event click
   const handleEventClick = (arg: EventClickArg) => {
-    const { coach, capacity, enrolledCount, category } = arg.event.extendedProps as { coach: string; capacity: number; enrolledCount: number; category: string }
+    const extendedProps = arg.event.extendedProps as { coach: string; capacity: number; enrolledCount: number; category: string }
+    const { coach, capacity, enrolledCount, category } = extendedProps
     console.log('Event clicked:', {
       title: arg.event.title,
       start: arg.event.start,

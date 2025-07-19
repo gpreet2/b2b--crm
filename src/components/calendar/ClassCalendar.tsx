@@ -95,7 +95,8 @@ export default function ClassCalendar({
   }, [filteredClasses, programMap, coachMap])
 
   const handleEventClick = (info: EventClickArg) => {
-    setSelectedEvent((info.event.extendedProps as { class: Class }).class)
+    const extendedProps = info.event.extendedProps as { class: Class }
+    setSelectedEvent(extendedProps.class)
     setIsEventModalOpen(true)
   }
 
@@ -224,17 +225,24 @@ export default function ClassCalendar({
               slotMaxTime="22:00:00"
               allDaySlot={false}
               slotDuration="00:30:00"
-              eventContent={(arg: EventContentArg) => (
-                <div className="p-1">
-                  <div className="font-medium text-sm">{arg.event.title}</div>
-                  <div className="text-xs opacity-90">
-                    {(arg.event.extendedProps as { coach?: { name: string } }).coach?.name || 'No Coach'}
+              eventContent={(arg: EventContentArg) => {
+                const extendedProps = arg.event.extendedProps as { 
+                  coach?: { name: string }; 
+                  enrolledCount: number; 
+                  totalSpots: number 
+                }
+                return (
+                  <div className="p-1">
+                    <div className="font-medium text-sm">{arg.event.title}</div>
+                    <div className="text-xs opacity-90">
+                      {extendedProps.coach?.name || 'No Coach'}
+                    </div>
+                    <div className="text-xs opacity-75">
+                      {extendedProps.enrolledCount}/{extendedProps.totalSpots}
+                    </div>
                   </div>
-                  <div className="text-xs opacity-75">
-                    {(arg.event.extendedProps as { enrolledCount: number; totalSpots: number }).enrolledCount}/{(arg.event.extendedProps as { enrolledCount: number; totalSpots: number }).totalSpots}
-                  </div>
-                </div>
-              )}
+                )
+              }}
             />
           </div>
         </CardContent>
