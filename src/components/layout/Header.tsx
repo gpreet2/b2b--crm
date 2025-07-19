@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { 
   MagnifyingGlassIcon,
@@ -27,7 +28,6 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
     className, 
     breadcrumbs,
     onMenuToggle,
-    showMobileMenu = false,
     user,
     notifications = 0,
     ...props 
@@ -91,9 +91,11 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
                   </div>
                   <button className="flex items-center space-x-2 p-2 rounded-md hover:bg-accent transition-colors">
                     {user.avatar ? (
-                      <img
+                      <Image
                         src={user.avatar}
                         alt={user.name}
+                        width={32}
+                        height={32}
                         className="h-8 w-8 rounded-full"
                       />
                     ) : (

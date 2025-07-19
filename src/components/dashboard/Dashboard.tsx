@@ -1,17 +1,12 @@
 import React from 'react'
 import { cn } from '@/lib/utils'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
 import { 
-  UserIcon, 
   CalendarIcon, 
-  ClockIcon, 
   ChartBarIcon,
   PlusIcon,
   PlayIcon,
   UserPlusIcon,
-  CalendarDaysIcon,
   ArrowUpIcon,
   ArrowDownIcon,
   FireIcon,
@@ -20,7 +15,6 @@ import {
   CurrencyDollarIcon,
   UsersIcon,
   ArrowRightIcon,
-  EyeIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon
 } from '@heroicons/react/24/outline'
@@ -34,7 +28,6 @@ export interface DashboardProps extends React.HTMLAttributes<HTMLDivElement> {
 const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
   ({ 
     className, 
-    stats = mockDashboardStats,
     ...props 
   }, ref) => {
     // Enhanced stats with trends and colors
@@ -190,7 +183,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
     const performanceMetrics = [
       { label: 'Peak Hours', value: '6-8 AM', subtext: 'Highest attendance' },
       { label: 'Popular Class', value: 'HIIT Cardio', subtext: '89% avg attendance' },
-      { label: 'Top Trainer', value: 'Sarah Johnson', subtext: '4.9★ rating' },
+      { label: 'Top Trainer', value: 'Sarah Johnson', subtext: '4.9⭐ rating' },
       { label: 'Retention Rate', value: '92%', subtext: 'Member retention' }
     ]
 
@@ -207,7 +200,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
               Good morning, Admin 👋
             </h1>
             <p className="text-body text-secondary-text">
-              Here's what's happening at your gym today
+              Here&apos;s what&apos;s happening at your gym today
             </p>
           </div>
           <div className="flex items-center space-x-3">
@@ -299,7 +292,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
                 <div>
                   <CardTitle className="flex items-center space-x-2">
                     <CalendarIcon className="h-5 w-5 text-primary" />
-                    <span>Today's Schedule</span>
+                    <span>Today&apos;s Schedule</span>
                   </CardTitle>
                   <CardDescription>Upcoming classes and sessions</CardDescription>
                 </div>

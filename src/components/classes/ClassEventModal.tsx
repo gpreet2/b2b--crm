@@ -264,7 +264,7 @@ export default function ClassEventModal({
                     </Button>
                   )}
                   
-                  {onCancel && classEvent.status !== 'cancelled' && (
+                  {onCancel && (
                     <Button
                       variant="outline"
                       size="sm"

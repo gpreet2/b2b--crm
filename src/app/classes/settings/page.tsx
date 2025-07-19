@@ -3,13 +3,11 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { 
   Cog6ToothIcon,
-  ClockIcon,
   UsersIcon,
   CalendarIcon,
   BellIcon,
   ShieldCheckIcon,
   AdjustmentsHorizontalIcon,
-  PaintBrushIcon,
   DocumentTextIcon,
   CheckCircleIcon,
   XCircleIcon

@@ -50,7 +50,7 @@ export default function CalendarFilters({
 }: CalendarFiltersProps) {
   const [localFilters, setLocalFilters] = useState<FilterState>(filters)
 
-  const handleFilterChange = (field: keyof FilterState, value: any) => {
+  const handleFilterChange = (field: keyof FilterState, value: string | string[] | { start: string; end: string }) => {
     const newFilters = { ...localFilters, [field]: value }
     setLocalFilters(newFilters)
     onFiltersChange(newFilters)
@@ -303,7 +303,7 @@ export default function CalendarFilters({
               <div className="flex flex-wrap gap-2">
                 {filters.search && (
                   <span className="inline-flex items-center px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded">
-                    Search: "{filters.search}"
+                    Search: &quot;{filters.search}&quot;
                     <button
                       onClick={() => handleFilterChange('search', '')}
                       className="ml-1 text-gray-500 hover:text-gray-700"

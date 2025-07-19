@@ -35,7 +35,9 @@ export interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
   defaultValue?: string
 }
 
-export interface TabsListProps extends React.HTMLAttributes<HTMLDivElement> {}
+export interface TabsListProps extends React.HTMLAttributes<HTMLDivElement> {
+  children?: React.ReactNode
+}
 
 export interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   value: string
@@ -52,7 +54,6 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
     activeTab,
     onTabChange,
     variant = 'default',
-    size = 'md',
     value,
     onValueChange,
     children,
@@ -67,7 +68,7 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
     const currentValue = value || activeTab || internalValue
     const handleValueChange = onValueChange || onTabChange || setInternalValue
 
-    const baseClasses = 'border-b border-surface'
+
     
     const variants = {
       default: 'border-b border-surface',

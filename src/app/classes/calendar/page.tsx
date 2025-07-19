@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
@@ -21,8 +21,6 @@ import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
 
 export default function CalendarPage() {
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [currentView, setCurrentView] = useState('dayGridMonth')
 
   // Enhanced events with better colors and variety
   const events = useMemo(() => {
@@ -270,9 +268,10 @@ export default function CalendarPage() {
   }, [])
 
   // Custom event content renderer
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderEventContent = (eventInfo: any) => {
     const { event } = eventInfo
-    const { enrolledCount, capacity, status } = event.extendedProps
+    const { enrolledCount, capacity } = event.extendedProps
     const fillPercentage = (enrolledCount / capacity) * 100
     
     return (
@@ -281,7 +280,7 @@ export default function CalendarPage() {
           {event.title}
         </div>
         <div className="flex items-center justify-between text-xs text-white/90">
-          <span>{event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+          <span>{event.start ? event.start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
           <span className="text-xs">{enrolledCount}/{capacity}</span>
         </div>
         {/* Capacity indicator bar */}
@@ -296,14 +295,15 @@ export default function CalendarPage() {
   }
 
   // Handle date click
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDateClick = (arg: any) => {
-    setSelectedDate(arg.date)
     console.log('Date clicked:', arg.date)
   }
 
   // Handle event click
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEventClick = (arg: any) => {
-    const { coach, capacity, enrolledCount, category, status } = arg.event.extendedProps
+    const { coach, capacity, enrolledCount, category } = arg.event.extendedProps
     console.log('Event clicked:', {
       title: arg.event.title,
       start: arg.event.start,
@@ -311,8 +311,7 @@ export default function CalendarPage() {
       coach,
       capacity,
       enrolledCount,
-      category,
-      status
+      category
     })
   }
 
@@ -454,7 +453,7 @@ export default function CalendarPage() {
               dayHeaderFormat={{ weekday: 'short', day: 'numeric' }}
               titleFormat={{ year: 'numeric', month: 'long' }}
               dayMaxEvents={false}
-              viewDidMount={(info) => setCurrentView(info.view.type)}
+              viewDidMount={() => {}}
             />
           </div>
         </CardContent>

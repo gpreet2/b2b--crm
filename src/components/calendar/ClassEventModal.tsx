@@ -1,17 +1,16 @@
 'use client'
 
 import React from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
-import { Card, CardContent } from '@/components/ui/Card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
 import { 
   UserIcon, 
   ClockIcon, 
   CalendarIcon, 
   UsersIcon,
-  MapPinIcon,
-  InformationCircleIcon
+  InformationCircleIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline'
 import { Class } from '@/lib/types'
 import { format } from 'date-fns'
@@ -23,8 +22,10 @@ interface ClassEventModalProps {
 }
 
 export default function ClassEventModal({ isOpen, onClose, classData }: ClassEventModalProps) {
-  const availableSpots = classData.capacity - classData.enrolledCount
-  const enrollmentPercentage = (classData.enrolledCount / classData.capacity) * 100
+  if (!isOpen) return null
+
+  const availableSpots = classData.capacity - classData.enrolled
+  const enrollmentPercentage = (classData.enrolled / classData.capacity) * 100
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -48,167 +49,163 @@ export default function ClassEventModal({ isOpen, onClose, classData }: ClassEve
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <div 
-              className="w-4 h-4 rounded"
-              style={{ backgroundColor: classData.program.color }}
-            />
-            <span>{classData.program.name}</span>
-          </DialogTitle>
-        </DialogHeader>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <Card className="border-0 shadow-none">
+          <CardHeader className="border-b border-gray-200">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <div 
+                  className="w-4 h-4 rounded"
+                  style={{ backgroundColor: '#6b7280' }}
+                />
+                <span>Class Details</span>
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="p-2"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </Button>
+            </div>
+          </CardHeader>
 
-        <div className="space-y-6">
-          {/* Class Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card>
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <CalendarIcon className="h-5 w-5 text-gray-500" />
-                    <span className="text-sm font-medium">Date & Time</span>
-                  </div>
-                  <div className="ml-7">
-                    <p className="text-lg font-semibold">
-                      {format(classData.date, 'EEEE, MMMM d, yyyy')}
-                    </p>
-                    <p className="text-gray-600">
-                      {classData.startTime} - {classData.endTime}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          <div className="p-6">
 
-            <Card>
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <UserIcon className="h-5 w-5 text-gray-500" />
-                    <span className="text-sm font-medium">Coach</span>
-                  </div>
-                  <div className="ml-7">
-                    <p className="text-lg font-semibold">{classData.coach.name}</p>
-                    <p className="text-gray-600">{classData.coach.email}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+            <div className="space-y-6">
+              {/* Class Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <CalendarIcon className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm font-medium">Date & Time</span>
+                      </div>
+                      <div className="ml-7">
+                        <p className="text-lg font-semibold">
+                          {format(classData.date, 'EEEE, MMMM d, yyyy')}
+                        </p>
+                        <p className="text-gray-600">
+                          {classData.startTime} - {classData.endTime}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
-          {/* Enrollment Status */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <UsersIcon className="h-5 w-5 text-gray-500" />
-                    <span className="text-sm font-medium">Enrollment</span>
-                  </div>
-                  <Badge className={getStatusColor(classData.status)}>
-                    {classData.status.replace('-', ' ')}
-                  </Badge>
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Enrolled</span>
-                    <span className="font-medium">{classData.enrolledCount} / {classData.capacity}</span>
-                  </div>
-                  
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className={`h-2 rounded-full ${getEnrollmentColor(enrollmentPercentage)}`}
-                      style={{ width: `${enrollmentPercentage}%` }}
-                    />
-                  </div>
-                  
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Available spots: {availableSpots}</span>
-                    <span>{Math.round(enrollmentPercentage)}% full</span>
-                  </div>
-                </div>
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <UserIcon className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm font-medium">Coach</span>
+                      </div>
+                      <div className="ml-7">
+                        <p className="text-lg font-semibold">{classData.name}</p>
+                        <p className="text-gray-600">{classData.location}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
 
-          {/* Program Information */}
-          <Card>
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <InformationCircleIcon className="h-5 w-5 text-gray-500" />
-                  <span className="text-sm font-medium">Program Details</span>
-                </div>
-                <div className="ml-7 space-y-2">
-                  <p className="text-gray-700">{classData.program.description}</p>
-                  <div className="flex items-center space-x-4 text-sm text-gray-600">
-                    <span>Duration: {classData.program.duration} minutes</span>
-                    <span>Category: {classData.program.category}</span>
+              {/* Enrollment Status */}
+              <Card>
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <UsersIcon className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm font-medium">Enrollment</span>
+                      </div>
+                      <Badge className={getStatusColor(classData.status)}>
+                        {classData.status.replace('-', ' ')}
+                      </Badge>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Enrolled</span>
+                        <span className="font-medium">{classData.enrolled} / {classData.capacity}</span>
+                      </div>
+                      
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full ${getEnrollmentColor(enrollmentPercentage)}`}
+                          style={{ width: `${enrollmentPercentage}%` }}
+                        />
+                      </div>
+                      
+                      <div className="flex justify-between text-sm text-gray-600">
+                        <span>Available spots: {availableSpots}</span>
+                        <span>{Math.round(enrollmentPercentage)}% full</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </CardContent>
+              </Card>
+
+              {/* Recurring Information */}
+              {classData.isRecurring && classData.recurrencePattern && (
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <ClockIcon className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm font-medium">Recurring Schedule</span>
+                      </div>
+                      <div className="ml-7">
+                        <p className="text-gray-700">
+                          {classData.recurrencePattern.frequency} on{' '}
+                          {classData.recurrencePattern.daysOfWeek?.map(day => {
+                            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+                            return days[day]
+                          }).join(', ')}
+                        </p>
+                        {classData.recurrencePattern.endDate && (
+                          <p className="text-sm text-gray-600">
+                            Until {format(classData.recurrencePattern.endDate, 'MMM d, yyyy')}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Notes */}
+              {classData.notes && (
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <InformationCircleIcon className="h-5 w-5 text-gray-500" />
+                        <span className="text-sm font-medium">Notes</span>
+                      </div>
+                      <div className="ml-7">
+                        <p className="text-gray-700">{classData.notes}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 pt-4">
+                <Button variant="ghost" onClick={onClose}>
+                  Close
+                </Button>
+                <Button>
+                  Edit Class
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Recurring Information */}
-          {classData.isRecurring && classData.recurringPattern && (
-            <Card>
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <ClockIcon className="h-5 w-5 text-gray-500" />
-                    <span className="text-sm font-medium">Recurring Schedule</span>
-                  </div>
-                  <div className="ml-7">
-                    <p className="text-gray-700">
-                      {classData.recurringPattern.frequency} on{' '}
-                      {classData.recurringPattern.daysOfWeek?.map(day => {
-                        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-                        return days[day]
-                      }).join(', ')}
-                    </p>
-                    {classData.recurringPattern.endDate && (
-                      <p className="text-sm text-gray-600">
-                        Until {format(classData.recurringPattern.endDate, 'MMM d, yyyy')}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Notes */}
-          {classData.notes && (
-            <Card>
-              <CardContent className="p-4">
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <InformationCircleIcon className="h-5 w-5 text-gray-500" />
-                    <span className="text-sm font-medium">Notes</span>
-                  </div>
-                  <div className="ml-7">
-                    <p className="text-gray-700">{classData.notes}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button variant="outline" onClick={onClose}>
-              Close
-            </Button>
-            <Button>
-              Edit Class
-            </Button>
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </Card>
+      </div>
+    </div>
   )
 } 

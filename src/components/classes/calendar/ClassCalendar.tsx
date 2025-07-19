@@ -29,8 +29,6 @@ export default function ClassCalendar({
   coaches = mockCoaches,
   onEventClick,
   onDateClick,
-  onViewChange,
-  currentView = 'week',
   filteredProgramIds,
   filteredCoachIds
 }: ClassCalendarProps) {

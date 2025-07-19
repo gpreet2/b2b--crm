@@ -4,30 +4,29 @@ import React, { useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
-import { PlusIcon, FunnelIcon, UserIcon, CalendarIcon } from '@heroicons/react/24/outline'
-import { Class, Program, User } from '@/lib/types'
-import { mockClasses, mockPrograms, mockUsers } from '@/lib/mock-data'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/Tabs'
+import { PlusIcon, FunnelIcon } from '@heroicons/react/24/outline'
+import { Class, Program, Coach } from '@/lib/types'
+import { mockClasses, mockPrograms } from '@/lib/mock-data'
 import ClassEventModal from './ClassEventModal'
-import AddClassModal from './AddClassModal'
+import AddClassModal from '../classes/AddClassModal'
 
 // Dynamic import for FullCalendar to avoid SSR issues
 const FullCalendar = dynamic(() => import('@fullcalendar/react'), { ssr: false })
-const dayGridPlugin = dynamic(() => import('@fullcalendar/daygrid'), { ssr: false })
-const timeGridPlugin = dynamic(() => import('@fullcalendar/timegrid'), { ssr: false })
-const interactionPlugin = dynamic(() => import('@fullcalendar/interaction'), { ssr: false })
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
 
 interface ClassCalendarProps {
   classes?: Class[]
   programs?: Program[]
-  coaches?: User[]
+  coaches?: Coach[]
 }
 
 export default function ClassCalendar({ 
   classes = mockClasses, 
   programs = mockPrograms, 
-  coaches = mockUsers.filter(u => u.role === 'coach') 
+  coaches = [] 
 }: ClassCalendarProps) {
   const [selectedEvent, setSelectedEvent] = useState<Class | null>(null)
   const [isEventModalOpen, setIsEventModalOpen] = useState(false)
@@ -35,6 +34,21 @@ export default function ClassCalendar({
   const [selectedProgramFilter, setSelectedProgramFilter] = useState<string>('all')
   const [selectedCoachFilter, setSelectedCoachFilter] = useState<string>('all')
   const [currentView, setCurrentView] = useState<'dayGridWeek' | 'timeGridWeek'>('dayGridWeek')
+
+  // Create lookup maps
+  const programMap = useMemo(() => {
+    return programs.reduce((acc, program) => {
+      acc[program.id] = program
+      return acc
+    }, {} as Record<string, Program>)
+  }, [programs])
+
+  const coachMap = useMemo(() => {
+    return coaches.reduce((acc, coach) => {
+      acc[coach.id] = coach
+      return acc
+    }, {} as Record<string, Coach>)
+  }, [coaches])
 
   // Filter classes based on selected filters
   const filteredClasses = useMemo(() => {
@@ -56,34 +70,46 @@ export default function ClassCalendar({
       const endDate = new Date(startDate)
       endDate.setHours(endHour, endMinute, 0, 0)
 
+      const program = programMap[cls.programId]
+      const coach = coachMap[cls.coachId]
+
       return {
         id: cls.id,
-        title: cls.program.name,
+        title: program?.name || 'Unknown Program',
         start: startDate,
         end: endDate,
-        backgroundColor: cls.program.color,
-        borderColor: cls.program.color,
+        backgroundColor: program?.color || '#6b7280',
+        borderColor: program?.color || '#6b7280',
         textColor: '#ffffff',
         extendedProps: {
           class: cls,
-          availableSpots: cls.capacity - cls.enrolledCount,
+          availableSpots: cls.capacity - cls.enrolled,
           totalSpots: cls.capacity,
-          enrolledCount: cls.enrolledCount,
-          coach: cls.coach,
-          program: cls.program
+          enrolledCount: cls.enrolled,
+          coach: coach,
+          program: program
         }
       }
     })
-  }, [filteredClasses])
+  }, [filteredClasses, programMap, coachMap])
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEventClick = (info: any) => {
     setSelectedEvent(info.event.extendedProps.class)
     setIsEventModalOpen(true)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDateSelect = (selectInfo: any) => {
     // Handle date selection for adding new classes
     console.log('Date selected:', selectInfo.startStr)
+  }
+
+  const handleSaveClass = (classData: Partial<Class>) => {
+    // Handle saving the new class
+    console.log('Saving class:', classData)
+    // In a real app, this would make an API call to save the class
+    // For now, we'll just log it and close the modal
   }
 
   const handleViewChange = (viewType: string) => {
@@ -199,11 +225,12 @@ export default function ClassCalendar({
               slotMaxTime="22:00:00"
               allDaySlot={false}
               slotDuration="00:30:00"
-              eventContent={(arg) => (
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              eventContent={(arg: any) => (
                 <div className="p-1">
                   <div className="font-medium text-sm">{arg.event.title}</div>
                   <div className="text-xs opacity-90">
-                    {arg.event.extendedProps.coach.name}
+                    {arg.event.extendedProps.coach?.name || 'No Coach'}
                   </div>
                   <div className="text-xs opacity-75">
                     {arg.event.extendedProps.enrolledCount}/{arg.event.extendedProps.totalSpots}
@@ -253,6 +280,7 @@ export default function ClassCalendar({
         onClose={() => setIsAddClassModalOpen(false)}
         programs={programs}
         coaches={coaches}
+        onSave={handleSaveClass}
       />
     </div>
   )

@@ -6,11 +6,6 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { 
   XMarkIcon,
-  CalendarIcon,
-  ClockIcon,
-  UserIcon,
-  MapPinIcon,
-  UsersIcon,
   ArrowPathIcon,
   PlusIcon
 } from '@heroicons/react/24/outline'
@@ -68,7 +63,7 @@ export default function AddClassModal({
   const selectedProgram = programs.find(p => p.id === formData.programId)
   const selectedCoach = coaches.find(c => c.id === formData.coachId)
 
-  const handleInputChange = (field: keyof FormData, value: any) => {
+  const handleInputChange = (field: keyof FormData, value: string | number | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }))
     // Clear error when user starts typing
     if (errors[field]) {
@@ -76,7 +71,7 @@ export default function AddClassModal({
     }
   }
 
-  const handleRecurrenceChange = (field: keyof RecurrencePattern, value: any) => {
+  const handleRecurrenceChange = (field: keyof RecurrencePattern, value: string | number[] | Date | undefined) => {
     setFormData(prev => ({
       ...prev,
       recurrencePattern: {

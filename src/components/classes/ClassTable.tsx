@@ -38,8 +38,6 @@ export default function ClassTable({
   onClassClick,
   onEditClass,
   onDeleteClass,
-  selectedClasses = [],
-  onSelectionChange,
   pageSize = 10
 }: ClassTableProps) {
   const [sortField, setSortField] = useState<SortField>('date')
@@ -64,8 +62,8 @@ export default function ClassTable({
   // Sort classes
   const sortedClasses = useMemo(() => {
     return [...classes].sort((a, b) => {
-      let aValue: any
-      let bValue: any
+      let aValue: string | number
+      let bValue: string | number
 
       switch (sortField) {
         case 'name':

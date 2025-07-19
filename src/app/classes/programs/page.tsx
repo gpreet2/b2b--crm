@@ -7,7 +7,6 @@ import {
   AcademicCapIcon,
   ClockIcon,
   UsersIcon,
-  ChartBarIcon,
   BookOpenIcon,
   FireIcon,
   TrophyIcon
