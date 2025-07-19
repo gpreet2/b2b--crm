@@ -17,8 +17,7 @@ export interface ClassCalendarProps {
   coaches?: Coach[]
   onEventClick?: (classEvent: Class) => void
   onDateClick?: (date: Date) => void
-  onViewChange?: (view: 'week' | 'month' | 'day') => void
-  currentView?: 'week' | 'month' | 'day'
+
   filteredProgramIds?: string[]
   filteredCoachIds?: string[]
 }

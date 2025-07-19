@@ -16,6 +16,7 @@ const FullCalendar = dynamic(() => import('@fullcalendar/react'), { ssr: false }
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import type { EventClickArg, EventContentArg, DateSelectArg } from '@fullcalendar/core'
 
 interface ClassCalendarProps {
   classes?: Class[]
@@ -93,14 +94,12 @@ export default function ClassCalendar({
     })
   }, [filteredClasses, programMap, coachMap])
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleEventClick = (info: any) => {
-    setSelectedEvent(info.event.extendedProps.class)
+  const handleEventClick = (info: EventClickArg) => {
+    setSelectedEvent((info.event.extendedProps as { class: Class }).class)
     setIsEventModalOpen(true)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleDateSelect = (selectInfo: any) => {
+  const handleDateSelect = (selectInfo: DateSelectArg) => {
     // Handle date selection for adding new classes
     console.log('Date selected:', selectInfo.startStr)
   }
@@ -225,15 +224,14 @@ export default function ClassCalendar({
               slotMaxTime="22:00:00"
               allDaySlot={false}
               slotDuration="00:30:00"
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              eventContent={(arg: any) => (
+              eventContent={(arg: EventContentArg) => (
                 <div className="p-1">
                   <div className="font-medium text-sm">{arg.event.title}</div>
                   <div className="text-xs opacity-90">
-                    {arg.event.extendedProps.coach?.name || 'No Coach'}
+                    {(arg.event.extendedProps as { coach?: { name: string } }).coach?.name || 'No Coach'}
                   </div>
                   <div className="text-xs opacity-75">
-                    {arg.event.extendedProps.enrolledCount}/{arg.event.extendedProps.totalSpots}
+                    {(arg.event.extendedProps as { enrolledCount: number; totalSpots: number }).enrolledCount}/{(arg.event.extendedProps as { enrolledCount: number; totalSpots: number }).totalSpots}
                   </div>
                 </div>
               )}

@@ -57,7 +57,6 @@ const Layout = React.forwardRef<HTMLDivElement, LayoutProps>(
           <Header 
             {...headerProps} 
             onMenuToggle={toggleMobileMenu}
-            showMobileMenu={isMobileMenuOpen}
           />
 
           {/* Content */}

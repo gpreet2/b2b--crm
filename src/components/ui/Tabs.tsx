@@ -45,6 +45,7 @@ export interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonE
 
 export interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> {
   value: string
+  children?: React.ReactNode
 }
 
 const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(

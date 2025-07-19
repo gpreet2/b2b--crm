@@ -5,6 +5,8 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import type { EventClickArg, EventContentArg } from '@fullcalendar/core'
+import type { DateClickArg } from '@fullcalendar/interaction'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { 
   CalendarIcon, 
@@ -21,7 +23,6 @@ import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
 
 export default function CalendarPage() {
-
   // Enhanced events with better colors and variety
   const events = useMemo(() => {
     const today = new Date()
@@ -268,10 +269,9 @@ export default function CalendarPage() {
   }, [])
 
   // Custom event content renderer
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const renderEventContent = (eventInfo: any) => {
+  const renderEventContent = (eventInfo: EventContentArg) => {
     const { event } = eventInfo
-    const { enrolledCount, capacity } = event.extendedProps
+    const { enrolledCount, capacity } = event.extendedProps as { enrolledCount: number; capacity: number }
     const fillPercentage = (enrolledCount / capacity) * 100
     
     return (
@@ -295,15 +295,13 @@ export default function CalendarPage() {
   }
 
   // Handle date click
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleDateClick = (arg: any) => {
+  const handleDateClick = (arg: DateClickArg) => {
     console.log('Date clicked:', arg.date)
   }
 
   // Handle event click
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleEventClick = (arg: any) => {
-    const { coach, capacity, enrolledCount, category } = arg.event.extendedProps
+  const handleEventClick = (arg: EventClickArg) => {
+    const { coach, capacity, enrolledCount, category } = arg.event.extendedProps as { coach: string; capacity: number; enrolledCount: number; category: string }
     console.log('Event clicked:', {
       title: arg.event.title,
       start: arg.event.start,

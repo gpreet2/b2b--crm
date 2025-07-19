@@ -14,7 +14,7 @@ import { Breadcrumb, BreadcrumbItem } from '@/components/ui/Breadcrumb'
 export interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   breadcrumbs?: BreadcrumbItem[]
   onMenuToggle?: () => void
-  showMobileMenu?: boolean
+
   user?: {
     name: string
     email: string

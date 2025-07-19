@@ -23,8 +23,7 @@ interface ClassTableProps {
   onClassClick?: (classItem: Class) => void
   onEditClass?: (classItem: Class) => void
   onDeleteClass?: (classItem: Class) => void
-  selectedClasses?: string[]
-  onSelectionChange?: (selectedIds: string[]) => void
+
   pageSize?: number
 }
 
