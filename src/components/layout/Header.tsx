@@ -2,13 +2,11 @@ import React from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { 
-  MagnifyingGlassIcon,
   BellIcon,
   UserCircleIcon,
   Bars3Icon
 } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
 import { Breadcrumb, BreadcrumbItem } from '@/components/ui/Breadcrumb'
 
 export interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -36,12 +34,12 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
       <header
         ref={ref}
         className={cn(
-          'bg-surface border-b border-surface px-3 sm:px-4 py-3',
+          'bg-surface border-b border-surface px-3 sm:px-4 h-16 flex items-center',
           className
         )}
         {...props}
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between w-full">
           {/* Left Section */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Mobile Menu Button */}
@@ -60,13 +58,11 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
             )}
           </div>
 
-          {/* Center Section - Search */}
-          <div className="hidden md:flex flex-1 max-w-md mx-4 lg:mx-8">
-            <Input
-              placeholder="Search..."
-              leftIcon={<MagnifyingGlassIcon className="h-4 w-4" />}
-              className="bg-accent border-surface"
-            />
+          {/* Center Section - Back2Back Logo */}
+          <div className="hidden md:flex flex-1 justify-center">
+            <h1 className="text-4xl font-black bg-gradient-to-r from-red-600 via-red-400 to-red-600 bg-clip-text text-transparent drop-shadow-lg tracking-wider text-shadow-lg">
+              Back2Back
+            </h1>
           </div>
 
           {/* Right Section */}
@@ -112,14 +108,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
           </div>
         </div>
 
-        {/* Mobile Search */}
-        <div className="mt-3 md:hidden">
-          <Input
-            placeholder="Search..."
-            leftIcon={<MagnifyingGlassIcon className="h-4 w-4" />}
-            className="bg-accent border-surface"
-          />
-        </div>
+
 
         {/* Mobile Breadcrumbs */}
         {breadcrumbs && breadcrumbs.length > 0 && (
