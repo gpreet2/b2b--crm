@@ -2,24 +2,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --background: #000000;
+  --background: #0f0f23;
   --foreground: #ffffff;
   
-  /* Custom color palette for gym management software - Dark Theme */
-  --color-primary: #991b1b; /* Red-800 - darker */
-  --color-primary-dark: #7f1d1d; /* Red-900 - even darker */
-  --color-primary-light: #b91c1c; /* Red-700 - darker than before */
-  --color-secondary: #1f2937; /* Gray-800 */
-  --color-accent: #1f1f1f; /* Dark gray */
-  --color-surface: #111111; /* Darker surface */
-  --color-border: #333333; /* Dark border */
-  --color-text-primary: #ffffff; /* White text */
-  --color-text-secondary: #e4e4e7; /* Light gray text */
-  --color-text-muted: #a1a1aa; /* Muted text */
-  --color-success: #059669; /* Emerald-600 */
-  --color-warning: #d97706; /* Amber-600 */
-  --color-danger: #991b1b; /* Red-800 - darker */
-  --color-info: #2563eb; /* Blue-600 */
+  /* Modern Gym CRM Color Palette - Vibrant & Professional */
+  --color-primary: #dc2626; /* Red-600 - True vibrant red */
+  --color-primary-dark: #b91c1c; /* Red-700 - Darker for hover */
+  --color-primary-light: #ef4444; /* Red-500 - Lighter for accents */
+  --color-secondary: #1e293b; /* Slate-800 for secondary elements */
+  --color-accent: #0f172a; /* Slate-900 for subtle backgrounds */
+  --color-surface: #1a1a2e; /* Modern dark surface */
+  --color-surface-light: #16213e; /* Lighter surface variant */
+  --color-border: #334155; /* Slate-600 for visible borders */
+  --color-text-primary: #ffffff; /* Pure white for primary text */
+  --color-text-secondary: #e2e8f0; /* Slate-200 for secondary text */
+  --color-text-muted: #94a3b8; /* Slate-400 for muted text */
+  --color-success: #10b981; /* Emerald-500 - bright green */
+  --color-warning: #f59e0b; /* Amber-500 - bright orange */
+  --color-danger: #ef4444; /* Red-500 - bright red */
+  --color-info: #3b82f6; /* Blue-500 - bright blue */
+  
+  /* Program-specific colors for calendar */
+  --color-program-crossfit: #ef4444; /* Red */
+  --color-program-hiit: #f97316; /* Orange */
+  --color-program-yoga: #8b5cf6; /* Purple */
+  --color-program-strength: #06b6d4; /* Cyan */
+  --color-program-cardio: #ec4899; /* Pink */
+  --color-program-pilates: #10b981; /* Emerald */
+  
+  /* Status colors for better visibility */
+  --color-status-active: #10b981;
+  --color-status-pending: #f59e0b;
+  --color-status-inactive: #6b7280;
+  --color-status-high-demand: #ef4444;
+  
+  /* Gradient backgrounds for premium feel */
+  --gradient-primary: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  --gradient-surface: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
 
 @theme inline {
@@ -34,6 +56,8 @@
   --color-primary-light: var(--color-primary-light);
   --color-secondary: var(--color-secondary);
   --color-accent: var(--color-accent);
+  --color-surface: var(--color-surface);
+  --color-surface-light: var(--color-surface-light);
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
   --color-danger: var(--color-danger);
@@ -44,12 +68,13 @@
   :root {
     --background: #ffffff;
     --foreground: #171717;
-    --color-accent: #f3f4f6;
+    --color-accent: #f8fafc;
     --color-surface: #ffffff;
-    --color-border: #e5e7eb;
+    --color-surface-light: #f1f5f9;
+    --color-border: #e2e8f0;
     --color-text-primary: #171717;
-    --color-text-secondary: #374151;
-    --color-text-muted: #6b7280;
+    --color-text-secondary: #334155;
+    --color-text-muted: #64748b;
   }
 }
 
@@ -64,6 +89,96 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Smooth page transitions */
+.page-transition {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Smooth hover animations */
+.hover-lift {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* Card animations */
+.card-animate {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-animate:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Button animations */
+.btn-animate {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-animate::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-animate:hover::before {
+  left: 100%;
+}
+
+.btn-animate:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+/* Loading animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
 /* Mobile-specific improvements */
 @media (max-width: 640px) {
   html {
@@ -76,19 +191,37 @@ body {
   }
 }
 
-/* Custom utility classes for the gym management theme */
+/* Professional Gym CRM Utility Classes */
 @layer utilities {
+  /* Background Colors */
   .bg-primary { background-color: var(--color-primary); }
   .bg-primary-dark { background-color: var(--color-primary-dark); }
   .bg-primary-light { background-color: var(--color-primary-light); }
   .bg-secondary { background-color: var(--color-secondary); }
   .bg-accent { background-color: var(--color-accent); }
   .bg-surface { background-color: var(--color-surface); }
+  .bg-surface-light { background-color: var(--color-surface-light); }
   .bg-success { background-color: var(--color-success); }
   .bg-warning { background-color: var(--color-warning); }
   .bg-danger { background-color: var(--color-danger); }
   .bg-info { background-color: var(--color-info); }
   
+  /* Program Colors */
+  .bg-program-crossfit { background-color: var(--color-program-crossfit); }
+  .bg-program-hiit { background-color: var(--color-program-hiit); }
+  .bg-program-yoga { background-color: var(--color-program-yoga); }
+  .bg-program-strength { background-color: var(--color-program-strength); }
+  .bg-program-cardio { background-color: var(--color-program-cardio); }
+  .bg-program-pilates { background-color: var(--color-program-pilates); }
+  
+  /* Gradient Backgrounds */
+  .bg-gradient-primary { background: var(--gradient-primary); }
+  .bg-gradient-surface { background: var(--gradient-surface); }
+  .bg-gradient-success { background: var(--gradient-success); }
+  .bg-gradient-warning { background: var(--gradient-warning); }
+  .bg-gradient-danger { background: var(--gradient-danger); }
+  
+  /* Text Colors with Better Contrast */
   .text-primary { color: var(--color-primary); }
   .text-primary-dark { color: var(--color-primary-dark); }
   .text-primary-light { color: var(--color-primary-light); }
@@ -102,10 +235,95 @@ body {
   .text-secondary-text { color: var(--color-text-secondary); }
   .text-muted { color: var(--color-text-muted); }
   
+  /* Program Text Colors */
+  .text-program-crossfit { color: var(--color-program-crossfit); }
+  .text-program-hiit { color: var(--color-program-hiit); }
+  .text-program-yoga { color: var(--color-program-yoga); }
+  .text-program-strength { color: var(--color-program-strength); }
+  .text-program-cardio { color: var(--color-program-cardio); }
+  .text-program-pilates { color: var(--color-program-pilates); }
+  
+  /* Status Colors */
+  .text-status-active { color: var(--color-status-active); }
+  .text-status-pending { color: var(--color-status-pending); }
+  .text-status-inactive { color: var(--color-status-inactive); }
+  .text-status-high-demand { color: var(--color-status-high-demand); }
+  
+  .bg-status-active { background-color: var(--color-status-active); }
+  .bg-status-pending { background-color: var(--color-status-pending); }
+  .bg-status-inactive { background-color: var(--color-status-inactive); }
+  .bg-status-high-demand { background-color: var(--color-status-high-demand); }
+  
+  /* Border Colors */
   .border-primary { border-color: var(--color-primary); }
   .border-secondary { border-color: var(--color-secondary); }
   .border-accent { border-color: var(--color-accent); }
   .border-surface { border-color: var(--color-border); }
+  
+  /* Professional Card Styles */
+  .card-elevated {
+    background: var(--gradient-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card-interactive {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .card-interactive:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+    border-color: var(--color-primary);
+  }
+  
+  /* Status Indicators */
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  
+  .status-dot-active { background-color: var(--color-status-active); }
+  .status-dot-pending { background-color: var(--color-status-pending); }
+  .status-dot-inactive { background-color: var(--color-status-inactive); }
+  .status-dot-high-demand { background-color: var(--color-status-high-demand); }
+  
+  /* Professional Buttons */
+  .btn-gym-primary {
+    background: var(--gradient-primary);
+    color: white;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .btn-gym-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
+  }
+  
+  /* Metric Cards */
+  .metric-card {
+    background: var(--gradient-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-primary);
+  }
   
   /* Typography utilities */
   .font-display { font-family: 'Inter', sans-serif; font-weight: 700; }
@@ -147,10 +365,10 @@ body {
   }
 }
 
-/* FullCalendar Custom Styles - Black & White Theme */
+/* FullCalendar Custom Styles - Modern Theme */
 .fc {
   font-family: 'Inter', sans-serif !important;
-  background-color: #111827 !important;
+  background-color: var(--color-surface) !important;
   border-radius: 12px !important;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
   padding: 0 !important;
@@ -158,70 +376,66 @@ body {
 }
 
 .fc-theme-standard .fc-scrollgrid {
-  border-color: #374151 !important;
-  background-color: #111827 !important;
+  border-color: var(--color-border) !important;
+  background-color: var(--color-surface) !important;
   border-radius: 12px !important;
 }
 
 .fc-theme-standard td, .fc-theme-standard th {
-  border-color: #374151 !important;
-  background-color: #111827 !important;
+  border-color: var(--color-border) !important;
+  background-color: var(--color-surface) !important;
 }
 
 .fc-theme-standard .fc-daygrid-day.fc-day-today {
-  background-color: #1f2937 !important;
+  background-color: var(--color-surface-light) !important;
 }
 
 .fc-theme-standard .fc-highlight {
-  background-color: #1f2937 !important;
+  background-color: var(--color-surface-light) !important;
 }
 
-/* Red Button Styling with Better Spacing */
+/* Modern Button Styling */
 .fc .fc-button-primary {
-  background-color: #dc2626 !important;
-  border-color: #dc2626 !important;
+  background: var(--gradient-primary) !important;
+  border: none !important;
   color: white !important;
   font-weight: 600 !important;
   border-radius: 8px !important;
   padding: 12px 24px !important;
   font-size: 0.875rem !important;
-  transition: all 0.2s ease-in-out !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   text-transform: none !important;
   letter-spacing: normal !important;
   margin: 0 4px !important;
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3) !important;
 }
 
 .fc .fc-button-primary:hover {
-  background-color: #b91c1c !important;
-  border-color: #b91c1c !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.3) !important;
+  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4) !important;
 }
 
 .fc .fc-button-primary:disabled {
-  background-color: #6b7280 !important;
-  border-color: #6b7280 !important;
+  background: var(--color-border) !important;
   transform: none !important;
   box-shadow: none !important;
 }
 
 .fc .fc-button-primary:not(:disabled):active,
 .fc .fc-button-primary:not(:disabled).fc-button-active {
-  background-color: #991b1b !important;
-  border-color: #991b1b !important;
   transform: translateY(0) !important;
 }
 
 /* Toolbar Styling */
 .fc .fc-toolbar {
   padding: 24px 24px 16px 24px !important;
-  background-color: #1f2937 !important;
+  background-color: var(--color-surface-light) !important;
   border-radius: 12px 12px 0 0 !important;
-  border-bottom: 1px solid #374151 !important;
+  border-bottom: 1px solid var(--color-border) !important;
 }
 
 .fc .fc-toolbar-title {
-  color: #ffffff !important;
+  color: var(--color-text-primary) !important;
   font-weight: 700 !important;
   font-size: 1.5rem !important;
   letter-spacing: -0.025em !important;
@@ -235,11 +449,11 @@ body {
 
 /* Header Styling */
 .fc .fc-col-header {
-  background-color: #1f2937 !important;
+  background-color: var(--color-surface-light) !important;
 }
 
 .fc .fc-col-header-cell-cushion {
-  color: #d1d5db !important;
+  color: var(--color-text-secondary) !important;
   font-weight: 700 !important;
   font-size: 0.875rem !important;
   text-transform: uppercase !important;
@@ -249,24 +463,24 @@ body {
 
 /* Day Numbers */
 .fc .fc-daygrid-day-number {
-  color: #ffffff !important;
+  color: var(--color-text-primary) !important;
   font-weight: 600 !important;
   font-size: 0.875rem !important;
   padding: 8px !important;
 }
 
 .fc .fc-daygrid-day.fc-day-other .fc-daygrid-day-number {
-  color: #6b7280 !important;
+  color: var(--color-text-muted) !important;
 }
 
 /* Events - Colorful strips */
 .fc .fc-event {
-  border-radius: 4px !important;
+  border-radius: 6px !important;
   border: none !important;
   font-weight: 600 !important;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2) !important;
   cursor: pointer !important;
-  transition: all 0.2s ease-in-out !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
   margin: 1px 1px !important;
   min-height: 20px !important;
   max-height: 24px !important;
@@ -303,40 +517,40 @@ body {
 
 /* Time Grid */
 .fc .fc-timegrid-slot {
-  color: #9ca3af !important;
+  color: var(--color-text-muted) !important;
   font-size: 0.75rem !important;
   font-weight: 500 !important;
 }
 
 .fc .fc-timegrid-axis {
-  color: #d1d5db !important;
+  color: var(--color-text-secondary) !important;
   font-weight: 600 !important;
-  background-color: #1f2937 !important;
+  background-color: var(--color-surface-light) !important;
 }
 
 /* List View */
 .fc .fc-list-event-dot {
-  border-color: #dc2626 !important;
+  border-color: var(--color-primary) !important;
 }
 
 .fc .fc-list-event-title a {
-  color: #ffffff !important;
+  color: var(--color-text-primary) !important;
   font-weight: 600 !important;
 }
 
 .fc .fc-list-event-time {
-  color: #9ca3af !important;
+  color: var(--color-text-muted) !important;
   font-weight: 500 !important;
 }
 
 /* Day Grid */
 .fc .fc-daygrid-day {
-  background-color: #111827 !important;
+  background-color: var(--color-surface) !important;
   min-height: 140px !important;
 }
 
 .fc .fc-daygrid-day:hover {
-  background-color: #1f2937 !important;
+  background-color: var(--color-surface-light) !important;
 }
 
 .fc .fc-daygrid-day-frame {
@@ -345,12 +559,12 @@ body {
 
 /* Time Grid Slots */
 .fc .fc-timegrid-slot {
-  background-color: #111827 !important;
+  background-color: var(--color-surface) !important;
   min-height: 40px !important;
 }
 
 .fc .fc-timegrid-slot:hover {
-  background-color: #1f2937 !important;
+  background-color: var(--color-surface-light) !important;
 }
 
 /* Responsive adjustments */

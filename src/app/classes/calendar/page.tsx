@@ -1,28 +1,32 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import type { EventClickArg, EventContentArg } from '@fullcalendar/core'
 import type { DateClickArg } from '@fullcalendar/interaction'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { 
   CalendarIcon, 
   PlusIcon, 
   FunnelIcon,
-  ChartBarIcon,
-  UsersIcon,
-  ClockIcon,
   AcademicCapIcon,
   FireIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline'
-import { Button } from '@/components/ui/Button'
 import Link from 'next/link'
+import ClassEventModal from '@/components/classes/ClassEventModal'
+import AddClassModal from '@/components/classes/AddClassModal'
 
 export default function CalendarPage() {
+  const [selectedEvent, setSelectedEvent] = useState<any>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedCoach, setSelectedCoach] = useState<string>('all')
+
   // Enhanced events with better colors and variety
   const events = useMemo(() => {
     const today = new Date()
@@ -36,8 +40,8 @@ export default function CalendarPage() {
         title: 'HIIT Cardio Blast',
         start: new Date(currentYear, currentMonth, 15, 6, 0),
         end: new Date(currentYear, currentMonth, 15, 6, 45),
-        backgroundColor: '#dc2626',
-        borderColor: '#b91c1c',
+        backgroundColor: '#ef4444',
+        borderColor: '#dc2626',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Sarah Johnson',
@@ -52,8 +56,8 @@ export default function CalendarPage() {
         title: 'HIIT Cardio Blast',
         start: new Date(currentYear, currentMonth, 17, 6, 0),
         end: new Date(currentYear, currentMonth, 17, 6, 45),
-        backgroundColor: '#dc2626',
-        borderColor: '#b91c1c',
+        backgroundColor: '#ef4444',
+        borderColor: '#dc2626',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Sarah Johnson',
@@ -68,8 +72,8 @@ export default function CalendarPage() {
         title: 'HIIT Cardio Blast',
         start: new Date(currentYear, currentMonth, 19, 6, 0),
         end: new Date(currentYear, currentMonth, 19, 6, 45),
-        backgroundColor: '#dc2626',
-        borderColor: '#b91c1c',
+        backgroundColor: '#ef4444',
+        borderColor: '#dc2626',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Sarah Johnson',
@@ -80,14 +84,14 @@ export default function CalendarPage() {
         }
       },
       
-      // Strength Training Classes - Dark Grey
+      // Strength Training Classes - Cyan
       {
         id: '4',
         title: 'Strength & Power',
         start: new Date(currentYear, currentMonth, 15, 7, 0),
         end: new Date(currentYear, currentMonth, 15, 8, 0),
-        backgroundColor: '#374151',
-        borderColor: '#1f2937',
+        backgroundColor: '#06b6d4',
+        borderColor: '#0891b2',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Mike Chen',
@@ -102,8 +106,8 @@ export default function CalendarPage() {
         title: 'Strength & Power',
         start: new Date(currentYear, currentMonth, 17, 7, 0),
         end: new Date(currentYear, currentMonth, 17, 8, 0),
-        backgroundColor: '#374151',
-        borderColor: '#1f2937',
+        backgroundColor: '#06b6d4',
+        borderColor: '#0891b2',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Mike Chen',
@@ -118,8 +122,8 @@ export default function CalendarPage() {
         title: 'Strength & Power',
         start: new Date(currentYear, currentMonth, 19, 7, 0),
         end: new Date(currentYear, currentMonth, 19, 8, 0),
-        backgroundColor: '#374151',
-        borderColor: '#1f2937',
+        backgroundColor: '#06b6d4',
+        borderColor: '#0891b2',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Mike Chen',
@@ -130,14 +134,14 @@ export default function CalendarPage() {
         }
       },
       
-      // Yoga Classes - Complementary Green
+      // Yoga Classes - Purple
       {
         id: '7',
         title: 'Yoga Flow',
         start: new Date(currentYear, currentMonth, 16, 18, 0),
         end: new Date(currentYear, currentMonth, 16, 19, 0),
-        backgroundColor: '#059669',
-        borderColor: '#047857',
+        backgroundColor: '#8b5cf6',
+        borderColor: '#7c3aed',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Emma Davis',
@@ -152,8 +156,8 @@ export default function CalendarPage() {
         title: 'Yoga Flow',
         start: new Date(currentYear, currentMonth, 18, 18, 0),
         end: new Date(currentYear, currentMonth, 18, 19, 0),
-        backgroundColor: '#059669',
-        borderColor: '#047857',
+        backgroundColor: '#8b5cf6',
+        borderColor: '#7c3aed',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Emma Davis',
@@ -164,14 +168,14 @@ export default function CalendarPage() {
         }
       },
       
-      // Boxing Classes - Accent Orange
+      // Boxing Classes - Orange
       {
         id: '9',
         title: 'Boxing Fundamentals',
         start: new Date(currentYear, currentMonth, 16, 19, 0),
         end: new Date(currentYear, currentMonth, 16, 19, 50),
-        backgroundColor: '#d97706',
-        borderColor: '#b45309',
+        backgroundColor: '#f97316',
+        borderColor: '#ea580c',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Alex Rivera',
@@ -186,8 +190,8 @@ export default function CalendarPage() {
         title: 'Boxing Fundamentals',
         start: new Date(currentYear, currentMonth, 18, 19, 0),
         end: new Date(currentYear, currentMonth, 18, 19, 50),
-        backgroundColor: '#d97706',
-        borderColor: '#b45309',
+        backgroundColor: '#f97316',
+        borderColor: '#ea580c',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Alex Rivera',
@@ -198,14 +202,14 @@ export default function CalendarPage() {
         }
       },
       
-      // Functional Fitness Classes - Blue Accent
+      // Functional Fitness Classes - Blue
       {
         id: '11',
         title: 'Functional Movement',
         start: new Date(currentYear, currentMonth, 16, 6, 30),
         end: new Date(currentYear, currentMonth, 16, 7, 15),
-        backgroundColor: '#2563eb',
-        borderColor: '#1d4ed8',
+        backgroundColor: '#3b82f6',
+        borderColor: '#2563eb',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Jordan Kim',
@@ -220,8 +224,8 @@ export default function CalendarPage() {
         title: 'Functional Movement',
         start: new Date(currentYear, currentMonth, 18, 6, 30),
         end: new Date(currentYear, currentMonth, 18, 7, 15),
-        backgroundColor: '#2563eb',
-        borderColor: '#1d4ed8',
+        backgroundColor: '#3b82f6',
+        borderColor: '#2563eb',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Jordan Kim',
@@ -232,14 +236,14 @@ export default function CalendarPage() {
         }
       },
       
-      // Special Events - Purple Accent
+      // Special Events - Pink
       {
         id: '13',
         title: 'New Member Orientation',
         start: new Date(currentYear, currentMonth, 20, 10, 0),
         end: new Date(currentYear, currentMonth, 20, 11, 0),
-        backgroundColor: '#7c3aed',
-        borderColor: '#6d28d9',
+        backgroundColor: '#ec4899',
+        borderColor: '#db2777',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Emma Davis',
@@ -254,8 +258,8 @@ export default function CalendarPage() {
         title: 'Nutrition Workshop',
         start: new Date(currentYear, currentMonth, 22, 14, 0),
         end: new Date(currentYear, currentMonth, 22, 15, 30),
-        backgroundColor: '#0891b2',
-        borderColor: '#0e7490',
+        backgroundColor: '#10b981',
+        borderColor: '#059669',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Dr. Sarah Martinez',
@@ -267,6 +271,33 @@ export default function CalendarPage() {
       }
     ]
   }, [])
+
+  // Get unique categories and coaches for filters
+  const categories = useMemo(() => {
+    const uniqueCategories = new Set(events.map(event => event.extendedProps.category))
+    return Array.from(uniqueCategories).map(category => ({
+      value: category,
+      label: category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      color: events.find(e => e.extendedProps.category === category)?.backgroundColor || '#6b7280'
+    }))
+  }, [events])
+
+  const coaches = useMemo(() => {
+    const uniqueCoaches = new Set(events.map(event => event.extendedProps.coach))
+    return Array.from(uniqueCoaches).map(coach => ({
+      value: coach,
+      label: coach
+    }))
+  }, [events])
+
+  // Filter events based on selected filters
+  const filteredEvents = useMemo(() => {
+    return events.filter(event => {
+      const matchesCategory = selectedCategory === 'all' || event.extendedProps.category === selectedCategory
+      const matchesCoach = selectedCoach === 'all' || event.extendedProps.coach === selectedCoach
+      return matchesCategory && matchesCoach
+    })
+  }, [events, selectedCategory, selectedCoach])
 
   // Custom event content renderer
   const renderEventContent = (eventInfo: EventContentArg) => {
@@ -301,242 +332,361 @@ export default function CalendarPage() {
 
   // Handle event click
   const handleEventClick = (arg: EventClickArg) => {
-    const extendedProps = arg.event.extendedProps as { coach: string; capacity: number; enrolledCount: number; category: string }
-    const { coach, capacity, enrolledCount, category } = extendedProps
-    console.log('Event clicked:', {
-      title: arg.event.title,
-      start: arg.event.start,
-      end: arg.event.end,
-      coach,
-      capacity,
-      enrolledCount,
-      category
-    })
+    setSelectedEvent(arg.event)
+    setIsModalOpen(true)
+  }
+
+  // Handle add class
+  const handleAddClass = (classData: any) => {
+    console.log('New class data:', classData)
+    // Here you would typically save the class to your backend
+    // For now, we'll just close the modal
+    setIsAddClassModalOpen(false)
   }
 
   const classTypes = [
-    { name: 'HIIT Cardio', color: '#dc2626', count: 12, description: 'High-intensity cardio' },
-    { name: 'Strength Training', color: '#374151', count: 8, description: 'Muscle building' },
-    { name: 'Yoga Flow', color: '#059669', count: 6, description: 'Mindful movement' },
-    { name: 'Boxing', color: '#d97706', count: 4, description: 'Combat fitness' },
-    { name: 'Functional', color: '#2563eb', count: 5, description: 'Real-world strength' },
-    { name: 'Special Events', color: '#7c3aed', count: 2, description: 'Member events' },
-    { name: 'Workshops', color: '#0891b2', count: 3, description: 'Educational sessions' }
-  ]
-
-  const quickStats = [
-    {
-      title: 'Total Classes',
-      value: '40',
-      change: '+5',
-      icon: CalendarIcon,
-      color: 'bg-primary'
-    },
-    {
-      title: 'This Week',
-      value: '12',
-      change: '+2',
-      icon: ClockIcon,
-      color: 'bg-info'
-    },
-    {
-      title: 'Active Coaches',
-      value: '6',
-      change: '+1',
-      icon: UsersIcon,
-      color: 'bg-success'
-    },
-    {
-      title: 'Avg Attendance',
-      value: '87%',
-      change: '+3%',
-      icon: ChartBarIcon,
-      color: 'bg-warning'
-    }
+    { name: 'HIIT Cardio', color: '#ef4444', count: 12, description: 'High-intensity cardio' },
+    { name: 'Strength Training', color: '#06b6d4', count: 8, description: 'Muscle building' },
+    { name: 'Yoga Flow', color: '#8b5cf6', count: 6, description: 'Mindful movement' },
+    { name: 'Boxing', color: '#f97316', count: 4, description: 'Combat fitness' },
+    { name: 'Functional', color: '#3b82f6', count: 5, description: 'Real-world strength' },
+    { name: 'Special Events', color: '#ec4899', count: 2, description: 'Member events' },
+    { name: 'Workshops', color: '#10b981', count: 3, description: 'Educational sessions' }
   ]
 
   return (
-    <div className="space-y-6">
-      {/* Header with Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-        <div>
-          <h1 className="text-h1 font-heading text-primary-text mb-2">Class Calendar</h1>
-          <p className="text-body text-secondary-text">
-            Manage your fitness classes, workshops, and special events
-          </p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm">
-            <FunnelIcon className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
-          <Link href="/classes/events">
-            <Button variant="primary" size="sm">
-              <PlusIcon className="h-4 w-4 mr-2" />
-              Add Class
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Quick Stats - Compact */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {quickStats.map((stat, index) => (
-          <Card key={index} className="group hover:shadow-md transition-all duration-300">
-            <CardContent className="p-3">
-              <div className="flex items-center space-x-2">
-                <div className={`p-2 rounded-lg ${stat.color} flex items-center justify-center flex-shrink-0`}>
-                  <stat.icon className="h-4 w-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline space-x-1">
-                    <h3 className="text-body-sm font-semibold text-primary-text">{stat.value}</h3>
-                    <span className="text-xs font-medium text-success">
-                      {stat.change}
+    <div className="space-y-8 bg-surface min-h-screen page-transition">
+      {/* Professional Header */}
+      <div className="bg-surface-light border-b border-border">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-start space-x-4">
+              <div className="p-3 bg-gradient-to-br from-red-600 to-red-700 rounded-xl shadow-lg hover-lift">
+                <CalendarIcon className="h-8 w-8 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold text-primary-text mb-2">
+                  Class Calendar
+                </h1>
+                <p className="text-lg text-secondary-text max-w-2xl">
+                  Comprehensive view of all fitness classes, workshops, and special events
+                </p>
+                <div className="flex items-center space-x-6 mt-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <span className="text-sm text-emerald-500 font-medium">Live Updates</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-muted">
+                      {filteredEvents.length} events this month
                     </span>
                   </div>
-                  <p className="text-xs text-secondary-text truncate">{stat.title}</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Main Calendar */}
-      <Card className="overflow-hidden">
-        <CardHeader className="border-b border-surface">
-          <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center space-x-2">
-              <CalendarIcon className="h-5 w-5 text-primary" />
-              <span>Schedule Overview</span>
-            </CardTitle>
-            <div className="flex items-center space-x-2 text-body-sm text-secondary-text">
-              <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
-              <span>Live Updates</span>
+            </div>
+            <div className="mt-6 lg:mt-0 flex flex-col sm:flex-row gap-3">
+              <button className="px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-lg font-semibold hover:from-amber-700 hover:to-amber-800 transition-all duration-200 flex items-center btn-animate">
+                <FunnelIcon className="h-5 w-5 mr-2" />
+                Filter Events
+              </button>
+              <button 
+                onClick={() => setIsAddClassModalOpen(true)}
+                className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-200 flex items-center btn-animate"
+              >
+                <PlusIcon className="h-5 w-5 mr-2" />
+                Add Class
+              </button>
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="h-[800px]">
-            <FullCalendar
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView="dayGridMonth"
-              headerToolbar={{
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
-              }}
-              editable={false}
-              selectable={true}
-              selectMirror={true}
-              weekends={true}
-              events={events}
-              eventContent={renderEventContent}
-              dateClick={handleDateClick}
-              eventClick={handleEventClick}
-              height="100%"
-              eventDisplay="block"
-              eventTimeFormat={{
-                hour: '2-digit',
-                minute: '2-digit',
-                meridiem: 'short'
-              }}
-              slotMinTime="06:00:00"
-              slotMaxTime="22:00:00"
-              allDaySlot={false}
-              slotDuration="00:30:00"
-              slotLabelInterval="01:00"
-              expandRows={true}
-              stickyHeaderDates={true}
-              dayHeaderFormat={{ weekday: 'short', day: 'numeric' }}
-              titleFormat={{ year: 'numeric', month: 'long' }}
-              dayMaxEvents={false}
-              viewDidMount={() => {}}
-            />
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Bottom Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Class Types Legend */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <AcademicCapIcon className="h-5 w-5 text-primary" />
-                <span>Class Categories</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {classTypes.map((type, index) => (
-                  <div 
-                    key={index} 
-                    className="flex items-center space-x-3 p-3 bg-accent rounded-lg hover:bg-secondary/30 transition-colors group cursor-pointer"
-                  >
-                    <div 
-                      className="w-4 h-4 rounded-full shadow-sm flex-shrink-0"
-                      style={{ backgroundColor: type.color }}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-body-sm font-medium text-primary-text truncate">
-                          {type.name}
-                        </span>
-                        <span className="text-caption text-secondary-text">
-                          {type.count}
-                        </span>
-                      </div>
-                      <p className="text-caption text-secondary-text">
-                        {type.description}
-                      </p>
-                    </div>
-                    <ArrowRightIcon className="h-4 w-4 text-secondary-text group-hover:text-primary transition-colors flex-shrink-0" />
-                  </div>
-                ))}
+      <div className="max-w-7xl mx-auto px-6">
+        {/* Enhanced Filters */}
+        <div className="bg-surface-light border border-border rounded-xl overflow-hidden mb-8 card-animate">
+          <div className="p-6 border-b border-border bg-surface/50">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-amber-500/20 rounded-lg">
+                <FunnelIcon className="h-5 w-5 text-amber-500" />
               </div>
-            </CardContent>
-          </Card>
+              <div>
+                <h3 className="text-xl font-bold text-primary-text">Filter Classes</h3>
+                <p className="text-sm text-muted">Customize your calendar view</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Category Filter */}
+              <div>
+                <label className="text-lg font-bold text-primary-text mb-4 block flex items-center space-x-2">
+                  <span>Program Type</span>
+                  <span className="text-xs bg-red-600/20 text-red-500 px-2 py-1 rounded-full">
+                    {selectedCategory === 'all' ? 'All' : categories.find(c => c.value === selectedCategory)?.label}
+                  </span>
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => setSelectedCategory('all')}
+                    className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
+                      selectedCategory === 'all'
+                        ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg'
+                        : 'bg-surface text-secondary-text hover:bg-surface-light border border-border'
+                    }`}
+                  >
+                    All Programs
+                  </button>
+                  {categories.map((category) => (
+                    <button
+                      key={category.value}
+                      onClick={() => setSelectedCategory(category.value)}
+                      className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 ${
+                        selectedCategory === category.value
+                          ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg'
+                          : 'bg-surface text-secondary-text hover:bg-surface-light border border-border'
+                      }`}
+                    >
+                      <div 
+                        className="w-3 h-3 rounded-full shadow-sm"
+                        style={{ backgroundColor: category.color }}
+                      />
+                      <span>{category.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Coach Filter */}
+              <div>
+                <label className="text-lg font-bold text-primary-text mb-4 block flex items-center space-x-2">
+                  <span>Coach</span>
+                  <span className="text-xs bg-emerald-500/20 text-emerald-500 px-2 py-1 rounded-full">
+                    {selectedCoach === 'all' ? 'All' : coaches.find(c => c.value === selectedCoach)?.label}
+                  </span>
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    onClick={() => setSelectedCoach('all')}
+                    className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
+                      selectedCoach === 'all'
+                        ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg'
+                        : 'bg-surface text-secondary-text hover:bg-surface-light border border-border'
+                    }`}
+                  >
+                    All Coaches
+                  </button>
+                  {coaches.map((coach) => (
+                    <button
+                      key={coach.value}
+                      onClick={() => setSelectedCoach(coach.value)}
+                      className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
+                        selectedCoach === coach.value
+                          ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg'
+                          : 'bg-surface text-secondary-text hover:bg-surface-light border border-border'
+                      }`}
+                    >
+                      {coach.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <FireIcon className="h-5 w-5 text-primary" />
-              <span>Quick Actions</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Link href="/classes/events">
-              <Button variant="primary" className="w-full justify-start">
-                <PlusIcon className="h-4 w-4 mr-2" />
-                Schedule New Class
-              </Button>
-            </Link>
-            <Link href="/classes/programs">
-              <Button variant="outline" className="w-full justify-start">
-                <AcademicCapIcon className="h-4 w-4 mr-2" />
-                Manage Programs
-              </Button>
-            </Link>
-            <Link href="/analytics/reports">
-              <Button variant="ghost" className="w-full justify-start">
-                <ChartBarIcon className="h-4 w-4 mr-2" />
-                View Reports
-              </Button>
-            </Link>
-            <Link href="/classes/settings">
-              <Button variant="ghost" className="w-full justify-start">
-                <CalendarIcon className="h-4 w-4 mr-2" />
-                Calendar Settings
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+        {/* Enhanced Main Calendar */}
+        <div className="bg-surface-light border border-border rounded-xl overflow-hidden shadow-xl mb-8 card-animate">
+          <div className="p-6 border-b border-border bg-surface/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-gradient-to-r from-red-600 to-red-700 rounded-lg">
+                  <CalendarIcon className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-primary-text">Schedule Overview</h3>
+                  <p className="text-sm text-muted">Interactive class calendar</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 px-3 py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-emerald-500 font-medium">Live Updates</span>
+                </div>
+                <div className="text-sm text-muted">
+                  {filteredEvents.length} events showing
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="p-0">
+            <div className="h-[800px]">
+              <FullCalendar
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                initialView="dayGridMonth"
+                headerToolbar={{
+                  left: 'prev,next today',
+                  center: 'title',
+                  right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                }}
+                editable={false}
+                selectable={true}
+                selectMirror={true}
+                weekends={true}
+                events={filteredEvents}
+                eventContent={renderEventContent}
+                dateClick={handleDateClick}
+                eventClick={handleEventClick}
+                height="100%"
+                eventDisplay="block"
+                eventTimeFormat={{
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  meridiem: 'short'
+                }}
+                slotMinTime="06:00:00"
+                slotMaxTime="22:00:00"
+                allDaySlot={false}
+                slotDuration="00:30:00"
+                slotLabelInterval="01:00"
+                expandRows={true}
+                stickyHeaderDates={true}
+                dayHeaderFormat={{ weekday: 'short', day: 'numeric' }}
+                titleFormat={{ year: 'numeric', month: 'long' }}
+                dayMaxEvents={false}
+                viewDidMount={() => {}}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced Bottom Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Class Categories Legend */}
+          <div className="lg:col-span-2">
+            <div className="bg-surface-light border border-border rounded-xl overflow-hidden card-animate">
+              <div className="p-6 border-b border-border bg-surface/50">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-emerald-500/20 rounded-lg">
+                    <AcademicCapIcon className="h-5 w-5 text-emerald-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-primary-text">Class Categories</h3>
+                    <p className="text-sm text-muted">Program types and statistics</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {classTypes.map((type, index) => (
+                    <div 
+                      key={index} 
+                      className="group p-4 bg-surface/50 rounded-xl hover:bg-surface transition-all duration-300 cursor-pointer border border-border hover:border-border card-animate"
+                    >
+                      <div className="flex items-center space-x-3 mb-3">
+                        <div 
+                          className="w-4 h-4 rounded-full shadow-lg flex-shrink-0"
+                          style={{ backgroundColor: type.color }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="text-lg font-bold text-primary-text group-hover:text-primary-text transition-colors truncate">
+                              {type.name}
+                            </span>
+                            <span className="text-xl font-bold text-amber-500">
+                              {type.count}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-sm text-secondary-text mb-3">
+                        {type.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <div className="w-full bg-surface rounded-full h-2 mr-3">
+                          <div 
+                            className="h-2 rounded-full transition-all duration-500"
+                            style={{ 
+                              backgroundColor: type.color,
+                              width: `${(type.count / 15) * 100}%`
+                            }}
+                          />
+                        </div>
+                        <ArrowRightIcon className="h-4 w-4 text-muted group-hover:text-amber-500 transition-colors flex-shrink-0" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Enhanced Quick Actions */}
+          <div className="bg-surface-light border border-border rounded-xl overflow-hidden card-animate">
+            <div className="p-6 border-b border-border bg-surface/50">
+              <div className="flex items-center space-x-3">
+                <div className="p-2 bg-blue-500/20 rounded-lg">
+                  <FireIcon className="h-5 w-5 text-blue-500" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-primary-text">Quick Actions</h3>
+                  <p className="text-sm text-muted">Manage your calendar</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <button 
+                onClick={() => setIsAddClassModalOpen(true)}
+                className="w-full p-4 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-300 flex items-center justify-center space-x-2 group btn-animate"
+              >
+                <PlusIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                <span>Schedule New Class</span>
+              </button>
+              
+              <Link href="/classes/programs">
+                <button className="w-full p-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 flex items-center justify-center space-x-2 group btn-animate">
+                  <AcademicCapIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                  <span>Manage Programs</span>
+                </button>
+              </Link>
+              
+              <Link href="/analytics/reports">
+                <button className="w-full p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center space-x-2 group btn-animate">
+                  <ChartBarIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                  <span>View Reports</span>
+                </button>
+              </Link>
+              
+              <Link href="/classes/settings">
+                <button className="w-full p-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-semibold hover:from-amber-700 hover:to-amber-800 transition-all duration-300 flex items-center justify-center space-x-2 group btn-animate">
+                  <CalendarIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                  <span>Calendar Settings</span>
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Class Event Modal */}
+      <ClassEventModal
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false)
+          setSelectedEvent(null)
+        }}
+        event={selectedEvent}
+      />
+
+      {/* Add Class Modal */}
+      <AddClassModal
+        isOpen={isAddClassModalOpen}
+        onClose={() => setIsAddClassModalOpen(false)}
+        onSave={handleAddClass}
+      />
     </div>
   )
 } 

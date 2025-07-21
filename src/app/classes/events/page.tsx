@@ -102,24 +102,47 @@ export default function EventsPage() {
   ]
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-        <div>
-          <h1 className="text-h1 font-heading text-primary-text mb-2">Special Events</h1>
-          <p className="text-body text-secondary-text">
-            Manage workshops, challenges, and special fitness events
-          </p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm">
-            <TagIcon className="h-4 w-4 mr-2" />
-            Filter
-          </Button>
-          <Button variant="primary" size="sm">
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Create Event
-          </Button>
+    <div className="space-y-8">
+      {/* Professional Header */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-warning/5"></div>
+        <div className="relative bg-gradient-surface border border-surface rounded-2xl p-8">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-start space-x-4">
+              <div className="p-3 bg-gradient-to-br from-primary/20 to-primary/10 rounded-xl">
+                <MegaphoneIcon className="h-8 w-8 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-display-2 font-display text-primary-text mb-2">
+                  Special Events
+                </h1>
+                <p className="text-body-lg text-secondary-text max-w-2xl">
+                  Workshops, challenges, and special fitness events to engage your community
+                </p>
+                <div className="flex items-center space-x-6 mt-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+                    <span className="text-body-sm text-success font-medium">Active Events</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-body-sm text-secondary-text">
+                      {upcomingEvents.length} upcoming events
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 lg:mt-0 flex flex-col sm:flex-row gap-3">
+              <button className="px-6 py-3 bg-surface border border-surface text-primary-text rounded-lg font-semibold hover:bg-accent transition-all duration-200 flex items-center">
+                <TagIcon className="h-5 w-5 mr-2" />
+                Filter Events
+              </button>
+              <button className="btn-gym-primary px-6 py-3 rounded-lg font-semibold flex items-center">
+                <PlusIcon className="h-5 w-5 mr-2" />
+                Create Event
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

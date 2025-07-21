@@ -1,306 +1,227 @@
 'use client'
 
 import React from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
-import { 
-  XMarkIcon,
-  CalendarIcon,
-  ClockIcon,
+import { Card, CardContent } from '@/components/ui/Card'
+import {
   UserIcon,
-  MapPinIcon,
   UsersIcon,
-  PencilIcon,
-  TrashIcon,
-  ExclamationTriangleIcon
+  CalendarIcon,
+  MapPinIcon,
+  AcademicCapIcon,
 } from '@heroicons/react/24/outline'
-import { Class, Program, Coach } from '@/lib/types'
+
+interface ClassEvent {
+  id: string
+  title: string
+  start: Date
+  end: Date
+  backgroundColor: string
+  borderColor: string
+  textColor: string
+  extendedProps: {
+    coach: string
+    capacity: number
+    enrolledCount: number
+    status: string
+    category: string
+    location?: string
+    description?: string
+  }
+}
 
 interface ClassEventModalProps {
   isOpen: boolean
   onClose: () => void
-  classEvent: Class | null
-  program?: Program
-  coach?: Coach
-  onEdit?: (classEvent: Class) => void
-  onCancel?: (classEvent: Class) => void
-  onDelete?: (classEvent: Class) => void
+  event: ClassEvent | null
 }
 
-export default function ClassEventModal({
-  isOpen,
-  onClose,
-  classEvent,
-  program,
-  coach,
-  onEdit,
-  onCancel,
-  onDelete
-}: ClassEventModalProps) {
-  if (!isOpen || !classEvent) return null
+export default function ClassEventModal({ isOpen, onClose, event }: ClassEventModalProps) {
+  if (!event) return null
 
-  const fillPercentage = (classEvent.enrolled / classEvent.capacity) * 100
-  const isFullyBooked = classEvent.enrolled >= classEvent.capacity
-  const isLowEnrollment = fillPercentage < 30
-  const isHighDemand = fillPercentage >= 80
+  const { title, start, end, backgroundColor, extendedProps } = event
+  const { coach, capacity, enrolledCount, status, category, location, description } = extendedProps
+  
+  const fillPercentage = (enrolledCount / capacity) * 100
+  const availableSpots = capacity - enrolledCount
 
-  const getStatusColor = () => {
-    switch (classEvent.status) {
-      case 'confirmed':
-        return 'text-green-600 bg-green-50'
-      case 'cancelled':
-        return 'text-red-600 bg-red-50'
-      case 'completed':
-        return 'text-gray-600 bg-gray-50'
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'high-demand':
+        return 'text-red-500'
+      case 'low-enrollment':
+        return 'text-amber-500'
       default:
-        return 'text-blue-600 bg-blue-50'
+        return 'text-emerald-500'
     }
   }
 
-  const getCapacityStatus = () => {
-    if (isFullyBooked) return { text: 'Fully Booked', color: 'text-red-600' }
-    if (isHighDemand) return { text: 'High Demand', color: 'text-orange-600' }
-    if (isLowEnrollment) return { text: 'Low Enrollment', color: 'text-yellow-600' }
-    return { text: 'Available', color: 'text-green-600' }
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'high-demand':
+        return 'High Demand'
+      case 'low-enrollment':
+        return 'Low Enrollment'
+      default:
+        return 'Available'
+    }
   }
 
-  const capacityStatus = getCapacityStatus()
-
-  const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':')
-    const hour = parseInt(hours)
-    const ampm = hour >= 12 ? 'PM' : 'AM'
-    const displayHour = hour % 12 || 12
-    return `${displayHour}:${minutes} ${ampm}`
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true 
+    })
   }
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString([], { 
       weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
     })
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <Card className="border-0 shadow-none">
-          <CardHeader className="border-b border-gray-200">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <CardTitle className="text-xl font-bold text-gray-900 mb-2">
-                  {classEvent.name}
-                </CardTitle>
-                <div className="flex items-center space-x-4">
-                  <span 
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor()}`}
-                  >
-                    {classEvent.status.charAt(0).toUpperCase() + classEvent.status.slice(1)}
-                  </span>
-                  <span className={`text-sm font-medium ${capacityStatus.color}`}>
-                    {capacityStatus.text}
-                  </span>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-                className="p-2"
-              >
-                <XMarkIcon className="h-5 w-5" />
-              </Button>
-            </div>
-          </CardHeader>
-
-          <CardContent className="p-6">
-            <div className="space-y-6">
-              {/* Program Info */}
-              {program && (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-md bg-gray-800 border-gray-700">
+        <DialogHeader>
+          <DialogTitle className="flex items-center space-x-2 text-white">
+            <div 
+              className="w-4 h-4 rounded-full"
+              style={{ backgroundColor }}
+            />
+            <span>{title}</span>
+          </DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-4">
+          {/* Time and Date */}
+          <Card className="bg-gray-700 border-gray-600">
+            <CardContent className="p-4">
+              <div className="space-y-3">
                 <div className="flex items-center space-x-3">
-                  <div 
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: program.color }}
-                  />
+                  <CalendarIcon className="h-5 w-5 text-amber-500" />
                   <div>
-                    <h3 className="font-medium text-gray-900">{program.name}</h3>
-                    <p className="text-sm text-gray-600">{program.description}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* Date and Time */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center space-x-3">
-                  <CalendarIcon className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Date</p>
-                    <p className="text-sm text-gray-600">{formatDate(classEvent.date)}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <ClockIcon className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Time</p>
-                    <p className="text-sm text-gray-600">
-                      {formatTime(classEvent.startTime)} - {formatTime(classEvent.endTime)}
+                    <p className="text-sm font-medium text-white">
+                      {formatDate(start)}
+                    </p>
+                    <p className="text-xs text-gray-400">
+                      {formatTime(start)} - {formatTime(end)}
                     </p>
                   </div>
                 </div>
-              </div>
-
-              {/* Coach and Location */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {coach && (
+                
+                {location && (
                   <div className="flex items-center space-x-3">
-                    <UserIcon className="h-5 w-5 text-gray-400" />
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Coach</p>
-                      <p className="text-sm text-gray-600">{coach.name}</p>
-                      {coach.specialties && coach.specialties.length > 0 && (
-                        <p className="text-xs text-gray-500">
-                          {coach.specialties.slice(0, 2).join(', ')}
-                        </p>
-                      )}
-                    </div>
+                    <MapPinIcon className="h-5 w-5 text-blue-500" />
+                    <p className="text-sm text-gray-300">{location}</p>
                   </div>
                 )}
-                
-                <div className="flex items-center space-x-3">
-                  <MapPinIcon className="h-5 w-5 text-gray-400" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Location</p>
-                    <p className="text-sm text-gray-600">{classEvent.location}</p>
-                  </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Coach */}
+          <Card className="bg-gray-700 border-gray-600">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <UserIcon className="h-5 w-5 text-emerald-500" />
+                <div>
+                  <p className="text-sm font-medium text-white">Coach</p>
+                  <p className="text-xs text-gray-300">{coach}</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
 
-              {/* Capacity */}
+          {/* Capacity and Enrollment */}
+          <Card className="bg-gray-700 border-gray-600">
+            <CardContent className="p-4">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <UsersIcon className="h-5 w-5 text-gray-400" />
-                    <span className="text-sm font-medium text-gray-900">Capacity</span>
+                  <div className="flex items-center space-x-3">
+                    <UsersIcon className="h-5 w-5 text-emerald-500" />
+                    <div>
+                      <p className="text-sm font-medium text-white">Enrollment</p>
+                      <p className="text-xs text-gray-300">
+                        {enrolledCount} of {capacity} spots filled
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-sm text-gray-600">
-                    {classEvent.enrolled} / {classEvent.capacity} enrolled
+                  <span className={`text-xs font-medium ${getStatusColor(status)}`}>
+                    {getStatusText(status)}
                   </span>
                 </div>
                 
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                {/* Progress bar */}
+                <div className="w-full bg-gray-600 rounded-full h-2">
                   <div 
-                    className={`h-3 rounded-full transition-all duration-300 ${
-                      isFullyBooked ? 'bg-red-500' :
-                      isHighDemand ? 'bg-orange-500' :
-                      isLowEnrollment ? 'bg-yellow-500' : 'bg-green-500'
-                    }`}
-                    style={{ width: `${Math.min(fillPercentage, 100)}%` }}
+                    className="h-2 rounded-full transition-all duration-300"
+                    style={{ 
+                      width: `${fillPercentage}%`,
+                      backgroundColor 
+                    }}
                   />
                 </div>
                 
-                <div className="flex justify-between text-xs text-gray-500">
-                  <span>0</span>
-                  <span>{classEvent.capacity}</span>
-                </div>
+                <p className="text-xs text-gray-400">
+                  {availableSpots} spots available
+                </p>
               </div>
+            </CardContent>
+          </Card>
 
-              {/* Recurring Info */}
-              {classEvent.isRecurring && classEvent.recurrencePattern && (
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-medium text-blue-900 mb-2">Recurring Class</h4>
-                  <p className="text-sm text-blue-700">
-                    Repeats {classEvent.recurrencePattern.frequency}
-                    {classEvent.recurrencePattern.daysOfWeek && (
-                      <span> on {
-                        classEvent.recurrencePattern.daysOfWeek.map(day => 
-                          ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][day]
-                        ).join(', ')
-                      }</span>
-                    )}
+          {/* Category */}
+          <Card className="bg-gray-700 border-gray-600">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-3">
+                <AcademicCapIcon className="h-5 w-5 text-amber-500" />
+                <div>
+                  <p className="text-sm font-medium text-white">Category</p>
+                  <p className="text-xs text-gray-300 capitalize">
+                    {category.replace('-', ' ')}
                   </p>
                 </div>
-              )}
+              </div>
+            </CardContent>
+          </Card>
 
-              {/* Notes */}
-              {classEvent.notes && (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="text-sm font-medium text-gray-900 mb-2">Notes</h4>
-                  <p className="text-sm text-gray-600">{classEvent.notes}</p>
-                </div>
-              )}
+          {/* Description */}
+          {description && (
+            <Card className="bg-gray-700 border-gray-600">
+              <CardContent className="p-4">
+                <p className="text-sm text-gray-300">{description}</p>
+              </CardContent>
+            </Card>
+          )}
 
-              {/* Warning for cancelled classes */}
-              {classEvent.status === 'cancelled' && (
-                <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
-                  <div className="flex items-center space-x-2">
-                    <ExclamationTriangleIcon className="h-5 w-5 text-red-600" />
-                    <h4 className="text-sm font-medium text-red-900">Class Cancelled</h4>
-                  </div>
-                  {classEvent.notes && (
-                    <p className="text-sm text-red-700 mt-2">{classEvent.notes}</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </CardContent>
-
-          {/* Action Buttons */}
-          <div className="border-t border-gray-200 px-6 py-4">
-            <div className="flex flex-col sm:flex-row sm:justify-end space-y-2 sm:space-y-0 sm:space-x-3">
-              {classEvent.status !== 'cancelled' && classEvent.status !== 'completed' && (
-                <>
-                  {onEdit && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEdit(classEvent)}
-                      className="flex items-center space-x-2"
-                    >
-                      <PencilIcon className="h-4 w-4" />
-                      <span>Edit Class</span>
-                    </Button>
-                  )}
-                  
-                  {onCancel && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onCancel(classEvent)}
-                      className="flex items-center space-x-2 text-orange-600 border-orange-300 hover:bg-orange-50"
-                    >
-                      <ExclamationTriangleIcon className="h-4 w-4" />
-                      <span>Cancel Class</span>
-                    </Button>
-                  )}
-                </>
-              )}
-              
-              {onDelete && (
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => onDelete(classEvent)}
-                  className="flex items-center space-x-2"
-                >
-                  <TrashIcon className="h-4 w-4" />
-                  <span>Delete Class</span>
-                </Button>
-              )}
-              
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onClose}
-              >
-                Close
-              </Button>
-            </div>
+          {/* Actions */}
+          <div className="flex space-x-3 pt-2">
+            <Button 
+              variant="outline" 
+              className="flex-1 bg-gray-700 border-gray-600 text-white hover:bg-gray-600" 
+              onClick={onClose}
+            >
+              Close
+            </Button>
+            <Button 
+              variant="primary" 
+              className="flex-1 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800"
+            >
+              Edit Class
+            </Button>
           </div>
-        </Card>
-      </div>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   )
 }

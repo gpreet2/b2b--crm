@@ -16,7 +16,8 @@ import {
   BanknotesIcon,
   CurrencyDollarIcon,
   ChartPieIcon,
-  DocumentChartBarIcon
+  DocumentChartBarIcon,
+  ListBulletIcon
 } from '@heroicons/react/24/outline'
 
 export interface NavigationItem {
@@ -52,6 +53,7 @@ export const navigationConfig: NavigationItem[] = [
     badge: '8',
     subItems: [
       { title: 'Calendar', href: '/classes/calendar', icon: CalendarDaysIcon },
+      { title: 'Class', href: '/classes/list', icon: ListBulletIcon },
       { title: 'Events', href: '/classes/events', icon: MegaphoneIcon },
       { title: 'Programs', href: '/classes/programs', icon: BookOpenIcon },
       { title: 'Settings', href: '/classes/settings', icon: Cog6ToothIcon }
