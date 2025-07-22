@@ -1,200 +1,432 @@
-import React from 'react'
+'use client'
+
+import React, { useState } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
 import { 
   Cog6ToothIcon,
-  UsersIcon,
   CalendarIcon,
-  BellIcon,
   ShieldCheckIcon,
-  AdjustmentsHorizontalIcon,
   DocumentTextIcon,
   CheckCircleIcon,
-  XCircleIcon
+  ClockIcon,
+  ExclamationTriangleIcon,
+  UserGroupIcon,
 } from '@heroicons/react/24/outline'
 
-export default function ClassesSettingsPage() {
-  const settingsCategories = [
-    {
-      title: 'Class Scheduling',
-      description: 'Configure default class times, durations, and booking windows',
-      icon: CalendarIcon,
-      color: 'bg-primary',
-      settings: [
-        { name: 'Default Class Duration', value: '60 minutes', status: 'configured' },
-        { name: 'Booking Window', value: '7 days advance', status: 'configured' },
-        { name: 'Cancellation Policy', value: '24 hours', status: 'configured' }
-      ]
-    },
-    {
-      title: 'Capacity & Limits',
-      description: 'Set maximum participants and waitlist configurations',
-      icon: UsersIcon,
-      color: 'bg-success',
-      settings: [
-        { name: 'Default Max Capacity', value: '20 participants', status: 'configured' },
-        { name: 'Waitlist Enabled', value: 'Yes', status: 'configured' },
-        { name: 'Overbooking Allowed', value: 'No', status: 'needs-attention' }
-      ]
-    },
-    {
-      title: 'Notifications',
-      description: 'Manage class reminders and booking confirmations',
-      icon: BellIcon,
-      color: 'bg-info',
-      settings: [
-        { name: 'Booking Confirmations', value: 'Email + SMS', status: 'configured' },
-        { name: 'Class Reminders', value: '2 hours before', status: 'configured' },
-        { name: 'Cancellation Alerts', value: 'Enabled', status: 'configured' }
-      ]
-    },
-    {
-      title: 'Access Control',
-      description: 'Set permissions and instructor access levels',
-      icon: ShieldCheckIcon,
-      color: 'bg-warning',
-      settings: [
-        { name: 'Instructor Permissions', value: 'Manage own classes', status: 'configured' },
-        { name: 'Member Self-Booking', value: 'Enabled', status: 'configured' },
-        { name: 'Admin Approval Required', value: 'Special events only', status: 'needs-attention' }
-      ]
-    }
-  ]
+// iOS-style Toggle Component
+const Toggle = ({ 
+  enabled, 
+  onToggle, 
+  label, 
+  description 
+}: { 
+  enabled: boolean
+  onToggle: (enabled: boolean) => void
+  label: string
+  description?: string
+}) => {
+  return (
+    <div className="flex items-center justify-between p-4 bg-surface-light/50 rounded-xl">
+      <div className="flex-1">
+        <div className="text-sm font-light text-primary-text">{label}</div>
+        {description && (
+          <div className="text-xs text-secondary-text mt-1">{description}</div>
+        )}
+      </div>
+      <button
+        onClick={() => onToggle(!enabled)}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 ${
+          enabled ? 'bg-primary' : 'bg-surface-light'
+        }`}
+      >
+        <span
+          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+            enabled ? 'translate-x-6' : 'translate-x-1'
+          }`}
+        />
+      </button>
+    </div>
+  )
+}
 
-  const quickSettings = [
-    { label: 'Active Class Types', value: '12', icon: AdjustmentsHorizontalIcon, color: 'bg-primary' },
-    { label: 'Configured Instructors', value: '8', icon: UsersIcon, color: 'bg-success' },
-    { label: 'Notification Rules', value: '6', icon: BellIcon, color: 'bg-info' },
-    { label: 'Custom Templates', value: '4', icon: DocumentTextIcon, color: 'bg-warning' }
-  ]
+// Time Input Component
+const TimeInput = ({ 
+  value, 
+  onChange, 
+  label, 
+  description 
+}: { 
+  value: string
+  onChange: (value: string) => void
+  label: string
+  description?: string
+}) => {
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-light text-primary-text">
+        {label}
+      </label>
+      {description && (
+        <div className="text-xs text-secondary-text">{description}</div>
+      )}
+      <Input
+        type="time"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="bg-surface-light/50 border-0 rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+      />
+    </div>
+  )
+}
+
+// Number Input Component
+const NumberInput = ({ 
+  value, 
+  onChange, 
+  label, 
+  description,
+  min = 0,
+  max = 100,
+  step = 1
+}: { 
+  value: number
+  onChange: (value: number) => void
+  label: string
+  description?: string
+  min?: number
+  max?: number
+  step?: number
+}) => {
+  return (
+    <div className="space-y-2">
+      <label className="block text-sm font-light text-primary-text">
+        {label}
+      </label>
+      {description && (
+        <div className="text-xs text-secondary-text">{description}</div>
+      )}
+      <Input
+        type="number"
+        value={value}
+        onChange={(e) => onChange(parseFloat(e.target.value) || 0)}
+        min={min}
+        max={max}
+        step={step}
+        className="bg-surface-light/50 border-0 rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+      />
+    </div>
+  )
+}
+
+export default function ClassesSettingsPage() {
+  // Reservation Settings
+  const [reservationsOpenTime, setReservationsOpenTime] = useState('06:00')
+  const [reservationsCloseTime, setReservationsCloseTime] = useState('22:00')
+  
+  // Cancellation Settings
+  const [cancellationTiming, setCancellationTiming] = useState('24:00') // hours before class
+  const [lateCancellationEnabled, setLateCancellationEnabled] = useState(true)
+  const [lateCancellationFee, setLateCancellationFee] = useState(15)
+  const [lateCancellationTaxRate, setLateCancellationTaxRate] = useState(8.5)
+  const [autoChargeLateFee, setAutoChargeLateFee] = useState(true)
+  
+  // No Show Settings
+  const [noShowEnabled, setNoShowEnabled] = useState(true)
+  const [noShowFee, setNoShowFee] = useState(25)
+  const [noShowTaxRate, setNoShowTaxRate] = useState(8.5)
+  const [autoChargeNoShowFee, setAutoChargeNoShowFee] = useState(true)
+
+  const calculateTotalWithTax = (baseAmount: number, taxRate: number) => {
+    return baseAmount + (baseAmount * (taxRate / 100))
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6 bg-background min-h-screen">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-h1 font-heading text-primary-text mb-2">Classes Settings</h1>
-          <p className="text-body text-secondary-text">
-            Configure class settings, policies, and system preferences
-          </p>
+          <h1 className="text-2xl font-light text-primary-text mb-1">CLASS SETTINGS</h1>
+          <p className="text-secondary-text font-light">Configure class policies and system preferences</p>
         </div>
+        
         <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm">
+          <Button
+            variant="outline"
+            className="px-4 py-2 bg-surface-light/50 border-0 rounded-xl font-light text-sm hover:bg-surface-light transition-all duration-200"
+          >
             <DocumentTextIcon className="h-4 w-4 mr-2" />
             Export Config
           </Button>
-          <Button variant="primary" size="sm">
+          <Button
+            className="px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 shadow-lg hover:shadow-xl"
+          >
             <Cog6ToothIcon className="h-4 w-4 mr-2" />
-            Advanced Settings
+            Save Changes
           </Button>
         </div>
       </div>
 
-      {/* Quick Settings Stats - Compact */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {quickSettings.map((setting, index) => (
-          <Card key={index} className="group hover:shadow-md transition-all duration-300">
-            <CardContent className="p-3">
-              <div className="flex items-center space-x-2">
-                <div className={`p-2 rounded-lg ${setting.color} flex items-center justify-center flex-shrink-0`}>
-                  <setting.icon className="h-4 w-4 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-body-sm font-semibold text-primary-text">{setting.value}</h3>
-                  <p className="text-xs text-secondary-text truncate">{setting.label}</p>
-                </div>
+      <div className="space-y-6">
+        {/* Reservation Settings */}
+        <Card className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl shadow-lg">
+          <CardHeader className="px-8 py-6 border-b border-surface-light/30">
+            <CardTitle className="flex items-center space-x-4">
+              <div className="p-3 bg-gradient-to-br from-primary to-primary-dark rounded-xl shadow-lg">
+                <CalendarIcon className="h-6 w-6 text-white" />
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              <div>
+                <div className="text-xl font-light text-primary-text">Reservation Settings</div>
+                <div className="text-sm text-secondary-text font-light">Configure booking windows and timing</div>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-8 space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <TimeInput
+                label="Reservations Open Time"
+                description="When members can start booking classes"
+                value={reservationsOpenTime}
+                onChange={setReservationsOpenTime}
+              />
+              <TimeInput
+                label="Reservations Close Time"
+                description="When booking closes for the day"
+                value={reservationsCloseTime}
+                onChange={setReservationsCloseTime}
+              />
+            </div>
+            
+            <div className="p-6 bg-surface-light/30 rounded-xl">
+              <div className="flex items-center space-x-3 mb-3">
+                <ClockIcon className="h-5 w-5 text-primary" />
+                <span className="text-lg font-medium text-primary-text">Booking Window Summary</span>
+              </div>
+              <div className="text-sm text-secondary-text">
+                Members can book classes from <span className="font-medium text-primary-text">{reservationsOpenTime}</span> to <span className="font-medium text-primary-text">{reservationsCloseTime}</span> daily
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Settings Categories */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {settingsCategories.map((category, index) => (
-          <Card key={index} className="group hover:shadow-lg transition-all duration-300">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center space-x-2">
-                <div className={`p-2 rounded-lg ${category.color} flex items-center justify-center`}>
-                  <category.icon className="h-5 w-5 text-white" />
-                </div>
+        {/* Cancellation Settings */}
+        <Card className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl shadow-lg">
+          <CardHeader className="px-8 py-6 border-b border-surface-light/30">
+            <CardTitle className="flex items-center space-x-4">
+              <div className="p-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg">
+                <ExclamationTriangleIcon className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <div className="text-xl font-light text-primary-text">Cancellation Policy</div>
+                <div className="text-sm text-secondary-text font-light">Set cancellation rules and fees</div>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-8 space-y-8">
+            <div className="space-y-6">
+              <NumberInput
+                label="Cancellation Timing (Hours Before Class)"
+                description="How many hours before class members can cancel without fees"
+                value={parseFloat(cancellationTiming)}
+                onChange={(value) => setCancellationTiming(value.toString())}
+                min={1}
+                max={72}
+                step={0.5}
+              />
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-center justify-between p-6 bg-surface-light/30 rounded-xl">
                 <div>
-                  <span className="text-body font-medium text-primary-text">{category.title}</span>
-                  <p className="text-body-sm text-secondary-text font-normal mt-1">
-                    {category.description}
-                  </p>
+                  <div className="text-lg font-medium text-primary-text">Late Cancellation Fees</div>
+                  <div className="text-sm text-secondary-text">Charge fees for late cancellations</div>
                 </div>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {category.settings.map((setting, settingIndex) => (
-                  <div key={settingIndex} className="flex items-center justify-between p-3 bg-accent rounded-lg">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-body-sm font-medium text-primary-text">
-                          {setting.name}
-                        </span>
-                        {setting.status === 'configured' ? (
-                          <CheckCircleIcon className="h-4 w-4 text-success" />
-                        ) : (
-                          <XCircleIcon className="h-4 w-4 text-warning" />
-                        )}
-                      </div>
-                      <p className="text-caption text-secondary-text mt-1">
-                        {setting.value}
-                      </p>
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      Edit
-                    </Button>
-                  </div>
-                ))}
+                <Toggle
+                  enabled={lateCancellationEnabled}
+                  onToggle={setLateCancellationEnabled}
+                  label=""
+                />
               </div>
-              <div className="mt-4 pt-4 border-t border-surface">
-                <Button variant="outline" size="sm" className="w-full">
-                  Configure {category.title}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
 
-      {/* System Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <ShieldCheckIcon className="h-5 w-5 text-primary" />
-            <span>System Status</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="flex items-center space-x-3 p-3 bg-success/10 rounded-lg">
-              <CheckCircleIcon className="h-5 w-5 text-success flex-shrink-0" />
+              {lateCancellationEnabled && (
+                <div className="space-y-6 p-6 bg-surface-light/30 rounded-xl">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <NumberInput
+                      label="Late Cancellation Fee ($)"
+                      description="Base fee amount"
+                      value={lateCancellationFee}
+                      onChange={setLateCancellationFee}
+                      min={0}
+                      max={100}
+                      step={1}
+                    />
+                    <NumberInput
+                      label="Tax Rate (%)"
+                      description="Tax rate applied to fees"
+                      value={lateCancellationTaxRate}
+                      onChange={setLateCancellationTaxRate}
+                      min={0}
+                      max={20}
+                      step={0.1}
+                    />
+                  </div>
+                  
+                  <div className="p-6 bg-surface-light/50 rounded-xl">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-base">
+                        <span className="text-secondary-text">Base Fee:</span>
+                        <span className="text-primary-text font-medium">${lateCancellationFee.toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-base">
+                        <span className="text-secondary-text">Tax ({lateCancellationTaxRate}%):</span>
+                        <span className="text-primary-text font-medium">${(lateCancellationFee * (lateCancellationTaxRate / 100)).toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-lg font-medium border-t border-surface-light/30 pt-3">
+                        <span className="text-primary-text">Total with Tax:</span>
+                        <span className="text-primary font-medium">${calculateTotalWithTax(lateCancellationFee, lateCancellationTaxRate).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Toggle
+                    enabled={autoChargeLateFee}
+                    onToggle={setAutoChargeLateFee}
+                    label="Auto-charge Late Cancellation Fees"
+                    description="Automatically charge fees when members cancel late"
+                  />
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* No Show Settings */}
+        <Card className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl shadow-lg">
+          <CardHeader className="px-8 py-6 border-b border-surface-light/30">
+            <CardTitle className="flex items-center space-x-4">
+              <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg">
+                <UserGroupIcon className="h-6 w-6 text-white" />
+              </div>
               <div>
-                <p className="text-body-sm font-medium text-primary-text">Classes System</p>
-                <p className="text-caption text-success">Operational</p>
+                <div className="text-xl font-light text-primary-text">No Show Policy</div>
+                <div className="text-sm text-secondary-text font-light">Handle members who don&apos;t attend</div>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-8 space-y-8">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between p-6 bg-surface-light/30 rounded-xl">
+                <div>
+                  <div className="text-lg font-medium text-primary-text">No Show Fees</div>
+                  <div className="text-sm text-secondary-text">Charge fees for members who don&apos;t show up</div>
+                </div>
+                <Toggle
+                  enabled={noShowEnabled}
+                  onToggle={setNoShowEnabled}
+                  label=""
+                />
+              </div>
+
+              {noShowEnabled && (
+                <div className="space-y-6 p-6 bg-surface-light/30 rounded-xl">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <NumberInput
+                      label="No Show Fee ($)"
+                      description="Base fee amount"
+                      value={noShowFee}
+                      onChange={setNoShowFee}
+                      min={0}
+                      max={100}
+                      step={1}
+                    />
+                    <NumberInput
+                      label="Tax Rate (%)"
+                      description="Tax rate applied to fees"
+                      value={noShowTaxRate}
+                      onChange={setNoShowTaxRate}
+                      min={0}
+                      max={20}
+                      step={0.1}
+                    />
+                  </div>
+                  
+                  <div className="p-6 bg-surface-light/50 rounded-xl">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between text-base">
+                        <span className="text-secondary-text">Base Fee:</span>
+                        <span className="text-primary-text font-medium">${noShowFee.toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-base">
+                        <span className="text-secondary-text">Tax ({noShowTaxRate}%):</span>
+                        <span className="text-primary-text font-medium">${(noShowFee * (noShowTaxRate / 100)).toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center justify-between text-lg font-medium border-t border-surface-light/30 pt-3">
+                        <span className="text-primary-text">Total with Tax:</span>
+                        <span className="text-primary font-medium">${calculateTotalWithTax(noShowFee, noShowTaxRate).toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Toggle
+                    enabled={autoChargeNoShowFee}
+                    onToggle={setAutoChargeNoShowFee}
+                    label="Auto-charge No Show Fees"
+                    description="Automatically charge fees when members don&apos;t show up"
+                  />
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* System Status */}
+        <Card className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl shadow-lg">
+          <CardHeader className="px-8 py-6 border-b border-surface-light/30">
+            <CardTitle className="flex items-center space-x-4">
+              <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg">
+                <ShieldCheckIcon className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <div className="text-xl font-light text-primary-text">System Status</div>
+                <div className="text-sm text-secondary-text font-light">Current system health and status</div>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl">
+                <CheckCircleIcon className="h-6 w-6 text-emerald-500 flex-shrink-0" />
+                <div>
+                  <div className="text-base font-medium text-primary-text">Classes System</div>
+                  <div className="text-sm text-emerald-500">Operational</div>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl">
+                <CheckCircleIcon className="h-6 w-6 text-emerald-500 flex-shrink-0" />
+                <div>
+                  <div className="text-base font-medium text-primary-text">Booking Engine</div>
+                  <div className="text-sm text-emerald-500">Online</div>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl">
+                <CheckCircleIcon className="h-6 w-6 text-emerald-500 flex-shrink-0" />
+                <div>
+                  <div className="text-base font-medium text-primary-text">Payment Processing</div>
+                  <div className="text-sm text-emerald-500">Active</div>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl">
+                <CheckCircleIcon className="h-6 w-6 text-emerald-500 flex-shrink-0" />
+                <div>
+                  <div className="text-base font-medium text-primary-text">Notifications</div>
+                  <div className="text-sm text-emerald-500">Active</div>
+                </div>
               </div>
             </div>
-            <div className="flex items-center space-x-3 p-3 bg-success/10 rounded-lg">
-              <CheckCircleIcon className="h-5 w-5 text-success flex-shrink-0" />
-              <div>
-                <p className="text-body-sm font-medium text-primary-text">Booking Engine</p>
-                <p className="text-caption text-success">Online</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3 p-3 bg-success/10 rounded-lg">
-              <CheckCircleIcon className="h-5 w-5 text-success flex-shrink-0" />
-              <div>
-                <p className="text-body-sm font-medium text-primary-text">Notifications</p>
-                <p className="text-caption text-success">Active</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 } 

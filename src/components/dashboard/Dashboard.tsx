@@ -1,22 +1,17 @@
 import React from 'react'
 import { cn } from '@/lib/utils'
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
 import { 
   CalendarIcon, 
-  ChartBarIcon,
-  PlusIcon,
-  PlayIcon,
   UserPlusIcon,
   ArrowUpIcon,
-  ArrowDownIcon,
-  FireIcon,
-  BoltIcon,
   TrophyIcon,
   CurrencyDollarIcon,
   UsersIcon,
   ArrowRightIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  UserIcon,
+  ClockIcon,
 } from '@heroicons/react/24/outline'
 import { mockDashboardStats } from '@/lib/mock-data'
 import Link from 'next/link'
@@ -30,183 +25,149 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
     className, 
     ...props 
   }, ref) => {
-    // Enhanced stats with trends and colors
-    const enhancedStats = [
+    // Gym staff profile data
+    const staffProfile = {
+      name: 'Sarah Johnson',
+      email: 'sarah@fitnesspro.com',
+      role: 'Head Trainer',
+      experience: '5 years',
+      speciality: 'HIIT &amp; Strength'
+    }
+
+    // Gym metrics data
+    const gymMetrics = [
       {
         title: 'Active Members',
         value: '1,247',
-        change: '+12%',
-        trend: 'up',
+        percentage: 85,
+        color: 'bg-success',
         icon: UsersIcon,
-        color: 'bg-primary',
-        description: 'vs last month'
+        change: '+12%'
       },
       {
         title: 'Classes Today',
         value: '24',
-        change: '+3',
-        trend: 'up',
+        percentage: 92,
+        color: 'bg-primary',
         icon: CalendarIcon,
-        color: 'bg-info',
-        description: 'scheduled sessions'
+        change: '+3'
       },
       {
         title: 'Revenue',
         value: '$18,420',
-        change: '+8.2%',
-        trend: 'up',
+        percentage: 78,
+        color: 'bg-info',
         icon: CurrencyDollarIcon,
-        color: 'bg-success',
-        description: 'this month'
+        change: '+8.2%'
       },
       {
         title: 'Attendance Rate',
         value: '94%',
-        change: '+2.1%',
-        trend: 'up',
+        percentage: 94,
+        color: 'bg-warning',
         icon: TrophyIcon,
-        color: 'bg-warning',
-        description: 'avg this week'
+        change: '+2.1%'
       }
     ]
 
-    const quickActions = [
+    // Today's goals/tasks
+    const todaysTasks = [
       {
-        title: 'Schedule Class',
-        description: 'Create new class session',
-        icon: PlusIcon,
-        href: '/classes/calendar',
-        color: 'bg-primary',
-        textColor: 'text-primary'
+        title: 'New Member Orientation',
+        time: 'Today, 10:00 AM',
+        badge: 'High Priority'
       },
       {
-        title: 'Add Member',
-        description: 'Register new client',
-        icon: UserPlusIcon,
-        href: '/people/clients',
-        color: 'bg-success',
-        textColor: 'text-success'
-      },
-      {
-        title: 'Create Workout',
-        description: 'Design training program',
-        icon: PlayIcon,
-        href: '/perform/workouts',
-        color: 'bg-info',
-        textColor: 'text-info'
-      },
-      {
-        title: 'View Analytics',
-        description: 'Check performance data',
-        icon: ChartBarIcon,
-        href: '/analytics',
-        color: 'bg-warning',
-        textColor: 'text-warning'
+        title: 'Equipment Maintenance',
+        time: 'Today, 2:00 PM',
+        badge: 'Scheduled'
       }
     ]
 
-    const recentActivity = [
+    // Today's classes
+    const todaysClasses = [
       {
-        id: '1',
-        type: 'reservation',
-        title: 'New Class Booking',
-        message: 'John Smith booked HIIT Cardio for tomorrow',
-        time: '2 min ago',
-        status: 'success',
-        icon: CheckCircleIcon
-      },
-      {
-        id: '2',
-        type: 'member',
-        title: 'New Member Joined',
-        message: 'Maria Garcia completed registration',
-        time: '15 min ago',
-        status: 'success',
-        icon: UserPlusIcon
-      },
-      {
-        id: '3',
-        type: 'alert',
-        title: 'Low Class Enrollment',
-        message: 'Yoga Flow has only 3 bookings for today',
-        time: '1 hour ago',
-        status: 'warning',
-        icon: ExclamationTriangleIcon
-      },
-      {
-        id: '4',
-        type: 'payment',
-        title: 'Payment Received',
-        message: 'Monthly membership fee from David Wilson',
-        time: '2 hours ago',
-        status: 'success',
-        icon: CurrencyDollarIcon
-      }
-    ]
-
-    const todaySchedule = [
-      {
-        id: '1',
         name: 'HIIT Cardio Blast',
         time: '6:00 AM',
-        duration: '45 min',
-        coach: 'Sarah Johnson',
+        trainer: 'Sarah Johnson',
         enrolled: 18,
         capacity: 20,
-        status: 'high-demand',
-        category: 'cardio'
+        status: 'high-demand'
       },
       {
-        id: '2',
-        name: 'Strength & Power',
+        name: 'Strength &amp; Power',
         time: '7:00 AM',
-        duration: '60 min',
-        coach: 'Mike Chen',
+        trainer: 'Mike Chen',
         enrolled: 12,
         capacity: 15,
-        status: 'available',
-        category: 'strength'
+        status: 'available'
       },
       {
-        id: '3',
         name: 'Yoga Flow',
         time: '6:00 PM',
-        duration: '60 min',
-        coach: 'Emma Davis',
+        trainer: 'Emma Davis',
         enrolled: 8,
         capacity: 25,
-        status: 'low-enrollment',
-        category: 'wellness'
+        status: 'low-enrollment'
       }
     ]
 
-    const performanceMetrics = [
-      { label: 'Peak Hours', value: '6-8 AM', subtext: 'Highest attendance' },
-      { label: 'Popular Class', value: 'HIIT Cardio', subtext: '89% avg attendance' },
-      { label: 'Top Trainer', value: 'Sarah Johnson', subtext: '4.9⭐ rating' },
-      { label: 'Retention Rate', value: '92%', subtext: 'Member retention' }
+    // Recent activities
+    const recentActivities = [
+      {
+        type: 'member',
+        title: 'New Member Joined',
+        message: 'John Smith completed registration',
+        time: '15 min ago',
+        status: 'success'
+      },
+      {
+        type: 'class',
+        title: 'Class Booking',
+        message: 'Maria Garcia booked HIIT Cardio',
+        time: '2 hours ago',
+        status: 'success'
+      },
+      {
+        type: 'alert',
+        title: 'Low Enrollment',
+        message: 'Yoga Flow has only 3 bookings',
+        time: '1 hour ago',
+        status: 'warning'
+      }
+    ]
+
+    // Activity data for the graph
+    const activityData = [
+      { day: 'S', hours: 2.5 },
+      { day: 'M', hours: 4.2 },
+      { day: 'T', hours: 3.8 },
+      { day: 'W', hours: 4.5 },
+      { day: 'T', hours: 3.2 },
+      { day: 'F', hours: 4.8 },
+      { day: 'S', hours: 3.5 }
     ]
 
     return (
       <div
         ref={ref}
-        className={cn('space-y-6', className)}
+        className={cn('p-6 space-y-6 bg-background min-h-screen', className)}
         {...props}
       >
-        {/* Welcome Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+        {/* Minimal Header */}
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-h1 font-heading text-primary-text mb-2">
-              Good morning, Admin 👋
+            <h1 className="text-2xl font-bold text-primary-text">
+              Dashboard
             </h1>
-            <p className="text-body text-secondary-text">
-              Here&rsquo;s what&rsquo;s happening at your gym today
+            <p className="text-secondary-text">
+              Welcome back, {staffProfile.name}
             </p>
           </div>
           <div className="flex items-center space-x-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-body-sm text-secondary-text">Today</p>
-              <p className="text-body font-medium text-primary-text">
+            <div className="text-right">
+              <p className="text-sm text-secondary-text">Today</p>
+              <p className="text-primary-text font-medium">
                 {new Date().toLocaleDateString('en-US', { 
                   weekday: 'long', 
                   month: 'short', 
@@ -214,180 +175,185 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
                 })}
               </p>
             </div>
-            <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
           </div>
         </div>
 
-        {/* Enhanced Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-          {enhancedStats.map((stat, index) => (
-            <Card key={index} className="relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 rounded-xl ${stat.color} flex items-center justify-center`}>
-                    <stat.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    {stat.trend === 'up' ? (
-                      <ArrowUpIcon className="h-4 w-4 text-success" />
-                    ) : (
-                      <ArrowDownIcon className="h-4 w-4 text-danger" />
-                    )}
-                    <span className={`text-body-sm font-medium ${
-                      stat.trend === 'up' ? 'text-success' : 'text-danger'
-                    }`}>
-                      {stat.change}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <h3 className="text-h2 font-heading text-primary-text mb-1">{stat.value}</h3>
-                  <p className="text-body-sm font-medium text-secondary-text mb-1">{stat.title}</p>
-                  <p className="text-caption text-muted">{stat.description}</p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <BoltIcon className="h-5 w-5 text-primary" />
-              <span>Quick Actions</span>
-            </CardTitle>
-            <CardDescription>Common tasks and shortcuts</CardDescription>
-          </CardHeader>
-          <CardContent>
+        {/* Main Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Left Column */}
+          <div className="lg:col-span-8 space-y-6">
+            {/* Gym Metrics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {quickActions.map((action, index) => (
-                <Link key={index} href={action.href}>
-                  <div className="group p-4 rounded-xl border border-surface hover:border-primary/20 transition-all duration-200 cursor-pointer hover:shadow-md">
-                    <div className="flex items-center space-x-3 mb-3">
-                      <div className={`p-2 rounded-lg ${action.color} flex items-center justify-center`}>
-                        <action.icon className="h-5 w-5 text-white" />
+              {gymMetrics.map((metric, index) => (
+                <Card key={index} className="bg-surface border-surface">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className={`p-2 rounded-lg ${metric.color} flex items-center justify-center`}>
+                        <metric.icon className="h-5 w-5 text-white" />
                       </div>
-                      <ArrowRightIcon className="h-4 w-4 text-secondary-text group-hover:text-primary transition-colors ml-auto" />
+                      <div className="flex items-center space-x-1">
+                        <ArrowUpIcon className="h-4 w-4 text-success" />
+                        <span className="text-xs text-success font-medium">{metric.change}</span>
+                      </div>
                     </div>
-                    <h3 className="text-body font-medium text-primary-text group-hover:text-primary transition-colors mb-1">
-                      {action.title}
-                    </h3>
-                    <p className="text-body-sm text-secondary-text">
-                      {action.description}
-                    </p>
-                  </div>
-                </Link>
+                    <div className="mb-3">
+                      <h3 className="text-lg font-semibold text-primary-text mb-1">{metric.value}</h3>
+                      <p className="text-sm text-secondary-text">{metric.title}</p>
+                    </div>
+                    <div className="w-full bg-surface-light rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-300 ${metric.color}`}
+                        style={{ width: `${metric.percentage}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted mt-2">{metric.percentage}%</p>
+                  </CardContent>
+                </Card>
               ))}
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Today's Schedule */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center space-x-2">
-                    <CalendarIcon className="h-5 w-5 text-primary" />
-                    <span>Today&rsquo;s Schedule</span>
-                  </CardTitle>
-                  <CardDescription>Upcoming classes and sessions</CardDescription>
-                </div>
-                <Link 
-                  href="/classes/calendar" 
-                  className="flex items-center space-x-1 text-body-sm text-primary hover:text-primary-light transition-colors"
-                >
-                  <span>View All</span>
-                  <ArrowRightIcon className="h-4 w-4" />
+            {/* Today's Tasks */}
+            <Card className="bg-surface border-surface">
+              <CardHeader className="flex flex-row items-center justify-between pb-4">
+                <CardTitle className="text-primary-text">Today&apos;s Tasks</CardTitle>
+                <Link href="/tasks" className="text-secondary-text hover:text-primary transition-colors">
+                  View all
                 </Link>
               </CardHeader>
               <CardContent className="space-y-4">
-                {todaySchedule.map((classItem) => (
-                  <div 
-                    key={classItem.id} 
-                    className="flex items-center justify-between p-4 bg-accent rounded-xl hover:bg-secondary/30 transition-colors group"
-                  >
-                    <div className="flex items-center space-x-4">
-                      <div className="text-center">
-                        <p className="text-body font-medium text-primary-text">{classItem.time}</p>
-                        <p className="text-caption text-secondary-text">{classItem.duration}</p>
-                      </div>
-                      <div className="w-px h-12 bg-surface"></div>
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h3 className="text-body font-medium text-primary-text">{classItem.name}</h3>
-                          <span className={`px-2 py-1 rounded-full text-caption font-medium ${
-                            classItem.status === 'high-demand' 
-                              ? 'bg-primary/20 text-primary' 
-                              : classItem.status === 'low-enrollment'
-                              ? 'bg-warning/20 text-warning'
-                              : 'bg-success/20 text-success'
-                          }`}>
-                            {classItem.status === 'high-demand' ? 'High Demand' : 
-                             classItem.status === 'low-enrollment' ? 'Low Enrollment' : 'Available'}
-                          </span>
-                        </div>
-                        <p className="text-body-sm text-secondary-text">
-                          Coach: {classItem.coach}
-                        </p>
-                      </div>
+                {todaysTasks.map((task, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-accent rounded-lg">
+                    <div>
+                      <h4 className="text-primary-text font-medium mb-1">{task.title}</h4>
+                      <p className="text-sm text-secondary-text">{task.time}</p>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="text-right">
-                        <div className="flex items-center space-x-1 text-body-sm text-secondary-text mb-1">
-                          <UsersIcon className="h-4 w-4" />
-                          <span>{classItem.enrolled}/{classItem.capacity}</span>
-                        </div>
-                        <div className="w-20 bg-surface rounded-full h-2">
-                          <div 
-                            className={`h-2 rounded-full transition-all duration-300 ${
-                              classItem.status === 'high-demand' ? 'bg-primary' :
-                              classItem.status === 'low-enrollment' ? 'bg-warning' : 'bg-success'
-                            }`}
-                            style={{ width: `${(classItem.enrolled / classItem.capacity) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                      <ArrowRightIcon className="h-5 w-5 text-secondary-text group-hover:text-primary transition-colors" />
-                    </div>
+                    <span className="px-3 py-1 bg-surface text-primary-text text-sm rounded-full">
+                      {task.badge}
+                    </span>
                   </div>
                 ))}
               </CardContent>
             </Card>
+
+            {/* Today's Classes */}
+            <Card className="bg-surface border-surface">
+              <CardHeader className="flex flex-row items-center justify-between pb-4">
+                <CardTitle className="text-primary-text">Today&apos;s Classes</CardTitle>
+                <Link href="/classes/calendar" className="text-secondary-text hover:text-primary transition-colors">
+                  View all
+                </Link>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {todaysClasses.map((classItem, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 bg-accent rounded-lg">
+                      <div className="flex items-center space-x-4">
+                        <div className="text-center">
+                          <p className="text-primary-text font-medium">{classItem.time}</p>
+                          <p className="text-xs text-secondary-text">45 min</p>
+                        </div>
+                        <div className="w-px h-12 bg-surface"></div>
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-2 mb-1">
+                            <h3 className="text-primary-text font-medium">{classItem.name}</h3>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              classItem.status === 'high-demand' 
+                                ? 'bg-primary/20 text-primary' 
+                                : classItem.status === 'low-enrollment'
+                                ? 'bg-warning/20 text-warning'
+                                : 'bg-success/20 text-success'
+                            }`}>
+                              {classItem.status === 'high-demand' ? 'High Demand' : 
+                               classItem.status === 'low-enrollment' ? 'Low Enrollment' : 'Available'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-secondary-text">
+                            Trainer: {classItem.trainer}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-4">
+                        <div className="text-right">
+                          <div className="flex items-center space-x-1 text-sm text-secondary-text mb-1">
+                            <UsersIcon className="h-4 w-4" />
+                            <span>{classItem.enrolled}/{classItem.capacity}</span>
+                          </div>
+                          <div className="w-20 bg-surface rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full transition-all duration-300 ${
+                                classItem.status === 'high-demand' ? 'bg-primary' :
+                                classItem.status === 'low-enrollment' ? 'bg-warning' : 'bg-success'
+                              }`}
+                              style={{ width: `${(classItem.enrolled / classItem.capacity) * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                        <ArrowRightIcon className="h-5 w-5 text-secondary-text" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
+          {/* Right Column */}
+          <div className="lg:col-span-4 space-y-6">
+            {/* Staff Profile Card */}
+            <Card className="bg-surface border-surface">
+              <CardContent className="p-6 text-center">
+                <div className="w-20 h-20 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <UserIcon className="h-10 w-10 text-white" />
+                </div>
+                <h3 className="text-lg font-semibold text-primary-text mb-1">{staffProfile.name}</h3>
+                <p className="text-sm text-secondary-text mb-2">{staffProfile.email}</p>
+                <p className="text-sm text-primary mb-6">{staffProfile.role}</p>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center">
+                    <div className="w-8 h-8 bg-accent rounded-lg mx-auto mb-2 flex items-center justify-center">
+                      <ClockIcon className="h-4 w-4 text-secondary-text" />
+                    </div>
+                    <p className="text-sm text-secondary-text">Experience</p>
+                    <p className="text-primary-text font-semibold">{staffProfile.experience}</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-8 h-8 bg-accent rounded-lg mx-auto mb-2 flex items-center justify-center">
+                      <TrophyIcon className="h-4 w-4 text-secondary-text" />
+                    </div>
+                    <p className="text-sm text-secondary-text">Speciality</p>
+                    <p className="text-primary-text font-semibold text-xs">{staffProfile.speciality}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Recent Activity */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <FireIcon className="h-5 w-5 text-primary" />
-                  <span>Recent Activity</span>
-                </CardTitle>
-                <CardDescription>Latest updates and events</CardDescription>
+            <Card className="bg-surface border-surface">
+              <CardHeader className="flex flex-row items-center justify-between pb-4">
+                <CardTitle className="text-primary-text">Recent Activity</CardTitle>
+                <Link href="/activity" className="text-secondary-text hover:text-primary transition-colors">
+                  View all
+                </Link>
               </CardHeader>
               <CardContent className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <div key={activity.id} className="flex items-start space-x-3">
+                {recentActivities.map((activity, index) => (
+                  <div key={index} className="flex items-start space-x-3">
                     <div className={`p-2 rounded-lg ${
                       activity.status === 'success' ? 'bg-success/10' : 'bg-warning/10'
                     } flex-shrink-0`}>
-                      <activity.icon className={`h-4 w-4 ${
-                        activity.status === 'success' ? 'text-success' : 'text-warning'
-                      }`} />
+                      {activity.type === 'member' && <UserPlusIcon className="h-4 w-4 text-success" />}
+                      {activity.type === 'class' && <CalendarIcon className="h-4 w-4 text-success" />}
+                      {activity.type === 'alert' && <ExclamationTriangleIcon className="h-4 w-4 text-warning" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-body-sm font-medium text-primary-text mb-1">
+                      <h4 className="text-sm font-medium text-primary-text mb-1">
                         {activity.title}
                       </h4>
-                      <p className="text-caption text-secondary-text mb-1">
+                      <p className="text-xs text-secondary-text mb-1">
                         {activity.message}
                       </p>
-                      <p className="text-caption text-muted">
+                      <p className="text-xs text-muted">
                         {activity.time}
                       </p>
                     </div>
@@ -396,24 +362,64 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
               </CardContent>
             </Card>
 
-            {/* Performance Metrics */}
-            <Card>
+            {/* Calendar */}
+            <Card className="bg-surface border-surface">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <ChartBarIcon className="h-5 w-5 text-primary" />
-                  <span>Key Insights</span>
-                </CardTitle>
+                <CardTitle className="text-primary-text">May 2024</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {performanceMetrics.map((metric, index) => (
-                  <div key={index} className="flex items-center justify-between">
-                    <div>
-                      <p className="text-body-sm font-medium text-primary-text">{metric.label}</p>
-                      <p className="text-caption text-secondary-text">{metric.subtext}</p>
+              <CardContent>
+                <div className="grid grid-cols-7 gap-1 mb-2">
+                  {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((day, index) => (
+                    <div key={index} className="text-center text-sm text-secondary-text font-medium py-2">
+                      {day}
                     </div>
-                    <p className="text-body font-medium text-primary">{metric.value}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                <div className="grid grid-cols-7 gap-1">
+                  {Array.from({ length: 31 }, (_, i) => i + 1).map((date) => (
+                    <div 
+                      key={date} 
+                      className={cn(
+                        "text-center text-sm py-2 rounded-lg cursor-pointer transition-colors",
+                        date === 2 
+                          ? "bg-primary text-white" 
+                          : "text-secondary-text hover:bg-accent"
+                      )}
+                    >
+                      {date}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Gym Activity Graph */}
+            <Card className="bg-surface border-surface">
+              <CardHeader className="flex flex-row items-center justify-between pb-4">
+                <CardTitle className="text-primary-text">Gym Activity</CardTitle>
+                <select className="text-sm text-secondary-text bg-accent border-none rounded px-2 py-1">
+                  <option>Weekly</option>
+                </select>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-end justify-between h-32 space-x-1">
+                  {activityData.map((item, index) => (
+                    <div key={index} className="flex flex-col items-center flex-1">
+                      <div 
+                        className={cn(
+                          "w-full rounded-t transition-all duration-300",
+                          item.day === 'M' ? "bg-success" : "bg-accent"
+                        )}
+                        style={{ height: `${(item.hours / 5) * 100}%` }}
+                      />
+                      <span className="text-xs text-secondary-text mt-2">{item.day}</span>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between text-xs text-secondary-text mt-2">
+                  <span>0h</span>
+                  <span>5h</span>
+                </div>
               </CardContent>
             </Card>
           </div>

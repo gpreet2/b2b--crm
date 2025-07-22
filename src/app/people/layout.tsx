@@ -1,9 +1,8 @@
 "use client"
 import React from 'react'
 import { usePathname } from 'next/navigation'
-import { SubNavigation } from '@/components/layout/SubNavigation'
 import { Breadcrumb } from '@/components/ui/Breadcrumb'
-import { getNavigationItemByPath, getSubNavigationItem } from '@/lib/navigation'
+import { getSubNavigationItem } from '@/lib/navigation'
 
 export default function PeopleLayout({
   children,
@@ -11,7 +10,6 @@ export default function PeopleLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
-  const navigationItem = getNavigationItemByPath(pathname)
   const subItem = getSubNavigationItem(pathname)
 
   const breadcrumbItems = [
@@ -22,19 +20,12 @@ export default function PeopleLayout({
   return (
     <div>
       {/* Breadcrumbs */}
-      <div className="px-6 pt-6">
+      <div className="px-4 pt-4">
         <Breadcrumb items={breadcrumbItems} showHomeIcon />
       </div>
 
-      {/* Sub Navigation */}
-      {navigationItem?.subItems && (
-        <div className="px-6 pt-4">
-          <SubNavigation items={navigationItem.subItems} />
-        </div>
-      )}
-
       {/* Page Content */}
-      <div className="p-6">
+      <div className="p-4">
         {children}
       </div>
     </div>

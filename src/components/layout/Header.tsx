@@ -34,7 +34,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
       <header
         ref={ref}
         className={cn(
-          'bg-surface border-b border-surface px-3 sm:px-4 h-16 flex items-center',
+          'bg-background border-b border-surface-light/90 px-3 sm:px-4 h-18 flex items-center',
           className
         )}
         {...props}
@@ -45,7 +45,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
             {/* Mobile Menu Button */}
             <button
               onClick={onMenuToggle}
-              className="lg:hidden p-2 rounded-md hover:bg-accent text-secondary-text hover:text-primary-text transition-colors"
+              className="lg:hidden p-2 rounded-xl hover:bg-surface-light/50 text-secondary-text hover:text-primary-text transition-all duration-200"
             >
               <Bars3Icon className="h-5 w-5" />
             </button>
@@ -68,10 +68,10 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
           {/* Right Section */}
           <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Notifications */}
-            <button className="relative p-2 rounded-md hover:bg-accent text-secondary-text hover:text-primary-text transition-colors">
+            <button className="relative p-2 rounded-xl hover:bg-surface-light/50 text-secondary-text hover:text-primary-text transition-all duration-200">
               <BellIcon className="h-5 w-5" />
               {notifications > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-white text-xs rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-white text-xs rounded-full flex items-center justify-center shadow-lg">
                   {notifications > 99 ? '99+' : notifications}
                 </span>
               )}
@@ -82,10 +82,10 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
               {user ? (
                 <div className="flex items-center space-x-2">
                   <div className="text-right hidden sm:block">
-                    <p className="text-sm font-medium text-primary-text">{user.name}</p>
-                    <p className="text-xs text-secondary-text">{user.email}</p>
+                    <p className="text-sm font-light text-primary-text">{user.name}</p>
+                    <p className="text-xs text-secondary-text font-light">{user.email}</p>
                   </div>
-                  <button className="flex items-center space-x-2 p-2 rounded-md hover:bg-accent transition-colors">
+                  <button className="flex items-center space-x-2 p-2 rounded-xl hover:bg-surface-light/50 transition-all duration-200">
                     {user.avatar ? (
                       <Image
                         src={user.avatar}
@@ -107,8 +107,6 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
             </div>
           </div>
         </div>
-
-
 
         {/* Mobile Breadcrumbs */}
         {breadcrumbs && breadcrumbs.length > 0 && (

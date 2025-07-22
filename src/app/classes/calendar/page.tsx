@@ -8,24 +8,39 @@ import interactionPlugin from '@fullcalendar/interaction'
 import type { EventClickArg, EventContentArg } from '@fullcalendar/core'
 import type { DateClickArg } from '@fullcalendar/interaction'
 import { 
-  CalendarIcon, 
   PlusIcon, 
-  FunnelIcon,
-  AcademicCapIcon,
-  FireIcon,
-  ArrowRightIcon,
-  ChartBarIcon
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from '@heroicons/react/24/outline'
-import Link from 'next/link'
 import ClassEventModal from '@/components/classes/ClassEventModal'
 import AddClassModal from '@/components/classes/AddClassModal'
 
+interface ClassEvent {
+  id: string
+  title: string
+  start: Date
+  end: Date
+  backgroundColor: string
+  borderColor: string
+  textColor: string
+  extendedProps: {
+    coach: string
+    capacity: number
+    enrolledCount: number
+    status: string
+    category: string
+    location?: string
+    description?: string
+  }
+}
+
 export default function CalendarPage() {
-  const [selectedEvent, setSelectedEvent] = useState<any>(null)
+  const [selectedEvent, setSelectedEvent] = useState<ClassEvent | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isAddClassModalOpen, setIsAddClassModalOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  const [selectedCoach, setSelectedCoach] = useState<string>('all')
+  const [selectedCategory] = useState<string>('all')
+  const [selectedCoach] = useState<string>('all')
+  const [, setSelectedDate] = useState<Date | null>(null)
 
   // Enhanced events with better colors and variety
   const events = useMemo(() => {
@@ -40,15 +55,16 @@ export default function CalendarPage() {
         title: 'HIIT Cardio Blast',
         start: new Date(currentYear, currentMonth, 15, 6, 0),
         end: new Date(currentYear, currentMonth, 15, 6, 45),
-        backgroundColor: '#ef4444',
-        borderColor: '#dc2626',
+        backgroundColor: '#f34a22',
+        borderColor: '#d93f1e',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Sarah Johnson',
           capacity: 20,
           enrolledCount: 18,
           status: 'high-demand',
-          category: 'cardio'
+          category: 'cardio',
+          location: 'Studio A'
         }
       },
       {
@@ -56,15 +72,16 @@ export default function CalendarPage() {
         title: 'HIIT Cardio Blast',
         start: new Date(currentYear, currentMonth, 17, 6, 0),
         end: new Date(currentYear, currentMonth, 17, 6, 45),
-        backgroundColor: '#ef4444',
-        borderColor: '#dc2626',
+        backgroundColor: '#f34a22',
+        borderColor: '#d93f1e',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Sarah Johnson',
           capacity: 20,
           enrolledCount: 19,
           status: 'high-demand',
-          category: 'cardio'
+          category: 'cardio',
+          location: 'Studio A'
         }
       },
       {
@@ -72,65 +89,69 @@ export default function CalendarPage() {
         title: 'HIIT Cardio Blast',
         start: new Date(currentYear, currentMonth, 19, 6, 0),
         end: new Date(currentYear, currentMonth, 19, 6, 45),
-        backgroundColor: '#ef4444',
-        borderColor: '#dc2626',
+        backgroundColor: '#f34a22',
+        borderColor: '#d93f1e',
         textColor: '#ffffff',
         extendedProps: {
           coach: 'Sarah Johnson',
           capacity: 20,
           enrolledCount: 15,
           status: 'available',
-          category: 'cardio'
+          category: 'cardio',
+          location: 'Studio A'
         }
       },
       
-      // Strength Training Classes - Cyan
+      // Strength Training Classes - Green
       {
         id: '4',
-        title: 'Strength & Power',
+        title: 'Strength &amp; Power',
         start: new Date(currentYear, currentMonth, 15, 7, 0),
         end: new Date(currentYear, currentMonth, 15, 8, 0),
-        backgroundColor: '#06b6d4',
-        borderColor: '#0891b2',
-        textColor: '#ffffff',
+        backgroundColor: '#c3fb67',
+        borderColor: '#a8e85a',
+        textColor: '#000000',
         extendedProps: {
           coach: 'Mike Chen',
           capacity: 15,
           enrolledCount: 12,
           status: 'available',
-          category: 'strength'
+          category: 'strength',
+          location: 'Weight Room'
         }
       },
       {
         id: '5',
-        title: 'Strength & Power',
+        title: 'Strength &amp; Power',
         start: new Date(currentYear, currentMonth, 17, 7, 0),
         end: new Date(currentYear, currentMonth, 17, 8, 0),
-        backgroundColor: '#06b6d4',
-        borderColor: '#0891b2',
-        textColor: '#ffffff',
+        backgroundColor: '#c3fb67',
+        borderColor: '#a8e85a',
+        textColor: '#000000',
         extendedProps: {
           coach: 'Mike Chen',
           capacity: 15,
           enrolledCount: 14,
           status: 'available',
-          category: 'strength'
+          category: 'strength',
+          location: 'Weight Room'
         }
       },
       {
         id: '6',
-        title: 'Strength & Power',
+        title: 'Strength &amp; Power',
         start: new Date(currentYear, currentMonth, 19, 7, 0),
         end: new Date(currentYear, currentMonth, 19, 8, 0),
-        backgroundColor: '#06b6d4',
-        borderColor: '#0891b2',
-        textColor: '#ffffff',
+        backgroundColor: '#c3fb67',
+        borderColor: '#a8e85a',
+        textColor: '#000000',
         extendedProps: {
           coach: 'Mike Chen',
           capacity: 15,
           enrolledCount: 8,
           status: 'low-enrollment',
-          category: 'strength'
+          category: 'strength',
+          location: 'Weight Room'
         }
       },
       
@@ -148,7 +169,8 @@ export default function CalendarPage() {
           capacity: 25,
           enrolledCount: 22,
           status: 'available',
-          category: 'wellness'
+          category: 'wellness',
+          location: 'Yoga Studio'
         }
       },
       {
@@ -164,7 +186,8 @@ export default function CalendarPage() {
           capacity: 25,
           enrolledCount: 24,
           status: 'high-demand',
-          category: 'wellness'
+          category: 'wellness',
+          location: 'Yoga Studio'
         }
       },
       
@@ -182,7 +205,8 @@ export default function CalendarPage() {
           capacity: 12,
           enrolledCount: 10,
           status: 'available',
-          category: 'martial-arts'
+          category: 'martial-arts',
+          location: 'Boxing Ring'
         }
       },
       {
@@ -198,7 +222,8 @@ export default function CalendarPage() {
           capacity: 12,
           enrolledCount: 11,
           status: 'available',
-          category: 'martial-arts'
+          category: 'martial-arts',
+          location: 'Boxing Ring'
         }
       },
       
@@ -216,7 +241,8 @@ export default function CalendarPage() {
           capacity: 18,
           enrolledCount: 16,
           status: 'available',
-          category: 'functional'
+          category: 'functional',
+          location: 'Functional Area'
         }
       },
       {
@@ -232,7 +258,8 @@ export default function CalendarPage() {
           capacity: 18,
           enrolledCount: 17,
           status: 'available',
-          category: 'functional'
+          category: 'functional',
+          location: 'Functional Area'
         }
       },
       
@@ -250,7 +277,9 @@ export default function CalendarPage() {
           capacity: 30,
           enrolledCount: 25,
           status: 'available',
-          category: 'special'
+          category: 'special',
+          location: 'Main Hall',
+          description: 'Welcome new members to our fitness community with an orientation session covering facilities, programs, and membership benefits.'
         }
       },
       {
@@ -266,29 +295,31 @@ export default function CalendarPage() {
           capacity: 40,
           enrolledCount: 35,
           status: 'available',
-          category: 'workshop'
+          category: 'workshop',
+          location: 'Conference Room',
+          description: 'Learn about proper nutrition for fitness goals, meal planning, and sustainable eating habits from our certified nutritionist.'
         }
       }
     ]
   }, [])
 
-  // Get unique categories and coaches for filters
-  const categories = useMemo(() => {
-    const uniqueCategories = new Set(events.map(event => event.extendedProps.category))
-    return Array.from(uniqueCategories).map(category => ({
-      value: category,
-      label: category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-      color: events.find(e => e.extendedProps.category === category)?.backgroundColor || '#6b7280'
-    }))
-  }, [events])
+  // Get unique categories and coaches for filters (commented out as they're not currently used)
+  // const categories = useMemo(() => {
+  //   const uniqueCategories = new Set(events.map(event => event.extendedProps.category))
+  //   return Array.from(uniqueCategories).map(category => ({
+  //     value: category,
+  //     label: category.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+  //     color: events.find(e => e.extendedProps.category === category)?.backgroundColor || '#6b7280'
+  //   }))
+  // }, [events])
 
-  const coaches = useMemo(() => {
-    const uniqueCoaches = new Set(events.map(event => event.extendedProps.coach))
-    return Array.from(uniqueCoaches).map(coach => ({
-      value: coach,
-      label: coach
-    }))
-  }, [events])
+  // const coaches = useMemo(() => {
+  //   const uniqueCoaches = new Set(events.map(event => event.extendedProps.coach))
+  //   return Array.from(uniqueCoaches).map(coach => ({
+  //     value: coach,
+  //     label: coach
+  //   }))
+  // }, [events])
 
   // Filter events based on selected filters
   const filteredEvents = useMemo(() => {
@@ -307,7 +338,7 @@ export default function CalendarPage() {
     
     return (
       <div className="px-2 py-1 relative overflow-hidden">
-        <div className="font-semibold text-xs leading-tight text-white truncate mb-1">
+        <div className="font-light text-xs leading-tight text-white truncate mb-1">
           {event.title}
         </div>
         <div className="flex items-center justify-between text-xs text-white/90">
@@ -325,28 +356,48 @@ export default function CalendarPage() {
     )
   }
 
-  // Handle date click
+  // Handle date click - open add class modal with pre-filled date
   const handleDateClick = (arg: DateClickArg) => {
-    console.log('Date clicked:', arg.date)
+    setSelectedDate(arg.date)
+    setIsAddClassModalOpen(true)
   }
 
-  // Handle event click
+  // Handle event click - open event details modal
   const handleEventClick = (arg: EventClickArg) => {
-    setSelectedEvent(arg.event)
+    const eventData: ClassEvent = {
+      id: arg.event.id,
+      title: arg.event.title,
+      start: arg.event.start || new Date(),
+      end: arg.event.end || new Date(),
+      backgroundColor: arg.event.backgroundColor || '#3b82f6',
+      borderColor: arg.event.borderColor || '#2563eb',
+      textColor: arg.event.textColor || '#ffffff',
+      extendedProps: {
+        coach: arg.event.extendedProps.coach || '',
+        capacity: arg.event.extendedProps.capacity || 20,
+        enrolledCount: arg.event.extendedProps.enrolledCount || 0,
+        status: arg.event.extendedProps.status || 'available',
+        category: arg.event.extendedProps.category || 'general',
+        location: arg.event.extendedProps.location,
+        description: arg.event.extendedProps.description
+      }
+    }
+    setSelectedEvent(eventData)
     setIsModalOpen(true)
   }
 
   // Handle add class
-  const handleAddClass = (classData: any) => {
+  const handleAddClass = (classData: Record<string, unknown>) => {
     console.log('New class data:', classData)
     // Here you would typically save the class to your backend
     // For now, we'll just close the modal
     setIsAddClassModalOpen(false)
+    setSelectedDate(null)
   }
 
   const classTypes = [
-    { name: 'HIIT Cardio', color: '#ef4444', count: 12, description: 'High-intensity cardio' },
-    { name: 'Strength Training', color: '#06b6d4', count: 8, description: 'Muscle building' },
+    { name: 'HIIT Cardio', color: '#f34a22', count: 12, description: 'High-intensity cardio' },
+    { name: 'Strength Training', color: '#c3fb67', count: 8, description: 'Muscle building' },
     { name: 'Yoga Flow', color: '#8b5cf6', count: 6, description: 'Mindful movement' },
     { name: 'Boxing', color: '#f97316', count: 4, description: 'Combat fitness' },
     { name: 'Functional', color: '#3b82f6', count: 5, description: 'Real-world strength' },
@@ -354,318 +405,161 @@ export default function CalendarPage() {
     { name: 'Workshops', color: '#10b981', count: 3, description: 'Educational sessions' }
   ]
 
+  // Monthly statistics
+  const monthlyStats = {
+    totalClasses: 36,
+    todayClasses: 5,
+    lowEnrollment: 8,
+    highDemand: 12,
+    specialEvents: 3
+  }
+
   return (
-    <div className="space-y-8 bg-surface min-h-screen page-transition">
-      {/* Professional Header */}
-      <div className="bg-surface-light border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-start space-x-4">
-              <div className="p-3 bg-gradient-to-br from-red-600 to-red-700 rounded-xl shadow-lg hover-lift">
-                <CalendarIcon className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-primary-text mb-2">
-                  Class Calendar
-                </h1>
-                <p className="text-lg text-secondary-text max-w-2xl">
-                  Comprehensive view of all fitness classes, workshops, and special events
-                </p>
-                <div className="flex items-center space-x-6 mt-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-emerald-500 font-medium">Live Updates</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-muted">
-                      {filteredEvents.length} events this month
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-6 lg:mt-0 flex flex-col sm:flex-row gap-3">
-              <button className="px-6 py-3 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-lg font-semibold hover:from-amber-700 hover:to-amber-800 transition-all duration-200 flex items-center btn-animate">
-                <FunnelIcon className="h-5 w-5 mr-2" />
-                Filter Events
-              </button>
-              <button 
-                onClick={() => setIsAddClassModalOpen(true)}
-                className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-200 flex items-center btn-animate"
-              >
-                <PlusIcon className="h-5 w-5 mr-2" />
-                Add Class
-              </button>
-            </div>
-          </div>
+    <div className="p-6 space-y-6 bg-background min-h-screen">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-light text-primary-text mb-1">Calendar</h1>
+          <p className="text-secondary-text font-light">Manage your fitness classes</p>
         </div>
+        
+        <button 
+          onClick={() => setIsAddClassModalOpen(true)}
+          className="px-6 py-3 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+        >
+          <PlusIcon className="h-4 w-4" />
+          <span>Add Class</span>
+        </button>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Enhanced Filters */}
-        <div className="bg-surface-light border border-border rounded-xl overflow-hidden mb-8 card-animate">
-          <div className="p-6 border-b border-border bg-surface/50">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-amber-500/20 rounded-lg">
-                <FunnelIcon className="h-5 w-5 text-amber-500" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-primary-text">Filter Classes</h3>
-                <p className="text-sm text-muted">Customize your calendar view</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="p-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Category Filter */}
-              <div>
-                <label className="text-lg font-bold text-primary-text mb-4 block flex items-center space-x-2">
-                  <span>Program Type</span>
-                  <span className="text-xs bg-red-600/20 text-red-500 px-2 py-1 rounded-full">
-                    {selectedCategory === 'all' ? 'All' : categories.find(c => c.value === selectedCategory)?.label}
-                  </span>
-                </label>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() => setSelectedCategory('all')}
-                    className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
-                      selectedCategory === 'all'
-                        ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg'
-                        : 'bg-surface text-secondary-text hover:bg-surface-light border border-border'
-                    }`}
-                  >
-                    All Programs
-                  </button>
-                  {categories.map((category) => (
-                    <button
-                      key={category.value}
-                      onClick={() => setSelectedCategory(category.value)}
-                      className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 flex items-center space-x-2 ${
-                        selectedCategory === category.value
-                          ? 'bg-gradient-to-r from-red-600 to-red-700 text-white shadow-lg'
-                          : 'bg-surface text-secondary-text hover:bg-surface-light border border-border'
-                      }`}
-                    >
-                      <div 
-                        className="w-3 h-3 rounded-full shadow-sm"
-                        style={{ backgroundColor: category.color }}
-                      />
-                      <span>{category.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Coach Filter */}
-              <div>
-                <label className="text-lg font-bold text-primary-text mb-4 block flex items-center space-x-2">
-                  <span>Coach</span>
-                  <span className="text-xs bg-emerald-500/20 text-emerald-500 px-2 py-1 rounded-full">
-                    {selectedCoach === 'all' ? 'All' : coaches.find(c => c.value === selectedCoach)?.label}
-                  </span>
-                </label>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() => setSelectedCoach('all')}
-                    className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
-                      selectedCoach === 'all'
-                        ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg'
-                        : 'bg-surface text-secondary-text hover:bg-surface-light border border-border'
-                    }`}
-                  >
-                    All Coaches
-                  </button>
-                  {coaches.map((coach) => (
-                    <button
-                      key={coach.value}
-                      onClick={() => setSelectedCoach(coach.value)}
-                      className={`px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
-                        selectedCoach === coach.value
-                          ? 'bg-gradient-to-r from-emerald-600 to-emerald-700 text-white shadow-lg'
-                          : 'bg-surface text-secondary-text hover:bg-surface-light border border-border'
-                      }`}
-                    >
-                      {coach.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Enhanced Main Calendar */}
-        <div className="bg-surface-light border border-border rounded-xl overflow-hidden shadow-xl mb-8 card-animate">
-          <div className="p-6 border-b border-border bg-surface/50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gradient-to-r from-red-600 to-red-700 rounded-lg">
-                  <CalendarIcon className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-primary-text">Schedule Overview</h3>
-                  <p className="text-sm text-muted">Interactive class calendar</p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 px-3 py-2 bg-emerald-500/10 rounded-lg border border-emerald-500/20">
-                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-emerald-500 font-medium">Live Updates</span>
-                </div>
-                <div className="text-sm text-muted">
-                  {filteredEvents.length} events showing
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="p-0">
-            <div className="h-[800px]">
-              <FullCalendar
-                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                initialView="dayGridMonth"
-                headerToolbar={{
-                  left: 'prev,next today',
-                  center: 'title',
-                  right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                }}
-                editable={false}
-                selectable={true}
-                selectMirror={true}
-                weekends={true}
-                events={filteredEvents}
-                eventContent={renderEventContent}
-                dateClick={handleDateClick}
-                eventClick={handleEventClick}
-                height="100%"
-                eventDisplay="block"
-                eventTimeFormat={{
-                  hour: '2-digit',
-                  minute: '2-digit',
-                  meridiem: 'short'
-                }}
-                slotMinTime="06:00:00"
-                slotMaxTime="22:00:00"
-                allDaySlot={false}
-                slotDuration="00:30:00"
-                slotLabelInterval="01:00"
-                expandRows={true}
-                stickyHeaderDates={true}
-                dayHeaderFormat={{ weekday: 'short', day: 'numeric' }}
-                titleFormat={{ year: 'numeric', month: 'long' }}
-                dayMaxEvents={false}
-                viewDidMount={() => {}}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Enhanced Bottom Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Class Categories Legend */}
-          <div className="lg:col-span-2">
-            <div className="bg-surface-light border border-border rounded-xl overflow-hidden card-animate">
-              <div className="p-6 border-b border-border bg-surface/50">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-emerald-500/20 rounded-lg">
-                    <AcademicCapIcon className="h-5 w-5 text-emerald-500" />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-primary-text">Class Categories</h3>
-                    <p className="text-sm text-muted">Program types and statistics</p>
-                  </div>
-                </div>
+      {/* Main Layout - Three Panels */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column - Two Panels */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* Panel 1: Monthly Statistics */}
+          <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl p-6 shadow-lg">
+            <h3 className="text-lg font-light text-primary-text mb-4">Monthly Statistics</h3>
+            <div className="space-y-4">
+              <div className="text-center p-4 bg-gradient-to-r from-primary/10 to-primary-dark/10 rounded-xl">
+                <div className="text-2xl font-light text-primary-text mb-1">{monthlyStats.totalClasses}</div>
+                <div className="text-xs text-secondary-text font-light">Total Classes</div>
               </div>
               
-              <div className="p-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {classTypes.map((type, index) => (
-                    <div 
-                      key={index} 
-                      className="group p-4 bg-surface/50 rounded-xl hover:bg-surface transition-all duration-300 cursor-pointer border border-border hover:border-border card-animate"
-                    >
-                      <div className="flex items-center space-x-3 mb-3">
-                        <div 
-                          className="w-4 h-4 rounded-full shadow-lg flex-shrink-0"
-                          style={{ backgroundColor: type.color }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold text-primary-text group-hover:text-primary-text transition-colors truncate">
-                              {type.name}
-                            </span>
-                            <span className="text-xl font-bold text-amber-500">
-                              {type.count}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-sm text-secondary-text mb-3">
-                        {type.description}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="w-full bg-surface rounded-full h-2 mr-3">
-                          <div 
-                            className="h-2 rounded-full transition-all duration-500"
-                            style={{ 
-                              backgroundColor: type.color,
-                              width: `${(type.count / 15) * 100}%`
-                            }}
-                          />
-                        </div>
-                        <ArrowRightIcon className="h-4 w-4 text-muted group-hover:text-amber-500 transition-colors flex-shrink-0" />
-                      </div>
-                    </div>
-                  ))}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-surface-light/30 rounded-xl">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-success rounded-full shadow-sm"></div>
+                    <span className="text-sm font-light text-primary-text">Today&apos;s Classes</span>
+                  </div>
+                  <span className="text-sm font-light text-primary-text">{monthlyStats.todayClasses}</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-surface-light/30 rounded-xl">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-warning rounded-full shadow-sm"></div>
+                    <span className="text-sm font-light text-primary-text">Low Enrollment</span>
+                  </div>
+                  <span className="text-sm font-light text-primary-text">{monthlyStats.lowEnrollment}</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-surface-light/30 rounded-xl">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-primary rounded-full shadow-sm"></div>
+                    <span className="text-sm font-light text-primary-text">High Demand</span>
+                  </div>
+                  <span className="text-sm font-light text-primary-text">{monthlyStats.highDemand}</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-surface-light/30 rounded-xl">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-3 h-3 bg-info rounded-full shadow-sm"></div>
+                    <span className="text-sm font-light text-primary-text">Special Events</span>
+                  </div>
+                  <span className="text-sm font-light text-primary-text">{monthlyStats.specialEvents}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Enhanced Quick Actions */}
-          <div className="bg-surface-light border border-border rounded-xl overflow-hidden card-animate">
-            <div className="p-6 border-b border-border bg-surface/50">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-blue-500/20 rounded-lg">
-                  <FireIcon className="h-5 w-5 text-blue-500" />
+          {/* Panel 2: Class Categories */}
+          <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl p-6 shadow-lg">
+            <h3 className="text-lg font-light text-primary-text mb-4">Class Categories</h3>
+            <div className="space-y-3">
+              {classTypes.map((type, index) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-surface-light/30 rounded-xl hover:bg-surface-light/50 transition-all duration-200">
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-3 h-3 rounded-full shadow-sm"
+                      style={{ backgroundColor: type.color }}
+                    ></div>
+                    <span className="text-sm font-light text-primary-text">{type.name}</span>
+                  </div>
+                  <span className="text-sm font-light text-primary-text">{type.count}</span>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-primary-text">Quick Actions</h3>
-                  <p className="text-sm text-muted">Manage your calendar</p>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - Main Calendar */}
+        <div className="lg:col-span-9">
+          <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl overflow-hidden shadow-lg">
+            {/* Calendar Header */}
+            <div className="p-6 border-b border-surface-light/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <button className="p-3 hover:bg-surface-light/50 rounded-xl transition-all duration-200">
+                    <ChevronLeftIcon className="h-5 w-5 text-secondary-text" />
+                  </button>
+                  <button className="p-3 hover:bg-surface-light/50 rounded-xl transition-all duration-200">
+                    <ChevronRightIcon className="h-5 w-5 text-secondary-text" />
+                  </button>
+                  <button className="px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 shadow-lg">
+                    Today
+                  </button>
+                </div>
+                
+                <div className="text-xl font-light text-primary-text">
+                  {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                 </div>
               </div>
             </div>
             
-            <div className="p-6 space-y-4">
-              <button 
-                onClick={() => setIsAddClassModalOpen(true)}
-                className="w-full p-4 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-300 flex items-center justify-center space-x-2 group btn-animate"
-              >
-                <PlusIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                <span>Schedule New Class</span>
-              </button>
-              
-              <Link href="/classes/programs">
-                <button className="w-full p-4 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 flex items-center justify-center space-x-2 group btn-animate">
-                  <AcademicCapIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                  <span>Manage Programs</span>
-                </button>
-              </Link>
-              
-              <Link href="/analytics/reports">
-                <button className="w-full p-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 flex items-center justify-center space-x-2 group btn-animate">
-                  <ChartBarIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                  <span>View Reports</span>
-                </button>
-              </Link>
-              
-              <Link href="/classes/settings">
-                <button className="w-full p-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white rounded-xl font-semibold hover:from-amber-700 hover:to-amber-800 transition-all duration-300 flex items-center justify-center space-x-2 group btn-animate">
-                  <CalendarIcon className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                  <span>Calendar Settings</span>
-                </button>
-              </Link>
+            {/* Calendar Content */}
+            <div className="p-0">
+              <div className="h-[700px]">
+                <FullCalendar
+                  plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                  initialView="dayGridMonth"
+                  headerToolbar={false}
+                  editable={false}
+                  selectable={true}
+                  selectMirror={true}
+                  weekends={true}
+                  events={filteredEvents}
+                  eventContent={renderEventContent}
+                  dateClick={handleDateClick}
+                  eventClick={handleEventClick}
+                  height="100%"
+                  eventDisplay="block"
+                  eventTimeFormat={{
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    meridiem: 'short'
+                  }}
+                  slotMinTime="06:00:00"
+                  slotMaxTime="22:00:00"
+                  allDaySlot={false}
+                  slotDuration="00:30:00"
+                  slotLabelInterval="01:00"
+                  expandRows={true}
+                  stickyHeaderDates={true}
+                  dayHeaderFormat={{ weekday: 'short', day: 'numeric' }}
+                  titleFormat={{ year: 'numeric', month: 'long' }}
+                  dayMaxEvents={false}
+                  viewDidMount={() => {}}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -684,7 +578,10 @@ export default function CalendarPage() {
       {/* Add Class Modal */}
       <AddClassModal
         isOpen={isAddClassModalOpen}
-        onClose={() => setIsAddClassModalOpen(false)}
+        onClose={() => {
+          setIsAddClassModalOpen(false)
+          setSelectedDate(null)
+        }}
         onSave={handleAddClass}
       />
     </div>

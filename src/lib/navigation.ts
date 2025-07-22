@@ -7,7 +7,6 @@ import {
   ChartBarIcon,
   Cog6ToothIcon,
   CalendarDaysIcon,
-  MegaphoneIcon,
   BookOpenIcon,
   UserGroupIcon,
   UserIcon,
@@ -54,7 +53,7 @@ export const navigationConfig: NavigationItem[] = [
     subItems: [
       { title: 'Calendar', href: '/classes/calendar', icon: CalendarDaysIcon },
       { title: 'Class', href: '/classes/list', icon: ListBulletIcon },
-      { title: 'Events', href: '/classes/events', icon: MegaphoneIcon },
+      // { title: 'Events', href: '/classes/events', icon: MegaphoneIcon },
       { title: 'Programs', href: '/classes/programs', icon: BookOpenIcon },
       { title: 'Settings', href: '/classes/settings', icon: Cog6ToothIcon }
     ]
@@ -125,11 +124,9 @@ export const getNavigationItemByPath = (pathname: string): NavigationItem | unde
 }
 
 export const getSubNavigationItem = (pathname: string): NavigationSubItem | undefined => {
-  for (const item of navigationConfig) {
-    if (item.subItems) {
-      const subItem = item.subItems.find(subItem => subItem.href === pathname)
-      if (subItem) return subItem
-    }
+  const navigationItem = getNavigationItemByPath(pathname)
+  if (navigationItem?.subItems) {
+    return navigationItem.subItems.find(subItem => subItem.href === pathname)
   }
   return undefined
 } 

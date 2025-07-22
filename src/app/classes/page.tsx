@@ -1,12 +1,10 @@
 import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import {
   CalendarIcon,
   PlusIcon,
   UsersIcon,
   ClockIcon,
   PlayIcon,
-  Cog6ToothIcon,
   ArrowRightIcon,
   ChartBarIcon,
   FireIcon,
@@ -14,7 +12,6 @@ import {
   BoltIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
-  XCircleIcon,
   CalendarDaysIcon,
   ListBulletIcon,
 } from "@heroicons/react/24/outline";
@@ -344,7 +341,7 @@ export default function ClassesPage() {
                   </div>
                   
                   <div className="p-6 space-y-4">
-                    {upcomingClasses.map((classItem, index) => (
+                    {upcomingClasses.map((classItem) => (
                       <div
                         key={classItem.id}
                         className="group p-4 bg-white/50 rounded-xl hover:bg-white transition-all duration-300 border border-gray-200 hover:border-gray-300 card-animate"

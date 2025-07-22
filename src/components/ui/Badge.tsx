@@ -21,10 +21,10 @@ const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
       default: 'bg-accent text-secondary-text',
       primary: 'bg-primary text-white',
       secondary: 'bg-secondary text-white',
-      success: 'bg-green-100 text-green-800',
-      warning: 'bg-yellow-100 text-yellow-800',
-      danger: 'bg-red-200 text-red-900',
-      info: 'bg-blue-100 text-blue-800'
+      success: 'bg-success text-black',
+      warning: 'bg-warning text-black',
+      danger: 'bg-danger text-white',
+      info: 'bg-info text-white'
     }
     
     const sizes = {

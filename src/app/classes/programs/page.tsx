@@ -1,18 +1,23 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { 
-  AcademicCapIcon,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription
+} from '@/components/ui/Dialog'
+import { 
   PlusIcon,
   PencilIcon,
   TrashIcon,
   EyeIcon,
-  FireIcon,
-  UsersIcon,
-  ClockIcon,
-  XMarkIcon
+  MagnifyingGlassIcon,
+  XCircleIcon,
+  ListBulletIcon,
 } from '@heroicons/react/24/outline'
 
 interface Program {
@@ -21,38 +26,61 @@ interface Program {
   description: string
   color: string
   category: string
-  classCount: number
-  activeMembers: number
   duration: string
   difficulty: 'beginner' | 'intermediate' | 'advanced'
   isActive: boolean
+  coach?: string
+  capacity?: number
+  location?: string
+  lastUpdated?: Date
 }
 
 export default function ProgramsPage() {
-  const [programs, setPrograms] = useState<Program[]>([
+  const [searchQuery, setSearchQuery] = useState('')
+  const [activeTab, setActiveTab] = useState('all')
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [editingProgram, setEditingProgram] = useState<Program | null>(null)
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    color: '#ef4444',
+    category: '',
+    duration: '45 min',
+    difficulty: 'intermediate' as 'beginner' | 'intermediate' | 'advanced',
+    coach: '',
+    capacity: 20,
+    location: ''
+  })
+
+  // Mock data for programs
+  const programs: Program[] = useMemo(() => [
     {
       id: '1',
-      name: 'HIIT Training',
+      name: 'Burn40',
       description: 'High-intensity interval training for maximum calorie burn',
       color: '#ef4444',
       category: 'Cardio',
-      classCount: 12,
-      activeMembers: 45,
-      duration: '45 min',
+      duration: '40 min',
       difficulty: 'intermediate',
-      isActive: true
+      isActive: true,
+      coach: 'Sarah Johnson',
+      capacity: 20,
+      location: 'Studio A',
+      lastUpdated: new Date(2024, 2, 15)
     },
     {
       id: '2',
-      name: 'Strength & Power',
-      description: 'Muscle building and strength development',
+      name: 'CrossFit',
+      description: 'Functional fitness with varied, high-intensity movements',
       color: '#06b6d4',
       category: 'Strength',
-      classCount: 8,
-      activeMembers: 32,
       duration: '60 min',
       difficulty: 'advanced',
-      isActive: true
+      isActive: true,
+      coach: 'Mike Chen',
+      capacity: 15,
+      location: 'Weight Room',
+      lastUpdated: new Date(2024, 2, 12)
     },
     {
       id: '3',
@@ -60,11 +88,13 @@ export default function ProgramsPage() {
       description: 'Mindful movement and flexibility training',
       color: '#8b5cf6',
       category: 'Wellness',
-      classCount: 6,
-      activeMembers: 38,
       duration: '75 min',
       difficulty: 'beginner',
-      isActive: true
+      isActive: true,
+      coach: 'Emma Davis',
+      capacity: 25,
+      location: 'Yoga Studio',
+      lastUpdated: new Date(2024, 2, 10)
     },
     {
       id: '4',
@@ -72,11 +102,13 @@ export default function ProgramsPage() {
       description: 'Combat fitness and self-defense training',
       color: '#f97316',
       category: 'Martial Arts',
-      classCount: 4,
-      activeMembers: 28,
       duration: '50 min',
       difficulty: 'intermediate',
-      isActive: true
+      isActive: true,
+      coach: 'Alex Rodriguez',
+      capacity: 12,
+      location: 'Boxing Ring',
+      lastUpdated: new Date(2024, 2, 8)
     },
     {
       id: '5',
@@ -84,11 +116,13 @@ export default function ProgramsPage() {
       description: 'Real-world strength and mobility training',
       color: '#3b82f6',
       category: 'Functional',
-      classCount: 5,
-      activeMembers: 22,
       duration: '45 min',
       difficulty: 'intermediate',
-      isActive: true
+      isActive: true,
+      coach: 'Jordan Kim',
+      capacity: 18,
+      location: 'Functional Area',
+      lastUpdated: new Date(2024, 2, 5)
     },
     {
       id: '6',
@@ -96,63 +130,62 @@ export default function ProgramsPage() {
       description: 'Core strength and stability training',
       color: '#10b981',
       category: 'Wellness',
-      classCount: 3,
-      activeMembers: 18,
       duration: '60 min',
       difficulty: 'beginner',
-      isActive: false
+      isActive: false,
+      coach: 'Lisa Wang',
+      capacity: 15,
+      location: 'Pilates Studio',
+      lastUpdated: new Date(2024, 2, 3)
     }
-  ])
+  ], [])
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
-  const [editingProgram, setEditingProgram] = useState<Program | null>(null)
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    color: '#6366f1',
-    category: '',
-    duration: '45 min',
-    difficulty: 'intermediate' as const
-  })
+  // Filter programs based on search and active tab
+  const filteredPrograms = useMemo(() => {
+    let filtered = programs
+
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter(program =>
+        program.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        program.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        program.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (program.coach && program.coach.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+    }
+
+    // Filter by active tab
+    if (activeTab === 'active') {
+      filtered = filtered.filter(program => program.isActive)
+    } else if (activeTab === 'inactive') {
+      filtered = filtered.filter(program => !program.isActive)
+    }
+
+    return filtered
+  }, [programs, searchQuery, activeTab])
 
   const handleCreateProgram = () => {
     if (formData.name && formData.description && formData.category) {
-      const newProgram: Program = {
-        id: Date.now().toString(),
-        name: formData.name,
-        description: formData.description,
-        color: formData.color,
-        category: formData.category,
-        classCount: 0,
-        activeMembers: 0,
-        duration: formData.duration,
-        difficulty: formData.difficulty,
-        isActive: true
-      }
-      setPrograms([...programs, newProgram])
+      // In a real app, you'd update the state here
       handleCloseModal()
     }
   }
 
   const handleEditProgram = () => {
     if (editingProgram && formData.name && formData.description && formData.category) {
-      setPrograms(programs.map(p => 
-        p.id === editingProgram.id 
-          ? { ...p, ...formData }
-          : p
-      ))
+      // In a real app, you'd update the state here
       handleCloseModal()
     }
   }
 
   const handleDeleteProgram = (id: string) => {
-    setPrograms(programs.filter(p => p.id !== id))
+    // In a real app, you'd update the state here
+    console.log('Delete program:', id)
   }
 
   const handleToggleActive = (id: string) => {
-    setPrograms(programs.map(p => 
-      p.id === id ? { ...p, isActive: !p.isActive } : p
-    ))
+    // In a real app, you'd update the state here
+    console.log('Toggle active:', id)
   }
 
   const handleCloseModal = () => {
@@ -161,10 +194,13 @@ export default function ProgramsPage() {
     setFormData({
       name: '',
       description: '',
-      color: '#dc2626',
+      color: '#ef4444',
       category: '',
       duration: '45 min',
-      difficulty: 'intermediate'
+      difficulty: 'intermediate',
+      coach: '',
+      capacity: 20,
+      location: ''
     })
   }
 
@@ -176,7 +212,10 @@ export default function ProgramsPage() {
       color: program.color,
       category: program.category,
       duration: program.duration,
-      difficulty: program.difficulty as 'intermediate'
+      difficulty: program.difficulty as 'intermediate',
+      coach: program.coach || '',
+      capacity: program.capacity || 20,
+      location: program.location || ''
     })
     setIsCreateModalOpen(true)
   }
@@ -190,306 +229,364 @@ export default function ProgramsPage() {
     }
   }
 
-  const totalPrograms = programs.length
-  const activePrograms = programs.filter(p => p.isActive).length
-  const totalClasses = programs.reduce((sum, p) => sum + p.classCount, 0)
-  const totalMembers = programs.reduce((sum, p) => sum + p.activeMembers, 0)
+  const getStatusColor = (isActive: boolean) => {
+    return isActive 
+      ? 'bg-emerald-500/20 text-emerald-500 border-emerald-500/30'
+      : 'bg-gray-500/20 text-gray-500 border-gray-500/30'
+  }
+
+  const getTimeAgo = (date: Date) => {
+    const now = new Date()
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+    
+    if (diffInMinutes < 1) return 'Just now'
+    if (diffInMinutes < 60) return `${diffInMinutes} min ago`
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)} hours ago`
+    return `${Math.floor(diffInMinutes / 1440)} days ago`
+  }
+
+  // const totalPrograms = programs.length
+  // const activePrograms = programs.filter(p => p.isActive).length
 
   return (
-    <div className="space-y-8 bg-surface min-h-screen page-transition">
-      {/* Professional Header */}
-      <div className="bg-surface-light border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-start space-x-4">
-              <div className="p-3 bg-gradient-to-br from-red-600 to-red-700 rounded-xl shadow-lg hover-lift">
-                <AcademicCapIcon className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold text-primary-text mb-2">
-                  Class Programs
-                </h1>
-                <p className="text-lg text-secondary-text max-w-2xl">
-                  Manage fitness programs, categories, and class types
-                </p>
-                <div className="flex items-center space-x-6 mt-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-emerald-500 font-medium">Active Programs</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm text-muted">
-                      {activePrograms} of {totalPrograms} programs active
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="mt-6 lg:mt-0">
-              <button 
-                onClick={() => setIsCreateModalOpen(true)}
-                className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg font-semibold hover:from-red-700 hover:to-red-800 transition-all duration-200 flex items-center btn-animate"
-              >
-                <PlusIcon className="h-5 w-5 mr-2" />
-                Create Program
-              </button>
-            </div>
-          </div>
+    <div className="p-6 space-y-6 bg-background min-h-screen">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-light text-primary-text mb-1">PROGRAM TEMPLATES</h1>
+          <p className="text-secondary-text font-light">Manage program templates for your classes</p>
+        </div>
+        
+        <button 
+          onClick={() => setIsCreateModalOpen(true)}
+          className="px-6 py-3 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+        >
+          <PlusIcon className="h-4 w-4" />
+          <span>Create Program</span>
+        </button>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="flex items-center space-x-4">
+        <div className="relative flex-1 max-w-md">
+          <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-secondary-text" />
+          <input
+            type="text"
+            placeholder="Search programs, coaches, or categories..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-surface-light/50 border-0 rounded-xl text-primary-text placeholder-secondary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-surface-light/50 rounded-full transition-colors"
+            >
+              <XCircleIcon className="h-4 w-4 text-secondary-text" />
+            </button>
+          )}
+        </div>
+        
+        <div className="flex bg-surface-light/30 rounded-xl p-1">
+          {[
+            { value: 'all', label: 'ALL PROGRAMS', count: programs.length },
+            { value: 'active', label: 'ACTIVE', count: programs.filter(p => p.isActive).length },
+            { value: 'inactive', label: 'INACTIVE', count: programs.filter(p => !p.isActive).length }
+          ].map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setActiveTab(tab.value)}
+              className={`px-4 py-2 rounded-lg font-light text-sm transition-all duration-200 ${
+                activeTab === tab.value
+                  ? 'bg-primary text-white shadow-lg'
+                  : 'text-secondary-text hover:text-primary-text hover:bg-surface-light/50'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Key Metrics */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                      {[
-              { label: 'Total Programs', value: totalPrograms, icon: AcademicCapIcon, color: 'text-red-500', bgColor: 'bg-red-500/10' },
-              { label: 'Active Programs', value: activePrograms, icon: FireIcon, color: 'text-emerald-500', bgColor: 'bg-emerald-500/10' },
-              { label: 'Total Classes', value: totalClasses, icon: ClockIcon, color: 'text-amber-500', bgColor: 'bg-amber-500/10' },
-              { label: 'Active Members', value: totalMembers, icon: UsersIcon, color: 'text-blue-500', bgColor: 'bg-blue-500/10' }
-            ].map((metric, index) => (
-            <div key={index} className="group">
-              <div className={`bg-surface-light border border-border rounded-xl p-6 hover:shadow-xl transition-all duration-300 relative overflow-hidden card-animate`}>
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`p-3 rounded-xl ${metric.bgColor}`}>
-                    <metric.icon className={`h-6 w-6 ${metric.color}`} />
-                  </div>
-                </div>
-                
-                <div>
-                  <h3 className={`text-3xl font-bold ${metric.color} mb-2 group-hover:scale-105 transition-transform`}>
-                    {metric.value}
-                  </h3>
-                  <p className="text-sm text-secondary-text font-medium">{metric.label}</p>
-                </div>
-              </div>
-            </div>
-          ))}
+      {/* Modern Table */}
+      <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl overflow-hidden shadow-lg">
+        {/* Table Header */}
+        <div className="grid grid-cols-7 gap-4 px-6 py-4 bg-surface-light/30 border-b border-surface-light/30">
+          <div className="text-sm font-light text-secondary-text uppercase tracking-wider">PROGRAM</div>
+          <div className="text-sm font-light text-secondary-text uppercase tracking-wider">CATEGORY</div>
+          <div className="text-sm font-light text-secondary-text uppercase tracking-wider">STATUS</div>
+          <div className="text-sm font-light text-secondary-text uppercase tracking-wider">COACH</div>
+          <div className="text-sm font-light text-secondary-text uppercase tracking-wider">LAST UPDATED</div>
+          <div className="text-sm font-light text-secondary-text uppercase tracking-wider">DIFFICULTY</div>
+          <div className="text-sm font-light text-secondary-text uppercase tracking-wider">ACTIONS</div>
         </div>
 
-        {/* Programs Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {programs.map((program) => (
-            <div key={program.id} className="group">
-              <div className="bg-surface-light border border-border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 card-animate">
-                {/* Program Header */}
-                <div className="p-6 border-b border-border bg-surface/50">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div 
-                        className="w-4 h-4 rounded-full shadow-lg"
-                        style={{ backgroundColor: program.color }}
-                      />
-                      <div>
-                        <h3 className="text-lg font-bold text-primary-text">{program.name}</h3>
-                        <p className="text-sm text-muted">{program.category}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => handleEditClick(program)}
-                        className="p-2 rounded-lg bg-surface hover:bg-surface-light transition-colors text-muted hover:text-primary-text"
-                      >
-                        <PencilIcon className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteProgram(program.id)}
-                        className="p-2 rounded-lg bg-surface hover:bg-red-500/20 transition-colors text-muted hover:text-red-500"
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <p className="text-sm text-secondary-text mb-4">{program.description}</p>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className={`px-3 py-1 rounded-full text-xs font-bold border ${getDifficultyColor(program.difficulty)}`}>
-                      {program.difficulty.charAt(0).toUpperCase() + program.difficulty.slice(1)}
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs text-muted">{program.duration}</span>
-                      <div className={`w-2 h-2 rounded-full ${program.isActive ? 'bg-emerald-500' : 'bg-gray-500'}`} />
-                    </div>
+        {/* Table Body */}
+        <div className="divide-y divide-surface-light/30">
+          {filteredPrograms.length === 0 ? (
+            <div className="px-6 py-12 text-center">
+              <ListBulletIcon className="h-12 w-12 text-secondary-text mx-auto mb-4" />
+              <h3 className="text-lg font-light text-primary-text mb-2">No programs found</h3>
+              <p className="text-sm text-secondary-text">
+                {searchQuery 
+                  ? `No programs match "${searchQuery}"`
+                  : `No ${activeTab === 'all' ? '' : activeTab} programs available`
+                }
+              </p>
+            </div>
+          ) : (
+            filteredPrograms.map((program) => (
+              <div key={program.id} className="grid grid-cols-7 gap-4 px-6 py-4 hover:bg-surface-light/20 transition-colors">
+                {/* Program Name */}
+                <div className="flex items-center space-x-3">
+                  <div 
+                    className="w-3 h-3 rounded-full shadow-sm"
+                    style={{ backgroundColor: program.color }}
+                  />
+                  <div>
+                    <div className="font-medium text-primary-text">{program.name}</div>
+                    <div className="text-sm text-secondary-text">{program.duration}</div>
                   </div>
                 </div>
 
-                {/* Program Stats */}
-                <div className="p-6">
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary-text">{program.classCount}</div>
-                      <div className="text-xs text-muted">Classes</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-primary-text">{program.activeMembers}</div>
-                      <div className="text-xs text-muted">Members</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <button
-                      onClick={() => handleToggleActive(program.id)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                        program.isActive
-                          ? 'bg-emerald-600/20 text-emerald-500 hover:bg-emerald-600 hover:text-white'
-                          : 'bg-gray-600/20 text-gray-500 hover:bg-gray-600 hover:text-white'
-                      }`}
-                    >
-                      {program.isActive ? 'Active' : 'Inactive'}
-                    </button>
-                    <button className="p-2 rounded-lg bg-surface hover:bg-surface-light transition-colors text-muted hover:text-primary-text">
-                      <EyeIcon className="h-4 w-4" />
-                    </button>
-                  </div>
+                {/* Category */}
+                <div className="flex items-center">
+                  <span className="text-sm text-secondary-text">{program.category}</span>
+                </div>
+
+                {/* Status */}
+                <div className="flex items-center">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(program.isActive)}`}>
+                    {program.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+
+                {/* Coach */}
+                <div className="flex items-center">
+                  <span className="text-sm text-secondary-text">{program.coach || '—'}</span>
+                </div>
+
+                {/* Last Updated */}
+                <div className="flex items-center">
+                  <span className="text-sm text-secondary-text">
+                    {program.lastUpdated ? getTimeAgo(program.lastUpdated) : '—'}
+                  </span>
+                </div>
+
+                {/* Difficulty */}
+                <div className="flex items-center">
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(program.difficulty)}`}>
+                    {program.difficulty.charAt(0).toUpperCase() + program.difficulty.slice(1)}
+                  </span>
+                </div>
+
+                {/* Actions */}
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleEditClick(program)}
+                    className="p-2 rounded-lg hover:bg-surface-light/50 transition-colors text-secondary-text hover:text-primary-text"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleToggleActive(program.id)}
+                    className="p-2 rounded-lg hover:bg-surface-light/50 transition-colors text-secondary-text hover:text-primary-text"
+                  >
+                    <EyeIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteProgram(program.id)}
+                    className="p-2 rounded-lg hover:bg-red-500/20 transition-colors text-secondary-text hover:text-red-500"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
       {/* Create/Edit Program Modal */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseModal} />
-          
-          <div className="relative bg-surface-light border border-border rounded-xl shadow-2xl w-full max-w-md">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-border bg-surface/50">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gradient-to-br from-red-600 to-red-700 rounded-lg">
-                  <PlusIcon className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-primary-text">
-                    {editingProgram ? 'Edit Program' : 'Create Program'}
-                  </h2>
-                  <p className="text-sm text-secondary-text">
-                    {editingProgram ? 'Update program details' : 'Add a new fitness program'}
-                  </p>
-                </div>
+      <Dialog open={isCreateModalOpen} onOpenChange={handleCloseModal}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {/* Header */}
+          <DialogHeader className="px-8 pt-8 pb-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-gradient-to-br from-primary to-primary-dark rounded-2xl shadow-lg">
+                <PlusIcon className="h-6 w-6 text-white" />
               </div>
-              <button
-                onClick={handleCloseModal}
-                className="p-2 rounded-lg hover:bg-surface transition-colors text-muted hover:text-primary-text"
-              >
-                <XMarkIcon className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* Form */}
-            <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-primary-text mb-2">
+                <DialogTitle className="text-2xl font-light text-primary-text">
+                  {editingProgram ? 'Edit Program Template' : 'Create Program Template'}
+                </DialogTitle>
+                <DialogDescription className="text-sm text-secondary-text font-light mt-1">
+                  {editingProgram ? 'Update program template details' : 'Add a new program template for your classes'}
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+
+          {/* Form */}
+          <form className="px-8 pb-8 space-y-8">
+            {/* Basic Information */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-light text-primary-text mb-3">
                   Program Name *
                 </label>
                 <Input
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g., HIIT Training"
+                  placeholder="e.g., Burn40, CrossFit"
+                  className="bg-surface-light/50 border-0 rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-primary-text mb-2">
-                  Description *
+                <label className="block text-sm font-light text-primary-text mb-3">
+                  Category *
                 </label>
-                <textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe the program..."
-                  rows={3}
-                  className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary-text focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
-                />
+                <select
+                  value={formData.category}
+                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  className="w-full px-4 py-3 bg-surface-light/50 border-0 rounded-xl text-primary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200 font-light"
+                >
+                  <option value="">Select category</option>
+                  <option value="Cardio">Cardio</option>
+                  <option value="Strength">Strength</option>
+                  <option value="Wellness">Wellness</option>
+                  <option value="Martial Arts">Martial Arts</option>
+                  <option value="Functional">Functional</option>
+                </select>
               </div>
+            </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-primary-text mb-2">
-                    Category *
-                  </label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary-text focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  >
-                    <option value="">Select category</option>
-                    <option value="Cardio">Cardio</option>
-                    <option value="Strength">Strength</option>
-                    <option value="Wellness">Wellness</option>
-                    <option value="Martial Arts">Martial Arts</option>
-                    <option value="Functional">Functional</option>
-                  </select>
-                </div>
+            <div>
+              <label className="block text-sm font-light text-primary-text mb-3">
+                Description *
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Describe the program..."
+                rows={3}
+                className="w-full px-4 py-3 bg-surface-light/50 border-0 rounded-xl text-primary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200 font-light resize-none"
+              />
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-primary-text mb-2">
-                    Duration
-                  </label>
-                  <select
-                    value={formData.duration}
-                    onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary-text focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  >
-                    <option value="30 min">30 min</option>
-                    <option value="45 min">45 min</option>
-                    <option value="60 min">60 min</option>
-                    <option value="75 min">75 min</option>
-                    <option value="90 min">90 min</option>
-                  </select>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-light text-primary-text mb-3">
+                  Duration
+                </label>
+                <select
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                  className="w-full px-4 py-3 bg-surface-light/50 border-0 rounded-xl text-primary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200 font-light"
+                >
+                  <option value="30 min">30 min</option>
+                  <option value="40 min">40 min</option>
+                  <option value="45 min">45 min</option>
+                  <option value="50 min">50 min</option>
+                  <option value="60 min">60 min</option>
+                  <option value="75 min">75 min</option>
+                  <option value="90 min">90 min</option>
+                </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-primary-text mb-2">
+                <label className="block text-sm font-light text-primary-text mb-3">
                   Difficulty Level
                 </label>
-                                  <select
-                    value={formData.difficulty}
-                    onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary-text focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                  >
+                <select
+                  value={formData.difficulty}
+                  onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as 'beginner' | 'intermediate' | 'advanced' })}
+                  className="w-full px-4 py-3 bg-surface-light/50 border-0 rounded-xl text-primary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200 font-light"
+                >
                   <option value="beginner">Beginner</option>
                   <option value="intermediate">Intermediate</option>
                   <option value="advanced">Advanced</option>
                 </select>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-light text-primary-text mb-3">
+                  Coach (Optional)
+                </label>
+                <Input
+                  value={formData.coach}
+                  onChange={(e) => setFormData({ ...formData, coach: e.target.value })}
+                  placeholder="e.g., Sarah Johnson"
+                  className="bg-surface-light/50 border-0 rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+                />
+              </div>
 
               <div>
-                <label className="block text-sm font-medium text-primary-text mb-2">
-                  Program Color
+                <label className="block text-sm font-light text-primary-text mb-3">
+                  Capacity
                 </label>
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="color"
-                    value={formData.color}
-                    onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                    className="w-12 h-12 rounded-lg border border-border cursor-pointer"
-                  />
-                  <span className="text-sm text-secondary-text">{formData.color}</span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-end space-x-3 pt-4 border-t border-border">
-                <Button
-                  variant="outline"
-                  onClick={handleCloseModal}
-                  className="btn-animate"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={editingProgram ? handleEditProgram : handleCreateProgram}
-                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white btn-animate"
-                >
-                  {editingProgram ? 'Update Program' : 'Create Program'}
-                </Button>
+                <Input
+                  type="number"
+                  value={formData.capacity}
+                  onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) || 20 })}
+                  placeholder="20"
+                  className="bg-surface-light/50 border-0 rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+                />
               </div>
             </div>
-          </div>
-        </div>
-      )}
+
+            <div>
+              <label className="block text-sm font-light text-primary-text mb-3">
+                Location (Optional)
+              </label>
+              <Input
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                placeholder="e.g., Studio A, Weight Room"
+                className="bg-surface-light/50 border-0 rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-light text-primary-text mb-3">
+                Program Color
+              </label>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="color"
+                  value={formData.color}
+                  onChange={(e) => setFormData({ ...formData, color: e.target.value })}
+                  className="w-16 h-16 rounded-xl border-0 cursor-pointer shadow-lg"
+                />
+                <div className="flex-1">
+                  <div className="text-sm text-secondary-text font-light mb-1">Color Preview</div>
+                  <div className="text-sm text-primary-text font-light">{formData.color}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center justify-end space-x-4 pt-6 border-t border-surface-light/30">
+              <Button
+                variant="outline"
+                onClick={handleCloseModal}
+                className="px-6 py-3 bg-surface-light/50 border-0 rounded-xl font-light text-sm hover:bg-surface-light transition-all duration-200"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={editingProgram ? handleEditProgram : handleCreateProgram}
+                className="px-6 py-3 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                {editingProgram ? 'Update Program' : 'Create Program'}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 } 

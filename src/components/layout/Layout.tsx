@@ -60,7 +60,7 @@ const Layout = React.forwardRef<HTMLDivElement, LayoutProps>(
           />
 
           {/* Content */}
-          <main className="flex-1 overflow-auto p-4 lg:p-6 page-transition">
+          <main className="flex-1 overflow-auto p-2 lg:p-4 page-transition">
             {children}
           </main>
         </div>

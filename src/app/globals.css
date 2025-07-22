@@ -2,46 +2,46 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --background: #0f0f23;
-  --foreground: #ffffff;
+  --background: #141414;
+  --foreground: #c0c0c0;
   
-  /* Modern Gym CRM Color Palette - Vibrant & Professional */
-  --color-primary: #dc2626; /* Red-600 - True vibrant red */
-  --color-primary-dark: #b91c1c; /* Red-700 - Darker for hover */
-  --color-primary-light: #ef4444; /* Red-500 - Lighter for accents */
-  --color-secondary: #1e293b; /* Slate-800 for secondary elements */
-  --color-accent: #0f172a; /* Slate-900 for subtle backgrounds */
-  --color-surface: #1a1a2e; /* Modern dark surface */
-  --color-surface-light: #16213e; /* Lighter surface variant */
-  --color-border: #334155; /* Slate-600 for visible borders */
-  --color-text-primary: #ffffff; /* Pure white for primary text */
-  --color-text-secondary: #e2e8f0; /* Slate-200 for secondary text */
-  --color-text-muted: #94a3b8; /* Slate-400 for muted text */
-  --color-success: #10b981; /* Emerald-500 - bright green */
-  --color-warning: #f59e0b; /* Amber-500 - bright orange */
-  --color-danger: #ef4444; /* Red-500 - bright red */
-  --color-info: #3b82f6; /* Blue-500 - bright blue */
+  /* New Color Palette - Black, Red & Green Theme */
+  --color-primary: #f34a22; /* Red - Primary brand color */
+  --color-primary-dark: #d93f1e; /* Darker red for hover */
+  --color-primary-light: #ff5a3a; /* Lighter red for accents */
+  --color-secondary: #1c1c1c; /* Dark black for secondary elements */
+  --color-accent: #1c1c1c; /* Dark black for subtle backgrounds */
+  --color-surface: #1c1c1c; /* Main surface color */
+  --color-surface-light: #2a2a2a; /* Lighter surface variant */
+  --color-border: #333333; /* Dark grey for visible borders */
+  --color-text-primary: #c0c0c0; /* Light grey for primary text */
+  --color-text-secondary: #a0a0a0; /* Medium grey for secondary text */
+  --color-text-muted: #808080; /* Darker grey for muted text */
+  --color-success: #c3fb67; /* Green - success/highlight color */
+  --color-warning: #f59e0b; /* Amber - warning color */
+  --color-danger: #f34a22; /* Red - danger color */
+  --color-info: #3b82f6; /* Blue - info color */
   
   /* Program-specific colors for calendar */
-  --color-program-crossfit: #ef4444; /* Red */
-  --color-program-hiit: #f97316; /* Orange */
-  --color-program-yoga: #8b5cf6; /* Purple */
-  --color-program-strength: #06b6d4; /* Cyan */
+  --color-program-crossfit: #f34a22; /* Red */
+  --color-program-hiit: #ff5a3a; /* Light red */
+  --color-program-yoga: #c3fb67; /* Green */
+  --color-program-strength: #8b5cf6; /* Purple */
   --color-program-cardio: #ec4899; /* Pink */
   --color-program-pilates: #10b981; /* Emerald */
   
   /* Status colors for better visibility */
-  --color-status-active: #10b981;
+  --color-status-active: #c3fb67;
   --color-status-pending: #f59e0b;
-  --color-status-inactive: #6b7280;
-  --color-status-high-demand: #ef4444;
+  --color-status-inactive: #808080;
+  --color-status-high-demand: #f34a22;
   
   /* Gradient backgrounds for premium feel */
-  --gradient-primary: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  --gradient-surface: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-primary: linear-gradient(135deg, #f34a22 0%, #d93f1e 100%);
+  --gradient-surface: linear-gradient(135deg, #1c1c1c 0%, #2a2a2a 100%);
+  --gradient-success: linear-gradient(135deg, #c3fb67 0%, #a8e85a 100%);
   --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --gradient-danger: linear-gradient(135deg, #f34a22 0%, #d93f1e 100%);
 }
 
 @theme inline {
@@ -67,14 +67,14 @@
 @media (prefers-color-scheme: light) {
   :root {
     --background: #ffffff;
-    --foreground: #171717;
+    --foreground: #1c1c1c;
     --color-accent: #f8fafc;
     --color-surface: #ffffff;
     --color-surface-light: #f1f5f9;
     --color-border: #e2e8f0;
-    --color-text-primary: #171717;
-    --color-text-secondary: #334155;
-    --color-text-muted: #64748b;
+    --color-text-primary: #1c1c1c;
+    --color-text-secondary: #333333;
+    --color-text-muted: #666666;
   }
 }
 
@@ -149,7 +149,7 @@ body {
 
 .btn-animate:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+  box-shadow: 0 4px 12px rgba(243, 74, 34, 0.4);
 }
 
 /* Loading animations */
@@ -296,13 +296,13 @@ body {
     color: white;
     font-weight: 600;
     border: none;
-    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+    box-shadow: 0 2px 4px rgba(243, 74, 34, 0.3);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .btn-gym-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4);
+    box-shadow: 0 4px 8px rgba(243, 74, 34, 0.4);
   }
   
   /* Metric Cards */
@@ -370,7 +370,7 @@ body {
   font-family: 'Inter', sans-serif !important;
   background-color: var(--color-surface) !important;
   border-radius: 12px !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3) !important;
   padding: 0 !important;
   margin: 0 !important;
 }
@@ -407,12 +407,12 @@ body {
   text-transform: none !important;
   letter-spacing: normal !important;
   margin: 0 4px !important;
-  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3) !important;
+  box-shadow: 0 2px 4px rgba(243, 74, 34, 0.3) !important;
 }
 
 .fc .fc-button-primary:hover {
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 8px rgba(220, 38, 38, 0.4) !important;
+  box-shadow: 0 4px 8px rgba(243, 74, 34, 0.4) !important;
 }
 
 .fc .fc-button-primary:disabled {
