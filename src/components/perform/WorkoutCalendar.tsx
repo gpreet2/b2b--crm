@@ -38,6 +38,7 @@ interface WorkoutEvent {
 interface WorkoutCalendarProps {
   events: WorkoutEvent[]
   view: 'week' | 'month' | 'list'
+  currentDate?: Date
   onEventClick?: (event: WorkoutEvent) => void
   onDateClick?: (date: Date) => void
   onViewChange?: (view: 'week' | 'month' | 'list') => void
@@ -47,12 +48,12 @@ interface WorkoutCalendarProps {
 export default function WorkoutCalendar({
   events,
   view,
+  currentDate = new Date(),
   onEventClick,
   onDateClick,
   onViewChange,
   onAddWorkout
 }: WorkoutCalendarProps) {
-  const [currentDate, setCurrentDate] = useState(new Date())
 
   // Get week dates
   const getWeekDates = (date: Date) => {
@@ -129,20 +130,6 @@ export default function WorkoutCalendar({
     '18:00', '19:00', '20:00', '21:00'
   ]
 
-  const navigateDate = (direction: 'prev' | 'next') => {
-    const newDate = new Date(currentDate)
-    if (view === 'week') {
-      newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7))
-    } else {
-      newDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1))
-    }
-    setCurrentDate(newDate)
-  }
-
-  const goToToday = () => {
-    setCurrentDate(new Date())
-  }
-
   const formatDateHeader = () => {
     if (view === 'week') {
       const weekDates = getWeekDates(currentDate)
@@ -205,6 +192,22 @@ export default function WorkoutCalendar({
   const renderWeekView = () => {
     const weekDates = getWeekDates(currentDate)
     
+    const handleDragOver = (e: React.DragEvent) => {
+      e.preventDefault()
+    }
+
+    const handleDrop = (e: React.DragEvent, date: Date) => {
+      e.preventDefault()
+      try {
+        const workoutData = JSON.parse(e.dataTransfer.getData('application/json'))
+        console.log('Dropped workout on date:', date, workoutData)
+        // Here you would typically create a new workout event
+        onDateClick?.(date)
+      } catch (error) {
+        console.error('Error parsing dropped workout data:', error)
+      }
+    }
+    
     return (
       <div className="overflow-x-auto">
         {/* Week Header */}
@@ -241,8 +244,14 @@ export default function WorkoutCalendar({
               <div 
                 key={index}
                 className="border-r border-border/50 last:border-r-0 p-4 space-y-2 min-h-[400px] bg-surface hover:bg-surface-light/30 transition-colors duration-200"
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, date)}
               >
                 {dayEvents.map(renderWorkoutEvent)}
+                {/* Drop zone indicator */}
+                <div className="opacity-0 hover:opacity-100 transition-opacity duration-200 p-2 border-2 border-dashed border-primary/30 rounded-lg text-center text-xs text-primary/70">
+                  Drop workout here
+                </div>
               </div>
             )
           })}
@@ -257,6 +266,22 @@ export default function WorkoutCalendar({
     
     for (let i = 0; i < monthDates.length; i += 7) {
       weeks.push(monthDates.slice(i, i + 7))
+    }
+
+    const handleDragOver = (e: React.DragEvent) => {
+      e.preventDefault()
+    }
+
+    const handleDrop = (e: React.DragEvent, date: Date) => {
+      e.preventDefault()
+      try {
+        const workoutData = JSON.parse(e.dataTransfer.getData('application/json'))
+        console.log('Dropped workout on date:', date, workoutData)
+        // Here you would typically create a new workout event
+        onDateClick?.(date)
+      } catch (error) {
+        console.error('Error parsing dropped workout data:', error)
+      }
     }
     
     return (
@@ -285,6 +310,8 @@ export default function WorkoutCalendar({
                   !isCurrentMonth ? 'text-muted bg-surface-light/50' : ''
                 } ${isToday ? 'bg-primary/10' : ''}`}
                 onClick={() => onDateClick?.(date)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, date)}
               >
                 <div className={`text-sm font-medium mb-1 ${isToday ? 'text-primary' : 'text-primary-text'}`}>
                   {date.getDate()}
@@ -442,84 +469,10 @@ export default function WorkoutCalendar({
   }
 
   return (
-    <Card className="overflow-hidden card-animate">
-      <CardHeader className="border-b border-border/50 bg-surface-light/30 p-6">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center space-x-2">
-            <CalendarIcon className="h-5 w-5 text-primary" />
-            <span className="text-primary-text">Workout Schedule</span>
-          </CardTitle>
-          
-          {/* Navigation Controls */}
-          <div className="flex items-center space-x-3">
-            {/* View Toggle */}
-            <div className="flex items-center bg-surface-light/30 rounded-lg p-1">
-              <button
-                onClick={() => onViewChange?.('week')}
-                className={`px-3 py-1 rounded-md text-xs font-light transition-all duration-200 ${
-                  view === 'week' 
-                    ? 'bg-primary text-white' 
-                    : 'text-secondary-text hover:text-primary-text'
-                }`}
-              >
-                Week
-              </button>
-              <button
-                onClick={() => onViewChange?.('month')}
-                className={`px-3 py-1 rounded-md text-xs font-light transition-all duration-200 ${
-                  view === 'month' 
-                    ? 'bg-primary text-white' 
-                    : 'text-secondary-text hover:text-primary-text'
-                }`}
-              >
-                Month
-              </button>
-              <button
-                onClick={() => onViewChange?.('list')}
-                className={`px-3 py-1 rounded-md text-xs font-light transition-all duration-200 ${
-                  view === 'list' 
-                    ? 'bg-primary text-white' 
-                    : 'text-secondary-text hover:text-primary-text'
-                }`}
-              >
-                List
-              </button>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" onClick={() => navigateDate('prev')} className="btn-animate border-border/50">
-                <ChevronLeftIcon className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="sm" onClick={goToToday} className="btn-animate border-border/50">
-                Today
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => navigateDate('next')} className="btn-animate border-border/50">
-                <ChevronRightIcon className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Add Workout Button */}
-            <Button 
-              onClick={onAddWorkout}
-              className="bg-gradient-to-r from-primary to-primary-dark text-white hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center space-x-2 shadow-lg"
-            >
-              <PlusIcon className="h-4 w-4" />
-              <span>Add Workout</span>
-            </Button>
-          </div>
-        </div>
-        
-        {/* Date Range Display */}
-        <div className="text-sm text-secondary-text mt-2">
-          {formatDateHeader()}
-        </div>
-      </CardHeader>
-
-      <CardContent className="p-6">
-        {view === 'week' && renderWeekView()}
-        {view === 'month' && renderMonthView()}
-        {view === 'list' && renderListView()}
-      </CardContent>
-    </Card>
+    <div className="h-full">
+      {view === 'week' && renderWeekView()}
+      {view === 'month' && renderMonthView()}
+      {view === 'list' && renderListView()}
+    </div>
   )
 } 

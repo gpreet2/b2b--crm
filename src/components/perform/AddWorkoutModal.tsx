@@ -1,42 +1,17 @@
-'use client'
+"use client";
 
-import React, { useState, useEffect } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/Dialog'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { Badge } from '@/components/ui/Badge'
-import { 
-  PlusIcon, 
-  TrashIcon, 
-  ClockIcon,
-  FireIcon,
-  BoltIcon,
-  HeartIcon,
-  UserGroupIcon,
-} from '@heroicons/react/24/outline'
-import WorkoutLibrary from './WorkoutLibrary'
+import React, { useState, useEffect } from "react";
 
-interface WorkoutSegment {
-  id: string
-  title: string
-  description: string
-  duration: number
-  category: string
-  exercises: Array<{
-    name: string
-    sets: number
-    reps?: number
-    duration?: number
-  }>
-  color: string
-}
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { PlusIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import WorkoutSidebar from "./WorkoutSidebar";
 
 interface AddWorkoutModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSave: (workoutData: Record<string, unknown>) => void
-  selectedDate?: Date | null
-  onOpenWorkoutLibrary?: () => void
+  isOpen: boolean;
+  onClose: () => void;
+  onSave: (workoutData: Record<string, unknown>) => void;
+  selectedDate?: Date | null;
 }
 
 export default function AddWorkoutModal({
@@ -44,23 +19,26 @@ export default function AddWorkoutModal({
   onClose,
   onSave,
   selectedDate,
-  onOpenWorkoutLibrary
 }: AddWorkoutModalProps) {
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-  const [startTime, setStartTime] = useState('07:00')
-  const [workoutSegments, setWorkoutSegments] = useState<WorkoutSegment[]>([])
-  const [showWorkoutLibrary, setShowWorkoutLibrary] = useState(false)
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [startTime, setStartTime] = useState("07:00");
+
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
 
   // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
-      setTitle('')
-      setDescription('')
-      setStartTime('07:00')
-      setWorkoutSegments([])
+      setTitle("");
+      setDescription("");
+      setStartTime("07:00");
+
+      setShowSidebar(true); // Show sidebar when modal opens
+    } else {
+      setShowSidebar(false); // Hide sidebar when modal closes
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   const handleSave = () => {
     const workoutData = {
@@ -68,233 +46,225 @@ export default function AddWorkoutModal({
       description,
       startTime,
       date: selectedDate || new Date(),
-      segments: workoutSegments,
-      totalDuration: workoutSegments.reduce((total, segment) => total + segment.duration, 0)
+    };
+    onSave(workoutData);
+
+    // Reset form for next workout but keep modal open
+    setTitle("");
+    setDescription("");
+    setStartTime("07:00");
+  };
+
+  const handleSaveAndClose = () => {
+    const workoutData = {
+      title,
+      description,
+      startTime,
+      date: selectedDate || new Date(),
+    };
+    onSave(workoutData);
+    onClose();
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    try {
+      const jsonData = e.dataTransfer.getData("application/json");
+      if (!jsonData) {
+        console.warn("No JSON data found in drag event");
+        return;
+      }
+
+      const workoutData = JSON.parse(jsonData);
+
+      // Auto-fill the form with the dropped workout data
+      if (!title) {
+        setTitle(workoutData.title || "");
+      }
+      if (!description) {
+        setDescription(workoutData.description || "");
+      }
+
+      // Show success feedback
+      console.log("Workout added successfully:", workoutData.title);
+    } catch (error) {
+      console.error("Error parsing dropped workout data:", error);
     }
-    onSave(workoutData)
-  }
+  };
 
-  const handleOpenWorkoutLibrary = () => {
-    setShowWorkoutLibrary(true)
-  }
-
-  const handleSelectWorkout = (workout: any) => {
-    const newSegment: WorkoutSegment = {
-      id: Date.now().toString(),
-      title: workout.name,
-      description: workout.description,
-      duration: workout.estimatedDuration,
-      category: workout.category,
-      exercises: workout.exercises,
-      color: workout.color
-    }
-    setWorkoutSegments([...workoutSegments, newSegment])
-    setShowWorkoutLibrary(false)
-  }
-
-  const handleRemoveSegment = (segmentId: string) => {
-    setWorkoutSegments(workoutSegments.filter(segment => segment.id !== segmentId))
-  }
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'crossfit':
-        return <FireIcon className="h-4 w-4" />
-      case 'burn40':
-        return <BoltIcon className="h-4 w-4" />
-      case 'strength':
-        return <UserGroupIcon className="h-4 w-4" />
-      case 'cardio':
-        return <HeartIcon className="h-4 w-4" />
-      default:
-        return <ClockIcon className="h-4 w-4" />
-    }
-  }
+  if (!isOpen) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-md max-h-[90vh] overflow-y-auto p-0 bg-surface border-0">
-        {/* Header */}
-        <DialogHeader className="p-6 bg-gradient-to-r from-surface-light/50 to-surface-light/30">
-          <DialogTitle className="text-xl font-semibold text-primary-text">Add New Workout</DialogTitle>
-          <DialogDescription className="text-sm text-secondary-text">
-            {selectedDate 
-              ? `Scheduled for ${selectedDate.toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}`
-              : 'Create a new workout session'
-            }
-          </DialogDescription>
-        </DialogHeader>
+    <>
+      {/* Workout Sidebar */}
+      <WorkoutSidebar
+        isOpen={showSidebar}
+        onClose={() => setShowSidebar(false)}
+        onAddWorkout={(workout) => {
+          // Handle workout selection for drag and drop
+          console.log("Selected workout:", workout);
+        }}
+      />
 
-        {/* Content */}
-        <div className="p-6 space-y-6">
-          {/* Basic Information */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-primary-text mb-2">
-                Workout Title *
-              </label>
-              <Input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g., CrossFit WOD, Morning Cardio"
-                className="w-full bg-surface border-border/50 text-primary-text placeholder:text-muted focus:border-primary"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-primary-text mb-2">
-                Start Time *
-              </label>
-              <Input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="w-full bg-surface border-border/50 text-primary-text"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-primary-text mb-2">
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Brief description of the workout..."
-                className="w-full px-3 py-2 bg-surface border border-border/50 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-primary-text placeholder:text-muted"
-                rows={3}
-              />
-            </div>
-          </div>
-
-          {/* Workout Segments */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-primary-text">Workout Segments</h3>
-              <div className="flex items-center space-x-2 text-sm text-secondary-text">
-                <ClockIcon className="h-4 w-4" />
-                <span>Total: {workoutSegments.reduce((total, segment) => total + segment.duration, 0)}m</span>
-              </div>
-            </div>
-
-            {workoutSegments.length === 0 ? (
-              <div className="p-6 text-center border-2 border-dashed border-border/50 rounded-lg">
-                <p className="text-sm text-secondary-text mb-3">No workout segments added yet</p>
-                <Button
-                  onClick={handleOpenWorkoutLibrary}
-                  variant="outline"
-                  className="border-primary/30 text-primary hover:bg-primary/10"
-                >
-                  <PlusIcon className="h-4 w-4 mr-2" />
-                  Add from Library
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {workoutSegments.map((segment, index) => (
-                  <div
-                    key={segment.id}
-                    className="p-4 bg-surface-light/30 rounded-lg border border-border/50"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3 flex-1">
-                        <div 
-                          className="w-3 h-3 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: segment.color }}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <h4 className="text-sm font-medium text-primary-text truncate">
-                              {segment.title}
-                            </h4>
-                            <Badge className="text-xs bg-primary/20 text-primary">
-                              {segment.duration}m
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-secondary-text mb-2">
-                            {segment.description}
-                          </p>
-                          <div className="flex items-center space-x-2">
-                            {getCategoryIcon(segment.category)}
-                            <span className="text-xs text-secondary-text capitalize">
-                              {segment.category}
-                            </span>
-                            <span className="text-xs text-secondary-text">
-                              • {segment.exercises.length} exercises
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => handleRemoveSegment(segment.id)}
-                        variant="outline"
-                        size="sm"
-                        className="ml-3 border-border/50 text-secondary-text hover:text-red-500 hover:border-red-300"
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                
-                <Button
-                  onClick={handleOpenWorkoutLibrary}
-                  variant="outline"
-                  className="w-full border-dashed border-primary/30 text-primary hover:bg-primary/10"
-                >
-                  <PlusIcon className="h-4 w-4 mr-2" />
-                  Add Another Segment
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {/* Workout Library Option */}
-          <div className="p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl">
-            <h3 className="text-sm font-medium text-primary-text mb-2">Workout Library</h3>
-            <p className="text-xs text-secondary-text mb-3">
-              Browse pre-built workout templates and add them to your session
-            </p>
-            <Button
-              onClick={handleOpenWorkoutLibrary}
-              variant="outline"
-              className="w-full border-primary/30 text-primary hover:bg-primary/10"
-            >
-              Browse Workout Library
-            </Button>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-end space-x-3 p-6 bg-gradient-to-r from-surface-light/30 to-surface-light/20">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            className="px-6 border-border/50 text-primary-text hover:bg-surface/50"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSave}
-            disabled={!title.trim()}
-            className="px-6 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white"
-          >
-            Save Workout
-          </Button>
-        </div>
-      </DialogContent>
-
-      {/* Workout Library Modal */}
-      {showWorkoutLibrary && (
-        <WorkoutLibrary
-          onSelectWorkout={handleSelectWorkout}
-          onClose={() => setShowWorkoutLibrary(false)}
+      {/* Custom Modal Layout */}
+      <div className="fixed inset-0 z-[60] flex">
+        {/* Backdrop - only covers area to the right of sidebar */}
+        <div
+          className="fixed top-0 left-80 right-0 bottom-0 bg-black/50 backdrop-blur-sm z-[61]"
+          onClick={onClose}
         />
-      )}
-    </Dialog>
-  )
-} 
+
+        {/* Modal positioned to the right of sidebar */}
+        <div className="relative ml-80 flex-1 flex items-center justify-center p-4 z-[62]">
+          <div className="relative bg-surface rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border-0">
+            {/* Header */}
+            <div className="p-6 bg-gradient-to-r from-surface-light/50 to-surface-light/30">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-semibold text-primary-text">
+                    Add New Workout
+                  </h2>
+                  <p className="text-sm text-secondary-text">
+                    {selectedDate
+                      ? `Scheduled for ${selectedDate.toLocaleDateString(
+                          "en-US",
+                          {
+                            weekday: "long",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}`
+                      : "Create a new workout session"}
+                  </p>
+                </div>
+                <Button
+                  onClick={onClose}
+                  variant="outline"
+                  size="sm"
+                  className="border-border/50 text-primary-text hover:bg-surface/50"
+                >
+                  <XMarkIcon className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 space-y-6">
+              {/* Basic Information */}
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-primary-text mb-2">
+                    Workout Title *
+                  </label>
+                  <Input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="e.g., CrossFit WOD, Morning Cardio"
+                    className="w-full bg-surface border-border/50 text-primary-text placeholder:text-muted focus:border-primary"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-primary-text mb-2">
+                    Start Time *
+                  </label>
+                  <Input
+                    type="time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e.target.value)}
+                    className="w-full bg-surface border-border/50 text-primary-text"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-primary-text mb-2">
+                    Description
+                  </label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Brief description of the workout..."
+                    className="w-full px-3 py-2 bg-surface border border-border/50 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none text-primary-text placeholder:text-muted"
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              {/* Quick Add Zone */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-primary-text">
+                  Quick Add Workout
+                </h3>
+
+                <div
+                  className={`min-h-[120px] p-6 border-2 border-dashed rounded-lg transition-all duration-200 ${
+                    isDragOver
+                      ? "border-primary bg-primary/10"
+                      : "border-border/50 bg-surface-light/20"
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <div className="text-center">
+                    <PlusIcon className="h-8 w-8 text-secondary-text mx-auto mb-3" />
+                    <p className="text-sm text-secondary-text mb-2">
+                      {isDragOver
+                        ? "Drop workout here to auto-fill form"
+                        : "Drag a workout from the sidebar"}
+                    </p>
+                    <p className="text-xs text-muted">
+                      This will automatically fill the title and description
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-surface-light/30 to-surface-light/20">
+              <div className="text-xs text-secondary-text">
+                💡 Tip: Drag workouts from the sidebar to auto-fill the form
+              </div>
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="outline"
+                  onClick={onClose}
+                  className="px-6 border-border/50 text-primary-text hover:bg-surface/50"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSave}
+                  disabled={!title.trim()}
+                  className="px-4 bg-gradient-to-r from-success to-success-dark hover:from-success-dark hover:to-success text-white"
+                >
+                  Save & Add Another
+                </Button>
+                <Button
+                  onClick={handleSaveAndClose}
+                  disabled={!title.trim()}
+                  className="px-6 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white"
+                >
+                  Save & Close
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

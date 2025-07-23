@@ -11,7 +11,6 @@ import {
   ClockIcon,
   MagnifyingGlassIcon,
   BookmarkIcon,
-  ArrowRightIcon,
 } from '@heroicons/react/24/outline'
 
 interface WorkoutSidebarProps {
@@ -229,12 +228,7 @@ export default function WorkoutSidebar({
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex">
-      {/* Backdrop */}
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-      
-      {/* Sidebar */}
-      <div className="relative bg-surface w-full max-w-md h-full shadow-2xl overflow-y-auto border-r border-border/50">
+    <div className="fixed top-0 left-0 w-80 h-full z-[65] bg-surface shadow-2xl overflow-y-auto border-r border-border/50">
         {/* Header */}
         <div className="sticky top-0 bg-gradient-to-r from-surface-light/50 to-surface-light/30 p-6">
           <div className="flex items-center justify-between mb-4">
@@ -375,16 +369,9 @@ export default function WorkoutSidebar({
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between">
-                  <button
-                    onClick={() => handleAddWorkout(workout)}
-                    className="flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-lg hover:from-primary-dark hover:to-primary transition-all duration-200 text-sm font-medium"
-                  >
-                    <PlusIcon className="h-4 w-4" />
-                    <span>Add to Calendar</span>
-                  </button>
+                <div className="text-center">
                   <div className="text-xs text-secondary-text">
-                    Drag to calendar
+                    Drag to add workout
                   </div>
                 </div>
               </div>
@@ -399,7 +386,6 @@ export default function WorkoutSidebar({
             </div>
           )}
         </div>
-      </div>
     </div>
   )
 } 
