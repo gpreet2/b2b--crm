@@ -1,4 +1,4 @@
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 import { User } from '@supabase/supabase-js'
 
 export type UserRole = 'owner' | 'admin' | 'coach' | 'member'
@@ -128,7 +128,7 @@ export function getDisplayName(user: AuthUser | null): string {
  * Initialize Supabase client for client-side operations
  */
 export function createSupabaseClient() {
-  return createClientComponentClient()
+  return createClient()
 }
 
 /**

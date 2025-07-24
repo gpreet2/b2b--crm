@@ -1,8 +1,10 @@
 "use client"
 import React, { useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Sidebar } from './Sidebar'
 import { Header, HeaderProps } from './Header'
+import { useAuth } from '@/lib/auth-context'
 
 export interface LayoutProps extends React.HTMLAttributes<HTMLDivElement> {
   headerProps?: Partial<HeaderProps>
@@ -17,6 +19,8 @@ const Layout = React.forwardRef<HTMLDivElement, LayoutProps>(
     ...props 
   }, ref) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+    const pathname = usePathname()
+    const { loading } = useAuth()
 
     const toggleMobileMenu = () => {
       setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -25,6 +29,22 @@ const Layout = React.forwardRef<HTMLDivElement, LayoutProps>(
     const closeMobileMenu = () => {
       setIsMobileMenuOpen(false)
     }
+
+    // Routes that should not show the dashboard layout
+    const authRoutes = ['/signin', '/dev-bypass', '/test-auth', '/test-login', '/test-integration', '/test-summary']
+    const isAuthRoute = authRoutes.includes(pathname)
+
+    // Show auth pages without dashboard layout
+    if (isAuthRoute) {
+      return (
+        <div ref={ref} className={cn(className)} {...props}>
+          {children}
+        </div>
+      )
+    }
+
+    // Don't check loading state for non-auth routes to prevent hydration mismatch
+    // The auth context will handle its own loading state
 
     return (
       <div

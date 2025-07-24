@@ -148,7 +148,7 @@
         "id": 3,
         "title": "Set up Authentication and Authorization System",
         "description": "Implement Supabase Auth with JWT claims and role-based access control for the multi-tenant platform",
-        "status": "done",
+        "status": "in-progress",
         "priority": "high",
         "details": "Configure Supabase Auth with custom JWT claims for user roles (admin, trainer, member). Set up user registration, login, and profile management. Implement role-based middleware for API access control.",
         "testStrategy": "Test authentication flow, JWT token generation, and role-based access to different parts of the application",
@@ -198,6 +198,33 @@
             "description": "Test the complete authentication and authorization system",
             "details": "Create comprehensive tests for user registration, login, logout, and role assignment. Test JWT token generation and validation. Test role-based access control and authorization middleware. Test auth context and hooks functionality. Verify proper error handling and edge cases.",
             "status": "done",
+            "dependencies": [],
+            "parentTaskId": 3
+          },
+          {
+            "id": 6,
+            "title": "Set up Supabase Client Configuration",
+            "description": "Configure Supabase client in Next.js with environment variables",
+            "details": "Create Supabase client configuration, set up environment variables properly, configure auth helpers for Next.js, and establish database connection.",
+            "status": "in-progress",
+            "dependencies": [],
+            "parentTaskId": 3
+          },
+          {
+            "id": 7,
+            "title": "Integrate Auth Context with Next.js App",
+            "description": "Integrate AuthProvider with the Next.js app layout and replace mock data",
+            "details": "Wrap the app with AuthProvider, update layout.tsx to use real auth state, replace all mock user data with real auth context, and implement proper loading states.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 3
+          },
+          {
+            "id": 8,
+            "title": "Create Login/Logout Pages and Auth Flow",
+            "description": "Create actual login, logout, and signup pages with working authentication flow",
+            "details": "Create login page, signup page, logout functionality, auth redirects, error handling, and integrate with the auth context to provide working user authentication.",
+            "status": "pending",
             "dependencies": [],
             "parentTaskId": 3
           }
@@ -854,7 +881,7 @@
       "completedTasks": 0,
       "pendingTasks": 33,
       "description": "Tasks for master context",
-      "updated": "2025-07-24T05:11:28.298Z"
+      "updated": "2025-07-24T05:20:38.550Z"
     }
   }
 }

@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/lib/auth-context'
 import { 
   ChevronDownIcon,
   Cog6ToothIcon,
@@ -24,6 +25,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
   }, ref) => {
     const pathname = usePathname()
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
+    const { signOut } = useAuth()
 
     const toggleExpanded = (itemId: string) => {
       const newExpanded = new Set(expandedItems)
@@ -39,6 +41,14 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
       // Close mobile menu when navigating
       if (onClose) {
         onClose()
+      }
+    }
+
+    const handleLogout = async () => {
+      try {
+        await signOut()
+      } catch (error) {
+        console.error('Error logging out:', error)
       }
     }
 
@@ -198,6 +208,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
           </button>
           
           <button
+            onClick={handleLogout}
             className={cn(
               'w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-left transition-all duration-200 text-secondary-text hover:bg-accent hover:text-primary-text'
             )}

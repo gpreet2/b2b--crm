@@ -1,6 +1,6 @@
 # Task ID: 3
 # Title: Set up Authentication and Authorization System
-# Status: pending
+# Status: in-progress
 # Dependencies: 2
 # Priority: high
 # Description: Implement Supabase Auth with JWT claims and role-based access control for the multi-tenant platform
@@ -11,33 +11,51 @@ Configure Supabase Auth with custom JWT claims for user roles (admin, trainer, m
 Test authentication flow, JWT token generation, and role-based access to different parts of the application
 
 # Subtasks:
-## 1. Configure Supabase Auth [pending]
+## 1. Configure Supabase Auth [done]
 ### Dependencies: None
 ### Description: Set up Supabase authentication with proper configuration
 ### Details:
 Configure Supabase Auth settings including email confirmation, password policies, and session management. Set up custom JWT claims for gym_id and role. Configure auth providers (email/password, social logins if needed). Set up proper redirect URLs and email templates.
 
-## 2. Create Auth Triggers and Functions [pending]
+## 2. Create Auth Triggers and Functions [done]
 ### Dependencies: None
 ### Description: Create database triggers and functions for auth management
 ### Details:
 Create database triggers to automatically create profile records when users sign up. Create functions to validate gym membership and role assignments. Implement triggers for profile updates and gym association. Create functions for JWT claim generation and validation.
 
-## 3. Implement Role-Based Authorization [pending]
+## 3. Implement Role-Based Authorization [done]
 ### Dependencies: None
 ### Description: Implement role-based authorization system
 ### Details:
 Create authorization middleware and utilities to check user roles and permissions. Implement role validation functions for admin, trainer, and member access. Create permission checking utilities for different operations. Implement role-based UI rendering logic.
 
-## 4. Create Auth Context and Hooks [pending]
+## 4. Create Auth Context and Hooks [done]
 ### Dependencies: None
 ### Description: Create React context and hooks for authentication
 ### Details:
 Create AuthContext to manage authentication state across the application. Implement useAuth hook for accessing user data and auth functions. Create login/logout functionality with proper error handling. Implement auth state persistence and session management.
 
-## 5. Test Authentication System [pending]
+## 5. Test Authentication System [done]
 ### Dependencies: None
 ### Description: Test the complete authentication and authorization system
 ### Details:
 Create comprehensive tests for user registration, login, logout, and role assignment. Test JWT token generation and validation. Test role-based access control and authorization middleware. Test auth context and hooks functionality. Verify proper error handling and edge cases.
+
+## 6. Set up Supabase Client Configuration [pending]
+### Dependencies: None
+### Description: Configure Supabase client in Next.js with environment variables
+### Details:
+Create Supabase client configuration, set up environment variables properly, configure auth helpers for Next.js, and establish database connection.
+
+## 7. Integrate Auth Context with Next.js App [pending]
+### Dependencies: None
+### Description: Integrate AuthProvider with the Next.js app layout and replace mock data
+### Details:
+Wrap the app with AuthProvider, update layout.tsx to use real auth state, replace all mock user data with real auth context, and implement proper loading states.
+
+## 8. Create Login/Logout Pages and Auth Flow [pending]
+### Dependencies: None
+### Description: Create actual login, logout, and signup pages with working authentication flow
+### Details:
+Create login page, signup page, logout functionality, auth redirects, error handling, and integrate with the auth context to provide working user authentication.
 

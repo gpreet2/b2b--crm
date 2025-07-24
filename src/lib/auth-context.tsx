@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 import { AuthUser, UserRole } from './auth'
 import { User } from '@supabase/supabase-js'
 
@@ -25,7 +25,13 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClientComponentClient()
+  const [isClient, setIsClient] = useState(false)
+  const supabase = createClient()
+
+  // Prevent hydration mismatch by ensuring client-only rendering
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   // Fetch user profile data from database
   const fetchUserProfile = async (authUser: User): Promise<AuthUser> => {
@@ -47,8 +53,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
-  // Initialize auth state
+  // Initialize auth state - only run on client to prevent hydration mismatch
   useEffect(() => {
+    if (!isClient) return
+
     let mounted = true
 
     const initializeAuth = async () => {
@@ -103,7 +111,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       mounted = false
       subscription.unsubscribe()
     }
-  }, [supabase])
+  }, [isClient, supabase])
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -114,12 +122,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
       })
 
       if (error) {
+        // Handle specific error cases from context7 search
+        if (error.message.includes('Email not confirmed')) {
+          return { error: 'Please check your email and click the confirmation link to verify your account before signing in.' }
+        }
+        if (error.message.includes('Invalid login credentials')) {
+          return { error: 'Invalid email or password. Please check your credentials and try again.' }
+        }
         return { error: error.message }
       }
 
       return {}
     } catch (error) {
-      return { error: 'An unexpected error occurred' }
+      return { error: 'An unexpected error occurred during sign in' }
     } finally {
       setLoading(false)
     }
@@ -132,24 +147,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
   ) => {
     try {
       setLoading(true)
+      
+      // Fix 400 Bad Request - ensure null values instead of undefined/empty strings
+      // and fix 500 error by avoiding gym query during signup
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
-            full_name: metadata?.full_name || '',
-            gym_id: metadata?.gym_id || '',
+            full_name: metadata?.full_name || null,
+            gym_id: metadata?.gym_id || null,
           },
+          emailRedirectTo: undefined, // Disable email confirmation redirect
         },
       })
 
       if (error) {
+        // Handle specific error cases from context7 search
+        if (error.message.includes('Email not confirmed')) {
+          return { error: 'Please check your email and click the confirmation link before signing in.' }
+        }
         return { error: error.message }
       }
 
       return {}
     } catch (error) {
-      return { error: 'An unexpected error occurred' }
+      return { error: 'An unexpected error occurred during signup' }
     } finally {
       setLoading(false)
     }
@@ -209,7 +232,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signOut,
     updateProfile,
     refreshUser,
-    isAuthenticated: !!user,
+    isAuthenticated: !!user && isClient, // Fix hydration by ensuring client-only check
+  }
+
+  // Prevent hydration mismatch by suppressing hydration warning during client initialization
+  if (!isClient) {
+    return (
+      <div suppressHydrationWarning>
+        <AuthContext.Provider value={{
+          user: null,
+          loading: true,
+          signIn,
+          signUp,
+          signOut,
+          updateProfile,
+          refreshUser,
+          isAuthenticated: false,
+        }}>
+          {children}
+        </AuthContext.Provider>
+      </div>
+    )
   }
 
   return (
