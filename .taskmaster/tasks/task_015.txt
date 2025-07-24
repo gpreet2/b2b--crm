@@ -1,0 +1,11 @@
+# Task ID: 15
+# Title: Implement Atomic Booking Operations via RPCs
+# Status: pending
+# Dependencies: 14
+# Priority: high
+# Description: Create PostgreSQL RPCs for atomic class booking operations to prevent race conditions
+# Details:
+Create RPC function book_class that uses row-level locking (SELECT ... FOR UPDATE) to prevent race conditions. Implement booking validation, capacity checking, and status updates. Add proper error handling and rollback mechanisms.
+
+# Test Strategy:
+Test concurrent booking attempts to ensure atomicity and prevent overbooking

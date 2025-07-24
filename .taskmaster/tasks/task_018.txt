@@ -1,0 +1,11 @@
+# Task ID: 18
+# Title: Implement Automated Fee Processing
+# Status: pending
+# Dependencies: 17
+# Priority: high
+# Description: Create automated system for late cancellation fees, no-show fees, and membership billing
+# Details:
+Create RPC function cancel_booking that handles late cancellation fees automatically. Implement no-show detection and fee processing. Create automated membership billing system with recurring payments. Add fee configuration and override capabilities for admins.
+
+# Test Strategy:
+Test fee automation, late cancellation processing, and billing workflows

@@ -1,0 +1,11 @@
+# Task ID: 11
+# Title: Implement People Management - Leads
+# Status: pending
+# Dependencies: 10
+# Priority: high
+# Description: Create lead management system with drop-in tracking and conversion workflows
+# Details:
+Build lead list table with search and filtering. Implement drop-in tracking and class attendance logs. Create conversion tracking system with follow-up reminders. Add lead status management and notes functionality.
+
+# Test Strategy:
+Test lead creation, tracking, and conversion workflow

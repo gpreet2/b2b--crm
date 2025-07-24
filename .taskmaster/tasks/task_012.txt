@@ -1,0 +1,11 @@
+# Task ID: 12
+# Title: Implement People Management - Clients
+# Status: pending
+# Dependencies: 11
+# Priority: high
+# Description: Create comprehensive client management with profiles, memberships, and activity history
+# Details:
+Build client list with searchable table and status filters. Create unified client profile view showing membership details, class history, payment history, and notes. Implement client creation modal with personal information, contact details, and membership selection. Add client status management (active, suspended, inactive, employee).
+
+# Test Strategy:
+Test client CRUD operations, profile management, and status transitions

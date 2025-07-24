@@ -1,0 +1,176 @@
+# Back2Back OS - Gym Management Platform PRD v4.0
+
+## Overview
+Back2Back OS is the central nervous system for modern fitness facilities, providing two best-in-class interfaces—an Admin Dashboard for operational excellence and a Client Mobile App for a frictionless member experience—powered by a single, hyper-reliable, real-time backend platform. We win on reliability, speed, and seamless integration.
+
+## Core Features
+
+### Multi-Tenant Architecture
+- Row-Level Security (RLS) enforced at database level using Supabase
+- JWT claims for role-based access (admin, trainer, member)
+- All data partitioned by gym_id for complete isolation
+
+### Real-Time Operations
+- Supabase Realtime subscriptions for instant UI updates
+- Atomic operations via PostgreSQL RPCs for limited resources
+- Asynchronous job processing for third-party integrations
+
+### Admin Dashboard Features
+- Dashboard with KPI cards (Active Members, Classes Today, Revenue, Attendance Rate)
+- Class management (Calendar, List/Roster, Programs, Settings)
+- People management (Leads, Clients, Segments)
+- Financial tracking (Transactions, Invoices, Payroll)
+- Analytics and reporting (Insights, Reports)
+- Task management and notifications
+
+### Client App Features (Future)
+- Membership management and billing
+- Class booking and waitlist management
+- Digital access via Kisi integration
+- Workout tracking and performance logging
+- Push notifications for real-time updates
+
+## Technical Architecture
+
+### Database Schema
+- Multi-tenant design with gym_id partitioning
+- Comprehensive tables: gyms, profiles, clients, classes, bookings, transactions
+- Real-time event system via events table
+- Job queue for asynchronous operations
+
+### API Design
+- Unified API serving both Admin and Client apps
+- Supabase PostgREST for standard CRUD operations
+- Custom RPCs for complex business logic
+- Webhook handlers for third-party integrations
+
+### Security Model
+- JWT-based authentication with role claims
+- Row-Level Security policies on all tables
+- Granular permissions based on user roles
+- Secure third-party API integrations
+
+## User Experience
+
+### Admin User Journey
+- Dashboard provides immediate operational overview
+- Real-time updates for class bookings and cancellations
+- Comprehensive client management with unified profiles
+- Financial tracking with automated fee processing
+- Task management with priority-based workflows
+
+### Member User Journey (Future)
+- Seamless class booking with real-time availability
+- Instant notifications for waitlist promotions
+- Digital access via mobile app and wallet integration
+- Performance tracking and workout history
+- Membership management with transparent billing
+
+## Development Roadmap
+
+### Phase 1: Foundation & Core Infrastructure
+- Set up Supabase project with RLS policies
+- Implement authentication and authorization system
+- Create core database schema with all tables
+- Set up real-time subscriptions framework
+- Implement basic CRUD operations via PostgREST
+
+### Phase 2: Admin Dashboard Core Features
+- Build dashboard with KPI calculations
+- Implement class management system (calendar, list, programs)
+- Create people management (leads, clients, segments)
+- Develop task management and notification system
+- Set up basic financial tracking
+
+### Phase 3: Advanced Business Logic
+- Implement atomic booking operations via RPCs
+- Create waitlist management system
+- Build automated fee processing (late cancellations, no-shows)
+- Develop real-time event system
+- Implement third-party integrations (NMI, Kisi)
+
+### Phase 4: Analytics & Reporting
+- Create comprehensive analytics dashboard
+- Implement reporting system with export capabilities
+- Build performance tracking and insights
+- Develop system health monitoring
+- Create data visualization components
+
+### Phase 5: Client App Foundation
+- Design client app API endpoints
+- Implement client-specific authentication
+- Create mobile-optimized data structures
+- Set up push notification system
+- Prepare for mobile app development
+
+## Logical Dependency Chain
+
+### Foundation First
+1. Database schema and RLS policies
+2. Authentication and authorization system
+3. Basic CRUD operations for all entities
+4. Real-time subscription framework
+
+### Core Admin Features
+1. Dashboard with KPI calculations
+2. Class management (calendar, list, programs)
+3. People management (leads, clients, segments)
+4. Task and notification system
+
+### Advanced Features
+1. Atomic booking operations and waitlist management
+2. Financial processing and fee automation
+3. Third-party integrations (NMI, Kisi)
+4. Analytics and reporting system
+
+### Client App Preparation
+1. Client-specific API endpoints
+2. Mobile-optimized data structures
+3. Push notification system
+4. Digital access integration preparation
+
+## Risks and Mitigations
+
+### Technical Challenges
+- **Risk**: Real-time sync complexity between Admin and Client apps
+- **Mitigation**: Use Supabase Realtime with proper subscription management and error handling
+
+- **Risk**: Race conditions in class booking system
+- **Mitigation**: Implement atomic RPCs with row-level locking (SELECT ... FOR UPDATE)
+
+- **Risk**: Third-party API failures affecting core functionality
+- **Mitigation**: Asynchronous job processing with retry logic and graceful degradation
+
+### MVP Considerations
+- **Risk**: Over-engineering for v1.0
+- **Mitigation**: Focus on core Admin features first, prepare Client app foundation without full implementation
+
+- **Risk**: Complex permission system slowing development
+- **Mitigation**: Start with basic role-based access, enhance granularity in later phases
+
+### Resource Constraints
+- **Risk**: Third-party integration complexity
+- **Mitigation**: Use job queue system to handle timeouts and failures gracefully
+
+- **Risk**: Real-time performance with large datasets
+- **Mitigation**: Implement proper indexing and query optimization from the start
+
+## Appendix
+
+### Technology Stack
+- **Backend**: Supabase (PostgreSQL + PostgREST + Realtime)
+- **Frontend**: Next.js 15 with TypeScript and Tailwind CSS
+- **Authentication**: Supabase Auth with JWT
+- **Third-party**: NMI (payments), Kisi (access control)
+- **Deployment**: Vercel for frontend, Supabase for backend
+
+### Key Integrations
+- **NMI**: Payment processing and webhook handling
+- **Kisi**: Digital access control and mobile wallet integration
+- **Future**: Push notification service for mobile app
+
+### Performance Requirements
+- Real-time updates within 1 second
+- API response times under 200ms for standard operations
+- Support for 1000+ concurrent users per gym
+- 99.9% uptime for critical operations 

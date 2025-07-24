@@ -1,0 +1,11 @@
+# Task ID: 8
+# Title: Implement Class Management System - List/Roster View
+# Status: pending
+# Dependencies: 7
+# Priority: high
+# Description: Create the class list view with search, filters, and detailed roster management capabilities
+# Details:
+Build searchable class list table with sortable columns and pagination. Implement enrollment tracking (e.g., 18/20 spots filled). Create filter tabs for All/Recurring/One-time classes. Add bulk actions and export functionality. Build detailed roster view for each class.
+
+# Test Strategy:
+Test search functionality, filtering, sorting, and roster management features

@@ -1,0 +1,55 @@
+# Task ID: 21
+# Title: Implement Core Kisi Integration & Access Control
+# Status: pending
+# Dependencies: 20
+# Priority: high
+# Description: Set up comprehensive Kisi API integration with multi-tenant access group management and fault tolerance
+# Details:
+Set up Kisi API integration with proper authentication and token management. Implement user creation and group assignment in Kisi with comprehensive error handling. Create job queue system for access grant/revoke operations with retry logic and exponential backoff. Add access logging and audit trail with proper retention policies. Implement kisi_access_group_map table for gym-specific access group mapping. Add real-time status monitoring for automatic access revocation when client status changes. Create admin dashboard for Kisi integration health monitoring and manual intervention capabilities.
+
+# Test Strategy:
+Test Kisi API integration, access control operations, job queue processing, and fault tolerance mechanisms
+
+# Subtasks:
+## 1. Set up Kisi API Integration [pending]
+### Dependencies: None
+### Description: Configure Kisi API client and authentication
+### Details:
+Set up Kisi API client with proper authentication and token management. Configure API endpoints and request handling. Implement token refresh mechanism with exponential backoff. Set up error handling and retry logic for API calls. Create Kisi API utilities and helper functions.
+
+## 2. Create Kisi Access Group Management [pending]
+### Dependencies: None
+### Description: Implement multi-tenant access group mapping
+### Details:
+Create kisi_access_group_map table for gym-specific access group mapping. Implement access group creation and management in Kisi. Create utilities for mapping gym_id + role to Kisi access groups. Implement access group validation and error handling.
+
+## 3. Implement User Creation and Management [pending]
+### Dependencies: None
+### Description: Create Kisi user management system
+### Details:
+Implement user creation in Kisi when clients are added to the system. Create user update functionality for profile changes. Implement user deletion and deactivation in Kisi. Create utilities for user synchronization between Back2Back and Kisi.
+
+## 4. Create Job Queue System [pending]
+### Dependencies: None
+### Description: Implement asynchronous job queue for Kisi operations
+### Details:
+Create access_jobs table for tracking Kisi operations. Implement job queue system with retry logic and exponential backoff. Create job processing utilities for access grant/revoke operations. Implement job status tracking and error handling. Create job queue monitoring and alerting.
+
+## 5. Implement Status Monitoring and Auto-Revocation [pending]
+### Dependencies: None
+### Description: Create real-time status monitoring for automatic access management
+### Details:
+Implement real-time monitoring of client status changes. Create automatic access revocation when client status changes (banned/suspended). Implement status synchronization between Back2Back and Kisi. Create admin override capabilities for manual access management.
+
+## 6. Create Admin Dashboard for Kisi Management [pending]
+### Dependencies: None
+### Description: Build admin interface for Kisi integration management
+### Details:
+Create admin dashboard for monitoring Kisi integration health. Implement manual intervention capabilities for stuck jobs and failed operations. Create access management interface for admins. Implement integration status monitoring and alerting dashboard.
+
+## 7. Test Kisi Integration [pending]
+### Dependencies: None
+### Description: Comprehensive testing of Kisi integration functionality
+### Details:
+Create comprehensive tests for Kisi API integration. Test user creation, access group management, and job queue functionality. Test status monitoring and auto-revocation features. Test admin dashboard and manual intervention capabilities. Test error handling and fault tolerance mechanisms.
+

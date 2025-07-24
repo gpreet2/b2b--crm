@@ -1,0 +1,11 @@
+# Task ID: 16
+# Title: Implement Waitlist Management System
+# Status: pending
+# Dependencies: 15
+# Priority: high
+# Description: Create comprehensive waitlist system with automatic promotion and notifications
+# Details:
+Create RPC function promote_from_waitlist that automatically promotes waitlisted users when spots become available. Implement waitlist position tracking and notification system. Add manual waitlist management for admins. Create database triggers for automatic waitlist processing.
+
+# Test Strategy:
+Test waitlist functionality, automatic promotion, and notification delivery
