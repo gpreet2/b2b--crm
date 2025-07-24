@@ -299,34 +299,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
 
           {/* Right Column */}
           <div className="lg:col-span-4 space-y-6">
-            {/* Staff Profile Card */}
-            <Card className="bg-surface border-surface">
-              <CardContent className="p-6 text-center">
-                <div className="w-20 h-20 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <UserIcon className="h-10 w-10 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-primary-text mb-1">{staffProfile.name}</h3>
-                <p className="text-sm text-secondary-text mb-2">{staffProfile.email}</p>
-                <p className="text-sm text-primary mb-6">{staffProfile.role}</p>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <div className="w-8 h-8 bg-accent rounded-lg mx-auto mb-2 flex items-center justify-center">
-                      <ClockIcon className="h-4 w-4 text-secondary-text" />
-                    </div>
-                    <p className="text-sm text-secondary-text">Experience</p>
-                    <p className="text-primary-text font-semibold">{staffProfile.experience}</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-8 h-8 bg-accent rounded-lg mx-auto mb-2 flex items-center justify-center">
-                      <TrophyIcon className="h-4 w-4 text-secondary-text" />
-                    </div>
-                    <p className="text-sm text-secondary-text">Speciality</p>
-                    <p className="text-primary-text font-semibold text-xs">{staffProfile.speciality}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
 
             {/* Recent Activity */}
             <Card className="bg-surface border-surface">
