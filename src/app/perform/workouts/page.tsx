@@ -6,18 +6,19 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   CalendarIcon,
-  ListBulletIcon,
-  ViewColumnsIcon,
   FunnelIcon,
   FireIcon,
   BoltIcon,
   HeartIcon,
   ClockIcon,
   UserGroupIcon,
+  Bars3Icon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline'
 import WorkoutCalendar from '@/components/perform/WorkoutCalendar'
 import AddWorkoutModal from '@/components/perform/AddWorkoutModal'
 import WorkoutEventModal from '@/components/perform/WorkoutEventModal'
+import WorkoutSidebar from '@/components/perform/WorkoutSidebar'
 
 interface WorkoutEvent {
   id: string
@@ -45,6 +46,8 @@ export default function WorkoutsPage() {
   const [selectedIntensity, setSelectedIntensity] = useState<string>('all')
   const [view, setView] = useState<'week' | 'month' | 'list'>('week')
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [currentDate, setCurrentDate] = useState(new Date())
 
   // Enhanced workout events with better variety
   const events = useMemo(() => {
@@ -364,6 +367,21 @@ export default function WorkoutsPage() {
     setSelectedDate(null)
   }
 
+  // Navigate calendar
+  const navigateDate = (direction: 'prev' | 'next') => {
+    const newDate = new Date(currentDate)
+    if (view === 'week') {
+      newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7))
+    } else {
+      newDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1))
+    }
+    setCurrentDate(newDate)
+  }
+
+  const goToToday = () => {
+    setCurrentDate(new Date())
+  }
+
   // Weekly statistics
   const weeklyStats = {
     totalWorkouts: 8,
@@ -373,31 +391,124 @@ export default function WorkoutsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6 bg-background min-h-screen">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-light text-primary-text mb-1">Workouts</h1>
-          <p className="text-secondary-text font-light">Track your daily workouts and performance</p>
-        </div>
-        
-        <div className="flex items-center space-x-3">
-          {/* Workout Library button removed - now accessible through Add Workout modal */}
-        </div>
-      </div>
+    <div className="flex h-screen bg-background overflow-hidden">
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="p-6 bg-surface/95 backdrop-blur-sm border-b border-border/30">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setIsSidebarOpen(true)}
+                className="p-2 hover:bg-surface-light/50 rounded-lg transition-colors duration-200 lg:hidden"
+              >
+                <Bars3Icon className="h-5 w-5 text-secondary-text" />
+              </button>
+              <div>
+                <h1 className="text-2xl font-light text-primary-text mb-1">Workouts</h1>
+                <p className="text-secondary-text font-light">Track your daily workouts and performance</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-3">
+              {/* Category Filter */}
+              <div className="flex items-center space-x-2">
+                <FunnelIcon className="h-4 w-4 text-secondary-text" />
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="px-3 py-2 bg-surface border border-border/50 rounded-lg text-primary-text text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                >
+                  {workoutTypes.map(type => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-      {/* Main Layout - Calendar Only */}
-      <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl overflow-hidden shadow-lg">
-        {/* Calendar Content */}
-        <div className="p-6">
-          <WorkoutCalendar
-            events={filteredEvents}
-            view={view}
-            onDateClick={handleDateClick}
-            onEventClick={handleEventClick}
-            onViewChange={setView}
-            onAddWorkout={() => setIsAddWorkoutModalOpen(true)}
-          />
+              {/* Add Workout Button */}
+              <button 
+                onClick={() => setIsAddWorkoutModalOpen(true)}
+                className="px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-lg font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+              >
+                <PlusIcon className="h-4 w-4" />
+                <span>Add Workout</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Calendar Section */}
+        <div className="flex-1 p-6 overflow-auto">
+          <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl overflow-hidden shadow-lg h-full">
+            {/* Calendar Header */}
+            <div className="p-6 border-b border-surface-light/30">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <button 
+                    onClick={() => navigateDate('prev')}
+                    className="p-3 hover:bg-surface-light/50 rounded-xl transition-all duration-200"
+                  >
+                    <ChevronLeftIcon className="h-5 w-5 text-secondary-text" />
+                  </button>
+                  <button 
+                    onClick={() => navigateDate('next')}
+                    className="p-3 hover:bg-surface-light/50 rounded-xl transition-all duration-200"
+                  >
+                    <ChevronRightIcon className="h-5 w-5 text-secondary-text" />
+                  </button>
+                  <button 
+                    onClick={goToToday}
+                    className="px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 shadow-lg"
+                  >
+                    Today
+                  </button>
+                </div>
+                
+                <div className="text-xl font-light text-primary-text">
+                  {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                </div>
+
+                {/* View Toggle */}
+                <div className="flex items-center bg-surface-light/30 rounded-lg p-1">
+                  <button
+                    onClick={() => setView('week')}
+                    className={`px-3 py-1 rounded-md text-xs font-light transition-all duration-200 ${
+                      view === 'week' 
+                        ? 'bg-primary text-white' 
+                        : 'text-secondary-text hover:text-primary-text'
+                    }`}
+                  >
+                    Week
+                  </button>
+                  <button
+                    onClick={() => setView('month')}
+                    className={`px-3 py-1 rounded-md text-xs font-light transition-all duration-200 ${
+                      view === 'month' 
+                        ? 'bg-primary text-white' 
+                        : 'text-secondary-text hover:text-primary-text'
+                    }`}
+                  >
+                    Month
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Calendar Content */}
+            <div className="flex-1 p-6">
+              <WorkoutCalendar
+                events={filteredEvents}
+                view={view}
+                currentDate={currentDate}
+                onDateClick={handleDateClick}
+                onEventClick={handleEventClick}
+                onViewChange={setView}
+                onAddWorkout={() => setIsAddWorkoutModalOpen(true)}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
