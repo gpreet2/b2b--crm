@@ -1,0 +1,43 @@
+# Task ID: 4
+# Title: Create Core CRUD Operations via PostgREST
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Implement basic CRUD operations for all entities using Supabase PostgREST with proper filtering and pagination
+# Details:
+Set up PostgREST endpoints for all main entities (gyms, profiles, clients, classes, etc.) with proper filtering by gym_id, pagination, and sorting. Ensure all endpoints respect RLS policies.
+
+# Test Strategy:
+Test all CRUD operations with different user roles and verify data isolation
+
+# Subtasks:
+## 1. Set up Supabase Client [pending]
+### Dependencies: None
+### Description: Configure Supabase client for API operations
+### Details:
+Set up Supabase client configuration with proper environment variables. Configure API endpoints and authentication headers. Set up error handling and request interceptors. Create client utilities for common operations.
+
+## 2. Create Data Access Layer [pending]
+### Dependencies: None
+### Description: Create reusable data access functions for all entities
+### Details:
+Create data access functions for all major entities (gyms, profiles, clients, classes, events, transactions, etc.). Implement proper error handling and type safety. Create utility functions for common operations like filtering, sorting, and pagination. Implement proper data validation.
+
+## 3. Implement Filtering and Pagination [pending]
+### Dependencies: None
+### Description: Implement advanced filtering and pagination for all data queries
+### Details:
+Implement filtering capabilities for all entity queries (by date, status, type, etc.). Create pagination utilities with proper page size limits and cursor-based pagination. Implement search functionality with full-text search where appropriate. Create reusable filter components and utilities.
+
+## 4. Create API Response Types [pending]
+### Dependencies: None
+### Description: Create TypeScript types for all API responses
+### Details:
+Create comprehensive TypeScript interfaces for all API responses and request payloads. Define types for entities, filters, pagination, and error responses. Create utility types for common patterns. Implement proper type validation and error handling.
+
+## 5. Test CRUD Operations [pending]
+### Dependencies: None
+### Description: Test all CRUD operations and data access functions
+### Details:
+Create comprehensive tests for all CRUD operations on major entities. Test filtering, sorting, and pagination functionality. Test error handling and edge cases. Test data validation and type safety. Verify proper RLS enforcement in all operations.
+

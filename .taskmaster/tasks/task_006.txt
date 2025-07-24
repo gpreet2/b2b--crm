@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Build Dashboard with KPI Calculations
+# Status: pending
+# Dependencies: 5
+# Priority: high
+# Description: Create the main dashboard with real-time KPI cards showing Active Members, Classes Today, Revenue, and Attendance Rate
+# Details:
+Create PostgreSQL RPC function get_dashboard_kpis that calculates all four metrics in one database roundtrip. Build dashboard UI with KPI cards, today's tasks, today's classes, and recent activity feed. Implement real-time updates for live data.
+
+# Test Strategy:
+Verify KPI calculations are accurate and update in real-time when data changes

@@ -1,0 +1,11 @@
+# Task ID: 30
+# Title: Create Analytics Dashboard
+# Status: pending
+# Dependencies: 25
+# Priority: medium
+# Description: Build comprehensive analytics dashboard with charts, metrics, and insights
+# Details:
+Create analytics dashboard with revenue charts, membership trends, class popularity, and attendance patterns. Implement KPI cards and comparison charts. Add date range filters and export to PDF functionality. Create performance metrics and trend analysis.
+
+# Test Strategy:
+Test analytics calculations, chart rendering, and data export

@@ -1,0 +1,11 @@
+# Task ID: 10
+# Title: Implement Class Management System - Settings
+# Status: pending
+# Dependencies: 9
+# Priority: medium
+# Description: Create gym settings management for reservation policies, fees, and system configuration
+# Details:
+Build settings forms for reservation timing, cancellation windows, late fees, and no-show fees. Implement tax rate configuration and system status monitoring. Create RPC function get_system_health for API status checks.
+
+# Test Strategy:
+Test settings persistence and system health monitoring functionality

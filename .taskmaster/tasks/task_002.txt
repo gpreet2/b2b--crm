@@ -1,0 +1,43 @@
+# Task ID: 2
+# Title: Implement Row-Level Security (RLS) Policies
+# Status: pending
+# Dependencies: 1
+# Priority: high
+# Description: Set up comprehensive RLS policies for all tables to ensure proper data isolation between gyms and role-based access control
+# Details:
+Create RLS policies for all tables that enforce gym_id-based data isolation and role-based permissions (admin, trainer, member). Policies should allow admins full access to their gym's data, trainers limited access to classes and clients, and members access only to their own data.
+
+# Test Strategy:
+Test with different user roles to ensure data isolation and proper access control
+
+# Subtasks:
+## 1. Enable RLS on All Tables [pending]
+### Dependencies: None
+### Description: Enable Row-Level Security on all database tables
+### Details:
+Enable RLS on gyms, profiles, clients, classes, class_bookings, events, transactions, invoices, exercises, workouts, performance_logs, gym_settings, tasks, notifications, access_jobs, and kisi_access_group_map tables. Verify RLS is properly enabled on each table.
+
+## 2. Create Gym-Based Access Policies [pending]
+### Dependencies: None
+### Description: Create RLS policies for gym-based data isolation
+### Details:
+Create RLS policies that restrict access to data based on gym_id. Users can only access data where their profile.gym_id matches the record's gym_id. Implement policies for SELECT, INSERT, UPDATE, DELETE operations on all gym-scoped tables.
+
+## 3. Create Role-Based Access Policies [pending]
+### Dependencies: None
+### Description: Create RLS policies for role-based access control
+### Details:
+Create RLS policies that implement role-based access control. Admins can access all data within their gym. Trainers can access class and client data within their gym. Members can only access their own profile and booking data. Implement proper role checking in policies.
+
+## 4. Create Profile Self-Access Policies [pending]
+### Dependencies: None
+### Description: Create RLS policies for users to access their own profiles
+### Details:
+Create RLS policies that allow users to read and update their own profile data. Users can only access their own profile record where profile.id = auth.uid(). Implement proper profile ownership validation in policies.
+
+## 5. Test RLS Policies [pending]
+### Dependencies: None
+### Description: Test all RLS policies to ensure proper data isolation
+### Details:
+Create test cases to verify RLS policies work correctly. Test gym isolation by creating multiple gyms and verifying users can only access their gym's data. Test role-based access by creating users with different roles and verifying access restrictions. Test profile self-access policies.
+

@@ -1,0 +1,11 @@
+# Task ID: 13
+# Title: Implement People Management - Segments
+# Status: pending
+# Dependencies: 12
+# Priority: medium
+# Description: Create client segmentation system for targeted marketing and management
+# Details:
+Build segment creation interface with criteria configuration. Implement segment preview functionality and member assignment. Create segment-based filtering and reporting capabilities.
+
+# Test Strategy:
+Test segment creation, criteria configuration, and member assignment

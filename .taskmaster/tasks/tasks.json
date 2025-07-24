@@ -1,0 +1,860 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Set up Supabase Project and Database Schema",
+        "description": "Initialize Supabase project and create the core database schema with all tables for the Back2Back OS platform",
+        "status": "done",
+        "priority": "high",
+        "details": "Create Supabase project and implement the complete database schema including: gyms, profiles, clients, classes, class_bookings, events, tasks, transactions, program_templates, gym_settings, membership_plans, client_memberships, access_jobs, invoices, line_items, exercises, workouts, performance_logs, and notifications tables. All tables must include gym_id for multi-tenancy and proper RLS policies.",
+        "testStrategy": "Verify all tables are created with correct relationships, RLS policies are enforced, and gym_id partitioning works correctly",
+        "dependencies": [],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Supabase Project",
+            "description": "Set up new Supabase project with proper configuration",
+            "details": "Create new Supabase project in dashboard. Configure project settings, enable required extensions (uuid-ossp, pgcrypto). Set up database connection and API keys. Configure environment variables for local development.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 2,
+            "title": "Create Core Tables - Gyms and Profiles",
+            "description": "Create gyms and profiles tables with proper relationships",
+            "details": "Create gyms table with id (uuid), name (text), timezone (text), kisi_place_id (integer). Create profiles table with id (uuid FK to auth.users), gym_id (uuid FK), role (text), full_name (text), experience_years (integer), specialties (text[]). Add proper indexes and constraints.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 3,
+            "title": "Create Client Management Tables",
+            "description": "Create clients and related client management tables",
+            "details": "Create clients table with id (uuid), gym_id (uuid FK), profile_id (uuid FK), status (text), nmi_customer_id (text), kisi_user_id (integer). Create client_memberships table for membership tracking. Add proper constraints and indexes.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 4,
+            "title": "Create Class Management Tables",
+            "description": "Create classes, events, and booking tables",
+            "details": "Create classes table with id (uuid), gym_id (uuid FK), name (text), description (text), capacity (integer), duration_minutes (integer), program_template_id (uuid FK). Create class_bookings table for reservations. Create events table for scheduled classes. Add proper relationships and constraints.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 5,
+            "title": "Create Financial Tables",
+            "description": "Create financial tracking and transaction tables",
+            "details": "Create transactions table with id (uuid), gym_id (uuid FK), client_id (uuid FK), amount_cents (integer), type (text), status (text), nmi_transaction_id (text). Create invoices and line_items tables. Create membership_plans table. Add proper financial constraints and indexes.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 6,
+            "title": "Create Performance Tracking Tables",
+            "description": "Create workout and performance tracking tables",
+            "details": "Create exercises table with id (uuid), gym_id (uuid FK), name (text), category (text), equipment_needed (text[]). Create workouts table for workout templates. Create performance_logs table for tracking client progress. Add proper relationships and constraints.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 7,
+            "title": "Create System Configuration Tables",
+            "description": "Create gym settings and configuration tables",
+            "details": "Create gym_settings table with gym_id (uuid PK), reservation_open_time (time), reservation_close_time (time), cancellation_window_hours (integer), late_fee_cents (integer), no_show_fee_cents (integer). Create tasks table for task management. Create notifications table for system notifications. Add proper constraints.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 8,
+            "title": "Create Integration Tables",
+            "description": "Create tables for third-party integrations",
+            "details": "Create access_jobs table for Kisi integration job queue. Create kisi_access_group_map table for gym-specific access group mapping. Add proper job status tracking and retry mechanisms. Create webhook_logs table for tracking third-party webhook events.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Implement Row-Level Security (RLS) Policies",
+        "description": "Set up comprehensive RLS policies for all tables to ensure proper data isolation between gyms and role-based access control",
+        "status": "pending",
+        "priority": "high",
+        "details": "Create RLS policies for all tables that enforce gym_id-based data isolation and role-based permissions (admin, trainer, member). Policies should allow admins full access to their gym's data, trainers limited access to classes and clients, and members access only to their own data.",
+        "testStrategy": "Test with different user roles to ensure data isolation and proper access control",
+        "dependencies": [
+          1
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Enable RLS on All Tables",
+            "description": "Enable Row-Level Security on all database tables",
+            "details": "Enable RLS on gyms, profiles, clients, classes, class_bookings, events, transactions, invoices, exercises, workouts, performance_logs, gym_settings, tasks, notifications, access_jobs, and kisi_access_group_map tables. Verify RLS is properly enabled on each table.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2
+          },
+          {
+            "id": 2,
+            "title": "Create Gym-Based Access Policies",
+            "description": "Create RLS policies for gym-based data isolation",
+            "details": "Create RLS policies that restrict access to data based on gym_id. Users can only access data where their profile.gym_id matches the record's gym_id. Implement policies for SELECT, INSERT, UPDATE, DELETE operations on all gym-scoped tables.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2
+          },
+          {
+            "id": 3,
+            "title": "Create Role-Based Access Policies",
+            "description": "Create RLS policies for role-based access control",
+            "details": "Create RLS policies that implement role-based access control. Admins can access all data within their gym. Trainers can access class and client data within their gym. Members can only access their own profile and booking data. Implement proper role checking in policies.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2
+          },
+          {
+            "id": 4,
+            "title": "Create Profile Self-Access Policies",
+            "description": "Create RLS policies for users to access their own profiles",
+            "details": "Create RLS policies that allow users to read and update their own profile data. Users can only access their own profile record where profile.id = auth.uid(). Implement proper profile ownership validation in policies.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2
+          },
+          {
+            "id": 5,
+            "title": "Test RLS Policies",
+            "description": "Test all RLS policies to ensure proper data isolation",
+            "details": "Create test cases to verify RLS policies work correctly. Test gym isolation by creating multiple gyms and verifying users can only access their gym's data. Test role-based access by creating users with different roles and verifying access restrictions. Test profile self-access policies.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 2
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Set up Authentication and Authorization System",
+        "description": "Implement Supabase Auth with JWT claims and role-based access control for the multi-tenant platform",
+        "status": "pending",
+        "priority": "high",
+        "details": "Configure Supabase Auth with custom JWT claims for user roles (admin, trainer, member). Set up user registration, login, and profile management. Implement role-based middleware for API access control.",
+        "testStrategy": "Test authentication flow, JWT token generation, and role-based access to different parts of the application",
+        "dependencies": [
+          2
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Supabase Auth",
+            "description": "Set up Supabase authentication with proper configuration",
+            "details": "Configure Supabase Auth settings including email confirmation, password policies, and session management. Set up custom JWT claims for gym_id and role. Configure auth providers (email/password, social logins if needed). Set up proper redirect URLs and email templates.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 3
+          },
+          {
+            "id": 2,
+            "title": "Create Auth Triggers and Functions",
+            "description": "Create database triggers and functions for auth management",
+            "details": "Create database triggers to automatically create profile records when users sign up. Create functions to validate gym membership and role assignments. Implement triggers for profile updates and gym association. Create functions for JWT claim generation and validation.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 3
+          },
+          {
+            "id": 3,
+            "title": "Implement Role-Based Authorization",
+            "description": "Implement role-based authorization system",
+            "details": "Create authorization middleware and utilities to check user roles and permissions. Implement role validation functions for admin, trainer, and member access. Create permission checking utilities for different operations. Implement role-based UI rendering logic.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 3
+          },
+          {
+            "id": 4,
+            "title": "Create Auth Context and Hooks",
+            "description": "Create React context and hooks for authentication",
+            "details": "Create AuthContext to manage authentication state across the application. Implement useAuth hook for accessing user data and auth functions. Create login/logout functionality with proper error handling. Implement auth state persistence and session management.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 3
+          },
+          {
+            "id": 5,
+            "title": "Test Authentication System",
+            "description": "Test the complete authentication and authorization system",
+            "details": "Create comprehensive tests for user registration, login, logout, and role assignment. Test JWT token generation and validation. Test role-based access control and authorization middleware. Test auth context and hooks functionality. Verify proper error handling and edge cases.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 3
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Create Core CRUD Operations via PostgREST",
+        "description": "Implement basic CRUD operations for all entities using Supabase PostgREST with proper filtering and pagination",
+        "status": "pending",
+        "priority": "high",
+        "details": "Set up PostgREST endpoints for all main entities (gyms, profiles, clients, classes, etc.) with proper filtering by gym_id, pagination, and sorting. Ensure all endpoints respect RLS policies.",
+        "testStrategy": "Test all CRUD operations with different user roles and verify data isolation",
+        "dependencies": [
+          3
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Supabase Client",
+            "description": "Configure Supabase client for API operations",
+            "details": "Set up Supabase client configuration with proper environment variables. Configure API endpoints and authentication headers. Set up error handling and request interceptors. Create client utilities for common operations.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 2,
+            "title": "Create Data Access Layer",
+            "description": "Create reusable data access functions for all entities",
+            "details": "Create data access functions for all major entities (gyms, profiles, clients, classes, events, transactions, etc.). Implement proper error handling and type safety. Create utility functions for common operations like filtering, sorting, and pagination. Implement proper data validation.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 3,
+            "title": "Implement Filtering and Pagination",
+            "description": "Implement advanced filtering and pagination for all data queries",
+            "details": "Implement filtering capabilities for all entity queries (by date, status, type, etc.). Create pagination utilities with proper page size limits and cursor-based pagination. Implement search functionality with full-text search where appropriate. Create reusable filter components and utilities.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 4,
+            "title": "Create API Response Types",
+            "description": "Create TypeScript types for all API responses",
+            "details": "Create comprehensive TypeScript interfaces for all API responses and request payloads. Define types for entities, filters, pagination, and error responses. Create utility types for common patterns. Implement proper type validation and error handling.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 5,
+            "title": "Test CRUD Operations",
+            "description": "Test all CRUD operations and data access functions",
+            "details": "Create comprehensive tests for all CRUD operations on major entities. Test filtering, sorting, and pagination functionality. Test error handling and edge cases. Test data validation and type safety. Verify proper RLS enforcement in all operations.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 4
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Set up Real-Time Subscriptions Framework",
+        "description": "Implement Supabase Realtime subscriptions for instant UI updates across the platform",
+        "status": "pending",
+        "priority": "high",
+        "details": "Configure Supabase Realtime for critical tables (classes, class_bookings, events, tasks). Set up subscription management in the frontend for real-time updates. Implement proper error handling and reconnection logic.",
+        "testStrategy": "Test real-time updates by making changes in one client and verifying they appear instantly in other connected clients",
+        "dependencies": [
+          4
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Configure Supabase Realtime",
+            "description": "Set up Supabase Realtime configuration",
+            "details": "Enable Supabase Realtime for all tables that need real-time updates. Configure replication settings and filters. Set up proper channel management and subscription handling. Configure real-time authentication and authorization.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 5
+          },
+          {
+            "id": 2,
+            "title": "Create Real-Time Hooks",
+            "description": "Create React hooks for real-time subscriptions",
+            "details": "Create useRealtime hook for managing real-time subscriptions. Implement subscription management for different entity types (classes, bookings, clients, etc.). Create utilities for handling real-time events and updates. Implement proper cleanup and error handling for subscriptions.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 5
+          },
+          {
+            "id": 3,
+            "title": "Implement Real-Time UI Updates",
+            "description": "Implement real-time UI updates across the application",
+            "details": "Integrate real-time updates into all relevant UI components. Update dashboard KPIs in real-time. Implement real-time class booking updates. Create real-time notifications for system events. Implement optimistic updates for better UX.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 5
+          },
+          {
+            "id": 4,
+            "title": "Test Real-Time Functionality",
+            "description": "Test real-time subscriptions and UI updates",
+            "details": "Create tests for real-time subscription functionality. Test real-time UI updates and data synchronization. Test subscription cleanup and error handling. Test real-time performance and connection management. Verify proper real-time authorization.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 5
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Build Dashboard with KPI Calculations",
+        "description": "Create the main dashboard with real-time KPI cards showing Active Members, Classes Today, Revenue, and Attendance Rate",
+        "status": "pending",
+        "priority": "high",
+        "details": "Create PostgreSQL RPC function get_dashboard_kpis that calculates all four metrics in one database roundtrip. Build dashboard UI with KPI cards, today's tasks, today's classes, and recent activity feed. Implement real-time updates for live data.",
+        "testStrategy": "Verify KPI calculations are accurate and update in real-time when data changes",
+        "dependencies": [
+          5
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Implement Class Management System - Calendar View",
+        "description": "Build the class calendar with monthly/weekly views, class events, and interactive booking management",
+        "status": "pending",
+        "priority": "high",
+        "details": "Create calendar component with weekly/monthly views. Implement class event display with different colors for programs. Add clickable events that open detailed modals. Create filter system for program type, coach, and time range. Build 'Add Class' modal with form validation.",
+        "testStrategy": "Test calendar navigation, event interactions, filtering, and class creation workflow",
+        "dependencies": [
+          6
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Implement Class Management System - List/Roster View",
+        "description": "Create the class list view with search, filters, and detailed roster management capabilities",
+        "status": "pending",
+        "priority": "high",
+        "details": "Build searchable class list table with sortable columns and pagination. Implement enrollment tracking (e.g., 18/20 spots filled). Create filter tabs for All/Recurring/One-time classes. Add bulk actions and export functionality. Build detailed roster view for each class.",
+        "testStrategy": "Test search functionality, filtering, sorting, and roster management features",
+        "dependencies": [
+          7
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Implement Class Management System - Programs",
+        "description": "Create program template management with categories, difficulty levels, and coach assignments",
+        "status": "pending",
+        "priority": "medium",
+        "details": "Build program list display with search and filtering. Create program creation/editing modal with form validation. Implement program categories and color coding system. Add coach assignment functionality and program status management.",
+        "testStrategy": "Test program CRUD operations, categorization, and coach assignment workflow",
+        "dependencies": [
+          8
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Implement Class Management System - Settings",
+        "description": "Create gym settings management for reservation policies, fees, and system configuration",
+        "status": "pending",
+        "priority": "medium",
+        "details": "Build settings forms for reservation timing, cancellation windows, late fees, and no-show fees. Implement tax rate configuration and system status monitoring. Create RPC function get_system_health for API status checks.",
+        "testStrategy": "Test settings persistence and system health monitoring functionality",
+        "dependencies": [
+          9
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Implement People Management - Leads",
+        "description": "Create lead management system with drop-in tracking and conversion workflows",
+        "status": "pending",
+        "priority": "high",
+        "details": "Build lead list table with search and filtering. Implement drop-in tracking and class attendance logs. Create conversion tracking system with follow-up reminders. Add lead status management and notes functionality.",
+        "testStrategy": "Test lead creation, tracking, and conversion workflow",
+        "dependencies": [
+          10
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Implement People Management - Clients",
+        "description": "Create comprehensive client management with profiles, memberships, and activity history",
+        "status": "pending",
+        "priority": "high",
+        "details": "Build client list with searchable table and status filters. Create unified client profile view showing membership details, class history, payment history, and notes. Implement client creation modal with personal information, contact details, and membership selection. Add client status management (active, suspended, inactive, employee).",
+        "testStrategy": "Test client CRUD operations, profile management, and status transitions",
+        "dependencies": [
+          11
+        ]
+      },
+      {
+        "id": 13,
+        "title": "Implement People Management - Segments",
+        "description": "Create client segmentation system for targeted marketing and management",
+        "status": "pending",
+        "priority": "medium",
+        "details": "Build segment creation interface with criteria configuration. Implement segment preview functionality and member assignment. Create segment-based filtering and reporting capabilities.",
+        "testStrategy": "Test segment creation, criteria configuration, and member assignment",
+        "dependencies": [
+          12
+        ]
+      },
+      {
+        "id": 14,
+        "title": "Implement Task Management and Notification System",
+        "description": "Create task management with priority-based workflows and real-time notifications",
+        "status": "pending",
+        "priority": "medium",
+        "details": "Build task creation and management interface with priority levels and due dates. Implement real-time notifications for task assignments and updates. Create task filtering and status management. Add notification preferences and delivery methods.",
+        "testStrategy": "Test task creation, assignment, and notification delivery",
+        "dependencies": [
+          13
+        ]
+      },
+      {
+        "id": 15,
+        "title": "Implement Atomic Booking Operations via RPCs",
+        "description": "Create PostgreSQL RPCs for atomic class booking operations to prevent race conditions",
+        "status": "pending",
+        "priority": "high",
+        "details": "Create RPC function book_class that uses row-level locking (SELECT ... FOR UPDATE) to prevent race conditions. Implement booking validation, capacity checking, and status updates. Add proper error handling and rollback mechanisms.",
+        "testStrategy": "Test concurrent booking attempts to ensure atomicity and prevent overbooking",
+        "dependencies": [
+          14
+        ]
+      },
+      {
+        "id": 16,
+        "title": "Implement Waitlist Management System",
+        "description": "Create comprehensive waitlist system with automatic promotion and notifications",
+        "status": "pending",
+        "priority": "high",
+        "details": "Create RPC function promote_from_waitlist that automatically promotes waitlisted users when spots become available. Implement waitlist position tracking and notification system. Add manual waitlist management for admins. Create database triggers for automatic waitlist processing.",
+        "testStrategy": "Test waitlist functionality, automatic promotion, and notification delivery",
+        "dependencies": [
+          15
+        ]
+      },
+      {
+        "id": 17,
+        "title": "Implement Financial Tracking System",
+        "description": "Create comprehensive financial tracking for transactions, invoices, and payroll",
+        "status": "pending",
+        "priority": "high",
+        "details": "Build transaction history with payment method filters and export functionality. Create invoice management with status tracking and overdue alerts. Implement payroll integration interface for staff payments. Add fee breakdown and financial reporting capabilities.",
+        "testStrategy": "Test transaction recording, invoice generation, and financial reporting",
+        "dependencies": [
+          16
+        ]
+      },
+      {
+        "id": 18,
+        "title": "Implement Automated Fee Processing",
+        "description": "Create automated system for late cancellation fees, no-show fees, and membership billing",
+        "status": "pending",
+        "priority": "high",
+        "details": "Create RPC function cancel_booking that handles late cancellation fees automatically. Implement no-show detection and fee processing. Create automated membership billing system with recurring payments. Add fee configuration and override capabilities for admins.",
+        "testStrategy": "Test fee automation, late cancellation processing, and billing workflows",
+        "dependencies": [
+          17
+        ]
+      },
+      {
+        "id": 19,
+        "title": "Implement Real-Time Event System",
+        "description": "Create comprehensive event system for activity tracking and notifications",
+        "status": "pending",
+        "priority": "medium",
+        "details": "Build events table for tracking all system activities (new_member, class_booking, low_enrollment_alert, etc.). Implement event generation for all major actions. Create event subscription system for real-time updates. Add event filtering and search capabilities.",
+        "testStrategy": "Test event generation, real-time updates, and event filtering",
+        "dependencies": [
+          18
+        ]
+      },
+      {
+        "id": 20,
+        "title": "Implement Third-Party Integrations - NMI",
+        "description": "Integrate NMI payment processing with webhook handling and customer management",
+        "status": "pending",
+        "priority": "high",
+        "details": "Set up NMI API integration for payment processing. Create webhook handler for charge.succeeded events. Implement customer creation and management in NMI. Add payment method storage and recurring billing setup. Create job queue for asynchronous payment operations.",
+        "testStrategy": "Test payment processing, webhook handling, and customer management",
+        "dependencies": [
+          19
+        ]
+      },
+      {
+        "id": 21,
+        "title": "Implement Core Kisi Integration & Access Control",
+        "description": "Set up comprehensive Kisi API integration with multi-tenant access group management and fault tolerance",
+        "status": "pending",
+        "priority": "high",
+        "details": "Set up Kisi API integration with proper authentication and token management. Implement user creation and group assignment in Kisi with comprehensive error handling. Create job queue system for access grant/revoke operations with retry logic and exponential backoff. Add access logging and audit trail with proper retention policies. Implement kisi_access_group_map table for gym-specific access group mapping. Add real-time status monitoring for automatic access revocation when client status changes. Create admin dashboard for Kisi integration health monitoring and manual intervention capabilities.",
+        "testStrategy": "Test Kisi API integration, access control operations, job queue processing, and fault tolerance mechanisms",
+        "dependencies": [
+          20
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Kisi API Integration",
+            "description": "Configure Kisi API client and authentication",
+            "details": "Set up Kisi API client with proper authentication and token management. Configure API endpoints and request handling. Implement token refresh mechanism with exponential backoff. Set up error handling and retry logic for API calls. Create Kisi API utilities and helper functions.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 21
+          },
+          {
+            "id": 2,
+            "title": "Create Kisi Access Group Management",
+            "description": "Implement multi-tenant access group mapping",
+            "details": "Create kisi_access_group_map table for gym-specific access group mapping. Implement access group creation and management in Kisi. Create utilities for mapping gym_id + role to Kisi access groups. Implement access group validation and error handling.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 21
+          },
+          {
+            "id": 3,
+            "title": "Implement User Creation and Management",
+            "description": "Create Kisi user management system",
+            "details": "Implement user creation in Kisi when clients are added to the system. Create user update functionality for profile changes. Implement user deletion and deactivation in Kisi. Create utilities for user synchronization between Back2Back and Kisi.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 21
+          },
+          {
+            "id": 4,
+            "title": "Create Job Queue System",
+            "description": "Implement asynchronous job queue for Kisi operations",
+            "details": "Create access_jobs table for tracking Kisi operations. Implement job queue system with retry logic and exponential backoff. Create job processing utilities for access grant/revoke operations. Implement job status tracking and error handling. Create job queue monitoring and alerting.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 21
+          },
+          {
+            "id": 5,
+            "title": "Implement Status Monitoring and Auto-Revocation",
+            "description": "Create real-time status monitoring for automatic access management",
+            "details": "Implement real-time monitoring of client status changes. Create automatic access revocation when client status changes (banned/suspended). Implement status synchronization between Back2Back and Kisi. Create admin override capabilities for manual access management.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 21
+          },
+          {
+            "id": 6,
+            "title": "Create Admin Dashboard for Kisi Management",
+            "description": "Build admin interface for Kisi integration management",
+            "details": "Create admin dashboard for monitoring Kisi integration health. Implement manual intervention capabilities for stuck jobs and failed operations. Create access management interface for admins. Implement integration status monitoring and alerting dashboard.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 21
+          },
+          {
+            "id": 7,
+            "title": "Test Kisi Integration",
+            "description": "Comprehensive testing of Kisi integration functionality",
+            "details": "Create comprehensive tests for Kisi API integration. Test user creation, access group management, and job queue functionality. Test status monitoring and auto-revocation features. Test admin dashboard and manual intervention capabilities. Test error handling and fault tolerance mechanisms.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 21
+          }
+        ]
+      },
+      {
+        "id": 22,
+        "title": "Implement Kisi Mobile Wallet Integration",
+        "description": "Create comprehensive mobile wallet integration for Apple Wallet and Google Pay via Kisi",
+        "status": "pending",
+        "priority": "high",
+        "details": "Implement Apple Wallet and Google Pay integration via Kisi API. Create mobile_pass_url storage in client profiles. Set up webhook handling for pass updates and revocations. Implement provisioning system for mobile wallet passes with proper error handling. Add pass management dashboard for admins to view and manage active passes. Create pass revocation capabilities for security incidents. Implement pass refresh mechanisms and expiration handling.",
+        "testStrategy": "Test mobile wallet pass creation, provisioning, webhook handling, and revocation workflows",
+        "dependencies": [
+          21
+        ]
+      },
+      {
+        "id": 23,
+        "title": "Implement Kisi Time-Based Access Control",
+        "description": "Create time-based access scheduling and enforcement system for different user roles",
+        "status": "pending",
+        "priority": "high",
+        "details": "Implement access window scheduling system (e.g., staff access 6am-10pm, members 24/7). Create cron-based access rule management with gym-specific configurations. Add time-based access validation and enforcement in Kisi integration. Implement access schedule management interface for admins. Create access window override capabilities for special events. Add real-time access validation and blocking for unauthorized time periods.",
+        "testStrategy": "Test time-based access enforcement, schedule management, and override capabilities",
+        "dependencies": [
+          22
+        ]
+      },
+      {
+        "id": 24,
+        "title": "Implement Kisi Audit Trail & Compliance",
+        "description": "Create comprehensive access audit trail with retention policies and compliance reporting",
+        "status": "pending",
+        "priority": "medium",
+        "details": "Store detailed access_events with timestamp, user_id, gym_id, door_id, success/fail status, and access method. Implement retention policies for compliance requirements (e.g., 7 years for financial data). Create access reporting and analytics capabilities with export functionality. Add real-time access monitoring dashboard for security incidents. Implement access pattern analysis and anomaly detection. Create compliance reports for regulatory requirements.",
+        "testStrategy": "Test audit trail accuracy, retention policies, and compliance reporting functionality",
+        "dependencies": [
+          23
+        ]
+      },
+      {
+        "id": 25,
+        "title": "Implement Kisi Job Queue Monitoring & Alerting",
+        "description": "Create comprehensive monitoring and alerting system for Kisi integration operations",
+        "status": "pending",
+        "priority": "high",
+        "details": "Implement failure logging with retry mechanisms (max 3 attempts with exponential backoff). Add escalation alerts for failed operations that exceed retry limits. Create job queue health monitoring dashboard with real-time status. Implement manual intervention capabilities for stuck jobs and failed operations. Add integration health checks and automated recovery procedures. Create alerting system for token expiration and API failures. Implement job queue metrics and performance monitoring.",
+        "testStrategy": "Test job queue monitoring, alerting, and manual intervention capabilities",
+        "dependencies": [
+          24
+        ]
+      },
+      {
+        "id": 26,
+        "title": "Implement Battle-Hardened CI/CD Foundation - Phase 1",
+        "description": "Set up bulletproof local development environment with mandatory git hooks and containerized environments",
+        "status": "pending",
+        "priority": "high",
+        "details": "Implement Husky pre-commit and pre-push hooks that run linters (ESLint), formatters (Prettier), and unit tests on all staged files. Set up Docker and Supabase CLI for identical local/production environments. Configure ESLint, Prettier, and TypeScript strict mode. Implement mandatory code quality gates that prevent broken code from entering the repository. Set up containerized development environment with Docker Compose. Configure mandatory git hooks that block commits and pushes if quality checks fail.",
+        "testStrategy": "Verify git hooks block commits with linting errors, test failures, or formatting issues. Test containerized environment matches production exactly.",
+        "dependencies": [
+          5
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Husky Git Hooks",
+            "description": "Configure mandatory pre-commit and pre-push hooks for code quality",
+            "details": "Install and configure Husky for git hooks. Set up pre-commit hook to run ESLint, Prettier, and unit tests on staged files. Configure pre-push hook to run full test suite before allowing pushes to main branch. Set up commit message validation. Configure hooks to block commits/pushes if quality checks fail.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26
+          },
+          {
+            "id": 2,
+            "title": "Configure ESLint and Prettier",
+            "description": "Set up strict linting and formatting rules",
+            "details": "Configure ESLint with strict TypeScript rules, React hooks rules, and accessibility rules. Set up Prettier with consistent formatting rules. Configure TypeScript strict mode with noImplicitAny, strictNullChecks, and other strict options. Set up lint-staged to run linters only on staged files. Configure editor integration for real-time linting and formatting.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26
+          },
+          {
+            "id": 3,
+            "title": "Set up Docker Development Environment",
+            "description": "Create containerized development environment matching production",
+            "details": "Create Dockerfile for development environment. Set up Docker Compose with Supabase CLI, database, and application services. Configure environment variables for local development. Set up volume mounts for hot reloading. Create development scripts for easy environment management. Ensure local environment exactly matches production configuration.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26
+          },
+          {
+            "id": 4,
+            "title": "Configure Supabase CLI for Local Development",
+            "description": "Set up Supabase CLI for local database development",
+            "details": "Install and configure Supabase CLI. Set up local Supabase instance with Docker. Configure database migrations and seeding scripts. Set up local environment variables for Supabase connection. Create development database with realistic test data. Configure local authentication and RLS policies for development.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 26
+          }
+        ]
+      },
+      {
+        "id": 27,
+        "title": "Implement CI/CD Pipeline - Phase 2",
+        "description": "Create automated CI/CD pipeline with comprehensive testing stages and quality gates",
+        "status": "pending",
+        "priority": "high",
+        "details": "Set up GitHub Actions CI/CD pipeline with four mandatory stages: Lint & Static Analysis (ESLint, TypeScript), Unit Testing (90% coverage threshold), Integration Testing (temporary Supabase project with realistic test data), and E2E Testing (Playwright/Cypress with full user flows). Implement branch protection rules that prevent merging unless all stages pass. Create automated deployment to staging environment after successful CI pipeline. Set up comprehensive test data seeding for integration tests.",
+        "testStrategy": "Test CI pipeline blocks PRs with failing tests, low coverage, or linting errors. Verify integration tests run against isolated Supabase environment. Test E2E flows simulate real user interactions.",
+        "dependencies": [
+          26
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up GitHub Actions CI Pipeline",
+            "description": "Create GitHub Actions workflow with four mandatory testing stages",
+            "details": "Create GitHub Actions workflow file with four stages: Lint & Static Analysis, Unit Testing, Integration Testing, and E2E Testing. Configure workflow triggers for pull requests and pushes to main branch. Set up environment variables and secrets for CI environment. Configure caching for dependencies and build artifacts. Set up parallel job execution for faster CI runs.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 2,
+            "title": "Implement Lint & Static Analysis Stage",
+            "description": "Create automated code quality checks in CI pipeline",
+            "details": "Configure ESLint and TypeScript compilation checks in CI pipeline. Set up Prettier formatting validation. Implement security scanning with tools like Snyk or CodeQL. Configure dependency vulnerability scanning. Set up code complexity analysis and maintainability checks. Configure automated code review suggestions and quality gates.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 3,
+            "title": "Implement Unit Testing Stage with 90% Coverage",
+            "description": "Create comprehensive unit testing with mandatory coverage threshold",
+            "details": "Set up Vitest or Jest for unit testing. Configure test coverage reporting with 90% minimum threshold. Set up test database with isolated test data. Create unit tests for all utility functions, hooks, and components. Implement test mocking for external dependencies. Configure test parallelization and reporting. Set up coverage badges and reporting in CI.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 4,
+            "title": "Implement Integration Testing with Temporary Supabase",
+            "description": "Create integration tests against isolated Supabase environment",
+            "details": "Set up integration testing framework with temporary Supabase project creation via Management API. Create comprehensive test data seeding (10 gyms, 100 clients, 500 bookings). Implement integration tests for all RPC functions and database operations. Test RLS policies and multi-tenancy isolation. Test real-time subscriptions and webhook handling. Set up automated cleanup of temporary test environments.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 5,
+            "title": "Implement E2E Testing with Playwright",
+            "description": "Create end-to-end tests simulating real user interactions",
+            "details": "Set up Playwright for E2E testing with browser automation. Create comprehensive user flow tests: user registration, login, class booking, profile management. Test real-time updates and notifications. Implement visual regression testing for UI consistency. Set up E2E test data management and cleanup. Configure E2E test parallelization and reporting. Test cross-browser compatibility (Chrome, Firefox, Safari).",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 6,
+            "title": "Configure Branch Protection and Quality Gates",
+            "description": "Set up automated quality gates preventing merge of failing code",
+            "details": "Configure GitHub branch protection rules for main branch. Require all CI stages to pass before allowing merges. Set up required status checks for linting, unit tests, integration tests, and E2E tests. Configure code review requirements and approval thresholds. Set up automated merge blocking for failing tests or low coverage. Implement quality gate enforcement and reporting.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          }
+        ]
+      },
+      {
+        "id": 28,
+        "title": "Implement Environment Strategy & Deployment Safety - Phase 3",
+        "description": "Create multi-environment deployment strategy with staging safety net and manual production deployment",
+        "status": "pending",
+        "priority": "high",
+        "details": "Set up development (local), staging (long-lived replica of production), and production environments. Implement automated deployment to staging after successful CI pipeline. Create manual production deployment process with staging validation requirements. Set up environment-specific configuration management. Implement deployment rollback capabilities. Create staging environment for manual QA, stress testing, and soak testing before production deployment.",
+        "testStrategy": "Test staging environment is exact replica of production. Verify manual production deployment process requires staging validation. Test rollback capabilities work correctly.",
+        "dependencies": [
+          27
+        ]
+      },
+      {
+        "id": 29,
+        "title": "Implement Battle-Testing & Chaos Engineering - Phase 4",
+        "description": "Create comprehensive stress testing, load testing, and chaos engineering for edge case validation",
+        "status": "pending",
+        "priority": "high",
+        "details": "Implement stress and load testing with k6/Artillery.io simulating 1000+ concurrent users booking classes, 500+ NMI webhooks in bursts. Create chaos engineering scenarios: Kisi API outage simulation, database query slowdowns, network latency injection. Implement security penetration testing with OWASP ZAP for SQL injection, XSS, and RLS policy exploitation attempts. Create automated failure injection and recovery testing. Set up comprehensive monitoring and alerting for all failure scenarios.",
+        "testStrategy": "Test system handles 1000+ concurrent users without data corruption. Verify graceful degradation during Kisi outages. Test security vulnerabilities are properly blocked. Verify automatic recovery from injected failures.",
+        "dependencies": [
+          28
+        ],
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Stress and Load Testing with k6",
+            "description": "Create comprehensive load testing simulating high-concurrency scenarios",
+            "details": "Set up k6 for load testing with realistic scenarios. Create test scenarios: 1000+ concurrent users booking classes simultaneously, 500+ NMI webhooks in 10-second bursts, 100+ concurrent class cancellations. Test database performance under load. Monitor CPU, memory, and database connection usage. Test system behavior at breaking point and recovery. Set up load testing automation in CI pipeline.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 29
+          },
+          {
+            "id": 2,
+            "title": "Implement Chaos Engineering Scenarios",
+            "description": "Create automated failure injection and recovery testing",
+            "details": "Implement chaos engineering scenarios: Kisi API outage simulation (invalid API key), database query slowdowns, network latency injection, memory pressure simulation. Create automated failure injection tools. Test system graceful degradation during failures. Verify automatic recovery when failures are resolved. Test data consistency during failure scenarios. Set up chaos engineering automation in staging environment.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 29
+          },
+          {
+            "id": 3,
+            "title": "Implement Security Penetration Testing",
+            "description": "Create comprehensive security testing for vulnerabilities",
+            "details": "Set up OWASP ZAP for automated security testing. Test for SQL injection vulnerabilities in all API endpoints. Test for XSS vulnerabilities in frontend components. Test RLS policy exploitation attempts to access other gyms' data. Test authentication bypass attempts and privilege escalation. Test for CSRF vulnerabilities and session management issues. Set up automated security scanning in CI pipeline.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 29
+          },
+          {
+            "id": 4,
+            "title": "Set up Comprehensive Monitoring and Alerting",
+            "description": "Create monitoring and alerting for all failure scenarios",
+            "details": "Set up comprehensive monitoring for application performance, database performance, and system health. Implement alerting for failed CI/CD stages, security vulnerabilities, and performance degradation. Create dashboards for monitoring system metrics and business KPIs. Set up log aggregation and analysis. Implement automated incident response and escalation procedures. Create monitoring for third-party service health (Kisi, NMI).",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 29
+          }
+        ]
+      },
+      {
+        "id": 30,
+        "title": "Create Analytics Dashboard",
+        "description": "Build comprehensive analytics dashboard with charts, metrics, and insights",
+        "status": "pending",
+        "priority": "medium",
+        "details": "Create analytics dashboard with revenue charts, membership trends, class popularity, and attendance patterns. Implement KPI cards and comparison charts. Add date range filters and export to PDF functionality. Create performance metrics and trend analysis.",
+        "testStrategy": "Test analytics calculations, chart rendering, and data export",
+        "dependencies": [
+          25
+        ]
+      },
+      {
+        "id": 31,
+        "title": "Implement Reporting System",
+        "description": "Create comprehensive reporting system with customizable reports and export capabilities",
+        "status": "pending",
+        "priority": "medium",
+        "details": "Build reporting interface with customizable report templates. Implement export functionality for CSV, PDF, and Excel formats. Create scheduled report generation and email delivery. Add report sharing and collaboration features.",
+        "testStrategy": "Test report generation, export functionality, and scheduled delivery",
+        "dependencies": [
+          30
+        ]
+      },
+      {
+        "id": 32,
+        "title": "Prepare Client App Foundation",
+        "description": "Design and prepare API endpoints and data structures for future client mobile app",
+        "status": "pending",
+        "priority": "low",
+        "details": "Design client-specific API endpoints for mobile app consumption. Create mobile-optimized data structures and response formats. Implement client-specific authentication and authorization. Set up push notification system foundation. Prepare digital access integration for mobile wallet.",
+        "testStrategy": "Test client API endpoints and mobile-optimized data structures",
+        "dependencies": [
+          31
+        ]
+      },
+      {
+        "id": 33,
+        "title": "System Health Monitoring and Optimization",
+        "description": "Implement comprehensive system monitoring, performance optimization, and health checks",
+        "status": "pending",
+        "priority": "medium",
+        "details": "Create system health monitoring dashboard with API status checks. Implement performance monitoring and alerting. Add database query optimization and indexing. Create backup and recovery procedures. Implement error tracking and logging.",
+        "testStrategy": "Test system monitoring, performance metrics, and health checks",
+        "dependencies": [
+          32
+        ]
+      }
+    ],
+    "metadata": {
+      "version": "1.0",
+      "created": "2024-12-19T00:00:00Z",
+      "lastModified": "2024-12-19T00:00:00Z",
+      "totalTasks": 33,
+      "completedTasks": 0,
+      "pendingTasks": 33,
+      "description": "Tasks for master context",
+      "updated": "2025-07-24T04:38:56.658Z"
+    }
+  }
+}

@@ -1,0 +1,37 @@
+# Task ID: 5
+# Title: Set up Real-Time Subscriptions Framework
+# Status: pending
+# Dependencies: 4
+# Priority: high
+# Description: Implement Supabase Realtime subscriptions for instant UI updates across the platform
+# Details:
+Configure Supabase Realtime for critical tables (classes, class_bookings, events, tasks). Set up subscription management in the frontend for real-time updates. Implement proper error handling and reconnection logic.
+
+# Test Strategy:
+Test real-time updates by making changes in one client and verifying they appear instantly in other connected clients
+
+# Subtasks:
+## 1. Configure Supabase Realtime [pending]
+### Dependencies: None
+### Description: Set up Supabase Realtime configuration
+### Details:
+Enable Supabase Realtime for all tables that need real-time updates. Configure replication settings and filters. Set up proper channel management and subscription handling. Configure real-time authentication and authorization.
+
+## 2. Create Real-Time Hooks [pending]
+### Dependencies: None
+### Description: Create React hooks for real-time subscriptions
+### Details:
+Create useRealtime hook for managing real-time subscriptions. Implement subscription management for different entity types (classes, bookings, clients, etc.). Create utilities for handling real-time events and updates. Implement proper cleanup and error handling for subscriptions.
+
+## 3. Implement Real-Time UI Updates [pending]
+### Dependencies: None
+### Description: Implement real-time UI updates across the application
+### Details:
+Integrate real-time updates into all relevant UI components. Update dashboard KPIs in real-time. Implement real-time class booking updates. Create real-time notifications for system events. Implement optimistic updates for better UX.
+
+## 4. Test Real-Time Functionality [pending]
+### Dependencies: None
+### Description: Test real-time subscriptions and UI updates
+### Details:
+Create tests for real-time subscription functionality. Test real-time UI updates and data synchronization. Test subscription cleanup and error handling. Test real-time performance and connection management. Verify proper real-time authorization.
+

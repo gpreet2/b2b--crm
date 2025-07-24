@@ -1,0 +1,37 @@
+# Task ID: 26
+# Title: Implement Battle-Hardened CI/CD Foundation - Phase 1
+# Status: pending
+# Dependencies: 5
+# Priority: high
+# Description: Set up bulletproof local development environment with mandatory git hooks and containerized environments
+# Details:
+Implement Husky pre-commit and pre-push hooks that run linters (ESLint), formatters (Prettier), and unit tests on all staged files. Set up Docker and Supabase CLI for identical local/production environments. Configure ESLint, Prettier, and TypeScript strict mode. Implement mandatory code quality gates that prevent broken code from entering the repository. Set up containerized development environment with Docker Compose. Configure mandatory git hooks that block commits and pushes if quality checks fail.
+
+# Test Strategy:
+Verify git hooks block commits with linting errors, test failures, or formatting issues. Test containerized environment matches production exactly.
+
+# Subtasks:
+## 1. Set up Husky Git Hooks [pending]
+### Dependencies: None
+### Description: Configure mandatory pre-commit and pre-push hooks for code quality
+### Details:
+Install and configure Husky for git hooks. Set up pre-commit hook to run ESLint, Prettier, and unit tests on staged files. Configure pre-push hook to run full test suite before allowing pushes to main branch. Set up commit message validation. Configure hooks to block commits/pushes if quality checks fail.
+
+## 2. Configure ESLint and Prettier [pending]
+### Dependencies: None
+### Description: Set up strict linting and formatting rules
+### Details:
+Configure ESLint with strict TypeScript rules, React hooks rules, and accessibility rules. Set up Prettier with consistent formatting rules. Configure TypeScript strict mode with noImplicitAny, strictNullChecks, and other strict options. Set up lint-staged to run linters only on staged files. Configure editor integration for real-time linting and formatting.
+
+## 3. Set up Docker Development Environment [pending]
+### Dependencies: None
+### Description: Create containerized development environment matching production
+### Details:
+Create Dockerfile for development environment. Set up Docker Compose with Supabase CLI, database, and application services. Configure environment variables for local development. Set up volume mounts for hot reloading. Create development scripts for easy environment management. Ensure local environment exactly matches production configuration.
+
+## 4. Configure Supabase CLI for Local Development [pending]
+### Dependencies: None
+### Description: Set up Supabase CLI for local database development
+### Details:
+Install and configure Supabase CLI. Set up local Supabase instance with Docker. Configure database migrations and seeding scripts. Set up local environment variables for Supabase connection. Create development database with realistic test data. Configure local authentication and RLS policies for development.
+
