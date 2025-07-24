@@ -70,16 +70,16 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
     const handleValueChange = onValueChange || onTabChange || setInternalValue
     
     const variants = {
-      default: 'border-b border-surface',
+      default: 'border-b border-border',
       pills: 'space-x-1',
-      underline: 'border-b border-surface'
+      underline: 'border-b border-border'
     }
     
     const tabVariants = {
       default: {
         base: 'px-4 py-2 text-sm font-medium border-b-2 border-transparent',
         active: 'border-primary text-primary',
-        inactive: 'text-secondary-text hover:text-primary-text hover:border-surface',
+        inactive: 'text-secondary-text hover:text-primary-text hover:border-border',
         disabled: 'text-muted cursor-not-allowed'
       },
       pills: {
@@ -91,7 +91,7 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
       underline: {
         base: 'px-4 py-2 text-sm font-medium border-b-2 border-transparent',
         active: 'border-primary text-primary',
-        inactive: 'text-secondary-text hover:text-primary-text hover:border-surface',
+        inactive: 'text-secondary-text hover:text-primary-text hover:border-border',
         disabled: 'text-muted cursor-not-allowed'
       }
     }

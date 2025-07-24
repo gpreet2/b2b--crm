@@ -18,9 +18,9 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
     const baseClasses = 'bg-surface rounded-lg border'
     
     const variants = {
-      default: 'border-surface shadow-sm',
-      elevated: 'border-surface shadow-lg',
-      outlined: 'border-surface shadow-none'
+      default: 'border-border shadow-sm',
+      elevated: 'border-border shadow-lg',
+      outlined: 'border-border shadow-none'
     }
     
     const paddings = {

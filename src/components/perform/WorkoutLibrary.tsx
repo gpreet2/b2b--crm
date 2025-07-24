@@ -231,9 +231,9 @@ export default function WorkoutLibrary({ onSelectWorkout, onClose }: WorkoutLibr
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+      <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden border border-border">
         {/* Header */}
-        <div className="p-6 bg-gradient-to-r from-surface-light/50 to-surface-light/30 border-b border-border/50">
+        <div className="p-6 bg-gradient-to-r from-accent to-accent/80 border-b border-border">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-semibold text-primary-text">Workout Library</h2>
@@ -244,7 +244,7 @@ export default function WorkoutLibrary({ onSelectWorkout, onClose }: WorkoutLibr
             <Button
               onClick={onClose}
               variant="outline"
-              className="border-border/50 text-primary-text hover:bg-surface/50"
+              className="border-border text-primary-text hover:bg-accent"
             >
               Close
             </Button>
@@ -252,7 +252,7 @@ export default function WorkoutLibrary({ onSelectWorkout, onClose }: WorkoutLibr
         </div>
 
         {/* Search and Filters */}
-        <div className="p-6 bg-surface-light/20 border-b border-border/30">
+        <div className="p-6 bg-accent/50 border-b border-border">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
             <div className="flex-1">
@@ -262,7 +262,7 @@ export default function WorkoutLibrary({ onSelectWorkout, onClose }: WorkoutLibr
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search workouts..."
-                  className="pl-10 bg-surface border-border/50 text-primary-text placeholder:text-muted"
+                  className="pl-10 bg-surface border-border text-primary-text placeholder:text-muted"
                 />
               </div>
             </div>
@@ -273,7 +273,7 @@ export default function WorkoutLibrary({ onSelectWorkout, onClose }: WorkoutLibr
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 bg-surface border border-border/50 rounded-lg text-primary-text text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="px-3 py-2 bg-surface border border-border rounded-lg text-primary-text text-sm focus:ring-2 focus:ring-primary focus:border-primary"
               >
                 {categories.map(category => (
                   <option key={category.id} value={category.id}>
@@ -288,7 +288,7 @@ export default function WorkoutLibrary({ onSelectWorkout, onClose }: WorkoutLibr
               <select
                 value={selectedDifficulty}
                 onChange={(e) => setSelectedDifficulty(e.target.value)}
-                className="px-3 py-2 bg-surface border border-border/50 rounded-lg text-primary-text text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="px-3 py-2 bg-surface border border-border rounded-lg text-primary-text text-sm focus:ring-2 focus:ring-primary focus:border-primary"
               >
                 {difficulties.map(difficulty => (
                   <option key={difficulty.id} value={difficulty.id}>
@@ -315,7 +315,7 @@ export default function WorkoutLibrary({ onSelectWorkout, onClose }: WorkoutLibr
               {filteredWorkouts.map((workout) => (
                 <Card
                   key={workout.id}
-                  className="cursor-pointer hover:shadow-lg transition-all duration-200 hover-lift border-border/50 bg-surface hover:bg-surface-light/30"
+                  className="cursor-pointer hover:shadow-lg transition-all duration-200 hover-lift border-border bg-surface hover:bg-accent"
                   onClick={() => onSelectWorkout(workout)}
                 >
                   <CardHeader className="pb-3">
@@ -329,7 +329,7 @@ export default function WorkoutLibrary({ onSelectWorkout, onClose }: WorkoutLibr
                           {workout.name}
                         </CardTitle>
                       </div>
-                      <Badge className={getDifficultyColor(workout.difficulty)}>
+                      <Badge className={`${getDifficultyColor(workout.difficulty)} border border-border-light`}>
                         {workout.difficulty}
                       </Badge>
                     </div>

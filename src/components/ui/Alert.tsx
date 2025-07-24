@@ -23,12 +23,12 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(
     const baseClasses = 'rounded-lg border p-4'
     
     const variants = {
-      default: 'bg-accent border-surface text-secondary-text',
-      primary: 'bg-primary/10 border-primary/20 text-primary',
-      success: 'bg-green-50 border-green-200 text-green-800',
-      warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
-      danger: 'bg-red-50 border-red-200 text-red-800',
-      info: 'bg-blue-50 border-blue-200 text-blue-800'
+      default: 'bg-accent border-border text-secondary-text',
+      primary: 'bg-primary/10 border-primary/30 text-primary',
+      success: 'bg-success/10 border-success/30 text-success',
+      warning: 'bg-warning/10 border-warning/30 text-warning',
+      danger: 'bg-danger/10 border-danger/30 text-danger',
+      info: 'bg-info/10 border-info/30 text-info'
     }
 
     return (

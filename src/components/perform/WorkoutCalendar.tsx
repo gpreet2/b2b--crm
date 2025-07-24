@@ -137,7 +137,7 @@ export default function WorkoutCalendar({
     return (
       <div
         key={event.id}
-        className="p-2 rounded-md text-xs cursor-pointer hover:opacity-80 transition-all duration-200 hover-lift"
+        className="p-2 rounded-md text-xs cursor-pointer hover:opacity-80 transition-all duration-200 hover-lift border border-border-light"
         style={{ 
           backgroundColor: event.backgroundColor,
           color: event.textColor
@@ -185,7 +185,7 @@ export default function WorkoutCalendar({
     return (
       <div className="overflow-x-auto">
         {/* Week Header */}
-        <div className="grid grid-cols-7 border-b border-border/50 bg-surface-light/30">
+        <div className="grid grid-cols-7 border-b border-border bg-accent/50">
           {weekDates.map((date, index) => {
             const isToday = date.toDateString() === new Date().toDateString()
             const dayName = date.toLocaleDateString('en-US', { weekday: 'short' })
@@ -194,8 +194,8 @@ export default function WorkoutCalendar({
             return (
               <div 
                 key={index}
-                className={`p-4 text-center border-r border-border/50 last:border-r-0 cursor-pointer hover:bg-surface-light/50 transition-all duration-200 hover-lift ${
-                  isToday ? 'bg-primary/10 text-primary font-semibold' : ''
+                className={`p-4 text-center border-r border-border last:border-r-0 cursor-pointer hover:bg-accent transition-all duration-200 hover-lift ${
+                  isToday ? 'bg-primary/10 text-primary font-semibold border-primary/20' : ''
                 }`}
                 onClick={() => onDateClick?.(date)}
               >
@@ -217,7 +217,7 @@ export default function WorkoutCalendar({
             return (
               <div 
                 key={index}
-                className="border-r border-border/50 last:border-r-0 p-4 space-y-2 min-h-[400px] bg-surface hover:bg-surface-light/30 transition-colors duration-200"
+                className="border-r border-border last:border-r-0 p-4 space-y-2 min-h-[400px] bg-surface hover:bg-accent transition-colors duration-200"
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, date)}
               >
@@ -261,16 +261,16 @@ export default function WorkoutCalendar({
     return (
       <div className="space-y-px">
         {/* Day headers */}
-        <div className="grid grid-cols-7 gap-px bg-surface-light rounded-t-lg overflow-hidden">
+        <div className="grid grid-cols-7 gap-px bg-accent rounded-t-lg overflow-hidden">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-            <div key={day} className="bg-surface-light p-2 text-center text-xs font-medium text-secondary-text">
+            <div key={day} className="bg-accent p-2 text-center text-xs font-medium text-secondary-text">
               {day}
             </div>
           ))}
         </div>
         
         {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-px bg-surface-light rounded-b-lg overflow-hidden">
+        <div className="grid grid-cols-7 gap-px bg-accent rounded-b-lg overflow-hidden">
           {monthDates.map((date, index) => {
             const dateKey = date.toDateString()
             const dayEvents = eventsByDate[dateKey] || []
@@ -280,8 +280,8 @@ export default function WorkoutCalendar({
             return (
               <div 
                 key={index}
-                className={`bg-surface p-4 min-h-[120px] cursor-pointer hover:bg-surface-light transition-colors relative ${
-                  !isCurrentMonth ? 'text-muted bg-surface-light/50' : ''
+                className={`bg-surface p-4 min-h-[120px] cursor-pointer hover:bg-accent transition-colors relative ${
+                  !isCurrentMonth ? 'text-muted bg-accent/50' : ''
                 } ${isToday ? 'bg-primary/10' : ''}`}
                 onClick={() => onDateClick?.(date)}
                 onDragOver={handleDragOver}
@@ -308,9 +308,9 @@ export default function WorkoutCalendar({
 
   const renderListView = () => {
     return (
-      <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl overflow-hidden shadow-lg">
+      <div className="bg-surface/95 backdrop-blur-sm border border-border rounded-2xl overflow-hidden shadow-lg">
         {/* Table Header */}
-        <div className="grid grid-cols-6 gap-4 px-6 py-4 bg-surface-light/30 border-b border-surface-light/30">
+        <div className="grid grid-cols-6 gap-4 px-6 py-4 bg-accent border-b border-border">
           <div className="text-sm font-light text-secondary-text uppercase tracking-wider">WORKOUT</div>
           <div className="text-sm font-light text-secondary-text uppercase tracking-wider">TYPE</div>
           <div className="text-sm font-light text-secondary-text uppercase tracking-wider">STATUS</div>
@@ -320,7 +320,7 @@ export default function WorkoutCalendar({
         </div>
 
         {/* Table Body */}
-        <div className="divide-y divide-surface-light/30">
+        <div className="divide-y divide-border">
           {visibleEvents.length === 0 ? (
             <div className="px-6 py-12 text-center">
               <ClockIcon className="h-12 w-12 text-secondary-text mx-auto mb-4" />
@@ -368,7 +368,7 @@ export default function WorkoutCalendar({
               return (
                 <div 
                   key={event.id}
-                  className="grid grid-cols-6 gap-4 px-6 py-4 hover:bg-surface-light/20 transition-all duration-200 cursor-pointer"
+                  className="grid grid-cols-6 gap-4 px-6 py-4 hover:bg-accent transition-all duration-200 cursor-pointer"
                   onClick={() => onEventClick?.(event)}
                 >
                   {/* WORKOUT */}

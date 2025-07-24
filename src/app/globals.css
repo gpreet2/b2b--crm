@@ -2,22 +2,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  --background: #f1f5f9;
+  --background: #ffffff;
   --foreground: #1c1c1c;
   
-  /* New Color Palette - Blended Light Grey Theme */
+  /* Updated Color Palette - Better Contrast on White Background */
   --color-primary: #f34a22; /* Red - Primary brand color */
   --color-primary-dark: #d93f1e; /* Darker red for hover */
   --color-primary-light: #ff5a3a; /* Lighter red for accents */
-  --color-secondary: #f1f5f9; /* Same as background for seamless blend */
-  --color-accent: #e8ecf0; /* Subtle blend between background and surface */
-  --color-surface: #f8fafc; /* Softer surface color, closer to background */
-  --color-surface-light: #f1f5f9; /* Same as background for seamless blend */
-  --color-border: #e2e8f0; /* Softer borders that blend better */
-  --color-text-primary: #111827; /* Darker text for primary text */
-  --color-text-secondary: #1f2937; /* Darker for secondary text */
-  --color-text-muted: #374151; /* Darker grey for muted text */
-  --color-success: #16a34a; /* Darker green - success/highlight color */
+  --color-secondary: #f8fafc; /* Light grey for secondary backgrounds */
+  --color-accent: #f1f5f9; /* Subtle grey for hover states */
+  --color-surface: #ffffff; /* White surface color */
+  --color-surface-light: #f8fafc; /* Light grey for surface variations */
+  --color-border: #d1d5db; /* Darker grey borders for better separation */
+  --color-border-light: #e5e7eb; /* Lighter borders for subtle separation */
+  --color-text-primary: #111827; /* Dark text for primary text */
+  --color-text-secondary: #374151; /* Darker grey for secondary text */
+  --color-text-muted: #6b7280; /* Medium grey for muted text */
+  --color-success: #16a34a; /* Green - success/highlight color */
   --color-warning: #f59e0b; /* Amber - warning color */
   --color-danger: #f34a22; /* Red - danger color */
   --color-info: #3b82f6; /* Blue - info color */
@@ -33,7 +34,7 @@
   /* Status colors for better visibility */
   --color-status-active: #c3fb67;
   --color-status-pending: #f59e0b;
-  --color-status-inactive: #808080;
+  --color-status-inactive: #9ca3af;
   --color-status-high-demand: #f34a22;
   
   /* Gradient backgrounds for premium feel */
@@ -58,6 +59,8 @@
   --color-accent: var(--color-accent);
   --color-surface: var(--color-surface);
   --color-surface-light: var(--color-surface-light);
+  --color-border: var(--color-border);
+  --color-border-light: var(--color-border-light);
   --color-success: var(--color-success);
   --color-warning: var(--color-warning);
   --color-danger: var(--color-danger);
@@ -68,13 +71,14 @@
   :root {
     --background: #ffffff;
     --foreground: #1c1c1c;
-    --color-accent: #f8fafc;
+    --color-accent: #f1f5f9;
     --color-surface: #ffffff;
-    --color-surface-light: #f1f5f9;
-    --color-border: #e2e8f0;
-    --color-text-primary: #1c1c1c;
-    --color-text-secondary: #333333;
-    --color-text-muted: #666666;
+    --color-surface-light: #f8fafc;
+    --color-border: #d1d5db;
+    --color-border-light: #e5e7eb;
+    --color-text-primary: #111827;
+    --color-text-secondary: #374151;
+    --color-text-muted: #6b7280;
   }
 }
 

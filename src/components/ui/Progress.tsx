@@ -21,7 +21,7 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
   }, ref) => {
     const percentage = Math.min(Math.max((value / max) * 100, 0), 100)
     
-    const baseClasses = 'w-full bg-gray-200 rounded-full overflow-hidden'
+    const baseClasses = 'w-full bg-accent rounded-full overflow-hidden border border-border-light'
     
     const sizes = {
       sm: 'h-2',
@@ -32,9 +32,9 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
     const variants = {
       default: 'bg-primary',
       primary: 'bg-primary',
-      success: 'bg-green-500',
-      warning: 'bg-yellow-500',
-      danger: 'bg-red-700'
+      success: 'bg-success',
+      warning: 'bg-warning',
+      danger: 'bg-danger'
     }
 
     return (

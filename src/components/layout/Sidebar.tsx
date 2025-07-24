@@ -58,13 +58,13 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
       <div
         ref={ref}
         className={cn(
-          'flex flex-col bg-surface border-r border-surface-light h-full w-56 lg:w-56',
+          'flex flex-col bg-surface border-r border-border h-full w-56 lg:w-56',
           className
         )}
         {...props}
       >
         {/* Logo Area */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-surface-light flex-shrink-0">
+        <div className="flex items-center justify-between px-6 py-5 border-b border-border flex-shrink-0">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-light text-sm">G</span>
@@ -97,7 +97,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                       className={cn(
                         'w-full flex items-center justify-between px-3 py-3 rounded-lg text-left transition-all duration-200',
                         isActive
-                          ? 'bg-surface-light text-primary-text'
+                          ? 'bg-accent text-primary-text border border-border-light'
                           : 'text-secondary-text hover:bg-accent hover:text-primary-text'
                       )}
                     >
@@ -131,7 +131,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                               className={cn(
                                 'block px-3 py-2.5 rounded-lg text-sm transition-all duration-200',
                                 isSubItemActive(subItem.href)
-                                  ? 'bg-surface-light text-primary-text font-normal'
+                                  ? 'bg-accent text-primary-text font-normal border border-border-light'
                                   : 'text-secondary-text hover:bg-accent hover:text-primary-text font-light'
                               )}
                             >
@@ -159,7 +159,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                     className={cn(
                       'w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-left transition-all duration-200',
                       isActive
-                        ? 'bg-surface-light text-primary-text'
+                        ? 'bg-accent text-primary-text border border-border-light'
                         : 'text-secondary-text hover:bg-accent hover:text-primary-text'
                     )}
                   >
@@ -178,7 +178,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         </nav>
 
         {/* Bottom Section */}
-        <div className="px-4 py-6 border-t border-surface-light flex-shrink-0 space-y-2">
+        <div className="px-4 py-6 border-t border-border flex-shrink-0 space-y-2">
           <button
             className={cn(
               'w-full flex items-center space-x-3 px-3 py-3 rounded-lg text-left transition-all duration-200 text-secondary-text hover:bg-accent hover:text-primary-text'

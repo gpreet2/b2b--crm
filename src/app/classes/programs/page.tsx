@@ -259,7 +259,7 @@ export default function ProgramsPage() {
         
         <button 
           onClick={() => setIsCreateModalOpen(true)}
-          className="px-6 py-3 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+          className="px-6 py-3 bg-primary text-white rounded-xl font-light text-sm hover:bg-primary-dark transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
         >
           <PlusIcon className="h-4 w-4" />
           <span>Create Program</span>
@@ -275,19 +275,19 @@ export default function ProgramsPage() {
             placeholder="Search programs, coaches, or categories..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 bg-surface-light/50 border-0 rounded-xl text-primary-text placeholder-secondary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+            className="w-full pl-12 pr-4 py-3 bg-accent border border-border rounded-xl text-primary-text placeholder-secondary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-surface-light/50 rounded-full transition-colors"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-accent/80 rounded-full transition-colors"
             >
               <XCircleIcon className="h-4 w-4 text-secondary-text" />
             </button>
           )}
         </div>
         
-        <div className="flex bg-surface-light/30 rounded-xl p-1">
+        <div className="flex bg-accent rounded-xl p-1 border border-border-light">
           {[
             { value: 'all', label: 'ALL PROGRAMS', count: programs.length },
             { value: 'active', label: 'ACTIVE', count: programs.filter(p => p.isActive).length },
@@ -299,7 +299,7 @@ export default function ProgramsPage() {
               className={`px-4 py-2 rounded-lg font-light text-sm transition-all duration-200 ${
                 activeTab === tab.value
                   ? 'bg-primary text-white shadow-lg'
-                  : 'text-secondary-text hover:text-primary-text hover:bg-surface-light/50'
+                  : 'text-secondary-text hover:text-primary-text hover:bg-accent/80'
               }`}
             >
               {tab.label}
@@ -309,9 +309,9 @@ export default function ProgramsPage() {
       </div>
 
       {/* Modern Table */}
-      <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl overflow-hidden shadow-lg">
+      <div className="bg-surface/95 backdrop-blur-sm border border-border rounded-2xl overflow-hidden shadow-lg">
         {/* Table Header */}
-        <div className="grid grid-cols-7 gap-4 px-6 py-4 bg-surface-light/30 border-b border-surface-light/30">
+        <div className="grid grid-cols-7 gap-4 px-6 py-4 bg-accent border-b border-border">
           <div className="text-sm font-light text-secondary-text uppercase tracking-wider">PROGRAM</div>
           <div className="text-sm font-light text-secondary-text uppercase tracking-wider">CATEGORY</div>
           <div className="text-sm font-light text-secondary-text uppercase tracking-wider">STATUS</div>
@@ -322,7 +322,7 @@ export default function ProgramsPage() {
         </div>
 
         {/* Table Body */}
-        <div className="divide-y divide-surface-light/30">
+        <div className="divide-y divide-border">
           {filteredPrograms.length === 0 ? (
             <div className="px-6 py-12 text-center">
               <ListBulletIcon className="h-12 w-12 text-secondary-text mx-auto mb-4" />
@@ -335,8 +335,10 @@ export default function ProgramsPage() {
               </p>
             </div>
           ) : (
-            filteredPrograms.map((program) => (
-              <div key={program.id} className="grid grid-cols-7 gap-4 px-6 py-4 hover:bg-surface-light/20 transition-colors">
+            filteredPrograms.map((program, index) => (
+              <div key={program.id} className={`grid grid-cols-7 gap-4 px-6 py-4 hover:bg-accent transition-colors ${
+                index < filteredPrograms.length - 1 ? 'border-b border-border-light' : ''
+              }`}>
                 {/* Program Name */}
                 <div className="flex items-center space-x-3">
                   <div 
@@ -384,13 +386,13 @@ export default function ProgramsPage() {
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleEditClick(program)}
-                    className="p-2 rounded-lg hover:bg-surface-light/50 transition-colors text-secondary-text hover:text-primary-text"
+                    className="p-2 rounded-lg hover:bg-accent/80 transition-colors text-secondary-text hover:text-primary-text"
                   >
                     <PencilIcon className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => handleToggleActive(program.id)}
-                    className="p-2 rounded-lg hover:bg-surface-light/50 transition-colors text-secondary-text hover:text-primary-text"
+                    className="p-2 rounded-lg hover:bg-accent/80 transition-colors text-secondary-text hover:text-primary-text"
                   >
                     <EyeIcon className="h-4 w-4" />
                   </button>
@@ -439,7 +441,7 @@ export default function ProgramsPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Burn40, CrossFit"
-                  className="bg-surface-light/50 border-0 rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+                  className="bg-accent border-border rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                 />
               </div>
 
@@ -450,7 +452,7 @@ export default function ProgramsPage() {
                 <select
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-3 bg-surface-light/50 border-0 rounded-xl text-primary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200 font-light"
+                  className="w-full px-4 py-3 bg-accent border border-border rounded-xl text-primary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 font-light"
                 >
                   <option value="">Select category</option>
                   <option value="Cardio">Cardio</option>
@@ -471,7 +473,7 @@ export default function ProgramsPage() {
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="Describe the program..."
                 rows={3}
-                className="w-full px-4 py-3 bg-surface-light/50 border-0 rounded-xl text-primary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200 font-light resize-none"
+                className="w-full px-4 py-3 bg-accent border border-border rounded-xl text-primary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 font-light resize-none"
               />
             </div>
 
@@ -483,7 +485,7 @@ export default function ProgramsPage() {
                 <select
                   value={formData.duration}
                   onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                  className="w-full px-4 py-3 bg-surface-light/50 border-0 rounded-xl text-primary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200 font-light"
+                  className="w-full px-4 py-3 bg-accent border border-border rounded-xl text-primary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 font-light"
                 >
                   <option value="30 min">30 min</option>
                   <option value="40 min">40 min</option>
@@ -502,7 +504,7 @@ export default function ProgramsPage() {
                 <select
                   value={formData.difficulty}
                   onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as 'beginner' | 'intermediate' | 'advanced' })}
-                  className="w-full px-4 py-3 bg-surface-light/50 border-0 rounded-xl text-primary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200 font-light"
+                  className="w-full px-4 py-3 bg-accent border border-border rounded-xl text-primary-text focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 font-light"
                 >
                   <option value="beginner">Beginner</option>
                   <option value="intermediate">Intermediate</option>
@@ -520,7 +522,7 @@ export default function ProgramsPage() {
                   value={formData.coach}
                   onChange={(e) => setFormData({ ...formData, coach: e.target.value })}
                   placeholder="e.g., Sarah Johnson"
-                  className="bg-surface-light/50 border-0 rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+                  className="bg-accent border-border rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                 />
               </div>
 
@@ -533,7 +535,7 @@ export default function ProgramsPage() {
                   value={formData.capacity}
                   onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) || 20 })}
                   placeholder="20"
-                  className="bg-surface-light/50 border-0 rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+                  className="bg-accent border-border rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
                 />
               </div>
             </div>
@@ -546,7 +548,7 @@ export default function ProgramsPage() {
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 placeholder="e.g., Studio A, Weight Room"
-                className="bg-surface-light/50 border-0 rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+                className="bg-accent border-border rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
               />
             </div>
 
@@ -559,7 +561,7 @@ export default function ProgramsPage() {
                   type="color"
                   value={formData.color}
                   onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                  className="w-16 h-16 rounded-xl border-0 cursor-pointer shadow-lg"
+                  className="w-16 h-16 rounded-xl border border-border cursor-pointer shadow-lg"
                 />
                 <div className="flex-1">
                   <div className="text-sm text-secondary-text font-light mb-1">Color Preview</div>
@@ -569,17 +571,18 @@ export default function ProgramsPage() {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center justify-end space-x-4 pt-6 border-t border-surface-light/30">
+            <div className="flex items-center justify-end space-x-4 pt-6 border-t border-border">
               <Button
                 variant="outline"
                 onClick={handleCloseModal}
-                className="px-6 py-3 bg-surface-light/50 border-0 rounded-xl font-light text-sm hover:bg-surface-light transition-all duration-200"
+                className="px-6 py-3 bg-accent border-border rounded-xl font-light text-sm hover:bg-accent/80 transition-all duration-200"
               >
                 Cancel
               </Button>
               <Button
+                variant="primary"
                 onClick={editingProgram ? handleEditProgram : handleCreateProgram}
-                className="px-6 py-3 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="px-6 py-3 rounded-xl font-light text-sm transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 {editingProgram ? 'Update Program' : 'Create Program'}
               </Button>

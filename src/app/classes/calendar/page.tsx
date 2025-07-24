@@ -437,16 +437,16 @@ export default function CalendarPage() {
         {/* Left Column - Two Panels */}
         <div className="lg:col-span-3 space-y-6">
           {/* Panel 1: Monthly Statistics */}
-          <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl p-6 shadow-lg">
+          <div className="bg-surface/95 backdrop-blur-sm border border-border rounded-2xl p-6 shadow-lg">
             <h3 className="text-lg font-light text-primary-text mb-4">Monthly Statistics</h3>
             <div className="space-y-4">
-              <div className="text-center p-4 bg-gradient-to-r from-primary/10 to-primary-dark/10 rounded-xl">
+              <div className="text-center p-4 bg-gradient-to-r from-primary/10 to-primary-dark/10 rounded-xl border border-border-light">
                 <div className="text-2xl font-light text-primary-text mb-1">{monthlyStats.totalClasses}</div>
                 <div className="text-xs text-secondary-text font-light">Total Classes</div>
               </div>
               
               <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-surface-light/30 rounded-xl">
+                <div className="flex items-center justify-between p-3 bg-accent rounded-xl border border-border-light">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-success rounded-full shadow-sm"></div>
                     <span className="text-sm font-light text-primary-text">Today&apos;s Classes</span>
@@ -454,7 +454,7 @@ export default function CalendarPage() {
                   <span className="text-sm font-light text-primary-text">{monthlyStats.todayClasses}</span>
                 </div>
                 
-                <div className="flex items-center justify-between p-3 bg-surface-light/30 rounded-xl">
+                <div className="flex items-center justify-between p-3 bg-accent rounded-xl border border-border-light">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-warning rounded-full shadow-sm"></div>
                     <span className="text-sm font-light text-primary-text">Low Enrollment</span>
@@ -462,7 +462,7 @@ export default function CalendarPage() {
                   <span className="text-sm font-light text-primary-text">{monthlyStats.lowEnrollment}</span>
                 </div>
                 
-                <div className="flex items-center justify-between p-3 bg-surface-light/30 rounded-xl">
+                <div className="flex items-center justify-between p-3 bg-accent rounded-xl border border-border-light">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-primary rounded-full shadow-sm"></div>
                     <span className="text-sm font-light text-primary-text">High Demand</span>
@@ -470,7 +470,7 @@ export default function CalendarPage() {
                   <span className="text-sm font-light text-primary-text">{monthlyStats.highDemand}</span>
                 </div>
                 
-                <div className="flex items-center justify-between p-3 bg-surface-light/30 rounded-xl">
+                <div className="flex items-center justify-between p-3 bg-accent rounded-xl border border-border-light">
                   <div className="flex items-center space-x-3">
                     <div className="w-3 h-3 bg-info rounded-full shadow-sm"></div>
                     <span className="text-sm font-light text-primary-text">Special Events</span>
@@ -482,11 +482,13 @@ export default function CalendarPage() {
           </div>
 
           {/* Panel 2: Class Categories */}
-          <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl p-6 shadow-lg">
+          <div className="bg-surface/95 backdrop-blur-sm border border-border rounded-2xl p-6 shadow-lg">
             <h3 className="text-lg font-light text-primary-text mb-4">Class Categories</h3>
             <div className="space-y-3">
               {classTypes.map((type, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-surface-light/30 rounded-xl hover:bg-surface-light/50 transition-all duration-200">
+                <div key={index} className={`flex items-center justify-between p-3 bg-accent rounded-xl hover:bg-accent/80 transition-all duration-200 border border-border-light ${
+                  index < classTypes.length - 1 ? 'border-b border-border' : ''
+                }`}>
                   <div className="flex items-center space-x-3">
                     <div 
                       className="w-3 h-3 rounded-full shadow-sm"
@@ -503,15 +505,15 @@ export default function CalendarPage() {
 
         {/* Right Column - Main Calendar */}
         <div className="lg:col-span-9">
-          <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl overflow-hidden shadow-lg">
+          <div className="bg-surface/95 backdrop-blur-sm border border-border rounded-2xl overflow-hidden shadow-lg">
             {/* Calendar Header */}
-            <div className="p-6 border-b border-surface-light/30">
+            <div className="p-6 border-b border-border bg-accent">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <button className="p-3 hover:bg-surface-light/50 rounded-xl transition-all duration-200">
+                  <button className="p-3 hover:bg-accent/80 rounded-xl transition-all duration-200">
                     <ChevronLeftIcon className="h-5 w-5 text-secondary-text" />
                   </button>
-                  <button className="p-3 hover:bg-surface-light/50 rounded-xl transition-all duration-200">
+                  <button className="p-3 hover:bg-accent/80 rounded-xl transition-all duration-200">
                     <ChevronRightIcon className="h-5 w-5 text-secondary-text" />
                   </button>
                   <button className="px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 shadow-lg">

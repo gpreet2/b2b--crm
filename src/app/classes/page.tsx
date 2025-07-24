@@ -341,15 +341,17 @@ export default function ClassesPage() {
                   </div>
                   
                   <div className="p-6 space-y-4">
-                    {upcomingClasses.map((classItem) => (
+                    {upcomingClasses.map((classItem, index) => (
                       <div
                         key={classItem.id}
-                        className="group p-4 bg-white/50 rounded-xl hover:bg-white transition-all duration-300 border border-gray-200 hover:border-gray-300 card-animate"
+                        className={`group p-4 bg-white/50 rounded-xl hover:bg-white transition-all duration-300 border border-border hover:border-border-light card-animate ${
+                          index < upcomingClasses.length - 1 ? 'border-b border-border' : ''
+                        }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center space-x-3 mb-3">
-                              <h4 className="text-lg font-bold text-gray-900 group-hover:text-gray-900 transition-colors">
+                              <h4 className="text-lg font-bold text-primary-text group-hover:text-primary-text transition-colors">
                                 {classItem.name}
                               </h4>
                               <div className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(classItem.status)} flex items-center space-x-1`}>
@@ -358,10 +360,10 @@ export default function ClassesPage() {
                               </div>
                             </div>
                             
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600 mb-3">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-secondary-text mb-3">
                               <div className="flex items-center space-x-2">
                                 <CalendarIcon className="h-4 w-4 text-amber-500" />
-                                <span className="font-medium text-gray-900">{classItem.date}</span>
+                                <span className="font-medium text-primary-text">{classItem.date}</span>
                               </div>
                               <div className="flex items-center space-x-2">
                                 <ClockIcon className="h-4 w-4 text-blue-500" />
@@ -372,7 +374,7 @@ export default function ClassesPage() {
                                 <span>{classItem.instructor}</span>
                               </div>
                               <div className="flex items-center space-x-2">
-                                <span className="text-xs bg-gray-100 px-2 py-1 rounded-full text-gray-600">
+                                <span className="text-xs bg-accent px-2 py-1 rounded-full text-secondary-text border border-border-light">
                                   {classItem.location}
                                 </span>
                               </div>
@@ -380,10 +382,10 @@ export default function ClassesPage() {
                             
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">
-                                <span className="text-sm font-medium text-gray-900">
+                                <span className="text-sm font-medium text-primary-text">
                                   {classItem.enrolled}/{classItem.capacity} enrolled
                                 </span>
-                                <div className="w-24 bg-gray-200 rounded-full h-2">
+                                <div className="w-24 bg-accent rounded-full h-2 border border-border-light">
                                   <div
                                     className={`h-2 rounded-full transition-all duration-500 ${
                                       classItem.status === 'high-demand' ? 'bg-gradient-to-r from-red-500 to-red-600' :
@@ -395,7 +397,7 @@ export default function ClassesPage() {
                                     }}
                                   />
                                 </div>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-muted">
                                   {Math.round((classItem.enrolled / classItem.capacity) * 100)}%
                                 </span>
                               </div>

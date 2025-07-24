@@ -13,7 +13,7 @@ const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
     variant = 'default',
     ...props 
   }, ref) => {
-    const baseClasses = 'animate-spin rounded-full border-2 border-gray-200'
+    const baseClasses = 'animate-spin rounded-full border-2 border-accent'
     
     const sizes = {
       sm: 'h-4 w-4',
@@ -22,7 +22,7 @@ const Spinner = React.forwardRef<HTMLDivElement, SpinnerProps>(
     }
     
     const variants = {
-      default: 'border-t-gray-600',
+      default: 'border-t-secondary-text',
       primary: 'border-t-primary',
       secondary: 'border-t-secondary'
     }

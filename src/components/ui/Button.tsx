@@ -27,8 +27,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       primary: 'bg-gradient-to-r from-primary to-primary-dark text-white hover:from-primary-dark hover:to-primary focus:ring-primary/20 shadow-lg hover:shadow-xl',
       secondary: 'bg-gradient-to-r from-secondary to-secondary-dark text-white hover:from-secondary-dark hover:to-secondary focus:ring-secondary/20 shadow-lg hover:shadow-xl',
       danger: 'bg-gradient-to-r from-danger to-danger-dark text-white hover:from-danger-dark hover:to-danger focus:ring-danger/20 shadow-lg hover:shadow-xl',
-      ghost: 'text-secondary-text hover:bg-surface-light/50 focus:ring-secondary/20',
-      outline: 'border border-surface-light/50 text-secondary-text hover:bg-surface-light/50 focus:ring-secondary/20'
+      ghost: 'text-secondary-text hover:bg-accent focus:ring-secondary/20 border border-transparent hover:border-border-light',
+      outline: 'border border-border text-secondary-text hover:bg-accent focus:ring-secondary/20'
     }
     
     const sizes = {

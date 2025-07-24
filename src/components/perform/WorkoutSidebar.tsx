@@ -223,14 +223,14 @@ export default function WorkoutSidebar({
   if (!isOpen) return null
 
   return (
-    <div className="fixed top-0 left-0 w-80 h-full z-[65] bg-surface shadow-2xl overflow-y-auto border-r border-border/50">
+    <div className="fixed top-0 left-0 w-80 h-full z-[65] bg-surface shadow-2xl overflow-y-auto border-r border-border">
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-surface-light/50 to-surface-light/30 p-6">
+        <div className="sticky top-0 bg-gradient-to-r from-accent to-accent/80 p-6 border-b border-border">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-primary-text">Workout Library</h2>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-surface/50 rounded-lg transition-colors text-secondary-text hover:text-primary-text"
+              className="p-2 hover:bg-accent rounded-lg transition-colors text-secondary-text hover:text-primary-text"
             >
               <XMarkIcon className="h-5 w-5" />
             </button>
@@ -244,13 +244,13 @@ export default function WorkoutSidebar({
               placeholder="Search workouts..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-surface border border-border/50 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-primary-text placeholder:text-muted"
+              className="w-full pl-10 pr-4 py-2 bg-surface border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-primary-text placeholder:text-muted"
             />
           </div>
         </div>
 
         {/* Filters */}
-        <div className="p-6 bg-gradient-to-r from-surface-light/20 to-surface-light/10">
+        <div className="p-6 bg-gradient-to-r from-accent/50 to-accent/30 border-b border-border">
           <h3 className="text-sm font-medium text-primary-text mb-3">Filter by Type</h3>
           <div className="flex flex-wrap gap-2 mb-4">
             {workoutTypes.map((type) => (
@@ -260,7 +260,7 @@ export default function WorkoutSidebar({
                 className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
                   selectedType === type.value
                     ? 'bg-primary text-white'
-                    : 'bg-surface-light/50 text-primary-text hover:bg-surface-light/80'
+                    : 'bg-accent text-primary-text hover:bg-accent/80 border border-border-light'
                 }`}
               >
                 {type.label}
@@ -277,7 +277,7 @@ export default function WorkoutSidebar({
                 className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
                   selectedIntensity === intensity.value
                     ? 'bg-primary text-white'
-                    : 'bg-surface-light/50 text-primary-text hover:bg-surface-light/80'
+                    : 'bg-accent text-primary-text hover:bg-accent/80 border border-border-light'
                 }`}
               >
                 {intensity.label}
@@ -304,7 +304,7 @@ export default function WorkoutSidebar({
                 draggable
                 onDragStart={(e) => handleDragStart(e, workout)}
                 onDragEnd={handleDragEnd}
-                className={`p-4 bg-gradient-to-br from-surface-light/30 to-surface-light/10 rounded-xl hover:from-surface-light/50 hover:to-surface-light/30 transition-all duration-200 cursor-grab active:cursor-grabbing backdrop-blur-sm ${
+                className={`p-4 bg-gradient-to-br from-accent/30 to-accent/10 rounded-xl hover:from-accent/50 hover:to-accent/30 transition-all duration-200 cursor-grab active:cursor-grabbing backdrop-blur-sm border border-border-light ${
                   draggedWorkout?.id === workout.id ? 'opacity-50' : ''
                 }`}
               >
@@ -335,7 +335,7 @@ export default function WorkoutSidebar({
                 
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center space-x-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getIntensityColor(workout.intensity)}`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getIntensityColor(workout.intensity)} border border-border-light`}>
                       {workout.intensity.charAt(0).toUpperCase() + workout.intensity.slice(1)}
                     </span>
                     <div className="flex items-center space-x-1 text-sm text-secondary-text">
@@ -351,13 +351,13 @@ export default function WorkoutSidebar({
                     {workout.exercises.slice(0, 3).map((exercise, index) => (
                       <span 
                         key={index}
-                        className="px-2 py-1 bg-surface/50 text-primary-text text-xs rounded-full border border-border/50"
+                        className="px-2 py-1 bg-surface text-primary-text text-xs rounded-full border border-border"
                       >
                         {exercise}
                       </span>
                     ))}
                     {workout.exercises.length > 3 && (
-                      <span className="px-2 py-1 bg-surface/50 text-primary-text text-xs rounded-full border border-border/50">
+                      <span className="px-2 py-1 bg-surface text-primary-text text-xs rounded-full border border-border">
                         +{workout.exercises.length - 3} more
                       </span>
                     )}

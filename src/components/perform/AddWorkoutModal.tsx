@@ -234,7 +234,7 @@ export default function AddWorkoutModal({
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-surface-light/30 to-surface-light/20">
+            <div className="flex items-center justify-between p-6 bg-gradient-to-r from-accent/50 to-accent/30 border-t border-border">
               <div className="text-xs text-secondary-text">
                 💡 Tip: Drag workouts from the sidebar to auto-fill the form
               </div>
@@ -242,21 +242,23 @@ export default function AddWorkoutModal({
                 <Button
                   variant="outline"
                   onClick={onClose}
-                  className="px-6 border-border/50 text-primary-text hover:bg-surface/50"
+                  className="px-6 py-2 border-border text-primary-text hover:bg-accent"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleSave}
                   disabled={!title.trim()}
-                  className="px-4 bg-gradient-to-r from-success to-success-dark hover:from-success-dark hover:to-success text-white"
+                  variant="primary"
+                  className="px-6 py-2"
                 >
                   Save & Add Another
                 </Button>
                 <Button
                   onClick={handleSaveAndClose}
                   disabled={!title.trim()}
-                  className="px-6 bg-gradient-to-r from-primary to-primary-dark hover:from-primary-dark hover:to-primary text-white"
+                  variant="primary"
+                  className="px-6 py-2"
                 >
                   Save & Close
                 </Button>
