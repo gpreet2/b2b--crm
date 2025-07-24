@@ -31,15 +31,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <Layout
-            headerProps={{
-              user: {
-                name: "John Doe",
-                email: "john@example.com"
-              },
-              notifications: 5
-            }}
-          >
+          <Layout>
             {children}
           </Layout>
         </AuthProvider>

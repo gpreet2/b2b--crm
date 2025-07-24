@@ -40,12 +40,16 @@ export default function SignInPage() {
         if (result.error) {
           setError(result.error)
         } else {
-          // Successful login - redirect to dashboard
-          router.push('/')
+          // Successful login - wait a moment for auth state to update, then redirect
+          console.log('Sign-in successful, redirecting...')
+          setTimeout(() => {
+            router.push('/')
+          }, 500) // Small delay to allow auth state to settle
         }
       }
     } catch (err) {
       setError('An unexpected error occurred')
+      console.error('Sign-in exception:', err)
     } finally {
       setLoading(false)
     }

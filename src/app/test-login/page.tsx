@@ -121,7 +121,7 @@ export default function TestLoginPage() {
     })
 
     let successCount = 0
-    let totalTests = testUsers.length
+    const totalTests = testUsers.length
 
     // Test each user
     for (const user of testUsers) {

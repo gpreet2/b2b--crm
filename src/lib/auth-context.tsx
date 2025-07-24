@@ -35,21 +35,39 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Fetch user profile data from database
   const fetchUserProfile = async (authUser: User): Promise<AuthUser> => {
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('gym_id, role, full_name')
-      .eq('id', authUser.id)
-      .single()
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('gym_id, role, full_name')
+        .eq('id', authUser.id)
+        .single()
 
-    if (error) {
-      console.error('Error fetching user profile:', error)
-    }
+      if (error) {
+        console.error('Error fetching user profile:', error)
+        // Return user without profile data if fetch fails
+        return {
+          ...authUser,
+          gym_id: null,
+          role: 'member' as UserRole,
+          full_name: authUser.user_metadata?.full_name || null,
+        }
+      }
 
-    return {
-      ...authUser,
-      gym_id: profile?.gym_id,
-      role: profile?.role as UserRole,
-      full_name: profile?.full_name,
+      return {
+        ...authUser,
+        gym_id: profile?.gym_id,
+        role: profile?.role as UserRole,
+        full_name: profile?.full_name,
+      }
+    } catch (error) {
+      console.error('Exception fetching user profile:', error)
+      // Return basic user data if there's an exception
+      return {
+        ...authUser,
+        gym_id: null,
+        role: 'member' as UserRole,
+        full_name: authUser.user_metadata?.full_name || null,
+      }
     }
   }
 
@@ -103,6 +121,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           } catch (error) {
             console.error('Error refreshing user profile:', error)
           }
+        } else {
+          // For any other auth events, ensure loading is false
+          setLoading(false)
         }
       }
     )
@@ -115,7 +136,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      setLoading(true)
+      // Don't set loading here - let the onAuthStateChange handle it
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -132,11 +153,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return { error: error.message }
       }
 
+      // Success - onAuthStateChange will handle the loading state
       return {}
     } catch (error) {
       return { error: 'An unexpected error occurred during sign in' }
-    } finally {
-      setLoading(false)
     }
   }
 
