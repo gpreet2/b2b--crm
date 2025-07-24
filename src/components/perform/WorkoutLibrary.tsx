@@ -15,7 +15,7 @@ import {
   MagnifyingGlassIcon,
   AdjustmentsHorizontalIcon,
 } from '@heroicons/react/24/outline'
-import { mockWorkouts } from '@/lib/mock-data'
+
 
 interface WorkoutTemplate {
   id: string

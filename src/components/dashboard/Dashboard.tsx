@@ -10,8 +10,6 @@ import {
   UsersIcon,
   ArrowRightIcon,
   ExclamationTriangleIcon,
-  UserIcon,
-  ClockIcon,
 } from '@heroicons/react/24/outline'
 import { mockDashboardStats } from '@/lib/mock-data'
 import Link from 'next/link'

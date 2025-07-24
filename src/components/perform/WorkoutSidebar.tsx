@@ -3,7 +3,6 @@
 import React, { useState } from 'react'
 import { 
   XMarkIcon,
-  PlusIcon,
   FireIcon,
   BoltIcon,
   HeartIcon,
@@ -33,7 +32,6 @@ interface PreBuiltWorkout {
 export default function WorkoutSidebar({
   isOpen,
   onClose,
-  onAddWorkout
 }: WorkoutSidebarProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedType, setSelectedType] = useState('all')
@@ -204,10 +202,7 @@ export default function WorkoutSidebar({
     return matchesSearch && matchesType && matchesIntensity
   })
 
-  const handleAddWorkout = (workout: PreBuiltWorkout) => {
-    onAddWorkout?.(workout)
-    onClose()
-  }
+
 
   const toggleFavorite = (workoutId: string) => {
     // Here you would typically update the favorite status

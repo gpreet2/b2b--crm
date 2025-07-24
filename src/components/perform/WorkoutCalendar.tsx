@@ -1,20 +1,12 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
+import React, { useMemo } from 'react'
 import { 
-  ChevronLeftIcon, 
-  ChevronRightIcon,
-  CalendarIcon,
   ClockIcon,
-  CheckCircleIcon,
-  XCircleIcon,
   FireIcon,
   BoltIcon,
   HeartIcon,
   UserGroupIcon,
-  PlusIcon,
 } from '@heroicons/react/24/outline'
 
 interface WorkoutEvent {
@@ -51,8 +43,6 @@ export default function WorkoutCalendar({
   currentDate = new Date(),
   onEventClick,
   onDateClick,
-  onViewChange,
-  onAddWorkout
 }: WorkoutCalendarProps) {
 
   // Get week dates
@@ -123,23 +113,7 @@ export default function WorkoutCalendar({
     }, {} as Record<string, WorkoutEvent[]>)
   }, [visibleEvents])
 
-  // Time slots for week view
-  const timeSlots = [
-    '06:00', '07:00', '08:00', '09:00', '10:00', '11:00',
-    '12:00', '13:00', '14:00', '15:00', '16:00', '17:00',
-    '18:00', '19:00', '20:00', '21:00'
-  ]
 
-  const formatDateHeader = () => {
-    if (view === 'week') {
-      const weekDates = getWeekDates(currentDate)
-      const start = weekDates[0]
-      const end = weekDates[6]
-      return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
-    } else {
-      return currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-    }
-  }
 
   const getTypeIcon = (type: string) => {
     switch (type) {

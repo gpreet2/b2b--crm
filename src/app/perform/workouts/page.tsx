@@ -5,20 +5,17 @@ import {
   PlusIcon, 
   ChevronLeftIcon,
   ChevronRightIcon,
-  CalendarIcon,
   FunnelIcon,
   FireIcon,
   BoltIcon,
   HeartIcon,
   ClockIcon,
   UserGroupIcon,
-  Bars3Icon,
-  XMarkIcon,
 } from '@heroicons/react/24/outline'
 import WorkoutCalendar from '@/components/perform/WorkoutCalendar'
 import AddWorkoutModal from '@/components/perform/AddWorkoutModal'
 import WorkoutEventModal from '@/components/perform/WorkoutEventModal'
-import WorkoutSidebar from '@/components/perform/WorkoutSidebar'
+
 
 interface WorkoutEvent {
   id: string
@@ -43,10 +40,8 @@ export default function WorkoutsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isAddWorkoutModalOpen, setIsAddWorkoutModalOpen] = useState(false)
   const [selectedType, setSelectedType] = useState<string>('all')
-  const [selectedIntensity, setSelectedIntensity] = useState<string>('all')
   const [view, setView] = useState<'week' | 'month' | 'list'>('week')
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [currentDate, setCurrentDate] = useState(new Date())
 
   // Enhanced workout events with better variety
@@ -322,10 +317,9 @@ export default function WorkoutsPage() {
   const filteredEvents = useMemo(() => {
     return events.filter(event => {
       const matchesType = selectedType === 'all' || event.extendedProps.type === selectedType
-      const matchesIntensity = selectedIntensity === 'all' || event.extendedProps.intensity === selectedIntensity
-      return matchesType && matchesIntensity
+      return matchesType
     })
-  }, [events, selectedType, selectedIntensity])
+  }, [events, selectedType])
 
   // Workout types for filter
   const workoutTypes = [
@@ -338,13 +332,7 @@ export default function WorkoutsPage() {
     { value: 'recovery', label: 'Recovery', icon: ClockIcon, color: '#14b8a6' },
   ]
 
-  // Intensity levels for filter
-  const intensityLevels = [
-    { value: 'all', label: 'All Intensities' },
-    { value: 'low', label: 'Low Intensity' },
-    { value: 'medium', label: 'Medium Intensity' },
-    { value: 'high', label: 'High Intensity' },
-  ]
+
 
   // Handle date click - open add workout modal
   const handleDateClick = (date: Date) => {
@@ -382,14 +370,6 @@ export default function WorkoutsPage() {
     setCurrentDate(new Date())
   }
 
-  // Weekly statistics
-  const weeklyStats = {
-    totalWorkouts: 8,
-    completedWorkouts: 3,
-    totalTime: 390,
-    averageIntensity: 'medium'
-  }
-
   return (
     <div className="flex h-screen bg-background overflow-hidden">
       {/* Main Content */}
@@ -398,12 +378,7 @@ export default function WorkoutsPage() {
         <div className="p-6 bg-surface/95 backdrop-blur-sm border-b border-border/30">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setIsSidebarOpen(true)}
-                className="p-2 hover:bg-surface-light/50 rounded-lg transition-colors duration-200 lg:hidden"
-              >
-                <Bars3Icon className="h-5 w-5 text-secondary-text" />
-              </button>
+
               <div>
                 <h1 className="text-2xl font-light text-primary-text mb-1">Workouts</h1>
                 <p className="text-secondary-text font-light">Track your daily workouts and performance</p>
@@ -531,9 +506,6 @@ export default function WorkoutsPage() {
         }}
         onSave={handleAddWorkout}
         selectedDate={selectedDate}
-        onOpenWorkoutLibrary={() => {
-          // This is now handled within the AddWorkoutModal component
-        }}
       />
 
       {/* Workout Library Sidebar - Removed in favor of new WorkoutLibrary component */}
