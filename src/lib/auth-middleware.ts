@@ -1,5 +1,4 @@
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
+import { createClient } from '@/utils/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { AuthUser, UserRole, Permission, hasPermission, hasRole } from './auth'
 
@@ -7,10 +6,8 @@ import { AuthUser, UserRole, Permission, hasPermission, hasRole } from './auth'
  * Server-side authentication utilities
  */
 export class ServerAuth {
-  private supabase
-
-  constructor() {
-    this.supabase = createServerComponentClient({ cookies })
+  private async getSupabaseClient() {
+    return await createClient()
   }
 
   /**
@@ -18,14 +15,15 @@ export class ServerAuth {
    */
   async getUser(): Promise<AuthUser | null> {
     try {
-      const { data: { user }, error } = await this.supabase.auth.getUser()
+      const supabase = await this.getSupabaseClient()
+      const { data: { user }, error } = await supabase.auth.getUser()
       
       if (error || !user) {
         return null
       }
 
       // Get user profile with gym and role information
-      const { data: profile } = await this.supabase
+      const { data: profile } = await supabase
         .from('profiles')
         .select('gym_id, role, full_name')
         .eq('id', user.id)

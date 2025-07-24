@@ -1,6 +1,6 @@
 # Task ID: 1
 # Title: Set up Supabase Project and Database Schema
-# Status: pending
+# Status: done
 # Dependencies: None
 # Priority: high
 # Description: Initialize Supabase project and create the core database schema with all tables for the Back2Back OS platform
@@ -11,49 +11,49 @@ Create Supabase project and implement the complete database schema including: gy
 Verify all tables are created with correct relationships, RLS policies are enforced, and gym_id partitioning works correctly
 
 # Subtasks:
-## 1. Create Supabase Project [pending]
+## 1. Create Supabase Project [done]
 ### Dependencies: None
 ### Description: Set up new Supabase project with proper configuration
 ### Details:
 Create new Supabase project in dashboard. Configure project settings, enable required extensions (uuid-ossp, pgcrypto). Set up database connection and API keys. Configure environment variables for local development.
 
-## 2. Create Core Tables - Gyms and Profiles [pending]
+## 2. Create Core Tables - Gyms and Profiles [done]
 ### Dependencies: None
 ### Description: Create gyms and profiles tables with proper relationships
 ### Details:
 Create gyms table with id (uuid), name (text), timezone (text), kisi_place_id (integer). Create profiles table with id (uuid FK to auth.users), gym_id (uuid FK), role (text), full_name (text), experience_years (integer), specialties (text[]). Add proper indexes and constraints.
 
-## 3. Create Client Management Tables [pending]
+## 3. Create Client Management Tables [done]
 ### Dependencies: None
 ### Description: Create clients and related client management tables
 ### Details:
 Create clients table with id (uuid), gym_id (uuid FK), profile_id (uuid FK), status (text), nmi_customer_id (text), kisi_user_id (integer). Create client_memberships table for membership tracking. Add proper constraints and indexes.
 
-## 4. Create Class Management Tables [pending]
+## 4. Create Class Management Tables [done]
 ### Dependencies: None
 ### Description: Create classes, events, and booking tables
 ### Details:
 Create classes table with id (uuid), gym_id (uuid FK), name (text), description (text), capacity (integer), duration_minutes (integer), program_template_id (uuid FK). Create class_bookings table for reservations. Create events table for scheduled classes. Add proper relationships and constraints.
 
-## 5. Create Financial Tables [pending]
+## 5. Create Financial Tables [done]
 ### Dependencies: None
 ### Description: Create financial tracking and transaction tables
 ### Details:
 Create transactions table with id (uuid), gym_id (uuid FK), client_id (uuid FK), amount_cents (integer), type (text), status (text), nmi_transaction_id (text). Create invoices and line_items tables. Create membership_plans table. Add proper financial constraints and indexes.
 
-## 6. Create Performance Tracking Tables [pending]
+## 6. Create Performance Tracking Tables [done]
 ### Dependencies: None
 ### Description: Create workout and performance tracking tables
 ### Details:
 Create exercises table with id (uuid), gym_id (uuid FK), name (text), category (text), equipment_needed (text[]). Create workouts table for workout templates. Create performance_logs table for tracking client progress. Add proper relationships and constraints.
 
-## 7. Create System Configuration Tables [pending]
+## 7. Create System Configuration Tables [done]
 ### Dependencies: None
 ### Description: Create gym settings and configuration tables
 ### Details:
 Create gym_settings table with gym_id (uuid PK), reservation_open_time (time), reservation_close_time (time), cancellation_window_hours (integer), late_fee_cents (integer), no_show_fee_cents (integer). Create tasks table for task management. Create notifications table for system notifications. Add proper constraints.
 
-## 8. Create Integration Tables [pending]
+## 8. Create Integration Tables [done]
 ### Dependencies: None
 ### Description: Create tables for third-party integrations
 ### Details:

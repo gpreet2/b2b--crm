@@ -11,25 +11,25 @@ Create RLS policies for all tables that enforce gym_id-based data isolation and 
 Test with different user roles to ensure data isolation and proper access control
 
 # Subtasks:
-## 1. Enable RLS on All Tables [pending]
+## 1. Enable RLS on All Tables [done]
 ### Dependencies: None
 ### Description: Enable Row-Level Security on all database tables
 ### Details:
 Enable RLS on gyms, profiles, clients, classes, class_bookings, events, transactions, invoices, exercises, workouts, performance_logs, gym_settings, tasks, notifications, access_jobs, and kisi_access_group_map tables. Verify RLS is properly enabled on each table.
 
-## 2. Create Gym-Based Access Policies [pending]
+## 2. Create Gym-Based Access Policies [done]
 ### Dependencies: None
 ### Description: Create RLS policies for gym-based data isolation
 ### Details:
 Create RLS policies that restrict access to data based on gym_id. Users can only access data where their profile.gym_id matches the record's gym_id. Implement policies for SELECT, INSERT, UPDATE, DELETE operations on all gym-scoped tables.
 
-## 3. Create Role-Based Access Policies [pending]
+## 3. Create Role-Based Access Policies [done]
 ### Dependencies: None
 ### Description: Create RLS policies for role-based access control
 ### Details:
 Create RLS policies that implement role-based access control. Admins can access all data within their gym. Trainers can access class and client data within their gym. Members can only access their own profile and booking data. Implement proper role checking in policies.
 
-## 4. Create Profile Self-Access Policies [pending]
+## 4. Create Profile Self-Access Policies [done]
 ### Dependencies: None
 ### Description: Create RLS policies for users to access their own profiles
 ### Details:

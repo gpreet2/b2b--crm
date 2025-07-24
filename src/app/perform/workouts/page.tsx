@@ -531,9 +531,6 @@ export default function WorkoutsPage() {
         }}
         onSave={handleAddWorkout}
         selectedDate={selectedDate}
-        onOpenWorkoutLibrary={() => {
-          // This is now handled within the AddWorkoutModal component
-        }}
       />
 
       {/* Workout Library Sidebar - Removed in favor of new WorkoutLibrary component */}
