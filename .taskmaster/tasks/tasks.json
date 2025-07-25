@@ -239,7 +239,8 @@
         "details": "Set up Vitest testing framework with TypeScript support. Create unit tests for all utility functions, hooks, and business logic. Implement test database with isolated test data. Create mocking strategies for external dependencies. Set up test coverage reporting with 90% minimum threshold. Implement test parallelization and CI integration. Create test utilities and helpers for common testing patterns.",
         "testStrategy": "Verify 90%+ test coverage, all tests pass in CI, and test execution time under 30 seconds",
         "dependencies": [
-          3
+          3,
+          "43"
         ],
         "subtasks": [
           {
@@ -503,7 +504,8 @@
         "details": "Set up PostgREST endpoints for all main entities (gyms, profiles, clients, classes, etc.) with proper filtering by gym_id, pagination, and sorting. Ensure all endpoints respect RLS policies.",
         "testStrategy": "Test all CRUD operations with different user roles and verify data isolation",
         "dependencies": [
-          3
+          3,
+          "43"
         ],
         "subtasks": [
           {
@@ -562,7 +564,8 @@
         "details": "Configure Supabase Realtime for critical tables (classes, class_bookings, events, tasks). Set up subscription management in the frontend for real-time updates. Implement proper error handling and reconnection logic.",
         "testStrategy": "Test real-time updates by making changes in one client and verifying they appear instantly in other connected clients",
         "dependencies": [
-          3
+          3,
+          "43"
         ],
         "subtasks": [
           {
@@ -924,7 +927,8 @@
         "details": "Implement Husky pre-commit and pre-push hooks that run linters (ESLint), formatters (Prettier), and unit tests on all staged files. Set up Docker and Supabase CLI for identical local/production environments. Configure ESLint, Prettier, and TypeScript strict mode. Implement mandatory code quality gates that prevent broken code from entering the repository. Set up containerized development environment with Docker Compose. Configure mandatory git hooks that block commits and pushes if quality checks fail.",
         "testStrategy": "Verify git hooks block commits with linting errors, test failures, or formatting issues. Test containerized environment matches production exactly.",
         "dependencies": [
-          3
+          3,
+          "43"
         ],
         "subtasks": [
           {
@@ -1146,7 +1150,8 @@
         "details": "Implement structured JSON logging with correlation IDs for request tracing. Create audit trails for all sensitive operations (login, data access, financial transactions). Set up log aggregation and analysis with proper retention policies. Implement log level management and filtering. Create logging utilities and middleware for consistent log format. Set up log monitoring and alerting for critical events.",
         "testStrategy": "Verify all operations are logged with proper correlation IDs, audit trails are complete, and log retention policies enforced",
         "dependencies": [
-          3
+          3,
+          "43"
         ],
         "subtasks": [
           {
@@ -1251,6 +1256,131 @@
             "parentTaskId": 42
           }
         ]
+      },
+      {
+        "id": 43,
+        "title": "Implement WorkOS-Only Authentication System",
+        "description": "Migrate from Supabase Auth to WorkOS-only authentication for maximum security, scalability, and development speed",
+        "details": "Strategic decision to use WorkOS as single source of truth for user identity verification. Implement single \"Sign In\" button that redirects to WorkOS, create internal \"Invite Staff\" mechanism for pre-provisioning accounts, bridge WorkOS authentication to Supabase sessions for database access, and let WorkOS handle Magic Links vs Enterprise SSO based on email domain. This offloads 100% of password security liability to WorkOS experts while building for future enterprise SSO needs from day one.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          3
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up WorkOS Configuration and Environment",
+            "description": "Configure WorkOS as the primary authentication provider",
+            "details": "Set up WorkOS project and configure authentication settings. Configure environment variables for WorkOS API keys and endpoints. Set up WorkOS organizations for multi-tenant support. Configure magic link and SSO settings. Set up proper redirect URLs and webhook endpoints. This establishes the foundation for WorkOS-only authentication.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 43
+          },
+          {
+            "id": 2,
+            "title": "Create User Invitation and Provisioning System",
+            "description": "Build internal staff invitation mechanism for pre-provisioning accounts",
+            "details": "Create admin interface for inviting staff members with role assignment. Implement user provisioning workflow that creates WorkOS users and corresponding Supabase profile records. Build invitation email system with secure tokens. Create user onboarding flow for invited users. Implement role-based invitation permissions (owners can invite admins, admins can invite coaches, etc.). This enables controlled user growth while maintaining security.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 43
+          },
+          {
+            "id": 3,
+            "title": "Implement WorkOS Authentication Flow",
+            "description": "Build the core authentication flow with single \"Sign In\" button",
+            "details": "Create single \"Sign In\" button that redirects to WorkOS. Implement WorkOS authentication callback handling. Build session management for WorkOS tokens. Create logout functionality that clears WorkOS sessions. Implement error handling for authentication failures. Build loading states and user feedback during auth flow. This provides the simplest possible user experience while handling all authentication complexity.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 43
+          },
+          {
+            "id": 4,
+            "title": "Bridge WorkOS Authentication to Supabase Sessions",
+            "description": "Connect WorkOS authentication with Supabase database access",
+            "details": "Create session bridging mechanism between WorkOS and Supabase. Implement user synchronization to ensure WorkOS users have corresponding Supabase profile records. Build JWT token generation for Supabase API access using WorkOS user data. Create middleware to validate WorkOS sessions and generate Supabase-compatible tokens. Implement user profile synchronization between WorkOS and Supabase. This enables continued use of Supabase RLS and database features while using WorkOS for authentication.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 43
+          },
+          {
+            "id": 5,
+            "title": "Update Frontend Authentication Components",
+            "description": "Replace Supabase auth components with WorkOS integration",
+            "details": "Update AuthContext to use WorkOS instead of Supabase Auth. Replace login/logout pages with WorkOS authentication flow. Update auth hooks and utilities to work with WorkOS sessions. Modify protected route components to use WorkOS authentication state. Update user profile management to sync with WorkOS user data. This ensures the frontend seamlessly integrates with WorkOS authentication while maintaining existing functionality.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 43
+          },
+          {
+            "id": 6,
+            "title": "Update Backend Authentication Middleware",
+            "description": "Modify server-side authentication to use WorkOS",
+            "details": "Update server-side authentication middleware to validate WorkOS sessions. Modify API route protection to use WorkOS authentication instead of Supabase Auth. Update user context extraction in server components. Implement WorkOS session validation in middleware. Update server-side user profile fetching to work with WorkOS user data. This ensures all server-side operations use WorkOS authentication while maintaining security.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 43
+          },
+          {
+            "id": 7,
+            "title": "Test and Validate Security Implementation",
+            "description": "Comprehensive testing of WorkOS authentication security",
+            "details": "Create comprehensive test suite for WorkOS authentication flow. Test user invitation and provisioning security. Validate session bridging between WorkOS and Supabase. Test role-based access control with WorkOS authentication. Perform security audit of authentication implementation. Test error handling and edge cases. Validate that RLS policies work correctly with WorkOS-authenticated users. This ensures the authentication system is secure and reliable.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 43
+          },
+          {
+            "id": 8,
+            "title": "Migrate Existing Users and Clean Up Supabase Auth",
+            "description": "Migrate existing users to WorkOS and remove Supabase Auth dependencies",
+            "details": "Create migration script to transfer existing Supabase users to WorkOS. Implement user data migration strategy to preserve user profiles and roles. Test migration process with existing user data. Remove Supabase Auth dependencies from codebase. Clean up unused Supabase Auth configuration. Update documentation to reflect WorkOS-only authentication. This completes the migration and removes technical debt from the old authentication system.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 43
+          }
+        ]
+      },
+      {
+        "id": 44,
+        "title": "Implement User Management Dashboard",
+        "description": "Build comprehensive user management interface for WorkOS authentication",
+        "details": "Create admin dashboard for managing users, roles, and permissions. Build user profile management interface that syncs with WorkOS. Implement user activity monitoring and audit logs. Create bulk user operations for enterprise customers. Build user onboarding flow for new gym staff. Implement user deactivation and reactivation workflows. This provides the administrative tools needed to manage users effectively with WorkOS authentication.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          43
+        ],
+        "priority": "high",
+        "subtasks": []
+      },
+      {
+        "id": 45,
+        "title": "Implement Enterprise SSO Configuration",
+        "description": "Build enterprise SSO setup and configuration for future scalability",
+        "details": "Create enterprise SSO configuration interface for gym administrators. Build SAML and OIDC provider setup workflows. Implement organization-level SSO settings management. Create SSO user provisioning automation. Build SSO troubleshooting and diagnostic tools. Implement SSO audit logging and compliance reporting. This prepares the system for enterprise customers who require SSO integration with their existing identity providers.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          43
+        ],
+        "priority": "medium",
+        "subtasks": []
+      },
+      {
+        "id": 46,
+        "title": "Implement Authentication Analytics and Monitoring",
+        "description": "Build comprehensive monitoring and analytics for WorkOS authentication",
+        "details": "Create authentication analytics dashboard for monitoring login patterns. Implement security monitoring for suspicious authentication attempts. Build user engagement metrics for authentication flows. Create authentication performance monitoring and alerting. Implement compliance reporting for authentication events. Build authentication health checks and uptime monitoring. This provides visibility into authentication system performance and security.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          43
+        ],
+        "priority": "medium",
+        "subtasks": []
       }
     ],
     "metadata": {
@@ -1261,7 +1391,7 @@
       "completedTasks": 1,
       "pendingTasks": 41,
       "description": "Tasks for master context",
-      "updated": "2025-07-24T23:01:58.511Z"
+      "updated": "2025-07-25T01:16:10.675Z"
     }
   }
 }

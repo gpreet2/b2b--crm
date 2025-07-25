@@ -1,0 +1,61 @@
+# Task ID: 43
+# Title: Implement WorkOS-Only Authentication System
+# Status: pending
+# Dependencies: 3
+# Priority: high
+# Description: Migrate from Supabase Auth to WorkOS-only authentication for maximum security, scalability, and development speed
+# Details:
+Strategic decision to use WorkOS as single source of truth for user identity verification. Implement single "Sign In" button that redirects to WorkOS, create internal "Invite Staff" mechanism for pre-provisioning accounts, bridge WorkOS authentication to Supabase sessions for database access, and let WorkOS handle Magic Links vs Enterprise SSO based on email domain. This offloads 100% of password security liability to WorkOS experts while building for future enterprise SSO needs from day one.
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Set up WorkOS Configuration and Environment [pending]
+### Dependencies: None
+### Description: Configure WorkOS as the primary authentication provider
+### Details:
+Set up WorkOS project and configure authentication settings. Configure environment variables for WorkOS API keys and endpoints. Set up WorkOS organizations for multi-tenant support. Configure magic link and SSO settings. Set up proper redirect URLs and webhook endpoints. This establishes the foundation for WorkOS-only authentication.
+
+## 2. Create User Invitation and Provisioning System [pending]
+### Dependencies: None
+### Description: Build internal staff invitation mechanism for pre-provisioning accounts
+### Details:
+Create admin interface for inviting staff members with role assignment. Implement user provisioning workflow that creates WorkOS users and corresponding Supabase profile records. Build invitation email system with secure tokens. Create user onboarding flow for invited users. Implement role-based invitation permissions (owners can invite admins, admins can invite coaches, etc.). This enables controlled user growth while maintaining security.
+
+## 3. Implement WorkOS Authentication Flow [pending]
+### Dependencies: None
+### Description: Build the core authentication flow with single "Sign In" button
+### Details:
+Create single "Sign In" button that redirects to WorkOS. Implement WorkOS authentication callback handling. Build session management for WorkOS tokens. Create logout functionality that clears WorkOS sessions. Implement error handling for authentication failures. Build loading states and user feedback during auth flow. This provides the simplest possible user experience while handling all authentication complexity.
+
+## 4. Bridge WorkOS Authentication to Supabase Sessions [pending]
+### Dependencies: None
+### Description: Connect WorkOS authentication with Supabase database access
+### Details:
+Create session bridging mechanism between WorkOS and Supabase. Implement user synchronization to ensure WorkOS users have corresponding Supabase profile records. Build JWT token generation for Supabase API access using WorkOS user data. Create middleware to validate WorkOS sessions and generate Supabase-compatible tokens. Implement user profile synchronization between WorkOS and Supabase. This enables continued use of Supabase RLS and database features while using WorkOS for authentication.
+
+## 5. Update Frontend Authentication Components [pending]
+### Dependencies: None
+### Description: Replace Supabase auth components with WorkOS integration
+### Details:
+Update AuthContext to use WorkOS instead of Supabase Auth. Replace login/logout pages with WorkOS authentication flow. Update auth hooks and utilities to work with WorkOS sessions. Modify protected route components to use WorkOS authentication state. Update user profile management to sync with WorkOS user data. This ensures the frontend seamlessly integrates with WorkOS authentication while maintaining existing functionality.
+
+## 6. Update Backend Authentication Middleware [pending]
+### Dependencies: None
+### Description: Modify server-side authentication to use WorkOS
+### Details:
+Update server-side authentication middleware to validate WorkOS sessions. Modify API route protection to use WorkOS authentication instead of Supabase Auth. Update user context extraction in server components. Implement WorkOS session validation in middleware. Update server-side user profile fetching to work with WorkOS user data. This ensures all server-side operations use WorkOS authentication while maintaining security.
+
+## 7. Test and Validate Security Implementation [pending]
+### Dependencies: None
+### Description: Comprehensive testing of WorkOS authentication security
+### Details:
+Create comprehensive test suite for WorkOS authentication flow. Test user invitation and provisioning security. Validate session bridging between WorkOS and Supabase. Test role-based access control with WorkOS authentication. Perform security audit of authentication implementation. Test error handling and edge cases. Validate that RLS policies work correctly with WorkOS-authenticated users. This ensures the authentication system is secure and reliable.
+
+## 8. Migrate Existing Users and Clean Up Supabase Auth [pending]
+### Dependencies: None
+### Description: Migrate existing users to WorkOS and remove Supabase Auth dependencies
+### Details:
+Create migration script to transfer existing Supabase users to WorkOS. Implement user data migration strategy to preserve user profiles and roles. Test migration process with existing user data. Remove Supabase Auth dependencies from codebase. Clean up unused Supabase Auth configuration. Update documentation to reflect WorkOS-only authentication. This completes the migration and removes technical debt from the old authentication system.
+

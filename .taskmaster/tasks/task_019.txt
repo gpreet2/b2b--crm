@@ -1,11 +1,11 @@
 # Task ID: 19
-# Title: Implement Real-Time Event System
+# Title: Implement People Management - Segments
 # Status: pending
 # Dependencies: 18
 # Priority: medium
-# Description: Create comprehensive event system for activity tracking and notifications
+# Description: Create client segmentation system for targeted marketing and management
 # Details:
-Build events table for tracking all system activities (new_member, class_booking, low_enrollment_alert, etc.). Implement event generation for all major actions. Create event subscription system for real-time updates. Add event filtering and search capabilities.
+Build segment creation interface with criteria configuration. Implement segment preview functionality and member assignment. Create segment-based filtering and reporting capabilities.
 
 # Test Strategy:
-Test event generation, real-time updates, and event filtering
+Test segment creation, criteria configuration, and member assignment

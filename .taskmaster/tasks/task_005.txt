@@ -1,37 +1,37 @@
 # Task ID: 5
-# Title: Set up Real-Time Subscriptions Framework
+# Title: Enterprise Testing Framework - Integration Testing
 # Status: pending
 # Dependencies: 4
 # Priority: high
-# Description: Implement Supabase Realtime subscriptions for instant UI updates across the platform
+# Description: Implement comprehensive integration testing with isolated test environments
 # Details:
-Configure Supabase Realtime for critical tables (classes, class_bookings, events, tasks). Set up subscription management in the frontend for real-time updates. Implement proper error handling and reconnection logic.
+Set up integration testing framework with temporary Supabase project creation. Create comprehensive test data seeding (10 gyms, 100 clients, 500 bookings). Implement integration tests for all API endpoints and database operations. Test RLS policies and multi-tenancy isolation. Test real-time subscriptions and webhook handling. Set up automated cleanup of temporary test environments.
 
 # Test Strategy:
-Test real-time updates by making changes in one client and verifying they appear instantly in other connected clients
+Verify all API endpoints work correctly, RLS policies enforced, and test environment isolation
 
 # Subtasks:
-## 1. Configure Supabase Realtime [pending]
+## 1. Set up Integration Test Environment [pending]
 ### Dependencies: None
-### Description: Set up Supabase Realtime configuration
+### Description: Create isolated test environment with temporary Supabase project
 ### Details:
-Enable Supabase Realtime for all tables that need real-time updates. Configure replication settings and filters. Set up proper channel management and subscription handling. Configure real-time authentication and authorization.
+Set up integration testing framework with temporary Supabase project creation via Management API. Configure test database with realistic test data seeding. Create test environment configuration and cleanup procedures. Set up test data factories for consistent test data generation. Configure test environment isolation and parallel execution.
 
-## 2. Create Real-Time Hooks [pending]
+## 2. Create API Integration Tests [pending]
 ### Dependencies: None
-### Description: Create React hooks for real-time subscriptions
+### Description: Integration tests for all API endpoints and database operations
 ### Details:
-Create useRealtime hook for managing real-time subscriptions. Implement subscription management for different entity types (classes, bookings, clients, etc.). Create utilities for handling real-time events and updates. Implement proper cleanup and error handling for subscriptions.
+Create integration tests for all CRUD operations on major entities. Test API authentication and authorization. Test error handling and edge cases. Test data validation and type safety. Test pagination, filtering, and sorting functionality. Test API response formats and status codes.
 
-## 3. Implement Real-Time UI Updates [pending]
+## 3. Create Database Integration Tests [pending]
 ### Dependencies: None
-### Description: Implement real-time UI updates across the application
+### Description: Integration tests for database operations and RLS policies
 ### Details:
-Integrate real-time updates into all relevant UI components. Update dashboard KPIs in real-time. Implement real-time class booking updates. Create real-time notifications for system events. Implement optimistic updates for better UX.
+Test all database operations with proper RLS policy enforcement. Test multi-tenant data isolation between gyms. Test role-based access control at database level. Test database triggers and functions. Test data consistency and transaction handling. Test database performance under load.
 
-## 4. Test Real-Time Functionality [pending]
+## 4. Create Third-Party Integration Tests [pending]
 ### Dependencies: None
-### Description: Test real-time subscriptions and UI updates
+### Description: Integration tests for external service integrations
 ### Details:
-Create tests for real-time subscription functionality. Test real-time UI updates and data synchronization. Test subscription cleanup and error handling. Test real-time performance and connection management. Verify proper real-time authorization.
+Test Kisi API integration with mock responses. Test NMI payment processing integration. Test webhook handling and error scenarios. Test third-party service failure handling. Test integration retry logic and circuit breakers. Test data synchronization between systems.
 

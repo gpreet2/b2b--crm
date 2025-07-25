@@ -16,7 +16,8 @@ import {
   CurrencyDollarIcon,
   ChartPieIcon,
   DocumentChartBarIcon,
-  ListBulletIcon
+  ListBulletIcon,
+  UserPlusIcon
 } from '@heroicons/react/24/outline'
 
 export interface NavigationItem {
@@ -80,6 +81,7 @@ export const navigationConfig: NavigationItem[] = [
     subItems: [
       { title: 'Leads', href: '/people/leads', icon: UserIcon },
       { title: 'Clients', href: '/people/clients', icon: UserGroupIcon },
+      { title: 'Staff', href: '/people/staff', icon: UserPlusIcon },
       { title: 'Segments', href: '/people/segments', icon: TagIcon },
       { title: 'Settings', href: '/people/settings', icon: Cog6ToothIcon }
     ]

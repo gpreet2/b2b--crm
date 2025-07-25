@@ -1,11 +1,11 @@
 # Task ID: 15
-# Title: Implement Atomic Booking Operations via RPCs
+# Title: Implement Class Management System - Programs
 # Status: pending
-# Dependencies: 14
-# Priority: high
-# Description: Create PostgreSQL RPCs for atomic class booking operations to prevent race conditions
+# Dependencies: 10
+# Priority: medium
+# Description: Create program template management with categories, difficulty levels, and coach assignments
 # Details:
-Create RPC function book_class that uses row-level locking (SELECT ... FOR UPDATE) to prevent race conditions. Implement booking validation, capacity checking, and status updates. Add proper error handling and rollback mechanisms.
+Build program list display with search and filtering. Create program creation/editing modal with form validation. Implement program categories and color coding system. Add coach assignment functionality and program status management.
 
 # Test Strategy:
-Test concurrent booking attempts to ensure atomicity and prevent overbooking
+Test program CRUD operations, categorization, and coach assignment workflow

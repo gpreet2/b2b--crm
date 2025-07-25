@@ -1,11 +1,11 @@
 # Task ID: 14
-# Title: Implement Task Management and Notification System
+# Title: Implement Class Management System - List/Roster View
 # Status: pending
-# Dependencies: 13
-# Priority: medium
-# Description: Create task management with priority-based workflows and real-time notifications
+# Dependencies: 10
+# Priority: high
+# Description: Create the class list view with search, filters, and detailed roster management capabilities
 # Details:
-Build task creation and management interface with priority levels and due dates. Implement real-time notifications for task assignments and updates. Create task filtering and status management. Add notification preferences and delivery methods.
+Build searchable class list table with sortable columns and pagination. Implement enrollment tracking (e.g., 18/20 spots filled). Create filter tabs for All/Recurring/One-time classes. Add bulk actions and export functionality. Build detailed roster view for each class.
 
 # Test Strategy:
-Test task creation, assignment, and notification delivery
+Test search functionality, filtering, sorting, and roster management features

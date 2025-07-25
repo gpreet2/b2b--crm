@@ -1,11 +1,11 @@
 # Task ID: 30
-# Title: Create Analytics Dashboard
+# Title: Implement Kisi Audit Trail & Compliance
 # Status: pending
-# Dependencies: 25
+# Dependencies: 27
 # Priority: medium
-# Description: Build comprehensive analytics dashboard with charts, metrics, and insights
+# Description: Create comprehensive access audit trail with retention policies and compliance reporting
 # Details:
-Create analytics dashboard with revenue charts, membership trends, class popularity, and attendance patterns. Implement KPI cards and comparison charts. Add date range filters and export to PDF functionality. Create performance metrics and trend analysis.
+Store detailed access_events with timestamp, user_id, gym_id, door_id, success/fail status, and access method. Implement retention policies for compliance requirements (e.g., 7 years for financial data). Create access reporting and analytics capabilities with export functionality. Add real-time access monitoring dashboard for security incidents. Implement access pattern analysis and anomaly detection. Create compliance reports for regulatory requirements.
 
 # Test Strategy:
-Test analytics calculations, chart rendering, and data export
+Test audit trail accuracy, retention policies, and compliance reporting functionality

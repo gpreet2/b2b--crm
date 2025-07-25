@@ -1,15 +1,13 @@
 'use client'
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { createClient } from '@/utils/supabase/client'
-import { AuthUser, UserRole } from './auth'
-import { User } from '@supabase/supabase-js'
+import { useRouter } from 'next/navigation'
+import { AuthUser, UserRole } from './auth-types'
 
 interface AuthContextType {
   user: AuthUser | null
   loading: boolean
-  signIn: (email: string, password: string) => Promise<{ error?: string }>
-  signUp: (email: string, password: string, metadata?: { full_name?: string; gym_id?: string }) => Promise<{ error?: string }>
+  signIn: (email: string) => Promise<{ error?: string; authMethod?: string; authorizationUrl?: string; magicLink?: string }>
   signOut: () => Promise<void>
   updateProfile: (updates: Partial<{ full_name: string; role: UserRole }>) => Promise<{ error?: string }>
   refreshUser: () => Promise<void>
@@ -25,254 +23,89 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [loading, setLoading] = useState(true)
-  const [isClient, setIsClient] = useState(false)
-  const supabase = createClient()
+  const router = useRouter()
 
-  // Prevent hydration mismatch by ensuring client-only rendering
   useEffect(() => {
-    setIsClient(true)
+    // Check session on mount
+    checkSession()
   }, [])
 
-  // Fetch user profile data from database
-  const fetchUserProfile = async (authUser: User): Promise<AuthUser> => {
+  const checkSession = async () => {
     try {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('gym_id, role, full_name')
-        .eq('id', authUser.id)
-        .single()
-
-      if (error) {
-        console.error('Error fetching user profile:', error)
-        // Return user without profile data if fetch fails
-        return {
-          ...authUser,
-          gym_id: null,
-          role: 'member' as UserRole,
-          full_name: authUser.user_metadata?.full_name || null,
-        }
-      }
-
-      return {
-        ...authUser,
-        gym_id: profile?.gym_id,
-        role: profile?.role as UserRole,
-        full_name: profile?.full_name,
-      }
-    } catch (error) {
-      console.error('Exception fetching user profile:', error)
-      // Return basic user data if there's an exception
-      return {
-        ...authUser,
-        gym_id: null,
-        role: 'member' as UserRole,
-        full_name: authUser.user_metadata?.full_name || null,
-      }
-    }
-  }
-
-  // Initialize auth state - only run on client to prevent hydration mismatch
-  useEffect(() => {
-    if (!isClient) return
-
-    let mounted = true
-
-    const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        
-        if (session?.user && mounted) {
-          const userWithProfile = await fetchUserProfile(session.user)
-          setUser(userWithProfile)
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error)
-      } finally {
-        if (mounted) {
-          setLoading(false)
-        }
-      }
-    }
-
-    initializeAuth()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return
-
-        if (event === 'SIGNED_IN' && session?.user) {
-          setLoading(true)
-          try {
-            const userWithProfile = await fetchUserProfile(session.user)
-            setUser(userWithProfile)
-          } catch (error) {
-            console.error('Error updating user profile:', error)
-          } finally {
-            setLoading(false)
-          }
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null)
-          setLoading(false)
-        } else if (event === 'TOKEN_REFRESHED' && session?.user) {
-          try {
-            const userWithProfile = await fetchUserProfile(session.user)
-            setUser(userWithProfile)
-          } catch (error) {
-            console.error('Error refreshing user profile:', error)
-          }
-        } else {
-          // For any other auth events, ensure loading is false
-          setLoading(false)
-        }
-      }
-    )
-
-    return () => {
-      mounted = false
-      subscription.unsubscribe()
-    }
-  }, [isClient, supabase])
-
-  const signIn = async (email: string, password: string) => {
-    try {
-      // Don't set loading here - let the onAuthStateChange handle it
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (error) {
-        // Handle specific error cases from context7 search
-        if (error.message.includes('Email not confirmed')) {
-          return { error: 'Please check your email and click the confirmation link to verify your account before signing in.' }
-        }
-        if (error.message.includes('Invalid login credentials')) {
-          return { error: 'Invalid email or password. Please check your credentials and try again.' }
-        }
-        return { error: error.message }
-      }
-
-      // Success - onAuthStateChange will handle the loading state
-      return {}
-    } catch (error) {
-      return { error: 'An unexpected error occurred during sign in' }
-    }
-  }
-
-  const signUp = async (
-    email: string, 
-    password: string, 
-    metadata?: { full_name?: string; gym_id?: string }
-  ) => {
-    try {
-      setLoading(true)
+      const response = await fetch('/api/auth/session')
+      const data = await response.json()
       
-      // Fix 400 Bad Request - ensure null values instead of undefined/empty strings
-      // and fix 500 error by avoiding gym query during signup
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            full_name: metadata?.full_name || null,
-            gym_id: metadata?.gym_id || null,
-          },
-          emailRedirectTo: undefined, // Disable email confirmation redirect
-        },
-      })
-
-      if (error) {
-        // Handle specific error cases from context7 search
-        if (error.message.includes('Email not confirmed')) {
-          return { error: 'Please check your email and click the confirmation link before signing in.' }
-        }
-        return { error: error.message }
+      if (data.user) {
+        setUser(data.user)
       }
-
-      return {}
     } catch (error) {
-      return { error: 'An unexpected error occurred during signup' }
+      console.error('Error checking session:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const signIn = async (email: string) => {
+    try {
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        return { error: data.error || 'Failed to sign in' }
+      }
+
+      // If SSO, redirect to authorization URL
+      if (data.authMethod === 'sso' && data.authorizationUrl) {
+        window.location.href = data.authorizationUrl
+        return { authMethod: 'sso', authorizationUrl: data.authorizationUrl }
+      }
+
+      // Magic link sent
+      return { authMethod: 'magic_link', magicLink: data.magicLink }
+    } catch (error) {
+      console.error('Sign in error:', error)
+      return { error: 'An unexpected error occurred' }
     }
   }
 
   const signOut = async () => {
     try {
-      setLoading(true)
-      await supabase.auth.signOut()
+      await fetch('/api/auth/signout', {
+        method: 'POST',
+      })
+      
+      setUser(null)
+      router.push('/signin')
     } catch (error) {
-      console.error('Error signing out:', error)
-    } finally {
-      setLoading(false)
+      console.error('Sign out error:', error)
     }
   }
 
   const updateProfile = async (updates: Partial<{ full_name: string; role: UserRole }>) => {
-    if (!user) return { error: 'No user logged in' }
-
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id)
-
-      if (error) {
-        return { error: error.message }
-      }
-
-      // Refresh user data
-      await refreshUser()
-      return {}
-    } catch (error) {
-      return { error: 'An unexpected error occurred' }
-    }
+    // This will be implemented when we add profile update functionality
+    console.warn('Profile update not yet implemented')
+    return {}
   }
 
   const refreshUser = async () => {
-    if (!user) return
-
-    try {
-      const { data: { user: authUser } } = await supabase.auth.getUser()
-      if (authUser) {
-        const userWithProfile = await fetchUserProfile(authUser)
-        setUser(userWithProfile)
-      }
-    } catch (error) {
-      console.error('Error refreshing user:', error)
-    }
+    await checkSession()
   }
 
   const value: AuthContextType = {
     user,
     loading,
     signIn,
-    signUp,
     signOut,
     updateProfile,
     refreshUser,
-    isAuthenticated: !!user && isClient, // Fix hydration by ensuring client-only check
-  }
-
-  // Prevent hydration mismatch by suppressing hydration warning during client initialization
-  if (!isClient) {
-    return (
-      <div suppressHydrationWarning>
-        <AuthContext.Provider value={{
-          user: null,
-          loading: true,
-          signIn,
-          signUp,
-          signOut,
-          updateProfile,
-          refreshUser,
-          isAuthenticated: false,
-        }}>
-          {children}
-        </AuthContext.Provider>
-      </div>
-    )
+    isAuthenticated: !!user,
   }
 
   return (

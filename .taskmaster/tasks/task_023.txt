@@ -1,11 +1,11 @@
 # Task ID: 23
-# Title: Implement Kisi Time-Based Access Control
+# Title: Implement Financial Tracking System
 # Status: pending
-# Dependencies: 22
+# Dependencies: 10
 # Priority: high
-# Description: Create time-based access scheduling and enforcement system for different user roles
+# Description: Create comprehensive financial tracking for transactions, invoices, and payroll
 # Details:
-Implement access window scheduling system (e.g., staff access 6am-10pm, members 24/7). Create cron-based access rule management with gym-specific configurations. Add time-based access validation and enforcement in Kisi integration. Implement access schedule management interface for admins. Create access window override capabilities for special events. Add real-time access validation and blocking for unauthorized time periods.
+Build transaction history with payment method filters and export functionality. Create invoice management with status tracking and overdue alerts. Implement payroll integration interface for staff payments. Add fee breakdown and financial reporting capabilities.
 
 # Test Strategy:
-Test time-based access enforcement, schedule management, and override capabilities
+Test transaction recording, invoice generation, and financial reporting

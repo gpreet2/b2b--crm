@@ -1,11 +1,37 @@
 # Task ID: 6
-# Title: Build Dashboard with KPI Calculations
+# Title: Enterprise Testing Framework - E2E Testing
 # Status: pending
 # Dependencies: 5
 # Priority: high
-# Description: Create the main dashboard with real-time KPI cards showing Active Members, Classes Today, Revenue, and Attendance Rate
+# Description: Implement comprehensive end-to-end testing with Playwright
 # Details:
-Create PostgreSQL RPC function get_dashboard_kpis that calculates all four metrics in one database roundtrip. Build dashboard UI with KPI cards, today's tasks, today's classes, and recent activity feed. Implement real-time updates for live data.
+Set up Playwright for E2E testing with browser automation. Create comprehensive user flow tests: user registration, login, class booking, profile management. Test real-time updates and notifications. Implement visual regression testing for UI consistency. Set up E2E test data management and cleanup. Configure E2E test parallelization and reporting.
 
 # Test Strategy:
-Verify KPI calculations are accurate and update in real-time when data changes
+Verify complete user journeys work correctly, UI consistency maintained, and cross-browser compatibility
+
+# Subtasks:
+## 1. Set up Playwright E2E Framework [pending]
+### Dependencies: None
+### Description: Configure Playwright with browser automation and test utilities
+### Details:
+Install and configure Playwright for E2E testing. Set up browser automation with Chrome, Firefox, and Safari. Configure test environment and data management. Set up visual regression testing capabilities. Create test utilities and page object models. Configure test parallelization and reporting.
+
+## 2. Create Authentication E2E Tests [pending]
+### Dependencies: None
+### Description: E2E tests for complete authentication flows
+### Details:
+Test complete user registration and signup flow. Test login and logout functionality. Test password reset and email verification. Test role-based access and permission enforcement. Test session management and token refresh. Test authentication error handling and edge cases.
+
+## 3. Create Business Flow E2E Tests [pending]
+### Dependencies: None
+### Description: E2E tests for core business functionality
+### Details:
+Test complete class booking and cancellation flows. Test client management and profile updates. Test financial transactions and payment processing. Test real-time updates and notifications. Test admin dashboard and reporting functionality. Test mobile responsiveness and accessibility.
+
+## 4. Create Cross-Browser E2E Tests [pending]
+### Dependencies: None
+### Description: E2E tests for cross-browser compatibility
+### Details:
+Test all user flows in Chrome, Firefox, and Safari. Test mobile browser compatibility. Test different screen sizes and resolutions. Test accessibility features across browsers. Test performance and loading times. Test error handling and recovery scenarios.
+

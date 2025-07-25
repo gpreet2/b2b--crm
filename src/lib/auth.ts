@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/client'
 import { User } from '@supabase/supabase-js'
 
-export type UserRole = 'owner' | 'admin' | 'coach' | 'member'
+export type UserRole = 'owner' | 'admin' | 'manager' | 'trainer' | 'member'
 
 export interface AuthUser extends User {
   gym_id?: string
@@ -40,8 +40,18 @@ export const PERMISSIONS = {
     can_view_analytics: true,
     can_manage_settings: true,
   },
-  coach: {
-    // Coaches can manage classes and clients
+  manager: {
+    // Managers have most permissions except gym management
+    can_manage_gym: false,
+    can_manage_users: true,
+    can_manage_finances: true,
+    can_manage_classes: true,
+    can_manage_clients: true,
+    can_view_analytics: true,
+    can_manage_settings: false,
+  },
+  trainer: {
+    // Trainers can manage classes and clients
     can_manage_gym: false,
     can_manage_users: false,
     can_manage_finances: false,
@@ -81,10 +91,10 @@ export function hasRole(user: AuthUser | null, roles: UserRole[]): boolean {
 }
 
 /**
- * Check if user is an admin (owner or admin role)
+ * Check if user is an admin (owner, admin, or manager role)
  */
 export function isAdmin(user: AuthUser | null): boolean {
-  return hasRole(user, ['owner', 'admin'])
+  return hasRole(user, ['owner', 'admin', 'manager'])
 }
 
 /**

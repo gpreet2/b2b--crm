@@ -192,3 +192,22 @@ Temporary Items
 # Local development files
 .local
 local.*
+
+# Test files
+test-*.js
+test-*.mjs
+diagnose-*.mjs
+verify-*.mjs
+check-*.mjs
+debug-*.js
+run-*.js
+create-*.js
+final-*.js
+
+# Temporary HTML test files
+test-*.html
+
+# Documentation drafts
+*-GUIDE.md
+*-WALKTHROUGH.md
+*-IMPLEMENTATION.md

@@ -1,11 +1,11 @@
 # Task ID: 20
-# Title: Implement Third-Party Integrations - NMI
+# Title: Implement Task Management and Notification System
 # Status: pending
-# Dependencies: 19
-# Priority: high
-# Description: Integrate NMI payment processing with webhook handling and customer management
+# Dependencies: 10, 11
+# Priority: medium
+# Description: Create task management with priority-based workflows and real-time notifications
 # Details:
-Set up NMI API integration for payment processing. Create webhook handler for charge.succeeded events. Implement customer creation and management in NMI. Add payment method storage and recurring billing setup. Create job queue for asynchronous payment operations.
+Build task creation and management interface with priority levels and due dates. Implement real-time notifications for task assignments and updates. Create task filtering and status management. Add notification preferences and delivery methods.
 
 # Test Strategy:
-Test payment processing, webhook handling, and customer management
+Test task creation, assignment, and notification delivery

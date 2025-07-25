@@ -1,11 +1,11 @@
 # Task ID: 31
-# Title: Implement Reporting System
+# Title: Implement Kisi Job Queue Monitoring & Alerting
 # Status: pending
-# Dependencies: 30
-# Priority: medium
-# Description: Create comprehensive reporting system with customizable reports and export capabilities
+# Dependencies: 27
+# Priority: high
+# Description: Create comprehensive monitoring and alerting system for Kisi integration operations
 # Details:
-Build reporting interface with customizable report templates. Implement export functionality for CSV, PDF, and Excel formats. Create scheduled report generation and email delivery. Add report sharing and collaboration features.
+Implement failure logging with retry mechanisms (max 3 attempts with exponential backoff). Add escalation alerts for failed operations that exceed retry limits. Create job queue health monitoring dashboard with real-time status. Implement manual intervention capabilities for stuck jobs and failed operations. Add integration health checks and automated recovery procedures. Create alerting system for token expiration and API failures. Implement job queue metrics and performance monitoring.
 
 # Test Strategy:
-Test report generation, export functionality, and scheduled delivery
+Test job queue monitoring, alerting, and manual intervention capabilities

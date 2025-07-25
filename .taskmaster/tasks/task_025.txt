@@ -1,11 +1,11 @@
 # Task ID: 25
-# Title: Implement Kisi Job Queue Monitoring & Alerting
+# Title: Implement Real-Time Event System
 # Status: pending
-# Dependencies: 24
-# Priority: high
-# Description: Create comprehensive monitoring and alerting system for Kisi integration operations
+# Dependencies: 10, 11
+# Priority: medium
+# Description: Create comprehensive event system for activity tracking and notifications
 # Details:
-Implement failure logging with retry mechanisms (max 3 attempts with exponential backoff). Add escalation alerts for failed operations that exceed retry limits. Create job queue health monitoring dashboard with real-time status. Implement manual intervention capabilities for stuck jobs and failed operations. Add integration health checks and automated recovery procedures. Create alerting system for token expiration and API failures. Implement job queue metrics and performance monitoring.
+Build events table for tracking all system activities (new_member, class_booking, low_enrollment_alert, etc.). Implement event generation for all major actions. Create event subscription system for real-time updates. Add event filtering and search capabilities.
 
 # Test Strategy:
-Test job queue monitoring, alerting, and manual intervention capabilities
+Test event generation, real-time updates, and event filtering

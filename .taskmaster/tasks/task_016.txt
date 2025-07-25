@@ -1,11 +1,11 @@
 # Task ID: 16
-# Title: Implement Waitlist Management System
+# Title: Implement Class Management System - Settings
 # Status: pending
-# Dependencies: 15
-# Priority: high
-# Description: Create comprehensive waitlist system with automatic promotion and notifications
+# Dependencies: 10
+# Priority: medium
+# Description: Create gym settings management for reservation policies, fees, and system configuration
 # Details:
-Create RPC function promote_from_waitlist that automatically promotes waitlisted users when spots become available. Implement waitlist position tracking and notification system. Add manual waitlist management for admins. Create database triggers for automatic waitlist processing.
+Build settings forms for reservation timing, cancellation windows, late fees, and no-show fees. Implement tax rate configuration and system status monitoring. Create RPC function get_system_health for API status checks.
 
 # Test Strategy:
-Test waitlist functionality, automatic promotion, and notification delivery
+Test settings persistence and system health monitoring functionality

@@ -1,11 +1,11 @@
 # Task ID: 18
-# Title: Implement Automated Fee Processing
+# Title: Implement People Management - Clients
 # Status: pending
-# Dependencies: 17
+# Dependencies: 10
 # Priority: high
-# Description: Create automated system for late cancellation fees, no-show fees, and membership billing
+# Description: Create comprehensive client management with profiles, memberships, and activity history
 # Details:
-Create RPC function cancel_booking that handles late cancellation fees automatically. Implement no-show detection and fee processing. Create automated membership billing system with recurring payments. Add fee configuration and override capabilities for admins.
+Build client list with searchable table and status filters. Create unified client profile view showing membership details, class history, payment history, and notes. Implement client creation modal with personal information, contact details, and membership selection. Add client status management (active, suspended, inactive, employee).
 
 # Test Strategy:
-Test fee automation, late cancellation processing, and billing workflows
+Test client CRUD operations, profile management, and status transitions

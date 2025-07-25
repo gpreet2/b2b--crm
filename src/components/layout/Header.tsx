@@ -4,10 +4,13 @@ import { cn } from '@/lib/utils'
 import { 
   BellIcon,
   UserCircleIcon,
-  Bars3Icon
+  Bars3Icon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/Button'
 import { Breadcrumb, BreadcrumbItem } from '@/components/ui/Breadcrumb'
+import { useAuth } from '@/lib/auth-context'
+import { useRouter } from 'next/navigation'
 
 export interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   breadcrumbs?: BreadcrumbItem[]
@@ -30,6 +33,21 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
     notifications = 0,
     ...props 
   }, ref) => {
+    const { user: authUser, loading } = useAuth()
+    const router = useRouter()
+    
+    // Use auth context user if no user prop provided
+    const currentUser = user || authUser
+    
+    const handleSignOut = async () => {
+      try {
+        await fetch('/api/auth/signout', { method: 'POST' })
+        router.push('/signin')
+      } catch (error) {
+        console.error('Sign out error:', error)
+      }
+    }
+    
     return (
       <header
         ref={ref}
@@ -79,28 +97,38 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
 
             {/* User Profile */}
             <div className="flex items-center space-x-2 sm:space-x-3">
-              {user ? (
+              {loading ? (
+                <div className="animate-pulse">
+                  <div className="h-8 w-8 bg-surface-light rounded-full"></div>
+                </div>
+              ) : currentUser ? (
                 <div className="flex items-center space-x-2">
                   <div className="text-right hidden sm:block">
-                    <p className="text-sm font-light text-primary-text">{user.name}</p>
-                    <p className="text-xs text-secondary-text font-light">{user.email}</p>
+                    <p className="text-sm font-light text-primary-text">{currentUser.full_name || currentUser.email}</p>
+                    <p className="text-xs text-secondary-text font-light capitalize">{currentUser.role}</p>
                   </div>
-                  <button className="flex items-center space-x-2 p-2 rounded-xl hover:bg-surface-light/50 transition-all duration-200">
-                    {user.avatar ? (
-                      <Image
-                        src={user.avatar}
-                        alt={user.name}
-                        width={32}
-                        height={32}
-                        className="h-8 w-8 rounded-full"
-                      />
-                    ) : (
+                  <div className="relative group">
+                    <button className="flex items-center space-x-2 p-2 rounded-xl hover:bg-surface-light/50 transition-all duration-200">
                       <UserCircleIcon className="h-8 w-8 text-secondary-text" />
-                    )}
-                  </button>
+                    </button>
+                    <div className="absolute right-0 mt-2 w-48 bg-surface rounded-lg shadow-lg py-1 invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200">
+                      <button 
+                        onClick={handleSignOut}
+                        className="w-full text-left px-4 py-2 text-sm text-primary-text hover:bg-surface-light flex items-center"
+                      >
+                        <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+                        Sign Out
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ) : (
-                <Button variant="primary" size="sm" className="hidden sm:inline-flex">
+                <Button 
+                  variant="primary" 
+                  size="sm" 
+                  className="hidden sm:inline-flex"
+                  onClick={() => router.push('/signin')}
+                >
                   Sign In
                 </Button>
               )}

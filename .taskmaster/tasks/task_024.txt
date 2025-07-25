@@ -1,11 +1,11 @@
 # Task ID: 24
-# Title: Implement Kisi Audit Trail & Compliance
+# Title: Implement Automated Fee Processing
 # Status: pending
-# Dependencies: 23
-# Priority: medium
-# Description: Create comprehensive access audit trail with retention policies and compliance reporting
+# Dependencies: 21, 23
+# Priority: high
+# Description: Create automated system for late cancellation fees, no-show fees, and membership billing
 # Details:
-Store detailed access_events with timestamp, user_id, gym_id, door_id, success/fail status, and access method. Implement retention policies for compliance requirements (e.g., 7 years for financial data). Create access reporting and analytics capabilities with export functionality. Add real-time access monitoring dashboard for security incidents. Implement access pattern analysis and anomaly detection. Create compliance reports for regulatory requirements.
+Create RPC function cancel_booking that handles late cancellation fees automatically. Implement no-show detection and fee processing. Create automated membership billing system with recurring payments. Add fee configuration and override capabilities for admins.
 
 # Test Strategy:
-Test audit trail accuracy, retention policies, and compliance reporting functionality
+Test fee automation, late cancellation processing, and billing workflows

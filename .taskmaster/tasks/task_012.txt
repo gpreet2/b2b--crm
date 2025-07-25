@@ -1,11 +1,11 @@
 # Task ID: 12
-# Title: Implement People Management - Clients
+# Title: Build Dashboard with KPI Calculations
 # Status: pending
-# Dependencies: 11
+# Dependencies: 10, 11
 # Priority: high
-# Description: Create comprehensive client management with profiles, memberships, and activity history
+# Description: Create the main dashboard with real-time KPI cards showing Active Members, Classes Today, Revenue, and Attendance Rate
 # Details:
-Build client list with searchable table and status filters. Create unified client profile view showing membership details, class history, payment history, and notes. Implement client creation modal with personal information, contact details, and membership selection. Add client status management (active, suspended, inactive, employee).
+Create PostgreSQL RPC function get_dashboard_kpis that calculates all four metrics in one database roundtrip. Build dashboard UI with KPI cards, today's tasks, today's classes, and recent activity feed. Implement real-time updates for live data.
 
 # Test Strategy:
-Test client CRUD operations, profile management, and status transitions
+Verify KPI calculations are accurate and update in real-time when data changes

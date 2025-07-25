@@ -1,43 +1,37 @@
 # Task ID: 4
-# Title: Create Core CRUD Operations via PostgREST
+# Title: Enterprise Testing Framework - Unit Testing
 # Status: pending
 # Dependencies: 3
 # Priority: high
-# Description: Implement basic CRUD operations for all entities using Supabase PostgREST with proper filtering and pagination
+# Description: Implement comprehensive unit testing strategy with 90%+ coverage for all business logic
 # Details:
-Set up PostgREST endpoints for all main entities (gyms, profiles, clients, classes, etc.) with proper filtering by gym_id, pagination, and sorting. Ensure all endpoints respect RLS policies.
+Set up Vitest testing framework with TypeScript support. Create unit tests for all utility functions, hooks, and business logic. Implement test database with isolated test data. Create mocking strategies for external dependencies. Set up test coverage reporting with 90% minimum threshold. Implement test parallelization and CI integration. Create test utilities and helpers for common testing patterns.
 
 # Test Strategy:
-Test all CRUD operations with different user roles and verify data isolation
+Verify 90%+ test coverage, all tests pass in CI, and test execution time under 30 seconds
 
 # Subtasks:
-## 1. Set up Supabase Client [pending]
+## 1. Set up Vitest Testing Framework [pending]
 ### Dependencies: None
-### Description: Configure Supabase client for API operations
+### Description: Configure Vitest with TypeScript and testing utilities
 ### Details:
-Set up Supabase client configuration with proper environment variables. Configure API endpoints and authentication headers. Set up error handling and request interceptors. Create client utilities for common operations.
+Install and configure Vitest with TypeScript support. Set up test environment configuration. Configure test coverage reporting with Istanbul. Set up test utilities and mocking libraries. Create test database configuration for isolated testing. Configure test parallelization and reporting.
 
-## 2. Create Data Access Layer [pending]
+## 2. Create Auth System Unit Tests [pending]
 ### Dependencies: None
-### Description: Create reusable data access functions for all entities
+### Description: Comprehensive unit tests for authentication and authorization
 ### Details:
-Create data access functions for all major entities (gyms, profiles, clients, classes, events, transactions, etc.). Implement proper error handling and type safety. Create utility functions for common operations like filtering, sorting, and pagination. Implement proper data validation.
+Create unit tests for all auth functions (hasPermission, hasRole, isAdmin). Test auth context and hooks functionality. Test auth middleware and guards. Test JWT token validation and refresh logic. Test role-based access control functions. Test multi-tenant gym isolation logic.
 
-## 3. Implement Filtering and Pagination [pending]
+## 3. Create Business Logic Unit Tests [pending]
 ### Dependencies: None
-### Description: Implement advanced filtering and pagination for all data queries
+### Description: Unit tests for all business logic and utility functions
 ### Details:
-Implement filtering capabilities for all entity queries (by date, status, type, etc.). Create pagination utilities with proper page size limits and cursor-based pagination. Implement search functionality with full-text search where appropriate. Create reusable filter components and utilities.
+Create unit tests for data access layer functions. Test CRUD operations and data validation. Test business logic for class booking, membership management. Test financial calculations and fee processing. Test notification and event handling logic. Test third-party integration utilities.
 
-## 4. Create API Response Types [pending]
+## 4. Create Component Unit Tests [pending]
 ### Dependencies: None
-### Description: Create TypeScript types for all API responses
+### Description: Unit tests for React components and UI logic
 ### Details:
-Create comprehensive TypeScript interfaces for all API responses and request payloads. Define types for entities, filters, pagination, and error responses. Create utility types for common patterns. Implement proper type validation and error handling.
-
-## 5. Test CRUD Operations [pending]
-### Dependencies: None
-### Description: Test all CRUD operations and data access functions
-### Details:
-Create comprehensive tests for all CRUD operations on major entities. Test filtering, sorting, and pagination functionality. Test error handling and edge cases. Test data validation and type safety. Verify proper RLS enforcement in all operations.
+Create unit tests for all React components using React Testing Library. Test component rendering and user interactions. Test form validation and submission logic. Test component state management and props handling. Test error boundaries and loading states. Test accessibility features and ARIA compliance.
 

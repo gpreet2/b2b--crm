@@ -1,11 +1,11 @@
 # Task ID: 17
-# Title: Implement Financial Tracking System
+# Title: Implement People Management - Leads
 # Status: pending
-# Dependencies: 16
+# Dependencies: 10
 # Priority: high
-# Description: Create comprehensive financial tracking for transactions, invoices, and payroll
+# Description: Create lead management system with drop-in tracking and conversion workflows
 # Details:
-Build transaction history with payment method filters and export functionality. Create invoice management with status tracking and overdue alerts. Implement payroll integration interface for staff payments. Add fee breakdown and financial reporting capabilities.
+Build lead list table with search and filtering. Implement drop-in tracking and class attendance logs. Create conversion tracking system with follow-up reminders. Add lead status management and notes functionality.
 
 # Test Strategy:
-Test transaction recording, invoice generation, and financial reporting
+Test lead creation, tracking, and conversion workflow

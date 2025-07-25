@@ -1,6 +1,6 @@
 # Task ID: 2
 # Title: Implement Row-Level Security (RLS) Policies
-# Status: pending
+# Status: done
 # Dependencies: 1
 # Priority: high
 # Description: Set up comprehensive RLS policies for all tables to ensure proper data isolation between gyms and role-based access control
@@ -35,7 +35,7 @@ Create RLS policies that implement role-based access control. Admins can access 
 ### Details:
 Create RLS policies that allow users to read and update their own profile data. Users can only access their own profile record where profile.id = auth.uid(). Implement proper profile ownership validation in policies.
 
-## 5. Test RLS Policies [pending]
+## 5. Test RLS Policies [done]
 ### Dependencies: None
 ### Description: Test all RLS policies to ensure proper data isolation
 ### Details:

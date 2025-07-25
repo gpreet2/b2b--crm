@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { useAuth } from '@/lib/auth-context'
+import { usePermission } from '@/lib/auth-permissions'
+import { PERMISSIONS } from '@/lib/permissions'
 import { 
   ChevronDownIcon,
   Cog6ToothIcon,
@@ -26,6 +28,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
     const pathname = usePathname()
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set())
     const { signOut } = useAuth()
+    const canViewStaff = usePermission(PERMISSIONS.VIEW_STAFF)
 
     const toggleExpanded = (itemId: string) => {
       const newExpanded = new Set(expandedItems)
@@ -132,6 +135,11 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                     {isExpanded && item.subItems && (
                       <div className="ml-8 mt-2 space-y-1">
                         {item.subItems.map((subItem) => {
+                          // Hide Staff menu item if user doesn't have permission
+                          if (subItem.href === '/people/staff' && !canViewStaff) {
+                            return null
+                          }
+                          
                           const SubIcon = subItem.icon
                           return (
                             <Link

@@ -1,49 +1,55 @@
 # Task ID: 27
-# Title: Implement CI/CD Pipeline - Phase 2
+# Title: Implement Core Kisi Integration & Access Control
 # Status: pending
-# Dependencies: 26
+# Dependencies: 10, 18
 # Priority: high
-# Description: Create automated CI/CD pipeline with comprehensive testing stages and quality gates
+# Description: Set up comprehensive Kisi API integration with multi-tenant access group management and fault tolerance
 # Details:
-Set up GitHub Actions CI/CD pipeline with four mandatory stages: Lint & Static Analysis (ESLint, TypeScript), Unit Testing (90% coverage threshold), Integration Testing (temporary Supabase project with realistic test data), and E2E Testing (Playwright/Cypress with full user flows). Implement branch protection rules that prevent merging unless all stages pass. Create automated deployment to staging environment after successful CI pipeline. Set up comprehensive test data seeding for integration tests.
+Set up Kisi API integration with proper authentication and token management. Implement user creation and group assignment in Kisi with comprehensive error handling. Create job queue system for access grant/revoke operations with retry logic and exponential backoff. Add access logging and audit trail with proper retention policies. Implement kisi_access_group_map table for gym-specific access group mapping. Add real-time status monitoring for automatic access revocation when client status changes. Create admin dashboard for Kisi integration health monitoring and manual intervention capabilities.
 
 # Test Strategy:
-Test CI pipeline blocks PRs with failing tests, low coverage, or linting errors. Verify integration tests run against isolated Supabase environment. Test E2E flows simulate real user interactions.
+Test Kisi API integration, access control operations, job queue processing, and fault tolerance mechanisms
 
 # Subtasks:
-## 1. Set up GitHub Actions CI Pipeline [pending]
+## 1. Set up Kisi API Integration [pending]
 ### Dependencies: None
-### Description: Create GitHub Actions workflow with four mandatory testing stages
+### Description: Configure Kisi API client and authentication
 ### Details:
-Create GitHub Actions workflow file with four stages: Lint & Static Analysis, Unit Testing, Integration Testing, and E2E Testing. Configure workflow triggers for pull requests and pushes to main branch. Set up environment variables and secrets for CI environment. Configure caching for dependencies and build artifacts. Set up parallel job execution for faster CI runs.
+Set up Kisi API client with proper authentication and token management. Configure API endpoints and request handling. Implement token refresh mechanism with exponential backoff. Set up error handling and retry logic for API calls. Create Kisi API utilities and helper functions.
 
-## 2. Implement Lint & Static Analysis Stage [pending]
+## 2. Create Kisi Access Group Management [pending]
 ### Dependencies: None
-### Description: Create automated code quality checks in CI pipeline
+### Description: Implement multi-tenant access group mapping
 ### Details:
-Configure ESLint and TypeScript compilation checks in CI pipeline. Set up Prettier formatting validation. Implement security scanning with tools like Snyk or CodeQL. Configure dependency vulnerability scanning. Set up code complexity analysis and maintainability checks. Configure automated code review suggestions and quality gates.
+Create kisi_access_group_map table for gym-specific access group mapping. Implement access group creation and management in Kisi. Create utilities for mapping gym_id + role to Kisi access groups. Implement access group validation and error handling.
 
-## 3. Implement Unit Testing Stage with 90% Coverage [pending]
+## 3. Implement User Creation and Management [pending]
 ### Dependencies: None
-### Description: Create comprehensive unit testing with mandatory coverage threshold
+### Description: Create Kisi user management system
 ### Details:
-Set up Vitest or Jest for unit testing. Configure test coverage reporting with 90% minimum threshold. Set up test database with isolated test data. Create unit tests for all utility functions, hooks, and components. Implement test mocking for external dependencies. Configure test parallelization and reporting. Set up coverage badges and reporting in CI.
+Implement user creation in Kisi when clients are added to the system. Create user update functionality for profile changes. Implement user deletion and deactivation in Kisi. Create utilities for user synchronization between Back2Back and Kisi.
 
-## 4. Implement Integration Testing with Temporary Supabase [pending]
+## 4. Create Job Queue System [pending]
 ### Dependencies: None
-### Description: Create integration tests against isolated Supabase environment
+### Description: Implement asynchronous job queue for Kisi operations
 ### Details:
-Set up integration testing framework with temporary Supabase project creation via Management API. Create comprehensive test data seeding (10 gyms, 100 clients, 500 bookings). Implement integration tests for all RPC functions and database operations. Test RLS policies and multi-tenancy isolation. Test real-time subscriptions and webhook handling. Set up automated cleanup of temporary test environments.
+Create access_jobs table for tracking Kisi operations. Implement job queue system with retry logic and exponential backoff. Create job processing utilities for access grant/revoke operations. Implement job status tracking and error handling. Create job queue monitoring and alerting.
 
-## 5. Implement E2E Testing with Playwright [pending]
+## 5. Implement Status Monitoring and Auto-Revocation [pending]
 ### Dependencies: None
-### Description: Create end-to-end tests simulating real user interactions
+### Description: Create real-time status monitoring for automatic access management
 ### Details:
-Set up Playwright for E2E testing with browser automation. Create comprehensive user flow tests: user registration, login, class booking, profile management. Test real-time updates and notifications. Implement visual regression testing for UI consistency. Set up E2E test data management and cleanup. Configure E2E test parallelization and reporting. Test cross-browser compatibility (Chrome, Firefox, Safari).
+Implement real-time monitoring of client status changes. Create automatic access revocation when client status changes (banned/suspended). Implement status synchronization between Back2Back and Kisi. Create admin override capabilities for manual access management.
 
-## 6. Configure Branch Protection and Quality Gates [pending]
+## 6. Create Admin Dashboard for Kisi Management [pending]
 ### Dependencies: None
-### Description: Set up automated quality gates preventing merge of failing code
+### Description: Build admin interface for Kisi integration management
 ### Details:
-Configure GitHub branch protection rules for main branch. Require all CI stages to pass before allowing merges. Set up required status checks for linting, unit tests, integration tests, and E2E tests. Configure code review requirements and approval thresholds. Set up automated merge blocking for failing tests or low coverage. Implement quality gate enforcement and reporting.
+Create admin dashboard for monitoring Kisi integration health. Implement manual intervention capabilities for stuck jobs and failed operations. Create access management interface for admins. Implement integration status monitoring and alerting dashboard.
+
+## 7. Test Kisi Integration [pending]
+### Dependencies: None
+### Description: Comprehensive testing of Kisi integration functionality
+### Details:
+Create comprehensive tests for Kisi API integration. Test user creation, access group management, and job queue functionality. Test status monitoring and auto-revocation features. Test admin dashboard and manual intervention capabilities. Test error handling and fault tolerance mechanisms.
 

@@ -1,201 +1,171 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/lib/auth-context'
+import { ArrowRightIcon } from '@heroicons/react/24/outline'
 
 export default function SignInPage() {
-  const [isSignUp, setIsSignUp] = useState(false)
   const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [fullName, setFullName] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
-  
-  const { signIn, signUp } = useAuth()
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [magicLink, setMagicLink] = useState<string | null>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const { signIn } = useAuth()
+  
+  const redirect = searchParams.get('redirect') || '/'
+  const error = searchParams.get('error')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError('')
-    setSuccess('')
-
-    try {
-      if (isSignUp) {
-        const result = await signUp(email, password, { full_name: fullName })
-        if (result.error) {
-          setError(result.error)
-        } else {
-          setSuccess('Account created successfully! Please check your email for confirmation if required.')
-          // Switch to sign in mode after successful signup
-          setTimeout(() => {
-            setIsSignUp(false)
-            setSuccess('')
-          }, 3000)
-        }
+    setMessage(null)
+    setMagicLink(null)
+    
+    const result = await signIn(email)
+    
+    if (result.error) {
+      setMessage({ type: 'error', text: result.error })
+      setLoading(false)
+    } else if (result.authMethod === 'magic_link') {
+      if (result.magicLink) {
+        // Development mode with test keys - show the link
+        setMagicLink(result.magicLink)
+        setMessage({ 
+          type: 'success', 
+          text: 'Test mode: Click the link below to sign in' 
+        })
       } else {
-        const result = await signIn(email, password)
-        if (result.error) {
-          setError(result.error)
-        } else {
-          // Successful login - wait a moment for auth state to update, then redirect
-          console.log('Sign-in successful, redirecting...')
-          setTimeout(() => {
-            router.push('/')
-          }, 500) // Small delay to allow auth state to settle
-        }
+        // Production mode - email will be sent
+        setMessage({ 
+          type: 'success', 
+          text: 'Check your email for a sign-in link. You can close this window.' 
+        })
       }
-    } catch (err) {
-      setError('An unexpected error occurred')
-      console.error('Sign-in exception:', err)
-    } finally {
       setLoading(false)
     }
+    // If SSO, the user will be redirected automatically
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 flex items-center justify-center px-4">
-      <div className="max-w-md w-full">
-        {/* Gym Branding */}
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="w-full max-w-md">
+        {/* Logo */}
         <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          <div className="mx-auto w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center mb-6 shadow-xl">
+            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Back2Back OS</h1>
-          <p className="text-blue-200">Gym Management Platform</p>
+          <h1 className="text-4xl font-bold text-primary-text mb-2">Back2Back OS</h1>
+          <p className="text-secondary-text">Sign in to your account</p>
         </div>
 
-        {/* Auth Form */}
-        <div className="bg-white rounded-lg shadow-xl p-8">
-          <div className="mb-6">
-            <div className="flex rounded-md bg-gray-100 p-1">
-              <button
-                type="button"
-                onClick={() => setIsSignUp(false)}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                  !isSignUp 
-                    ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Sign In
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsSignUp(true)}
-                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                  isSignUp 
-                    ? 'bg-white text-gray-900 shadow-sm' 
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                Sign Up
-              </button>
-            </div>
-          </div>
+        {/* Sign In Form */}
+        <div className="bg-surface border border-[var(--color-border)] rounded-lg shadow-2xl p-8">
+          <h2 className="text-2xl font-semibold text-primary-text mb-6 text-center">Sign In</h2>
 
+          {/* Error from URL params */}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="mb-6 p-4 bg-danger/10 border border-danger/20 rounded-lg">
+              <p className="text-sm text-danger">
+                {error === 'auth_failed' && 'Authentication failed. Please try again.'}
+                {error === 'missing_code' && 'Invalid authentication request.'}
+                {error !== 'auth_failed' && error !== 'missing_code' && error}
+              </p>
             </div>
           )}
 
-          {success && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
-              <p className="text-sm text-green-600">{success}</p>
+          {/* Message */}
+          {message && (
+            <div className={`mb-6 p-4 rounded-lg border ${
+              message.type === 'success' 
+                ? 'bg-success/10 border-success/20 text-success' 
+                : 'bg-danger/10 border-danger/20 text-danger'
+            }`}>
+              <p className="text-sm">{message.text}</p>
+              
+              {/* Show magic link in development mode */}
+              {magicLink && (
+                <div className="mt-4">
+                  <a 
+                    href={magicLink}
+                    className="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open Magic Link
+                    <ArrowRightIcon className="ml-2 h-4 w-4" />
+                  </a>
+                  <p className="mt-2 text-xs text-muted">
+                    This link is only shown in development mode with test keys.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {isSignUp && (
-              <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
-                </label>
-                <input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter your full name"
-                  required={isSignUp}
-                />
-              </div>
-            )}
-
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
+              <label htmlFor="email" className="block text-sm font-medium text-primary-text mb-2">
+                Work Email
               </label>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter your email"
+                className="w-full px-4 py-3 bg-surface-light border border-[var(--color-border)] rounded-lg 
+                         focus:ring-2 focus:ring-primary focus:border-primary text-primary-text
+                         placeholder-muted transition-all duration-200"
+                placeholder="you@company.com"
                 required
+                autoComplete="email"
+                autoFocus
               />
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter your password"
-                required
-                minLength={6}
-              />
-              {isSignUp && (
-                <p className="text-xs text-gray-500 mt-1">
-                  Password must be at least 6 characters long
-                </p>
-              )}
+              <p className="mt-2 text-xs text-muted">
+                We'll email you a secure sign-in link
+              </p>
             </div>
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={loading || !email}
+              className="w-full bg-gradient-primary text-white py-3 px-6 rounded-lg font-semibold
+                       hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200
+                       disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+                       focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 
+                       focus:ring-offset-surface flex items-center justify-center"
             >
               {loading ? (
-                <div className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <div className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" 
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  {isSignUp ? 'Creating Account...' : 'Signing In...'}
+                  Sending...
                 </div>
               ) : (
-                isSignUp ? 'Create Account' : 'Sign In'
+                <>
+                  Sign In
+                  <ArrowRightIcon className="ml-2 h-5 w-5" />
+                </>
               )}
             </button>
           </form>
 
-          {/* Development Bypass */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <button
-              onClick={() => router.push('/dev-bypass')}
-              className="w-full text-sm text-gray-500 hover:text-gray-700 underline"
-            >
-              Development Bypass (Testing Only)
-            </button>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-muted">
+              By signing in, you agree to our Terms of Service and Privacy Policy
+            </p>
           </div>
         </div>
 
-        <div className="text-center mt-6">
-          <p className="text-blue-200 text-sm">
+        <div className="text-center mt-8">
+          <p className="text-muted text-xs">
             © 2024 Back2Back OS. All rights reserved.
           </p>
         </div>

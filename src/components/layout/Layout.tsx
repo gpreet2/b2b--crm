@@ -20,7 +20,7 @@ const Layout = React.forwardRef<HTMLDivElement, LayoutProps>(
   }, ref) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
     const pathname = usePathname()
-    const { loading } = useAuth()
+    const { user, loading } = useAuth()
 
     const toggleMobileMenu = () => {
       setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -30,12 +30,15 @@ const Layout = React.forwardRef<HTMLDivElement, LayoutProps>(
       setIsMobileMenuOpen(false)
     }
 
-    // Routes that should not show the dashboard layout
-    const authRoutes = ['/signin', '/dev-bypass', '/test-auth', '/test-login', '/test-integration', '/test-summary']
-    const isAuthRoute = authRoutes.includes(pathname)
+    // Check for development mode bypass
+    const isDevBypass = process.env.NEXT_PUBLIC_DEV_MODE_BYPASS_AUTH === 'true'
 
-    // Show auth pages without dashboard layout
-    if (isAuthRoute) {
+    // Routes that should not show the dashboard layout
+    const noLayoutRoutes = ['/signin', '/invite/accept', '/dev-bypass', '/test-connection', '/test-integration', '/test-summary']
+    const isNoLayoutRoute = noLayoutRoutes.includes(pathname) || pathname.startsWith('/invite/')
+
+    // Show pages without dashboard layout
+    if (isNoLayoutRoute) {
       return (
         <div ref={ref} className={cn(className)} {...props}>
           {children}
@@ -43,9 +46,10 @@ const Layout = React.forwardRef<HTMLDivElement, LayoutProps>(
       )
     }
 
-    // Don't check loading state for non-auth routes to prevent hydration mismatch
-    // The auth context will handle its own loading state
+    // No auth check needed - using mock auth for now
+    // Authentication will be handled by the new auth provider
 
+    // Show dashboard layout for authenticated users or dev bypass
     return (
       <div
         ref={ref}
