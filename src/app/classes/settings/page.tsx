@@ -28,7 +28,7 @@ const Toggle = ({
   description?: string
 }) => {
   return (
-    <div className="flex items-center justify-between p-4 bg-surface-light/50 rounded-xl">
+    <div className="flex items-center justify-between p-4 bg-accent rounded-xl border border-border-light">
       <div className="flex-1">
         <div className="text-sm font-light text-primary-text">{label}</div>
         {description && (
@@ -38,7 +38,7 @@ const Toggle = ({
       <button
         onClick={() => onToggle(!enabled)}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 ${
-          enabled ? 'bg-primary' : 'bg-surface-light'
+          enabled ? 'bg-primary' : 'bg-accent'
         }`}
       >
         <span
@@ -75,7 +75,7 @@ const TimeInput = ({
         type="time"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="bg-surface-light/50 border-0 rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+        className="bg-accent border-border rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
       />
     </div>
   )
@@ -114,7 +114,7 @@ const NumberInput = ({
         min={min}
         max={max}
         step={step}
-        className="bg-surface-light/50 border-0 rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:bg-surface-light transition-all duration-200"
+        className="bg-accent border-border rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
       />
     </div>
   )
@@ -154,13 +154,14 @@ export default function ClassesSettingsPage() {
         <div className="flex items-center space-x-3">
           <Button
             variant="outline"
-            className="px-4 py-2 bg-surface-light/50 border-0 rounded-xl font-light text-sm hover:bg-surface-light transition-all duration-200"
+            className="px-4 py-2 bg-accent border-border rounded-xl font-light text-sm hover:bg-accent/80 transition-all duration-200"
           >
             <DocumentTextIcon className="h-4 w-4 mr-2" />
             Export Config
           </Button>
           <Button
-            className="px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 shadow-lg hover:shadow-xl"
+            variant="primary"
+            className="px-4 py-2 rounded-xl font-light text-sm transition-all duration-200 shadow-lg hover:shadow-xl"
           >
             <Cog6ToothIcon className="h-4 w-4 mr-2" />
             Save Changes
@@ -170,8 +171,8 @@ export default function ClassesSettingsPage() {
 
       <div className="space-y-6">
         {/* Reservation Settings */}
-        <Card className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl shadow-lg">
-          <CardHeader className="px-8 py-6 border-b border-surface-light/30">
+        <Card className="bg-surface/95 backdrop-blur-sm border border-border rounded-2xl shadow-lg">
+          <CardHeader className="px-8 py-6 border-b border-border bg-accent">
             <CardTitle className="flex items-center space-x-4">
               <div className="p-3 bg-gradient-to-br from-primary to-primary-dark rounded-xl shadow-lg">
                 <CalendarIcon className="h-6 w-6 text-white" />
@@ -198,7 +199,7 @@ export default function ClassesSettingsPage() {
               />
             </div>
             
-            <div className="p-6 bg-surface-light/30 rounded-xl">
+            <div className="p-6 bg-accent rounded-xl border border-border-light">
               <div className="flex items-center space-x-3 mb-3">
                 <ClockIcon className="h-5 w-5 text-primary" />
                 <span className="text-lg font-medium text-primary-text">Booking Window Summary</span>
@@ -211,8 +212,8 @@ export default function ClassesSettingsPage() {
         </Card>
 
         {/* Cancellation Settings */}
-        <Card className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl shadow-lg">
-          <CardHeader className="px-8 py-6 border-b border-surface-light/30">
+        <Card className="bg-surface/95 backdrop-blur-sm border border-border rounded-2xl shadow-lg">
+          <CardHeader className="px-8 py-6 border-b border-border bg-accent">
             <CardTitle className="flex items-center space-x-4">
               <div className="p-3 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg">
                 <ExclamationTriangleIcon className="h-6 w-6 text-white" />
@@ -237,7 +238,7 @@ export default function ClassesSettingsPage() {
             </div>
 
             <div className="space-y-6">
-              <div className="flex items-center justify-between p-6 bg-surface-light/30 rounded-xl">
+              <div className="flex items-center justify-between p-6 bg-accent rounded-xl border border-border-light">
                 <div>
                   <div className="text-lg font-medium text-primary-text">Late Cancellation Fees</div>
                   <div className="text-sm text-secondary-text">Charge fees for late cancellations</div>
@@ -250,7 +251,7 @@ export default function ClassesSettingsPage() {
               </div>
 
               {lateCancellationEnabled && (
-                <div className="space-y-6 p-6 bg-surface-light/30 rounded-xl">
+                <div className="space-y-6 p-6 bg-accent rounded-xl border border-border-light">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <NumberInput
                       label="Late Cancellation Fee ($)"
@@ -272,7 +273,7 @@ export default function ClassesSettingsPage() {
                     />
                   </div>
                   
-                  <div className="p-6 bg-surface-light/50 rounded-xl">
+                  <div className="p-6 bg-surface rounded-xl border border-border-light">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-base">
                         <span className="text-secondary-text">Base Fee:</span>
@@ -282,7 +283,7 @@ export default function ClassesSettingsPage() {
                         <span className="text-secondary-text">Tax ({lateCancellationTaxRate}%):</span>
                         <span className="text-primary-text font-medium">${(lateCancellationFee * (lateCancellationTaxRate / 100)).toFixed(2)}</span>
                       </div>
-                      <div className="flex items-center justify-between text-lg font-medium border-t border-surface-light/30 pt-3">
+                      <div className="flex items-center justify-between text-lg font-medium border-t border-border pt-3">
                         <span className="text-primary-text">Total with Tax:</span>
                         <span className="text-primary font-medium">${calculateTotalWithTax(lateCancellationFee, lateCancellationTaxRate).toFixed(2)}</span>
                       </div>
@@ -302,8 +303,8 @@ export default function ClassesSettingsPage() {
         </Card>
 
         {/* No Show Settings */}
-        <Card className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl shadow-lg">
-          <CardHeader className="px-8 py-6 border-b border-surface-light/30">
+        <Card className="bg-surface/95 backdrop-blur-sm border border-border rounded-2xl shadow-lg">
+          <CardHeader className="px-8 py-6 border-b border-border bg-accent">
             <CardTitle className="flex items-center space-x-4">
               <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg">
                 <UserGroupIcon className="h-6 w-6 text-white" />
@@ -316,7 +317,7 @@ export default function ClassesSettingsPage() {
           </CardHeader>
           <CardContent className="p-8 space-y-8">
             <div className="space-y-6">
-              <div className="flex items-center justify-between p-6 bg-surface-light/30 rounded-xl">
+              <div className="flex items-center justify-between p-6 bg-accent rounded-xl border border-border-light">
                 <div>
                   <div className="text-lg font-medium text-primary-text">No Show Fees</div>
                   <div className="text-sm text-secondary-text">Charge fees for members who don&apos;t show up</div>
@@ -329,7 +330,7 @@ export default function ClassesSettingsPage() {
               </div>
 
               {noShowEnabled && (
-                <div className="space-y-6 p-6 bg-surface-light/30 rounded-xl">
+                <div className="space-y-6 p-6 bg-accent rounded-xl border border-border-light">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <NumberInput
                       label="No Show Fee ($)"
@@ -351,7 +352,7 @@ export default function ClassesSettingsPage() {
                     />
                   </div>
                   
-                  <div className="p-6 bg-surface-light/50 rounded-xl">
+                  <div className="p-6 bg-surface rounded-xl border border-border-light">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-base">
                         <span className="text-secondary-text">Base Fee:</span>
@@ -361,7 +362,7 @@ export default function ClassesSettingsPage() {
                         <span className="text-secondary-text">Tax ({noShowTaxRate}%):</span>
                         <span className="text-primary-text font-medium">${(noShowFee * (noShowTaxRate / 100)).toFixed(2)}</span>
                       </div>
-                      <div className="flex items-center justify-between text-lg font-medium border-t border-surface-light/30 pt-3">
+                      <div className="flex items-center justify-between text-lg font-medium border-t border-border pt-3">
                         <span className="text-primary-text">Total with Tax:</span>
                         <span className="text-primary font-medium">${calculateTotalWithTax(noShowFee, noShowTaxRate).toFixed(2)}</span>
                       </div>
@@ -381,8 +382,8 @@ export default function ClassesSettingsPage() {
         </Card>
 
         {/* System Status */}
-        <Card className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl shadow-lg">
-          <CardHeader className="px-8 py-6 border-b border-surface-light/30">
+        <Card className="bg-surface/95 backdrop-blur-sm border border-border rounded-2xl shadow-lg">
+          <CardHeader className="px-8 py-6 border-b border-border bg-accent">
             <CardTitle className="flex items-center space-x-4">
               <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg">
                 <ShieldCheckIcon className="h-6 w-6 text-white" />
@@ -395,28 +396,28 @@ export default function ClassesSettingsPage() {
           </CardHeader>
           <CardContent className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl">
+              <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl border border-border-light">
                 <CheckCircleIcon className="h-6 w-6 text-emerald-500 flex-shrink-0" />
                 <div>
                   <div className="text-base font-medium text-primary-text">Classes System</div>
                   <div className="text-sm text-emerald-500">Operational</div>
                 </div>
               </div>
-              <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl">
+              <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl border border-border-light">
                 <CheckCircleIcon className="h-6 w-6 text-emerald-500 flex-shrink-0" />
                 <div>
                   <div className="text-base font-medium text-primary-text">Booking Engine</div>
                   <div className="text-sm text-emerald-500">Online</div>
                 </div>
               </div>
-              <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl">
+              <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl border border-border-light">
                 <CheckCircleIcon className="h-6 w-6 text-emerald-500 flex-shrink-0" />
                 <div>
                   <div className="text-base font-medium text-primary-text">Payment Processing</div>
                   <div className="text-sm text-emerald-500">Active</div>
                 </div>
               </div>
-              <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl">
+              <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl border border-border-light">
                 <CheckCircleIcon className="h-6 w-6 text-emerald-500 flex-shrink-0" />
                 <div>
                   <div className="text-base font-medium text-primary-text">Notifications</div>

@@ -1,11 +1,10 @@
 import React from 'react'
-import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { 
   BellIcon,
   UserCircleIcon,
   Bars3Icon,
-  ArrowRightOnRectangleIcon
+  ArrowRightStartOnRectangleIcon
 } from '@heroicons/react/24/outline'
 import { Button } from '@/components/ui/Button'
 import { Breadcrumb, BreadcrumbItem } from '@/components/ui/Breadcrumb'
@@ -52,7 +51,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
       <header
         ref={ref}
         className={cn(
-          'bg-background border-b border-surface-light/90 px-3 sm:px-4 h-18 flex items-center',
+          'bg-background border-b border-border px-3 sm:px-4 h-18 flex items-center',
           className
         )}
         {...props}
@@ -63,7 +62,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
             {/* Mobile Menu Button */}
             <button
               onClick={onMenuToggle}
-              className="lg:hidden p-2 rounded-xl hover:bg-surface-light/50 text-secondary-text hover:text-primary-text transition-all duration-200"
+              className="lg:hidden p-2 rounded-xl hover:bg-accent text-secondary-text hover:text-primary-text transition-all duration-200"
             >
               <Bars3Icon className="h-5 w-5" />
             </button>
@@ -86,7 +85,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
           {/* Right Section */}
           <div className="flex items-center space-x-2 sm:space-x-3">
             {/* Notifications */}
-            <button className="relative p-2 rounded-xl hover:bg-surface-light/50 text-secondary-text hover:text-primary-text transition-all duration-200">
+            <button className="relative p-2 rounded-xl hover:bg-accent text-secondary-text hover:text-primary-text transition-all duration-200">
               <BellIcon className="h-5 w-5" />
               {notifications > 0 && (
                 <span className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-white text-xs rounded-full flex items-center justify-center shadow-lg">
@@ -104,8 +103,8 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
               ) : currentUser ? (
                 <div className="flex items-center space-x-2">
                   <div className="text-right hidden sm:block">
-                    <p className="text-sm font-light text-primary-text">{currentUser.full_name || currentUser.email}</p>
-                    <p className="text-xs text-secondary-text font-light capitalize">{currentUser.role}</p>
+                    <p className="text-sm font-light text-primary-text">{'full_name' in currentUser ? (currentUser.full_name || currentUser.email) : (currentUser.name || currentUser.email)}</p>
+                    <p className="text-xs text-secondary-text font-light capitalize">{'role' in currentUser ? currentUser.role : 'member'}</p>
                   </div>
                   <div className="relative group">
                     <button className="flex items-center space-x-2 p-2 rounded-xl hover:bg-surface-light/50 transition-all duration-200">
@@ -116,7 +115,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
                         onClick={handleSignOut}
                         className="w-full text-left px-4 py-2 text-sm text-primary-text hover:bg-surface-light flex items-center"
                       >
-                        <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />
+                        <ArrowRightStartOnRectangleIcon className="h-4 w-4 mr-2" />
                         Sign Out
                       </button>
                     </div>

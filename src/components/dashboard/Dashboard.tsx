@@ -10,8 +10,6 @@ import {
   UsersIcon,
   ArrowRightIcon,
   ExclamationTriangleIcon,
-  UserIcon,
-  ClockIcon,
 } from '@heroicons/react/24/outline'
 import { mockDashboardStats } from '@/lib/mock-data'
 import Link from 'next/link'
@@ -185,7 +183,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
             {/* Gym Metrics Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {gymMetrics.map((metric, index) => (
-                <Card key={index} className="bg-surface border-surface">
+                <Card key={index} className="bg-surface border-border shadow-sm">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className={`p-2 rounded-lg ${metric.color} flex items-center justify-center`}>
@@ -200,7 +198,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
                       <h3 className="text-lg font-semibold text-primary-text mb-1">{metric.value}</h3>
                       <p className="text-sm text-secondary-text">{metric.title}</p>
                     </div>
-                    <div className="w-full bg-surface-light rounded-full h-2">
+                    <div className="w-full bg-accent rounded-full h-2">
                       <div 
                         className={`h-2 rounded-full transition-all duration-300 ${metric.color}`}
                         style={{ width: `${metric.percentage}%` }}
@@ -213,7 +211,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
             </div>
 
             {/* Today's Tasks */}
-            <Card className="bg-surface border-surface">
+            <Card className="bg-surface border-border shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <CardTitle className="text-primary-text">Today&apos;s Tasks</CardTitle>
                 <Link href="/tasks" className="text-secondary-text hover:text-primary transition-colors">
@@ -222,12 +220,12 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
               </CardHeader>
               <CardContent className="space-y-4">
                 {todaysTasks.map((task, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-accent rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-3 bg-accent rounded-lg border border-border-light">
                     <div>
                       <h4 className="text-primary-text font-medium mb-1">{task.title}</h4>
                       <p className="text-sm text-secondary-text">{task.time}</p>
                     </div>
-                    <span className="px-3 py-1 bg-surface text-primary-text text-sm rounded-full">
+                    <span className="px-3 py-1 bg-surface text-primary-text text-sm rounded-full border border-border-light">
                       {task.badge}
                     </span>
                   </div>
@@ -236,7 +234,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
             </Card>
 
             {/* Today's Classes */}
-            <Card className="bg-surface border-surface">
+            <Card className="bg-surface border-border shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <CardTitle className="text-primary-text">Today&apos;s Classes</CardTitle>
                 <Link href="/classes/calendar" className="text-secondary-text hover:text-primary transition-colors">
@@ -246,13 +244,13 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
               <CardContent>
                 <div className="space-y-4">
                   {todaysClasses.map((classItem, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 bg-accent rounded-lg">
+                    <div key={index} className="flex items-center justify-between p-4 bg-accent rounded-lg border border-border-light">
                       <div className="flex items-center space-x-4">
                         <div className="text-center">
                           <p className="text-primary-text font-medium">{classItem.time}</p>
                           <p className="text-xs text-secondary-text">45 min</p>
                         </div>
-                        <div className="w-px h-12 bg-surface"></div>
+                        <div className="w-px h-12 bg-border"></div>
                         <div className="flex-1">
                           <div className="flex items-center space-x-2 mb-1">
                             <h3 className="text-primary-text font-medium">{classItem.name}</h3>
@@ -278,7 +276,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
                             <UsersIcon className="h-4 w-4" />
                             <span>{classItem.enrolled}/{classItem.capacity}</span>
                           </div>
-                          <div className="w-20 bg-surface rounded-full h-2">
+                          <div className="w-20 bg-surface rounded-full h-2 border border-border-light">
                             <div 
                               className={`h-2 rounded-full transition-all duration-300 ${
                                 classItem.status === 'high-demand' ? 'bg-primary' :
@@ -299,37 +297,10 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
 
           {/* Right Column */}
           <div className="lg:col-span-4 space-y-6">
-            {/* Staff Profile Card */}
-            <Card className="bg-surface border-surface">
-              <CardContent className="p-6 text-center">
-                <div className="w-20 h-20 bg-primary rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <UserIcon className="h-10 w-10 text-white" />
-                </div>
-                <h3 className="text-lg font-semibold text-primary-text mb-1">{staffProfile.name}</h3>
-                <p className="text-sm text-secondary-text mb-2">{staffProfile.email}</p>
-                <p className="text-sm text-primary mb-6">{staffProfile.role}</p>
-                
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center">
-                    <div className="w-8 h-8 bg-accent rounded-lg mx-auto mb-2 flex items-center justify-center">
-                      <ClockIcon className="h-4 w-4 text-secondary-text" />
-                    </div>
-                    <p className="text-sm text-secondary-text">Experience</p>
-                    <p className="text-primary-text font-semibold">{staffProfile.experience}</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-8 h-8 bg-accent rounded-lg mx-auto mb-2 flex items-center justify-center">
-                      <TrophyIcon className="h-4 w-4 text-secondary-text" />
-                    </div>
-                    <p className="text-sm text-secondary-text">Speciality</p>
-                    <p className="text-primary-text font-semibold text-xs">{staffProfile.speciality}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
 
             {/* Recent Activity */}
-            <Card className="bg-surface border-surface">
+            <Card className="bg-surface border-border shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <CardTitle className="text-primary-text">Recent Activity</CardTitle>
                 <Link href="/activity" className="text-secondary-text hover:text-primary transition-colors">
@@ -341,7 +312,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
                   <div key={index} className="flex items-start space-x-3">
                     <div className={`p-2 rounded-lg ${
                       activity.status === 'success' ? 'bg-success/10' : 'bg-warning/10'
-                    } flex-shrink-0`}>
+                    } flex-shrink-0 border border-border-light`}>
                       {activity.type === 'member' && <UserPlusIcon className="h-4 w-4 text-success" />}
                       {activity.type === 'class' && <CalendarIcon className="h-4 w-4 text-success" />}
                       {activity.type === 'alert' && <ExclamationTriangleIcon className="h-4 w-4 text-warning" />}
@@ -363,7 +334,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
             </Card>
 
             {/* Calendar */}
-            <Card className="bg-surface border-surface">
+            <Card className="bg-surface border-border shadow-sm">
               <CardHeader>
                 <CardTitle className="text-primary-text">May 2024</CardTitle>
               </CardHeader>
@@ -394,10 +365,10 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
             </Card>
 
             {/* Gym Activity Graph */}
-            <Card className="bg-surface border-surface">
+            <Card className="bg-surface border-border shadow-sm">
               <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <CardTitle className="text-primary-text">Gym Activity</CardTitle>
-                <select className="text-sm text-secondary-text bg-accent border-none rounded px-2 py-1">
+                <select className="text-sm text-secondary-text bg-accent border border-border-light rounded px-2 py-1">
                   <option>Weekly</option>
                 </select>
               </CardHeader>

@@ -3,11 +3,13 @@
 ## Core Technologies
 
 ### Frontend Framework
+
 - **Next.js 15.4.1** with App Router
 - **React 19.1.0** with TypeScript
 - **TypeScript 5** for type safety
 
 ### Styling & UI
+
 - **Tailwind CSS 4** for utility-first styling
 - **Inter font** as primary typeface via Google Fonts
 - **Custom CSS variables** for theme management (red/black color scheme)
@@ -15,12 +17,14 @@
 - **Heroicons** and **Lucide React** for iconography
 
 ### Key Libraries
+
 - **@fullcalendar/react** for calendar functionality
 - **Recharts** for data visualization and analytics
 - **date-fns** for date manipulation
 - **clsx** for conditional className utilities
 
 ### Development Tools
+
 - **ESLint** with Next.js configuration
 - **PostCSS** for CSS processing
 - **pnpm** as package manager (required version 8.x)

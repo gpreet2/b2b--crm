@@ -4,7 +4,6 @@ import React from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/Dialog'
 import { Button } from '@/components/ui/Button'
 import { 
-  XMarkIcon,
   ClockIcon,
   FireIcon,
   BoltIcon,
@@ -14,7 +13,6 @@ import {
   XCircleIcon,
   CalendarIcon,
   PencilIcon,
-  TrashIcon,
 } from '@heroicons/react/24/outline'
 
 interface WorkoutEvent {

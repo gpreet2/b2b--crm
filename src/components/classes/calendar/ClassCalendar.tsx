@@ -156,8 +156,8 @@ export default function ClassCalendar({
   }
 
   return (
-    <Card className="overflow-hidden card-animate">
-      <CardHeader className="border-b border-border bg-surface-light">
+    <Card className="overflow-hidden card-animate border-border shadow-sm">
+      <CardHeader className="border-b border-border bg-accent">
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center space-x-2">
             <CalendarIcon className="h-5 w-5 text-primary" />
@@ -188,7 +188,7 @@ export default function ClassCalendar({
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           {/* Week Header */}
-          <div className="grid grid-cols-7 border-b border-border bg-surface-light/30">
+          <div className="grid grid-cols-7 border-b border-border bg-accent/50">
             {weekDates.map((date, index) => {
               const isToday = date.toDateString() === new Date().toDateString()
               const dayName = date.toLocaleDateString('en-US', { weekday: 'short' })
@@ -197,8 +197,8 @@ export default function ClassCalendar({
               return (
                 <div 
                   key={index}
-                  className={`p-4 text-center border-r border-border last:border-r-0 cursor-pointer hover:bg-surface-light/50 transition-all duration-200 hover-lift ${
-                    isToday ? 'bg-primary/10 text-primary font-semibold' : ''
+                  className={`p-4 text-center border-r border-border last:border-r-0 cursor-pointer hover:bg-accent transition-all duration-200 hover-lift ${
+                    isToday ? 'bg-primary/10 text-primary font-semibold border-primary/20' : ''
                   }`}
                   onClick={() => handleDateClick(date)}
                 >
@@ -220,7 +220,7 @@ export default function ClassCalendar({
               return (
                 <div 
                   key={index}
-                  className="border-r border-border last:border-r-0 p-2 space-y-1 min-h-[400px] bg-surface hover:bg-surface-light transition-colors duration-200"
+                  className="border-r border-border last:border-r-0 p-2 space-y-1 min-h-[400px] bg-surface hover:bg-accent transition-colors duration-200"
                 >
                   {dayClasses.map((classItem) => {
                     const program = programMap[classItem.programId]
@@ -230,7 +230,7 @@ export default function ClassCalendar({
                     return (
                       <div
                         key={classItem.id}
-                        className="p-2 rounded-md text-xs cursor-pointer hover:opacity-80 transition-all duration-200 hover-lift"
+                        className="p-2 rounded-md text-xs cursor-pointer hover:opacity-80 transition-all duration-200 hover-lift border border-border-light"
                         style={{ 
                           backgroundColor: program?.color || '#6b7280',
                           color: 'white'

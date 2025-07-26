@@ -162,7 +162,7 @@ export default function ClassTable({
   )
 
   return (
-    <Card>
+    <Card className="border-border shadow-sm">
       <CardHeader>
         <CardTitle>Classes ({sortedClasses.length})</CardTitle>
       </CardHeader>
@@ -170,7 +170,7 @@ export default function ClassTable({
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-accent border-b border-border">
               <tr>
                 <th className="px-4 py-3 text-left">
                   <SortButton field="name">Class Name</SortButton>
@@ -197,17 +197,17 @@ export default function ClassTable({
                 <th className="px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-border">
               {paginatedClasses.map((classItem) => {
                 const program = programMap[classItem.programId]
                 const coach = coachMap[classItem.coachId]
 
                 return (
-                  <tr key={classItem.id} className="hover:bg-gray-50 transition-colors">
+                  <tr key={classItem.id} className="hover:bg-accent transition-colors">
                     <td className="px-4 py-3">
-                      <div className="font-medium text-gray-900">{classItem.name}</div>
+                      <div className="font-medium text-primary-text">{classItem.name}</div>
                       {classItem.isRecurring && (
-                        <div className="text-xs text-blue-600 flex items-center mt-1">
+                        <div className="text-xs text-info flex items-center mt-1">
                           <CalendarIcon className="h-3 w-3 mr-1" />
                           Recurring
                         </div>
@@ -221,48 +221,48 @@ export default function ClassTable({
                             className="w-3 h-3 rounded-full"
                             style={{ backgroundColor: program.color }}
                           />
-                          <span className="text-sm text-gray-900">{program.name}</span>
+                          <span className="text-sm text-primary-text">{program.name}</span>
                         </div>
                       )}
                     </td>
                     
                     <td className="px-4 py-3">
-                      <div className="text-sm text-gray-900">{formatDate(classItem.date)}</div>
+                      <div className="text-sm text-primary-text">{formatDate(classItem.date)}</div>
                     </td>
                     
                     <td className="px-4 py-3">
-                      <div className="text-sm text-gray-900">
+                      <div className="text-sm text-primary-text">
                         {formatTime(classItem.startTime)} - {formatTime(classItem.endTime)}
                       </div>
                     </td>
                     
                     <td className="px-4 py-3">
                       {coach && (
-                        <div className="text-sm text-gray-900">{coach.name}</div>
+                        <div className="text-sm text-primary-text">{coach.name}</div>
                       )}
                     </td>
                     
                     <td className="px-4 py-3">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-primary-text">
                         {classItem.enrolled}/{classItem.capacity}
                       </div>
-                      <div className="w-16 bg-gray-200 rounded-full h-1 mt-1">
+                      <div className="w-16 bg-accent rounded-full h-1 mt-1 border border-border-light">
                         <div 
-                          className="h-1 rounded-full bg-blue-500 transition-all duration-300"
+                          className="h-1 rounded-full bg-primary transition-all duration-300"
                           style={{ width: `${Math.min((classItem.enrolled / classItem.capacity) * 100, 100)}%` }}
                         />
                       </div>
                     </td>
                     
                     <td className="px-4 py-3">
-                      <div className="text-sm text-gray-900 flex items-center">
-                        <MapPinIcon className="h-3 w-3 mr-1 text-gray-400" />
+                      <div className="text-sm text-primary-text flex items-center">
+                        <MapPinIcon className="h-3 w-3 mr-1 text-secondary-text" />
                         {classItem.location}
                       </div>
                     </td>
                     
                     <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(classItem.status)}`}>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border border-border-light ${getStatusColor(classItem.status)}`}>
                         {classItem.status.charAt(0).toUpperCase() + classItem.status.slice(1)}
                       </span>
                     </td>
@@ -292,7 +292,7 @@ export default function ClassTable({
                             variant="ghost"
                             size="sm"
                             onClick={() => onDeleteClass(classItem)}
-                            className="p-1 text-red-600 hover:text-red-800"
+                            className="p-1 text-danger hover:text-danger-dark"
                           >
                             <TrashIcon className="h-4 w-4" />
                           </Button>
@@ -308,8 +308,8 @@ export default function ClassTable({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="border-t border-gray-200 px-4 py-3 flex items-center justify-between">
-            <div className="text-sm text-gray-700">
+          <div className="border-t border-border px-4 py-3 flex items-center justify-between">
+            <div className="text-sm text-secondary-text">
               Showing {startIndex + 1} to {Math.min(endIndex, sortedClasses.length)} of {sortedClasses.length} results
             </div>
             
@@ -323,7 +323,7 @@ export default function ClassTable({
                 <ChevronLeftIcon className="h-4 w-4" />
               </Button>
               
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-secondary-text">
                 Page {currentPage} of {totalPages}
               </span>
               

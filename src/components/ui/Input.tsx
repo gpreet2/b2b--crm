@@ -49,10 +49,10 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <input
             type={type}
             className={cn(
-              'block w-full rounded-xl border-0 px-4 py-3 text-sm placeholder-secondary-text shadow-sm bg-surface-light/50 text-primary-text font-light transition-all duration-200',
-              'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-surface-light',
+              'block w-full rounded-xl border border-border px-4 py-3 text-sm placeholder-secondary-text shadow-sm bg-surface text-primary-text font-light transition-all duration-200',
+              'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
               'disabled:bg-accent disabled:text-muted disabled:cursor-not-allowed',
-              error && 'ring-2 ring-danger/20',
+              error && 'ring-2 ring-danger/20 border-danger',
               leftIcon && 'pl-12',
               rightIcon && 'pr-12',
               className

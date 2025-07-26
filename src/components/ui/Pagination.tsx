@@ -67,7 +67,7 @@ const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
             onClick={() => onPageChange(1)}
             disabled={currentPage === 1}
             className={cn(
-              'inline-flex items-center rounded-md border border-surface bg-surface font-medium text-secondary-text hover:bg-accent hover:text-primary-text disabled:opacity-50 disabled:cursor-not-allowed',
+              'inline-flex items-center rounded-md border border-border bg-surface font-medium text-secondary-text hover:bg-accent hover:text-primary-text disabled:opacity-50 disabled:cursor-not-allowed',
               sizes[size]
             )}
           >
@@ -80,7 +80,7 @@ const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
           className={cn(
-            'inline-flex items-center rounded-md border border-surface bg-surface font-medium text-secondary-text hover:bg-accent hover:text-primary-text disabled:opacity-50 disabled:cursor-not-allowed',
+            'inline-flex items-center rounded-md border border-border bg-surface font-medium text-secondary-text hover:bg-accent hover:text-primary-text disabled:opacity-50 disabled:cursor-not-allowed',
             sizes[size]
           )}
         >
@@ -100,7 +100,7 @@ const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
                   'inline-flex items-center rounded-md border font-medium',
                   currentPage === page
                     ? 'border-primary bg-primary text-white'
-                    : 'border-surface bg-surface text-secondary-text hover:bg-accent hover:text-primary-text',
+                    : 'border-border bg-surface text-secondary-text hover:bg-accent hover:text-primary-text',
                   sizes[size]
                 )}
               >
@@ -114,7 +114,7 @@ const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
           className={cn(
-            'inline-flex items-center rounded-md border border-surface bg-surface font-medium text-secondary-text hover:bg-accent hover:text-primary-text disabled:opacity-50 disabled:cursor-not-allowed',
+            'inline-flex items-center rounded-md border border-border bg-surface font-medium text-secondary-text hover:bg-accent hover:text-primary-text disabled:opacity-50 disabled:cursor-not-allowed',
             sizes[size]
           )}
         >
@@ -126,7 +126,7 @@ const Pagination = React.forwardRef<HTMLDivElement, PaginationProps>(
             onClick={() => onPageChange(totalPages)}
             disabled={currentPage === totalPages}
             className={cn(
-              'inline-flex items-center rounded-md border border-surface bg-surface font-medium text-secondary-text hover:bg-accent hover:text-primary-text disabled:opacity-50 disabled:cursor-not-allowed',
+              'inline-flex items-center rounded-md border border-border bg-surface font-medium text-secondary-text hover:bg-accent hover:text-primary-text disabled:opacity-50 disabled:cursor-not-allowed',
               sizes[size]
             )}
           >

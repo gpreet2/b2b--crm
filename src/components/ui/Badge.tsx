@@ -18,13 +18,13 @@ const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
     const baseClasses = 'inline-flex items-center font-medium rounded-full'
     
     const variants = {
-      default: 'bg-accent text-secondary-text',
-      primary: 'bg-primary text-white',
-      secondary: 'bg-secondary text-white',
-      success: 'bg-success text-black',
-      warning: 'bg-warning text-black',
-      danger: 'bg-danger text-white',
-      info: 'bg-info text-white'
+      default: 'bg-accent text-secondary-text border border-border-light',
+      primary: 'bg-primary text-white border border-primary-dark',
+      secondary: 'bg-secondary text-white border border-secondary-dark',
+      success: 'bg-success text-black border border-success-dark',
+      warning: 'bg-warning text-black border border-warning-dark',
+      danger: 'bg-danger text-white border border-danger-dark',
+      info: 'bg-info text-white border border-info-dark'
     }
     
     const sizes = {
