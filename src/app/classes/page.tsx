@@ -18,24 +18,24 @@ import {
 import Link from "next/link";
 
 export default function ClassesPage() {
-  // Enhanced mock data with better status indicators
+  // Enhanced mock data with better status indicators - Only the three programs
   const upcomingClasses = [
     {
       id: 1,
-      name: "Morning HIIT Blast",
+      name: "Burn40",
       time: "7:00 AM",
       date: "Today",
       instructor: "Sarah Johnson",
       capacity: 20,
       enrolled: 18,
       status: "high-demand",
-      category: "HIIT",
-      duration: "45 min",
+      category: "Cardio",
+      duration: "40 min",
       location: "Studio A",
     },
     {
       id: 2,
-      name: "Strength & Power",
+      name: "CrossFit",
       time: "6:00 PM",
       date: "Today",
       instructor: "Mike Chen",
@@ -48,16 +48,16 @@ export default function ClassesPage() {
     },
     {
       id: 3,
-      name: "Yoga Flow",
+      name: "BurnDumbells",
       time: "9:00 AM",
       date: "Tomorrow",
       instructor: "Emma Davis",
-      capacity: 18,
-      enrolled: 8,
-      status: "low-enrollment",
-      category: "Wellness",
-      duration: "75 min",
-      location: "Studio B",
+      capacity: 20,
+      enrolled: 16,
+      status: "available",
+      category: "Strength",
+      duration: "60 min",
+      location: "Weight Room",
     },
   ];
 
@@ -468,10 +468,9 @@ export default function ClassesPage() {
                   
                   <div className="p-6 space-y-3">
                     {[
-                      { name: "HIIT Training", bookings: 45, trend: "up", color: "#ef4444" },
-                      { name: "Yoga Flow", bookings: 38, trend: "up", color: "#10b981" },
-                      { name: "Strength Training", bookings: 32, trend: "down", color: "#06b6d4" },
-                      { name: "Pilates", bookings: 28, trend: "up", color: "#8b5cf6" },
+                      { name: "Burn40", bookings: 45, trend: "up", color: "#ef4444" },
+                      { name: "CrossFit", bookings: 38, trend: "up", color: "#06b6d4" },
+                      { name: "BurnDumbells", bookings: 32, trend: "up", color: "#10b981" },
                     ].map((item, index) => (
                       <div key={index} className="flex items-center justify-between p-3 bg-white/50 rounded-lg hover:bg-white transition-colors group">
                         <div className="flex items-center space-x-3">

@@ -15,6 +15,7 @@ import {
 import WorkoutCalendar from '@/components/perform/WorkoutCalendar'
 import AddWorkoutModal from '@/components/perform/AddWorkoutModal'
 import WorkoutEventModal from '@/components/perform/WorkoutEventModal'
+import { EnhancedWorkoutEvent } from '@/lib/types'
 
 
 interface WorkoutEvent {
@@ -44,270 +45,246 @@ export default function WorkoutsPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [currentDate, setCurrentDate] = useState(new Date())
 
-  // Enhanced workout events with better variety
+  // Screen reader announcement function
+  const announceToScreenReader = React.useCallback((message: string) => {
+    const announcement = document.createElement('div')
+    announcement.setAttribute('aria-live', 'polite')
+    announcement.setAttribute('aria-atomic', 'true')
+    announcement.className = 'sr-only'
+    announcement.textContent = message
+    document.body.appendChild(announcement)
+    
+    // Remove after announcement
+    setTimeout(() => {
+      if (document.body.contains(announcement)) {
+        document.body.removeChild(announcement)
+      }
+    }, 1000)
+  }, [])
+
+  // Enhanced keyboard shortcuts for the entire page
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Global keyboard shortcuts
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 'n':
+            // Ctrl/Cmd + N for new workout
+            e.preventDefault()
+            setIsAddWorkoutModalOpen(true)
+            announceToScreenReader('Opening new workout modal')
+            break
+          case '1':
+            // Ctrl/Cmd + 1 for week view
+            e.preventDefault()
+            setView('week')
+            announceToScreenReader('Switched to week view')
+            break
+          case '2':
+            // Ctrl/Cmd + 2 for month view
+            e.preventDefault()
+            setView('month')
+            announceToScreenReader('Switched to month view')
+            break
+          case 'f':
+            // Ctrl/Cmd + F for filter (focus on filter dropdown)
+            e.preventDefault()
+            const filterSelect = document.querySelector('select') as HTMLSelectElement
+            if (filterSelect) {
+              filterSelect.focus()
+              announceToScreenReader('Filter dropdown focused')
+            }
+            break
+        }
+      }
+
+      // Alt key shortcuts
+      if (e.altKey) {
+        switch (e.key) {
+          case 'ArrowLeft':
+            // Alt + Left Arrow for previous period
+            e.preventDefault()
+            navigateDate('prev')
+            announceToScreenReader(`Navigated to previous ${view}`)
+            break
+          case 'ArrowRight':
+            // Alt + Right Arrow for next period
+            e.preventDefault()
+            navigateDate('next')
+            announceToScreenReader(`Navigated to next ${view}`)
+            break
+          case 't':
+            // Alt + T for today
+            e.preventDefault()
+            goToToday()
+            announceToScreenReader('Navigated to today')
+            break
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [view])
+
+  // Program-based workout events reflecting the programs from the programs tab
   const events = useMemo(() => {
     const today = new Date()
     const currentMonth = today.getMonth()
     const currentYear = today.getFullYear()
     
     return [
-      // CrossFit Workouts - Red
+      // Burn40 Workouts - Red
       {
         id: '1',
-        title: 'CrossFit WOD',
+        title: 'Burn40',
         start: new Date(currentYear, currentMonth, 15, 6, 0),
-        end: new Date(currentYear, currentMonth, 15, 7, 0),
+        end: new Date(currentYear, currentMonth, 15, 6, 40),
         backgroundColor: '#ef4444',
         borderColor: '#dc2626',
+        textColor: '#ffffff',
+        extendedProps: {
+          type: 'burn40',
+          intensity: 'high',
+          duration: 40,
+          exercises: ['HIIT Circuit', 'Tabata Intervals', 'Cardio Blast'],
+          notes: 'High-intensity interval training for maximum calorie burn',
+          completed: true,
+          program: 'Burn40'
+        }
+      },
+      {
+        id: '2',
+        title: 'Burn40',
+        start: new Date(currentYear, currentMonth, 17, 6, 0),
+        end: new Date(currentYear, currentMonth, 17, 6, 40),
+        backgroundColor: '#ef4444',
+        borderColor: '#dc2626',
+        textColor: '#ffffff',
+        extendedProps: {
+          type: 'burn40',
+          intensity: 'high',
+          duration: 40,
+          exercises: ['Squats', 'Push-ups', 'Rows', 'Burpees'],
+          notes: 'Full body strength and cardio',
+          completed: false,
+          program: 'Burn40'
+        }
+      },
+      
+      // CrossFit Workouts - Cyan
+      {
+        id: '3',
+        title: 'CrossFit',
+        start: new Date(currentYear, currentMonth, 16, 7, 0),
+        end: new Date(currentYear, currentMonth, 16, 8, 0),
+        backgroundColor: '#06b6d4',
+        borderColor: '#0891b2',
         textColor: '#ffffff',
         extendedProps: {
           type: 'crossfit',
           intensity: 'high',
           duration: 60,
           exercises: ['Thrusters', 'Pull-ups', 'Box Jumps'],
-          notes: 'AMRAP 20 minutes',
-          completed: true
-        }
-      },
-      {
-        id: '2',
-        title: 'CrossFit Strength',
-        start: new Date(currentYear, currentMonth, 17, 6, 0),
-        end: new Date(currentYear, currentMonth, 17, 7, 0),
-        backgroundColor: '#ef4444',
-        borderColor: '#dc2626',
-        textColor: '#ffffff',
-        extendedProps: {
-          type: 'crossfit',
-          intensity: 'high',
-          duration: 60,
-          exercises: ['Deadlifts', 'Overhead Press'],
-          notes: '5x5 Deadlifts, 3x8 OHP',
-          completed: false
-        }
-      },
-      
-      // Burn40 Workouts - Orange
-      {
-        id: '3',
-        title: 'Burn40 Cardio',
-        start: new Date(currentYear, currentMonth, 16, 7, 0),
-        end: new Date(currentYear, currentMonth, 16, 7, 40),
-        backgroundColor: '#f97316',
-        borderColor: '#ea580c',
-        textColor: '#ffffff',
-        extendedProps: {
-          type: 'burn40',
-          intensity: 'medium',
-          duration: 40,
-          exercises: ['HIIT Circuit', 'Tabata Intervals'],
-          notes: 'High-intensity cardio session',
-          completed: true
+          notes: 'Functional fitness with varied, high-intensity movements',
+          completed: true,
+          program: 'CrossFit'
         }
       },
       {
         id: '4',
-        title: 'Burn40 Strength',
+        title: 'CrossFit',
         start: new Date(currentYear, currentMonth, 18, 7, 0),
-        end: new Date(currentYear, currentMonth, 18, 7, 40),
-        backgroundColor: '#f97316',
-        borderColor: '#ea580c',
+        end: new Date(currentYear, currentMonth, 18, 8, 0),
+        backgroundColor: '#06b6d4',
+        borderColor: '#0891b2',
         textColor: '#ffffff',
         extendedProps: {
-          type: 'burn40',
-          intensity: 'medium',
-          duration: 40,
-          exercises: ['Squats', 'Push-ups', 'Rows'],
-          notes: 'Full body strength',
-          completed: false
+          type: 'crossfit',
+          intensity: 'high',
+          duration: 60,
+          exercises: ['Deadlifts', 'Overhead Press', 'Rowing'],
+          notes: 'Strength and conditioning focus',
+          completed: false,
+          program: 'CrossFit'
         }
       },
       
-      // Yoga Sessions - Purple
+      // BurnDumbells Workouts - Green
       {
         id: '5',
-        title: 'Yoga Flow',
+        title: 'BurnDumbells',
         start: new Date(currentYear, currentMonth, 16, 18, 0),
         end: new Date(currentYear, currentMonth, 16, 19, 0),
-        backgroundColor: '#8b5cf6',
-        borderColor: '#7c3aed',
-        textColor: '#ffffff',
-        extendedProps: {
-          type: 'yoga',
-          intensity: 'low',
-          duration: 60,
-          exercises: ['Sun Salutations', 'Balance Poses', 'Meditation'],
-          notes: 'Vinyasa flow for recovery',
-          completed: false
-        }
-      },
-      
-      // Strength Training - Green
-      {
-        id: '6',
-        title: 'Upper Body Strength',
-        start: new Date(currentYear, currentMonth, 15, 17, 0),
-        end: new Date(currentYear, currentMonth, 15, 18, 30),
         backgroundColor: '#10b981',
         borderColor: '#059669',
         textColor: '#ffffff',
         extendedProps: {
-          type: 'strength',
-          intensity: 'high',
-          duration: 90,
-          exercises: ['Bench Press', 'Rows', 'Shoulder Press'],
-          notes: 'Progressive overload focus',
-          completed: true
-        }
-      },
-      
-      // Cardio Sessions - Blue
-      {
-        id: '7',
-        title: 'Running Session',
-        start: new Date(currentYear, currentMonth, 17, 17, 0),
-        end: new Date(currentYear, currentMonth, 17, 18, 0),
-        backgroundColor: '#3b82f6',
-        borderColor: '#2563eb',
-        textColor: '#ffffff',
-        extendedProps: {
-          type: 'cardio',
+          type: 'burndumbells',
           intensity: 'medium',
           duration: 60,
-          exercises: ['5K Run', 'Intervals'],
-          notes: 'Endurance building',
-          completed: false
+          exercises: ['Dumbbell Press', 'Dumbbell Rows', 'Dumbbell Squats'],
+          notes: 'Strength training with dumbbells',
+          completed: false,
+          program: 'BurnDumbells'
         }
       },
       
-      // Recovery Sessions - Teal
+      // Additional program-based workouts
       {
-        id: '8',
-        title: 'Recovery & Mobility',
-        start: new Date(currentYear, currentMonth, 19, 18, 0),
-        end: new Date(currentYear, currentMonth, 19, 19, 0),
-        backgroundColor: '#14b8a6',
-        borderColor: '#0d9488',
-        textColor: '#ffffff',
-        extendedProps: {
-          type: 'recovery',
-          intensity: 'low',
-          duration: 60,
-          exercises: ['Foam Rolling', 'Stretching', 'Mobility Work'],
-          notes: 'Active recovery day',
-          completed: false
-        }
-      },
-      
-      // Additional CrossFit Workouts
-      {
-        id: '9',
-        title: 'CrossFit WOD - Murph',
-        start: new Date(currentYear, currentMonth, 20, 6, 0),
-        end: new Date(currentYear, currentMonth, 20, 7, 30),
+        id: '6',
+        title: 'Burn40',
+        start: new Date(currentYear, currentMonth, 21, 6, 0),
+        end: new Date(currentYear, currentMonth, 21, 6, 40),
         backgroundColor: '#ef4444',
         borderColor: '#dc2626',
-        textColor: '#ffffff',
-        extendedProps: {
-          type: 'crossfit',
-          intensity: 'high',
-          duration: 90,
-          exercises: ['1 Mile Run', '100 Pull-ups', '200 Push-ups', '300 Air Squats', '1 Mile Run'],
-          notes: 'Hero WOD - For time with vest',
-          completed: false
-        }
-      },
-      {
-        id: '10',
-        title: 'CrossFit Skills',
-        start: new Date(currentYear, currentMonth, 21, 17, 0),
-        end: new Date(currentYear, currentMonth, 21, 18, 0),
-        backgroundColor: '#ef4444',
-        borderColor: '#dc2626',
-        textColor: '#ffffff',
-        extendedProps: {
-          type: 'crossfit',
-          intensity: 'medium',
-          duration: 60,
-          exercises: ['Handstand Practice', 'Muscle-ups', 'Double-unders'],
-          notes: 'Skill development session',
-          completed: false
-        }
-      },
-      
-      // Additional Burn40 Workouts
-      {
-        id: '11',
-        title: 'Burn40 Tabata',
-        start: new Date(currentYear, currentMonth, 20, 7, 0),
-        end: new Date(currentYear, currentMonth, 20, 7, 40),
-        backgroundColor: '#f97316',
-        borderColor: '#ea580c',
         textColor: '#ffffff',
         extendedProps: {
           type: 'burn40',
           intensity: 'high',
           duration: 40,
-          exercises: ['20s Work / 10s Rest', '8 Rounds Each Exercise'],
-          notes: 'Tabata intervals for maximum intensity',
-          completed: false
+          exercises: ['Tabata intervals', 'AMRAP circuit'],
+          notes: 'Maximum intensity session',
+          completed: false,
+          program: 'Burn40'
         }
       },
       
-      // Additional Strength Workouts
       {
-        id: '12',
-        title: 'Lower Body Power',
-        start: new Date(currentYear, currentMonth, 21, 6, 0),
-        end: new Date(currentYear, currentMonth, 21, 7, 30),
+        id: '7',
+        title: 'CrossFit',
+        start: new Date(currentYear, currentMonth, 22, 7, 0),
+        end: new Date(currentYear, currentMonth, 22, 8, 0),
+        backgroundColor: '#06b6d4',
+        borderColor: '#0891b2',
+        textColor: '#ffffff',
+        extendedProps: {
+          type: 'crossfit',
+          intensity: 'high',
+          duration: 60,
+          exercises: ['Olympic lifts', 'Gymnastics', 'Metabolic conditioning'],
+          notes: 'Skill development and conditioning',
+          completed: false,
+          program: 'CrossFit'
+        }
+      },
+      
+      {
+        id: '8',
+        title: 'BurnDumbells',
+        start: new Date(currentYear, currentMonth, 23, 18, 0),
+        end: new Date(currentYear, currentMonth, 23, 19, 0),
         backgroundColor: '#10b981',
         borderColor: '#059669',
         textColor: '#ffffff',
         extendedProps: {
-          type: 'strength',
-          intensity: 'high',
-          duration: 90,
-          exercises: ['Squats', 'Deadlifts', 'Lunges', 'Calf Raises'],
-          notes: 'Focus on lower body strength and power',
-          completed: false
-        }
-      },
-      
-      // Additional Cardio Workouts
-      {
-        id: '13',
-        title: 'HIIT Intervals',
-        start: new Date(currentYear, currentMonth, 22, 17, 0),
-        end: new Date(currentYear, currentMonth, 22, 18, 0),
-        backgroundColor: '#3b82f6',
-        borderColor: '#2563eb',
-        textColor: '#ffffff',
-        extendedProps: {
-          type: 'cardio',
-          intensity: 'high',
-          duration: 60,
-          exercises: ['30s Sprint', '30s Rest', 'Repeat 20 times'],
-          notes: 'High-intensity interval training',
-          completed: false
-        }
-      },
-      
-      // Additional Yoga Sessions
-      {
-        id: '14',
-        title: 'Power Yoga',
-        start: new Date(currentYear, currentMonth, 23, 18, 0),
-        end: new Date(currentYear, currentMonth, 23, 19, 0),
-        backgroundColor: '#8b5cf6',
-        borderColor: '#7c3aed',
-        textColor: '#ffffff',
-        extendedProps: {
-          type: 'yoga',
+          type: 'burndumbells',
           intensity: 'medium',
           duration: 60,
-          exercises: ['Sun Salutations', 'Warrior Poses', 'Balance Work'],
-          notes: 'Dynamic yoga flow for strength and flexibility',
-          completed: false
+          exercises: ['Upper body focus', 'Lower body focus'],
+          notes: 'Full body dumbbell workout',
+          completed: false,
+          program: 'BurnDumbells'
         }
       }
     ]
@@ -321,15 +298,12 @@ export default function WorkoutsPage() {
     })
   }, [events, selectedType])
 
-  // Workout types for filter
+  // Program types for filter
   const workoutTypes = [
-    { value: 'all', label: 'All Types', icon: FireIcon, color: '#6b7280' },
-    { value: 'crossfit', label: 'CrossFit', icon: FireIcon, color: '#ef4444' },
-    { value: 'burn40', label: 'Burn40', icon: BoltIcon, color: '#f97316' },
-    { value: 'strength', label: 'Strength', icon: UserGroupIcon, color: '#10b981' },
-    { value: 'cardio', label: 'Cardio', icon: HeartIcon, color: '#3b82f6' },
-    { value: 'yoga', label: 'Yoga', icon: ClockIcon, color: '#8b5cf6' },
-    { value: 'recovery', label: 'Recovery', icon: ClockIcon, color: '#14b8a6' },
+    { value: 'all', label: 'All Programs', icon: FireIcon, color: '#6b7280' },
+    { value: 'burn40', label: 'Burn40', icon: BoltIcon, color: '#ef4444' },
+    { value: 'crossfit', label: 'CrossFit', icon: FireIcon, color: '#06b6d4' },
+    { value: 'burndumbells', label: 'BurnDumbells', icon: UserGroupIcon, color: '#10b981' },
   ]
 
 
@@ -347,10 +321,12 @@ export default function WorkoutsPage() {
   }
 
   // Handle add workout
-  const handleAddWorkout = (workoutData: Record<string, unknown>) => {
+  const handleAddWorkout = (workoutData: Partial<EnhancedWorkoutEvent>) => {
     console.log('New workout data:', workoutData)
     console.log('Workout segments:', workoutData.segments)
     console.log('Total duration:', workoutData.totalDuration)
+    console.log('Created from:', workoutData.createdFrom)
+    console.log('Template IDs:', workoutData.templateIds)
     setIsAddWorkoutModalOpen(false)
     setSelectedDate(null)
   }
@@ -372,27 +348,50 @@ export default function WorkoutsPage() {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
+      {/* Keyboard shortcuts help - hidden but accessible */}
+      <div className="sr-only" role="region" aria-label="Keyboard shortcuts">
+        <h2>Available keyboard shortcuts:</h2>
+        <ul>
+          <li>Ctrl/Cmd + N: Add new workout</li>
+          <li>Ctrl/Cmd + 1: Switch to week view</li>
+          <li>Ctrl/Cmd + 2: Switch to month view</li>
+          <li>Ctrl/Cmd + F: Focus filter dropdown</li>
+          <li>Alt + Left Arrow: Previous period</li>
+          <li>Alt + Right Arrow: Next period</li>
+          <li>Alt + T: Go to today</li>
+          <li>Arrow keys: Navigate calendar dates</li>
+          <li>Enter/Space: Select calendar date</li>
+          <li>A: Add workout to focused date</li>
+          <li>T: Go to today from calendar</li>
+          <li>Page Up/Down: Navigate weeks/months</li>
+        </ul>
+      </div>
+      
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="p-6 bg-surface/95 backdrop-blur-sm border-b border-border/30">
-          <div className="flex items-center justify-between">
+        {/* Header with Mobile Optimization */}
+        <div className="p-4 sm:p-6 bg-surface/95 backdrop-blur-sm border-b border-border/30">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center space-x-4">
-
               <div>
-                <h1 className="text-2xl font-light text-primary-text mb-1">Workouts</h1>
-                <p className="text-secondary-text font-light">Track your daily workouts and performance</p>
+                <h1 className="text-xl sm:text-2xl font-light text-primary-text mb-1">Workouts</h1>
+                <p className="text-sm sm:text-base text-secondary-text font-light">Track your daily workouts and performance</p>
               </div>
             </div>
             
-            <div className="flex items-center space-x-3">
-              {/* Category Filter */}
-              <div className="flex items-center space-x-2">
-                <FunnelIcon className="h-4 w-4 text-secondary-text" />
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              {/* Category Filter with Mobile Optimization */}
+              <div className="flex items-center space-x-2 w-full sm:w-auto">
+                <FunnelIcon className="h-4 w-4 text-secondary-text flex-shrink-0" />
                 <select
                   value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                  className="px-3 py-2 bg-surface border border-border/50 rounded-lg text-primary-text text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                  onChange={(e) => {
+                    setSelectedType(e.target.value)
+                    announceToScreenReader(`Filter changed to ${e.target.options[e.target.selectedIndex].text}`)
+                  }}
+                  className="flex-1 sm:flex-none px-3 py-3 sm:py-2 bg-surface border border-border/50 rounded-lg text-primary-text text-base sm:text-sm focus:ring-2 focus:ring-primary focus:border-transparent min-h-[44px]"
+                  aria-label="Filter workouts by type"
+                  title="Filter workouts by type (Ctrl/Cmd + F to focus)"
                 >
                   {workoutTypes.map(type => (
                     <option key={type.value} value={type.value}>
@@ -402,10 +401,12 @@ export default function WorkoutsPage() {
                 </select>
               </div>
 
-              {/* Add Workout Button */}
+              {/* Add Workout Button with Touch-Friendly Design */}
               <button 
                 onClick={() => setIsAddWorkoutModalOpen(true)}
-                className="px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-lg font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center space-x-2 shadow-lg hover:shadow-xl"
+                className="w-full sm:w-auto px-4 py-3 sm:py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-lg font-light text-base sm:text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl min-h-[44px] touch-manipulation"
+                aria-label="Add new workout"
+                title="Add new workout (Ctrl/Cmd + N)"
               >
                 <PlusIcon className="h-4 w-4" />
                 <span>Add Workout</span>
@@ -414,56 +415,80 @@ export default function WorkoutsPage() {
           </div>
         </div>
 
-        {/* Calendar Section */}
-        <div className="flex-1 p-6 overflow-auto">
-          <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-2xl overflow-hidden shadow-lg h-full">
-            {/* Calendar Header */}
-            <div className="p-6 border-b border-surface-light/30">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <button 
-                    onClick={() => navigateDate('prev')}
-                    className="p-3 hover:bg-surface-light/50 rounded-xl transition-all duration-200"
-                  >
-                    <ChevronLeftIcon className="h-5 w-5 text-secondary-text" />
-                  </button>
-                  <button 
-                    onClick={() => navigateDate('next')}
-                    className="p-3 hover:bg-surface-light/50 rounded-xl transition-all duration-200"
-                  >
-                    <ChevronRightIcon className="h-5 w-5 text-secondary-text" />
-                  </button>
-                  <button 
-                    onClick={goToToday}
-                    className="px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 shadow-lg"
-                  >
-                    Today
-                  </button>
+        {/* Calendar Section with Mobile Optimization */}
+        <div className="flex-1 p-4 sm:p-6 overflow-hidden flex flex-col">
+          <div className="bg-surface/95 backdrop-blur-sm border-0 rounded-xl sm:rounded-2xl overflow-hidden shadow-lg flex-1 flex flex-col">
+            {/* Calendar Header with Mobile Layout */}
+            <div className="p-4 sm:p-6 border-b border-surface-light/30 flex-shrink-0">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center justify-between sm:justify-start sm:space-x-4">
+                  <div className="flex items-center space-x-2 sm:space-x-4">
+                    <button 
+                      onClick={() => navigateDate('prev')}
+                      className="p-2 sm:p-3 hover:bg-surface-light/50 rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation"
+                      aria-label={`Go to previous ${view}`}
+                      title={`Navigate to previous ${view} (Alt + Left Arrow)`}
+                    >
+                      <ChevronLeftIcon className="h-5 w-5 text-secondary-text" />
+                    </button>
+                    <button 
+                      onClick={() => navigateDate('next')}
+                      className="p-2 sm:p-3 hover:bg-surface-light/50 rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation"
+                      aria-label={`Go to next ${view}`}
+                      title={`Navigate to next ${view} (Alt + Right Arrow)`}
+                    >
+                      <ChevronRightIcon className="h-5 w-5 text-secondary-text" />
+                    </button>
+                    <button 
+                      onClick={goToToday}
+                      className="px-3 sm:px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl font-light text-sm hover:from-primary-dark hover:to-primary transition-all duration-200 shadow-lg min-h-[44px] touch-manipulation"
+                      aria-label="Go to today"
+                      title="Navigate to today (Alt + T)"
+                    >
+                      Today
+                    </button>
+                  </div>
+                  
+                  <div className="text-lg sm:text-xl font-light text-primary-text sm:hidden">
+                    {currentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                  </div>
                 </div>
                 
-                <div className="text-xl font-light text-primary-text">
+                <div className="hidden sm:block text-xl font-light text-primary-text">
                   {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                 </div>
 
-                {/* View Toggle */}
+                {/* View Toggle with Touch-Friendly Design */}
                 <div className="flex items-center bg-surface-light/30 rounded-lg p-1">
                   <button
-                    onClick={() => setView('week')}
-                    className={`px-3 py-1 rounded-md text-xs font-light transition-all duration-200 ${
+                    onClick={() => {
+                      setView('week')
+                      announceToScreenReader('Switched to week view')
+                    }}
+                    className={`px-3 py-2 rounded-md text-sm font-light transition-all duration-200 min-h-[40px] touch-manipulation ${
                       view === 'week' 
                         ? 'bg-primary text-white' 
                         : 'text-secondary-text hover:text-primary-text'
                     }`}
+                    aria-label="Week view"
+                    aria-pressed={view === 'week'}
+                    title="Switch to week view (Ctrl/Cmd + 1)"
                   >
                     Week
                   </button>
                   <button
-                    onClick={() => setView('month')}
-                    className={`px-3 py-1 rounded-md text-xs font-light transition-all duration-200 ${
+                    onClick={() => {
+                      setView('month')
+                      announceToScreenReader('Switched to month view')
+                    }}
+                    className={`px-3 py-2 rounded-md text-sm font-light transition-all duration-200 min-h-[40px] touch-manipulation ${
                       view === 'month' 
                         ? 'bg-primary text-white' 
                         : 'text-secondary-text hover:text-primary-text'
                     }`}
+                    aria-label="Month view"
+                    aria-pressed={view === 'month'}
+                    title="Switch to month view (Ctrl/Cmd + 2)"
                   >
                     Month
                   </button>
@@ -471,17 +496,24 @@ export default function WorkoutsPage() {
               </div>
             </div>
             
-            {/* Calendar Content */}
-            <div className="flex-1 p-6">
-              <WorkoutCalendar
-                events={filteredEvents}
-                view={view}
-                currentDate={currentDate}
-                onDateClick={handleDateClick}
-                onEventClick={handleEventClick}
-                onViewChange={setView}
-                onAddWorkout={() => setIsAddWorkoutModalOpen(true)}
-              />
+            {/* Calendar Content with Mobile Optimization */}
+            <div className="flex-1 p-4 sm:p-6 overflow-hidden">
+              <div className="h-full">
+                <WorkoutCalendar
+                  events={filteredEvents}
+                  view={view}
+                  currentDate={currentDate}
+                  onDateClick={handleDateClick}
+                  onEventClick={handleEventClick}
+                  onViewChange={setView}
+                  onAddWorkout={(date) => {
+                    if (date) {
+                      setSelectedDate(date)
+                    }
+                    setIsAddWorkoutModalOpen(true)
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>

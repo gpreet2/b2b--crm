@@ -1,10 +1,10 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { 
+import React, { useState } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import {
   Cog6ToothIcon,
   CalendarIcon,
   ShieldCheckIcon,
@@ -13,19 +13,19 @@ import {
   ClockIcon,
   ExclamationTriangleIcon,
   UserGroupIcon,
-} from '@heroicons/react/24/outline'
+} from "@heroicons/react/24/outline";
 
 // iOS-style Toggle Component
-const Toggle = ({ 
-  enabled, 
-  onToggle, 
-  label, 
-  description 
-}: { 
-  enabled: boolean
-  onToggle: (enabled: boolean) => void
-  label: string
-  description?: string
+const Toggle = ({
+  enabled,
+  onToggle,
+  label,
+  description,
+}: {
+  enabled: boolean;
+  onToggle: (enabled: boolean) => void;
+  label: string;
+  description?: string;
 }) => {
   return (
     <div className="flex items-center justify-between p-4 bg-accent rounded-xl border border-border-light">
@@ -38,30 +38,30 @@ const Toggle = ({
       <button
         onClick={() => onToggle(!enabled)}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 focus:ring-offset-2 ${
-          enabled ? 'bg-primary' : 'bg-accent'
+          enabled ? "bg-primary" : "bg-accent"
         }`}
       >
         <span
           className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-            enabled ? 'translate-x-6' : 'translate-x-1'
+            enabled ? "translate-x-6" : "translate-x-1"
           }`}
         />
       </button>
     </div>
-  )
-}
+  );
+};
 
 // Time Input Component
-const TimeInput = ({ 
-  value, 
-  onChange, 
-  label, 
-  description 
-}: { 
-  value: string
-  onChange: (value: string) => void
-  label: string
-  description?: string
+const TimeInput = ({
+  value,
+  onChange,
+  label,
+  description,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  label: string;
+  description?: string;
 }) => {
   return (
     <div className="space-y-2">
@@ -78,26 +78,26 @@ const TimeInput = ({
         className="bg-accent border-border rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
       />
     </div>
-  )
-}
+  );
+};
 
 // Number Input Component
-const NumberInput = ({ 
-  value, 
-  onChange, 
-  label, 
+const NumberInput = ({
+  value,
+  onChange,
+  label,
   description,
   min = 0,
   max = 100,
-  step = 1
-}: { 
-  value: number
-  onChange: (value: number) => void
-  label: string
-  description?: string
-  min?: number
-  max?: number
-  step?: number
+  step = 1,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  label: string;
+  description?: string;
+  min?: number;
+  max?: number;
+  step?: number;
 }) => {
   return (
     <div className="space-y-2">
@@ -117,40 +117,44 @@ const NumberInput = ({
         className="bg-accent border-border rounded-xl px-4 py-3 text-primary-text focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200"
       />
     </div>
-  )
-}
+  );
+};
 
 export default function ClassesSettingsPage() {
   // Reservation Settings
-  const [reservationsOpenTime, setReservationsOpenTime] = useState('06:00')
-  const [reservationsCloseTime, setReservationsCloseTime] = useState('22:00')
-  
+  const [reservationsOpenTime, setReservationsOpenTime] = useState("06:00");
+  const [reservationsCloseTime, setReservationsCloseTime] = useState("22:00");
+
   // Cancellation Settings
-  const [cancellationTiming, setCancellationTiming] = useState('24:00') // hours before class
-  const [lateCancellationEnabled, setLateCancellationEnabled] = useState(true)
-  const [lateCancellationFee, setLateCancellationFee] = useState(15)
-  const [lateCancellationTaxRate, setLateCancellationTaxRate] = useState(8.5)
-  const [autoChargeLateFee, setAutoChargeLateFee] = useState(true)
-  
+  const [cancellationTiming, setCancellationTiming] = useState("24:00"); // hours before class
+  const [lateCancellationEnabled, setLateCancellationEnabled] = useState(true);
+  const [lateCancellationFee, setLateCancellationFee] = useState(15);
+  const [lateCancellationTaxRate, setLateCancellationTaxRate] = useState(8.5);
+  const [autoChargeLateFee, setAutoChargeLateFee] = useState(true);
+
   // No Show Settings
-  const [noShowEnabled, setNoShowEnabled] = useState(true)
-  const [noShowFee, setNoShowFee] = useState(25)
-  const [noShowTaxRate, setNoShowTaxRate] = useState(8.5)
-  const [autoChargeNoShowFee, setAutoChargeNoShowFee] = useState(true)
+  const [noShowEnabled, setNoShowEnabled] = useState(true);
+  const [noShowFee, setNoShowFee] = useState(25);
+  const [noShowTaxRate, setNoShowTaxRate] = useState(8.5);
+  const [autoChargeNoShowFee, setAutoChargeNoShowFee] = useState(true);
 
   const calculateTotalWithTax = (baseAmount: number, taxRate: number) => {
-    return baseAmount + (baseAmount * (taxRate / 100))
-  }
+    return baseAmount + baseAmount * (taxRate / 100);
+  };
 
   return (
     <div className="p-6 space-y-6 bg-background min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-light text-primary-text mb-1">CLASS SETTINGS</h1>
-          <p className="text-secondary-text font-light">Configure class policies and system preferences</p>
+          <h1 className="text-2xl font-light text-primary-text mb-1">
+            CLASS SETTINGS
+          </h1>
+          <p className="text-secondary-text font-light">
+            Configure class policies and system preferences
+          </p>
         </div>
-        
+
         <div className="flex items-center space-x-3">
           <Button
             variant="outline"
@@ -178,13 +182,17 @@ export default function ClassesSettingsPage() {
                 <CalendarIcon className="h-6 w-6 text-white" />
               </div>
               <div>
-                <div className="text-xl font-light text-primary-text">Reservation Settings</div>
-                <div className="text-sm text-secondary-text font-light">Configure booking windows and timing</div>
+                <div className="text-xl font-light text-primary-text">
+                  Reservation Settings
+                </div>
+                <div className="text-sm text-secondary-text font-light">
+                  Configure booking windows and timing
+                </div>
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-8 space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-2">
               <TimeInput
                 label="Reservations Open Time"
                 description="When members can start booking classes"
@@ -198,14 +206,24 @@ export default function ClassesSettingsPage() {
                 onChange={setReservationsCloseTime}
               />
             </div>
-            
+
             <div className="p-6 bg-accent rounded-xl border border-border-light">
               <div className="flex items-center space-x-3 mb-3">
                 <ClockIcon className="h-5 w-5 text-primary" />
-                <span className="text-lg font-medium text-primary-text">Booking Window Summary</span>
+                <span className="text-lg font-medium text-primary-text">
+                  Booking Window Summary
+                </span>
               </div>
               <div className="text-sm text-secondary-text">
-                Members can book classes from <span className="font-medium text-primary-text">{reservationsOpenTime}</span> to <span className="font-medium text-primary-text">{reservationsCloseTime}</span> daily
+                Members can book classes from{" "}
+                <span className="font-medium text-primary-text">
+                  {reservationsOpenTime}
+                </span>{" "}
+                to{" "}
+                <span className="font-medium text-primary-text">
+                  {reservationsCloseTime}
+                </span>{" "}
+                daily
               </div>
             </div>
           </CardContent>
@@ -219,12 +237,16 @@ export default function ClassesSettingsPage() {
                 <ExclamationTriangleIcon className="h-6 w-6 text-white" />
               </div>
               <div>
-                <div className="text-xl font-light text-primary-text">Cancellation Policy</div>
-                <div className="text-sm text-secondary-text font-light">Set cancellation rules and fees</div>
+                <div className="text-xl font-light text-primary-text">
+                  Cancellation Policy
+                </div>
+                <div className="text-sm text-secondary-text font-light">
+                  Set cancellation rules and fees
+                </div>
               </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-8 space-y-8">
+          <CardContent className="p-8 space-y-8 mt-2">
             <div className="space-y-6">
               <NumberInput
                 label="Cancellation Timing (Hours Before Class)"
@@ -240,8 +262,12 @@ export default function ClassesSettingsPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between p-6 bg-accent rounded-xl border border-border-light">
                 <div>
-                  <div className="text-lg font-medium text-primary-text">Late Cancellation Fees</div>
-                  <div className="text-sm text-secondary-text">Charge fees for late cancellations</div>
+                  <div className="text-lg font-medium text-primary-text">
+                    Late Cancellation Fees
+                  </div>
+                  <div className="text-sm text-secondary-text">
+                    Charge fees for late cancellations
+                  </div>
                 </div>
                 <Toggle
                   enabled={lateCancellationEnabled}
@@ -272,20 +298,38 @@ export default function ClassesSettingsPage() {
                       step={0.1}
                     />
                   </div>
-                  
+
                   <div className="p-6 bg-surface rounded-xl border border-border-light">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-base">
                         <span className="text-secondary-text">Base Fee:</span>
-                        <span className="text-primary-text font-medium">${lateCancellationFee.toFixed(2)}</span>
+                        <span className="text-primary-text font-medium">
+                          ${lateCancellationFee.toFixed(2)}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-base">
-                        <span className="text-secondary-text">Tax ({lateCancellationTaxRate}%):</span>
-                        <span className="text-primary-text font-medium">${(lateCancellationFee * (lateCancellationTaxRate / 100)).toFixed(2)}</span>
+                        <span className="text-secondary-text">
+                          Tax ({lateCancellationTaxRate}%):
+                        </span>
+                        <span className="text-primary-text font-medium">
+                          $
+                          {(
+                            lateCancellationFee *
+                            (lateCancellationTaxRate / 100)
+                          ).toFixed(2)}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-lg font-medium border-t border-border pt-3">
-                        <span className="text-primary-text">Total with Tax:</span>
-                        <span className="text-primary font-medium">${calculateTotalWithTax(lateCancellationFee, lateCancellationTaxRate).toFixed(2)}</span>
+                        <span className="text-primary-text">
+                          Total with Tax:
+                        </span>
+                        <span className="text-primary font-medium">
+                          $
+                          {calculateTotalWithTax(
+                            lateCancellationFee,
+                            lateCancellationTaxRate
+                          ).toFixed(2)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -310,17 +354,25 @@ export default function ClassesSettingsPage() {
                 <UserGroupIcon className="h-6 w-6 text-white" />
               </div>
               <div>
-                <div className="text-xl font-light text-primary-text">No Show Policy</div>
-                <div className="text-sm text-secondary-text font-light">Handle members who don&apos;t attend</div>
+                <div className="text-xl font-light text-primary-text">
+                  No Show Policy
+                </div>
+                <div className="text-sm text-secondary-text font-light">
+                  Handle members who don&apos;t attend
+                </div>
               </div>
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-8 space-y-8">
+          <CardContent className="p-8 space-y-8 mt-2">
             <div className="space-y-6">
               <div className="flex items-center justify-between p-6 bg-accent rounded-xl border border-border-light">
                 <div>
-                  <div className="text-lg font-medium text-primary-text">No Show Fees</div>
-                  <div className="text-sm text-secondary-text">Charge fees for members who don&apos;t show up</div>
+                  <div className="text-lg font-medium text-primary-text">
+                    No Show Fees
+                  </div>
+                  <div className="text-sm text-secondary-text">
+                    Charge fees for members who don&apos;t show up
+                  </div>
                 </div>
                 <Toggle
                   enabled={noShowEnabled}
@@ -351,20 +403,34 @@ export default function ClassesSettingsPage() {
                       step={0.1}
                     />
                   </div>
-                  
+
                   <div className="p-6 bg-surface rounded-xl border border-border-light">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-base">
                         <span className="text-secondary-text">Base Fee:</span>
-                        <span className="text-primary-text font-medium">${noShowFee.toFixed(2)}</span>
+                        <span className="text-primary-text font-medium">
+                          ${noShowFee.toFixed(2)}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-base">
-                        <span className="text-secondary-text">Tax ({noShowTaxRate}%):</span>
-                        <span className="text-primary-text font-medium">${(noShowFee * (noShowTaxRate / 100)).toFixed(2)}</span>
+                        <span className="text-secondary-text">
+                          Tax ({noShowTaxRate}%):
+                        </span>
+                        <span className="text-primary-text font-medium">
+                          ${(noShowFee * (noShowTaxRate / 100)).toFixed(2)}
+                        </span>
                       </div>
                       <div className="flex items-center justify-between text-lg font-medium border-t border-border pt-3">
-                        <span className="text-primary-text">Total with Tax:</span>
-                        <span className="text-primary font-medium">${calculateTotalWithTax(noShowFee, noShowTaxRate).toFixed(2)}</span>
+                        <span className="text-primary-text">
+                          Total with Tax:
+                        </span>
+                        <span className="text-primary font-medium">
+                          $
+                          {calculateTotalWithTax(
+                            noShowFee,
+                            noShowTaxRate
+                          ).toFixed(2)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -373,7 +439,7 @@ export default function ClassesSettingsPage() {
                     enabled={autoChargeNoShowFee}
                     onToggle={setAutoChargeNoShowFee}
                     label="Auto-charge No Show Fees"
-                    description="Automatically charge fees when members don&apos;t show up"
+                    description="Automatically charge fees when members don't show up"
                   />
                 </div>
               )}
@@ -389,38 +455,50 @@ export default function ClassesSettingsPage() {
                 <ShieldCheckIcon className="h-6 w-6 text-white" />
               </div>
               <div>
-                <div className="text-xl font-light text-primary-text">System Status</div>
-                <div className="text-sm text-secondary-text font-light">Current system health and status</div>
+                <div className="text-xl font-light text-primary-text">
+                  System Status
+                </div>
+                <div className="text-sm text-secondary-text font-light">
+                  Current system health and status
+                </div>
               </div>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
               <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl border border-border-light">
                 <CheckCircleIcon className="h-6 w-6 text-emerald-500 flex-shrink-0" />
                 <div>
-                  <div className="text-base font-medium text-primary-text">Classes System</div>
+                  <div className="text-base font-medium text-primary-text">
+                    Classes System
+                  </div>
                   <div className="text-sm text-emerald-500">Operational</div>
                 </div>
               </div>
               <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl border border-border-light">
                 <CheckCircleIcon className="h-6 w-6 text-emerald-500 flex-shrink-0" />
                 <div>
-                  <div className="text-base font-medium text-primary-text">Booking Engine</div>
+                  <div className="text-base font-medium text-primary-text">
+                    Booking Engine
+                  </div>
                   <div className="text-sm text-emerald-500">Online</div>
                 </div>
               </div>
               <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl border border-border-light">
                 <CheckCircleIcon className="h-6 w-6 text-emerald-500 flex-shrink-0" />
                 <div>
-                  <div className="text-base font-medium text-primary-text">Payment Processing</div>
+                  <div className="text-base font-medium text-primary-text">
+                    Payment Processing
+                  </div>
                   <div className="text-sm text-emerald-500">Active</div>
                 </div>
               </div>
               <div className="flex items-center space-x-4 p-6 bg-emerald-500/10 rounded-xl border border-border-light">
                 <CheckCircleIcon className="h-6 w-6 text-emerald-500 flex-shrink-0" />
                 <div>
-                  <div className="text-base font-medium text-primary-text">Notifications</div>
+                  <div className="text-base font-medium text-primary-text">
+                    Notifications
+                  </div>
                   <div className="text-sm text-emerald-500">Active</div>
                 </div>
               </div>
@@ -429,5 +507,5 @@ export default function ClassesSettingsPage() {
         </Card>
       </div>
     </div>
-  )
-} 
+  );
+}

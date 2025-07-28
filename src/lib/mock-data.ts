@@ -52,7 +52,7 @@ export const mockUsers: User[] = [
   },
 ]
 
-// Mock Coaches with specialties
+// Mock Coaches with specialties - Updated for the three programs
 export const mockCoaches: Coach[] = [
   {
     id: '1',
@@ -61,7 +61,7 @@ export const mockCoaches: Coach[] = [
     role: 'coach',
     avatar: '/avatars/sarah.jpg',
     createdAt: new Date('2023-01-15'),
-    specialties: ['HIIT', 'Cardio', 'Boxing', 'Weight Loss'],
+    specialties: ['Burn40', 'HIIT', 'Cardio', 'Weight Loss'],
     isActive: true,
   },
   {
@@ -71,7 +71,7 @@ export const mockCoaches: Coach[] = [
     role: 'coach',
     avatar: '/avatars/mike.jpg',
     createdAt: new Date('2023-02-20'),
-    specialties: ['Strength Training', 'Powerlifting', 'Functional Fitness', 'Sports Performance'],
+    specialties: ['CrossFit', 'Functional Fitness', 'Strength Training', 'Sports Performance'],
     isActive: true,
   },
   {
@@ -81,7 +81,7 @@ export const mockCoaches: Coach[] = [
     role: 'coach',
     avatar: '/avatars/emma.jpg',
     createdAt: new Date('2023-03-10'),
-    specialties: ['Yoga', 'Pilates', 'Flexibility', 'Mindfulness', 'Rehabilitation'],
+    specialties: ['BurnDumbells', 'Strength Training', 'Dumbbell Training', 'Muscle Building'],
     isActive: true,
   },
   {
@@ -91,7 +91,7 @@ export const mockCoaches: Coach[] = [
     role: 'coach',
     avatar: '/avatars/alex.jpg',
     createdAt: new Date('2023-04-05'),
-    specialties: ['Boxing', 'Martial Arts', 'Self Defense', 'Conditioning'],
+    specialties: ['CrossFit', 'Burn40', 'Conditioning', 'Athletic Performance'],
     isActive: true,
   },
   {
@@ -101,82 +101,37 @@ export const mockCoaches: Coach[] = [
     role: 'coach',
     avatar: '/avatars/lisa.jpg',
     createdAt: new Date('2023-05-12'),
-    specialties: ['Spin', 'Cycling', 'Endurance', 'Cardio', 'Group Fitness'],
+    specialties: ['BurnDumbells', 'Strength Training', 'Personal Training', 'Group Fitness'],
     isActive: true,
   },
 ]
 
-// Mock Programs
+// Mock Programs - Only the three specific programs
 export const mockPrograms: Program[] = [
   {
     id: '1',
-    name: 'HIIT Cardio',
+    name: 'Burn40',
     description: 'High-intensity interval training for maximum calorie burn',
-    color: '#dc2626', // Red
+    color: '#ef4444', // Red
     category: 'cardio',
     isActive: true,
     createdAt: new Date('2023-01-01'),
   },
   {
     id: '2',
-    name: 'Strength Training',
-    description: 'Build muscle and increase strength with compound movements',
-    color: '#1f2937', // Dark gray
+    name: 'CrossFit',
+    description: 'Functional fitness with varied, high-intensity movements',
+    color: '#06b6d4', // Cyan
     category: 'strength',
     isActive: true,
     createdAt: new Date('2023-01-01'),
   },
   {
     id: '3',
-    name: 'Yoga Flow',
-    description: 'Mindful movement and flexibility training',
-    color: '#059669', // Green
-    category: 'yoga',
-    isActive: true,
-    createdAt: new Date('2023-01-01'),
-  },
-  {
-    id: '4',
-    name: 'Boxing Basics',
-    description: 'Learn boxing fundamentals and get a great workout',
-    color: '#d97706', // Orange
-    category: 'martial-arts',
-    isActive: true,
-    createdAt: new Date('2023-01-01'),
-  },
-  {
-    id: '5',
-    name: 'Functional Fitness',
-    description: 'Real-world movement patterns for everyday strength',
-    color: '#2563eb', // Blue
-    category: 'fitness',
-    isActive: true,
-    createdAt: new Date('2023-01-01'),
-  },
-  {
-    id: '6',
-    name: 'Pilates Core',
-    description: 'Core strengthening through controlled movements',
-    color: '#7c3aed', // Purple
-    category: 'fitness',
-    isActive: true,
-    createdAt: new Date('2023-01-01'),
-  },
-  {
-    id: '7',
-    name: 'Spin Class',
-    description: 'High-energy indoor cycling workout',
-    color: '#ea580c', // Orange-red
-    category: 'cardio',
-    isActive: true,
-    createdAt: new Date('2023-01-01'),
-  },
-  {
-    id: '8',
-    name: 'Power Yoga',
-    description: 'Dynamic and challenging yoga practice',
-    color: '#16a34a', // Green
-    category: 'yoga',
+    name: 'BurnDumbells',
+    description: 'Strength training with dumbbells for muscle building',
+    color: '#10b981', // Green
+    category: 'strength',
     isActive: true,
     createdAt: new Date('2023-01-01'),
   },

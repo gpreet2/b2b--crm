@@ -52,7 +52,7 @@ export default function ProgramsPage() {
     location: ''
   })
 
-  // Mock data for programs
+  // Mock data for programs - Only the three specific programs
   const programs: Program[] = useMemo(() => [
     {
       id: '1',
@@ -84,59 +84,17 @@ export default function ProgramsPage() {
     },
     {
       id: '3',
-      name: 'Yoga Flow',
-      description: 'Mindful movement and flexibility training',
-      color: '#8b5cf6',
-      category: 'Wellness',
-      duration: '75 min',
-      difficulty: 'beginner',
+      name: 'BurnDumbells',
+      description: 'Strength training with dumbbells for muscle building',
+      color: '#10b981',
+      category: 'Strength',
+      duration: '60 min',
+      difficulty: 'intermediate',
       isActive: true,
       coach: 'Emma Davis',
-      capacity: 25,
-      location: 'Yoga Studio',
+      capacity: 20,
+      location: 'Weight Room',
       lastUpdated: new Date(2024, 2, 10)
-    },
-    {
-      id: '4',
-      name: 'Boxing Fundamentals',
-      description: 'Combat fitness and self-defense training',
-      color: '#f97316',
-      category: 'Martial Arts',
-      duration: '50 min',
-      difficulty: 'intermediate',
-      isActive: true,
-      coach: 'Alex Rodriguez',
-      capacity: 12,
-      location: 'Boxing Ring',
-      lastUpdated: new Date(2024, 2, 8)
-    },
-    {
-      id: '5',
-      name: 'Functional Movement',
-      description: 'Real-world strength and mobility training',
-      color: '#3b82f6',
-      category: 'Functional',
-      duration: '45 min',
-      difficulty: 'intermediate',
-      isActive: true,
-      coach: 'Jordan Kim',
-      capacity: 18,
-      location: 'Functional Area',
-      lastUpdated: new Date(2024, 2, 5)
-    },
-    {
-      id: '6',
-      name: 'Pilates Core',
-      description: 'Core strength and stability training',
-      color: '#10b981',
-      category: 'Wellness',
-      duration: '60 min',
-      difficulty: 'beginner',
-      isActive: false,
-      coach: 'Lisa Wang',
-      capacity: 15,
-      location: 'Pilates Studio',
-      lastUpdated: new Date(2024, 2, 3)
     }
   ], [])
 
@@ -457,9 +415,6 @@ export default function ProgramsPage() {
                   <option value="">Select category</option>
                   <option value="Cardio">Cardio</option>
                   <option value="Strength">Strength</option>
-                  <option value="Wellness">Wellness</option>
-                  <option value="Martial Arts">Martial Arts</option>
-                  <option value="Functional">Functional</option>
                 </select>
               </div>
             </div>

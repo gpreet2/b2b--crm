@@ -133,6 +133,66 @@ export interface WorkoutExercise {
   order: number
 }
 
+export interface WorkoutSegment {
+  id: string
+  title: string
+  description: string
+  duration?: number // in minutes
+  exercises?: string[]
+  order: number
+  templateId?: string // Reference to original template if created from drag
+  type?: string // Type of segment (warmup, main, cooldown, etc.)
+  intensity?: 'low' | 'medium' | 'high'
+  notes?: string
+  completed?: boolean
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+// Enhanced workout event interface that extends the base WorkoutEvent
+export interface EnhancedWorkoutEvent {
+  id: string
+  title: string
+  description?: string
+  start: Date
+  end: Date
+  date: Date
+  startTime: string
+  backgroundColor: string
+  borderColor: string
+  textColor: string
+  segments: WorkoutSegment[]
+  totalDuration: number
+  createdFrom?: 'manual' | 'template' | 'drag-drop'
+  templateIds?: string[] // Track which templates were used
+  extendedProps: {
+    type: string
+    intensity: string
+    duration: number
+    exercises: string[]
+    notes?: string
+    completed: boolean
+    segmentCount?: number
+  }
+  createdAt: Date
+  updatedAt: Date
+}
+
+// Form validation types for workout segments
+export interface WorkoutSegmentValidation {
+  title: boolean
+  description?: boolean
+  duration?: boolean
+  exercises?: boolean
+}
+
+export interface WorkoutFormValidation {
+  title: boolean
+  startTime: boolean
+  description?: boolean
+  segments: Record<string, WorkoutSegmentValidation>
+}
+
 // Financial Types
 export interface Invoice {
   id: string
