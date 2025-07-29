@@ -199,23 +199,7 @@ export default function CalendarClassListPage() {
     return `${displayHour}:${minutes} ${ampm}`
   }
 
-  const formatDate = (date: Date) => {
-    const today = new Date()
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 1)
-    
-    if (date.toDateString() === today.toDateString()) {
-      return 'Today'
-    } else if (date.toDateString() === tomorrow.toDateString()) {
-      return 'Tomorrow'
-    } else {
-      return date.toLocaleDateString('en-US', { 
-        weekday: 'short', 
-        month: 'short', 
-        day: 'numeric' 
-      })
-    }
-  }
+  // Removed unused formatDate function
 
   return (
     <div className="p-6 space-y-6 bg-background min-h-screen">

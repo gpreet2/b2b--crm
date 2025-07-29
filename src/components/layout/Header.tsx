@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
  BellIcon,
@@ -62,7 +63,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
            </button>
 
            {/* B2B CRM Logo */}
-           <a 
+           <Link 
              href="/" 
              className="flex items-center space-x-3 group transition-all duration-200 hover:scale-[1.02]"
              aria-label="Back2Back Gym CRM - Go to Dashboard"
@@ -98,7 +99,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
                </span>
                <div className="w-16 h-0.5 bg-gradient-to-r from-primary to-primary-light rounded-full mt-1 group-hover:w-20 transition-all duration-200"></div>
              </div>
-           </a>
+           </Link>
 
            {/* Separator */}
            <div className="hidden sm:block w-px h-8 bg-gradient-to-b from-transparent via-border to-transparent"></div>

@@ -144,7 +144,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
         <div className="flex-1 flex flex-col min-h-0">
           {/* Navigation Items - Scrollable */}
           <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-            {navigationConfig.map((item, index) => {
+            {navigationConfig.map((item) => {
               const isActive = isItemActive(item);
               const isExpanded = expandedItems.has(item.id);
               const Icon = item.icon;

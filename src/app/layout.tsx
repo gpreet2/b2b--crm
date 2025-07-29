@@ -2,6 +2,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Layout } from "@/components/layout/Layout";
+import { usePathname } from "next/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,6 +19,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+  const isAuthPage = pathname?.startsWith('/auth');
+  
   const user = {
     name: 'Admin User',
     email: 'admin@fitnesspro.com'
@@ -28,14 +32,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Layout
-          headerProps={{
-            user,
-            notifications: 5
-          }}
-        >
-          {children}
-        </Layout>
+        {isAuthPage ? (
+          children
+        ) : (
+          <Layout
+            headerProps={{
+              user,
+              notifications: 5
+            }}
+          >
+            {children}
+          </Layout>
+        )}
       </body>
     </html>
   );

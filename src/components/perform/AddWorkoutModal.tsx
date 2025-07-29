@@ -367,6 +367,25 @@ export default function AddWorkoutModal({
     }
   }, [validateForm, title, description, startTime, selectedDate, segments, onSave, onClose]);
 
+  // Enhanced keyboard navigation and focus management with accessibility - will be moved after announceToScreenReader
+
+  // Screen reader announcement function
+  const announceToScreenReader = React.useCallback((message: string) => {
+    const announcement = document.createElement('div');
+    announcement.setAttribute('aria-live', 'polite');
+    announcement.setAttribute('aria-atomic', 'true');
+    announcement.className = 'sr-only';
+    announcement.textContent = message;
+    document.body.appendChild(announcement);
+    
+    // Remove after announcement
+    setTimeout(() => {
+      if (document.body.contains(announcement)) {
+        document.body.removeChild(announcement);
+      }
+    }, 1000);
+  }, []);
+
   // Enhanced keyboard navigation and focus management with accessibility
   useEffect(() => {
     if (!isOpen) return;
@@ -468,24 +487,7 @@ export default function AddWorkoutModal({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose, isFormValid, handleSaveAndClose, handleSaveAndAddAnother, addSegment]);
-
-  // Screen reader announcement function
-  const announceToScreenReader = React.useCallback((message: string) => {
-    const announcement = document.createElement('div');
-    announcement.setAttribute('aria-live', 'polite');
-    announcement.setAttribute('aria-atomic', 'true');
-    announcement.className = 'sr-only';
-    announcement.textContent = message;
-    document.body.appendChild(announcement);
-    
-    // Remove after announcement
-    setTimeout(() => {
-      if (document.body.contains(announcement)) {
-        document.body.removeChild(announcement);
-      }
-    }, 1000);
-  }, []);
+  }, [isOpen, onClose, isFormValid, handleSaveAndClose, handleSaveAndAddAnother, addSegment, announceToScreenReader]);
 
   // Prevent background scrolling when modal is open
   useEffect(() => {

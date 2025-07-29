@@ -8,8 +8,6 @@ import {
   FunnelIcon,
   FireIcon,
   BoltIcon,
-  HeartIcon,
-  ClockIcon,
   UserGroupIcon,
 } from '@heroicons/react/24/outline'
 import WorkoutCalendar from '@/components/perform/WorkoutCalendar'
@@ -62,70 +60,7 @@ export default function WorkoutsPage() {
     }, 1000)
   }, [])
 
-  // Enhanced keyboard shortcuts for the entire page
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Global keyboard shortcuts
-      if (e.ctrlKey || e.metaKey) {
-        switch (e.key) {
-          case 'n':
-            // Ctrl/Cmd + N for new workout
-            e.preventDefault()
-            setIsAddWorkoutModalOpen(true)
-            announceToScreenReader('Opening new workout modal')
-            break
-          case '1':
-            // Ctrl/Cmd + 1 for week view
-            e.preventDefault()
-            setView('week')
-            announceToScreenReader('Switched to week view')
-            break
-          case '2':
-            // Ctrl/Cmd + 2 for month view
-            e.preventDefault()
-            setView('month')
-            announceToScreenReader('Switched to month view')
-            break
-          case 'f':
-            // Ctrl/Cmd + F for filter (focus on filter dropdown)
-            e.preventDefault()
-            const filterSelect = document.querySelector('select') as HTMLSelectElement
-            if (filterSelect) {
-              filterSelect.focus()
-              announceToScreenReader('Filter dropdown focused')
-            }
-            break
-        }
-      }
-
-      // Alt key shortcuts
-      if (e.altKey) {
-        switch (e.key) {
-          case 'ArrowLeft':
-            // Alt + Left Arrow for previous period
-            e.preventDefault()
-            navigateDate('prev')
-            announceToScreenReader(`Navigated to previous ${view}`)
-            break
-          case 'ArrowRight':
-            // Alt + Right Arrow for next period
-            e.preventDefault()
-            navigateDate('next')
-            announceToScreenReader(`Navigated to next ${view}`)
-            break
-          case 't':
-            // Alt + T for today
-            e.preventDefault()
-            goToToday()
-            announceToScreenReader('Navigated to today')
-            break
-        }
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [view])
+  // Enhanced keyboard shortcuts for the entire page - will be moved after navigateDate function
 
   // Program-based workout events reflecting the programs from the programs tab
   const events = useMemo(() => {
@@ -345,6 +280,71 @@ export default function WorkoutsPage() {
   const goToToday = () => {
     setCurrentDate(new Date())
   }
+
+  // Enhanced keyboard shortcuts for the entire page
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Global keyboard shortcuts
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 'n':
+            // Ctrl/Cmd + N for new workout
+            e.preventDefault()
+            setIsAddWorkoutModalOpen(true)
+            announceToScreenReader('Opening new workout modal')
+            break
+          case '1':
+            // Ctrl/Cmd + 1 for week view
+            e.preventDefault()
+            setView('week')
+            announceToScreenReader('Switched to week view')
+            break
+          case '2':
+            // Ctrl/Cmd + 2 for month view
+            e.preventDefault()
+            setView('month')
+            announceToScreenReader('Switched to month view')
+            break
+          case 'f':
+            // Ctrl/Cmd + F for filter (focus on filter dropdown)
+            e.preventDefault()
+            const filterSelect = document.querySelector('select') as HTMLSelectElement
+            if (filterSelect) {
+              filterSelect.focus()
+              announceToScreenReader('Filter dropdown focused')
+            }
+            break
+        }
+      }
+
+      // Alt key shortcuts
+      if (e.altKey) {
+        switch (e.key) {
+          case 'ArrowLeft':
+            // Alt + Left Arrow for previous period
+            e.preventDefault()
+            navigateDate('prev')
+            announceToScreenReader(`Navigated to previous ${view}`)
+            break
+          case 'ArrowRight':
+            // Alt + Right Arrow for next period
+            e.preventDefault()
+            navigateDate('next')
+            announceToScreenReader(`Navigated to next ${view}`)
+            break
+          case 't':
+            // Alt + T for today
+            e.preventDefault()
+            goToToday()
+            announceToScreenReader('Navigated to today')
+            break
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [view, announceToScreenReader, navigateDate])
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">

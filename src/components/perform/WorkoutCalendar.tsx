@@ -139,6 +139,21 @@ export default function WorkoutCalendar({
     }
   }
 
+  // Screen reader announcement function
+  const announceToScreenReader = React.useCallback((message: string) => {
+    const announcement = document.createElement('div')
+    announcement.setAttribute('aria-live', 'polite')
+    announcement.setAttribute('aria-atomic', 'true')
+    announcement.className = 'sr-only'
+    announcement.textContent = message
+    document.body.appendChild(announcement)
+    
+    // Remove after announcement
+    setTimeout(() => {
+      document.body.removeChild(announcement)
+    }, 1000)
+  }, [])
+
   // Enhanced keyboard navigation handlers with accessibility announcements
   const handleCalendarKeyDown = React.useCallback((e: React.KeyboardEvent) => {
     if (!focusedDate) return
@@ -236,22 +251,7 @@ export default function WorkoutCalendar({
         announceToScreenReader(announcement)
       }
     }
-  }, [focusedDate, onDateClick, onAddWorkout, view])
-
-  // Screen reader announcement function
-  const announceToScreenReader = React.useCallback((message: string) => {
-    const announcement = document.createElement('div')
-    announcement.setAttribute('aria-live', 'polite')
-    announcement.setAttribute('aria-atomic', 'true')
-    announcement.className = 'sr-only'
-    announcement.textContent = message
-    document.body.appendChild(announcement)
-    
-    // Remove after announcement
-    setTimeout(() => {
-      document.body.removeChild(announcement)
-    }, 1000)
-  }, [])
+  }, [focusedDate, onDateClick, onAddWorkout, view, announceToScreenReader])
 
   // Initialize focused date when calendar loads
   React.useEffect(() => {
@@ -391,7 +391,7 @@ export default function WorkoutCalendar({
     }
 
     // Touch event handlers for mobile drag and drop
-    const handleTouchStart = (e: React.TouchEvent, _date: Date) => {
+    const handleTouchStart = (e: React.TouchEvent) => {
       // Store touch start position for potential drag operation
       const touch = e.touches[0]
       const target = e.currentTarget as HTMLElement
@@ -428,7 +428,7 @@ export default function WorkoutCalendar({
       >
         {/* Screen reader instructions */}
         <div id="calendar-instructions" className="sr-only">
-          Use arrow keys to navigate between dates. Press Enter or Space to select a date. Press 'A' to add a workout to the focused date. Use Home and End to jump to the beginning or end of the week.
+          Use arrow keys to navigate between dates. Press Enter or Space to select a date. Press &apos;A&apos; to add a workout to the focused date. Use Home and End to jump to the beginning or end of the week.
         </div>
         
         {/* Enhanced Week Header with Mobile Optimization */}
@@ -446,7 +446,7 @@ export default function WorkoutCalendar({
                   isToday ? 'bg-primary/10 border-primary/20' : ''
                 }`}
                 onClick={() => onDateClick?.(date)}
-                onTouchStart={(e) => handleTouchStart(e, date)}
+                onTouchStart={(e) => handleTouchStart(e)}
                 onTouchEnd={(e) => handleTouchEnd(e, date)}
                 role="columnheader"
                 aria-label={`${dayName}, ${monthName} ${dayNumber}${isToday ? ', today' : ''}`}
@@ -506,7 +506,7 @@ export default function WorkoutCalendar({
                   setKeyboardNavigationMode(false)
                   onDateClick?.(date)
                 }}
-                onTouchStart={(e) => handleTouchStart(e, date)}
+                onTouchStart={(e) => handleTouchStart(e)}
                 onTouchEnd={(e) => handleTouchEnd(e, date)}
                 onFocus={() => {
                   setFocusedDate(date)
@@ -515,7 +515,7 @@ export default function WorkoutCalendar({
                 tabIndex={isFocused ? 0 : -1}
                 role="gridcell"
                 aria-label={`${date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}${isToday ? ', today' : ''}. ${dayEvents.length} workout${dayEvents.length !== 1 ? 's' : ''} scheduled.`}
-                aria-selected={isFocused}
+                aria-selected={!!isFocused}
                 aria-describedby={dayEvents.length > 0 ? `day-${index}-events` : undefined}
               >
                 {/* Day content container with responsive spacing */}
@@ -622,7 +622,7 @@ export default function WorkoutCalendar({
     }
 
     // Touch event handlers for mobile
-    const handleTouchStart = (e: React.TouchEvent, _date: Date) => {
+    const handleTouchStart = (e: React.TouchEvent) => {
       const touch = e.touches[0]
       const target = e.currentTarget as HTMLElement
       target.setAttribute('data-touch-start-x', touch.clientX.toString())
@@ -656,7 +656,7 @@ export default function WorkoutCalendar({
       >
         {/* Screen reader instructions */}
         <div id="calendar-instructions-month" className="sr-only">
-          Use arrow keys to navigate between dates. Press Enter or Space to select a date. Press 'A' to add a workout to the focused date. Use Home and End to jump to the beginning or end of the week.
+          Use arrow keys to navigate between dates. Press Enter or Space to select a date. Press &apos;A&apos; to add a workout to the focused date. Use Home and End to jump to the beginning or end of the week.
         </div>
         
         {/* Enhanced day headers with mobile optimization */}
@@ -703,7 +703,7 @@ export default function WorkoutCalendar({
                 }}
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDrop(e, date)}
-                onTouchStart={(e) => handleTouchStart(e, date)}
+                onTouchStart={(e) => handleTouchStart(e)}
                 onTouchEnd={(e) => handleTouchEnd(e, date)}
                 onFocus={() => {
                   setFocusedDate(date)
@@ -712,7 +712,7 @@ export default function WorkoutCalendar({
                 tabIndex={isFocused ? 0 : -1}
                 role="gridcell"
                 aria-label={`${date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}${isToday ? ', today' : ''}${!isCurrentMonth ? ', outside current month' : ''}. ${dayEvents.length} workout${dayEvents.length !== 1 ? 's' : ''} scheduled.`}
-                aria-selected={isFocused}
+                aria-selected={!!isFocused}
                 aria-describedby={dayEvents.length > 0 ? `month-day-${index}-events` : undefined}
               >
                 {/* Enhanced date number with responsive sizing */}

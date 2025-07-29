@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef, useCallback } from 'react'
+import React, { useState, useRef } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { 
@@ -80,6 +80,50 @@ export default function AddWorkoutTemplateModal({
     }
   }, [isOpen])
 
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!title.trim()) {
+      newErrors.title = 'Title is required'
+    }
+
+    if (!description.trim()) {
+      newErrors.description = 'Description is required'
+    }
+
+    if (duration < 1 || duration > 300) {
+      newErrors.duration = 'Duration must be between 1 and 300 minutes'
+    }
+
+    const validExercises = exercises.filter(ex => ex.trim())
+    if (validExercises.length === 0) {
+      newErrors.exercises = 'At least one exercise is required'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSave = () => {
+    if (!validateForm()) return
+
+    const validExercises = exercises.filter(ex => ex.trim())
+    
+    const template: WorkoutTemplate = {
+      id: `template-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+      title: title.trim(),
+      description: description.trim(),
+      type,
+      intensity,
+      duration,
+      exercises: validExercises,
+      isFavorite: false
+    }
+
+    onSave(template)
+    onClose()
+  }
+
   // Keyboard navigation
   React.useEffect(() => {
     if (!isOpen) return
@@ -124,7 +168,7 @@ export default function AddWorkoutTemplateModal({
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen])
+  }, [isOpen, handleSave, onClose])
 
   // Prevent background scrolling
   React.useEffect(() => {
@@ -153,50 +197,6 @@ export default function AddWorkoutTemplateModal({
     const newExercises = [...exercises]
     newExercises[index] = value
     setExercises(newExercises)
-  }
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {}
-
-    if (!title.trim()) {
-      newErrors.title = 'Title is required'
-    }
-
-    if (!description.trim()) {
-      newErrors.description = 'Description is required'
-    }
-
-    if (duration < 1 || duration > 300) {
-      newErrors.duration = 'Duration must be between 1 and 300 minutes'
-    }
-
-    const validExercises = exercises.filter(ex => ex.trim())
-    if (validExercises.length === 0) {
-      newErrors.exercises = 'At least one exercise is required'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }
-
-  const handleSave = () => {
-    if (!validateForm()) return
-
-    const validExercises = exercises.filter(ex => ex.trim())
-    
-    const template: WorkoutTemplate = {
-      id: `template-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
-      title: title.trim(),
-      description: description.trim(),
-      type,
-      intensity,
-      duration,
-      exercises: validExercises,
-      isFavorite: false
-    }
-
-    onSave(template)
-    onClose()
   }
 
   const getTypeIcon = (typeValue: string) => {
