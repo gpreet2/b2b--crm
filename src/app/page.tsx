@@ -1,9 +1,13 @@
 "use client"
-import React from 'react'
-import { Dashboard } from '@/components/dashboard/Dashboard'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
-export default function DashboardPage() {
-  return (
-    <Dashboard />
-  )
+export default function HomePage() {
+  const router = useRouter()
+
+  useEffect(() => {
+    router.replace('/auth')
+  }, [router])
+
+  return null
 }

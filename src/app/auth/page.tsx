@@ -1,11 +1,14 @@
 "use client"
 
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card } from '@/components/ui/Card'
 
 export default function AuthPage() {
+  const router = useRouter()
   const [isLogin, setIsLogin] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -92,11 +95,22 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface via-surface-light to-accent">
-      <div className="flex min-h-screen">
-        {/* Left Side - Info/Marketing */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-primary p-12 text-white relative overflow-hidden">
-          <div className="relative z-10 flex flex-col justify-center h-full">
+    <div className="min-h-screen max-h-screen overflow-hidden bg-gradient-to-br from-surface via-surface-light to-accent">
+      <div className="flex h-screen">
+        {/* Left Side - Artwork with Text Overlay */}
+        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary-dark to-accent relative overflow-hidden">
+          {/* Background Image */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Image 
+              src="/images/AuthImage.png" 
+              alt="Fitness Artwork" 
+              fill
+              className="object-contain opacity-30"
+            />
+          </div>
+          
+          {/* Content Overlay */}
+          <div className="relative z-10 flex flex-col justify-center h-full p-12 text-white">
             <div className="max-w-md">
               <div className="mb-8">
                 <h1 className="text-display-2 font-display mb-4">
@@ -107,75 +121,65 @@ export default function AuthPage() {
                 </p>
               </div>
 
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-h5 font-heading mb-2">Member Management</h3>
-                    <p className="text-body-sm opacity-80">Efficiently manage memberships, track attendance, and handle billing all in one place.</p>
+                    <h3 className="text-body font-heading mb-1">Member Management</h3>
+                    <p className="text-body-sm opacity-80">Efficiently manage memberships and billing</p>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center space-x-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-h5 font-heading mb-2">Class Scheduling</h3>
-                    <p className="text-body-sm opacity-80">Create and manage class schedules, handle bookings, and optimize your facility usage.</p>
+                    <h3 className="text-body font-heading mb-1">Class Scheduling</h3>
+                    <p className="text-body-sm opacity-80">Optimize facility usage and bookings</p>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center space-x-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                   </div>
                   <div>
-                    <h3 className="text-h5 font-heading mb-2">Analytics & Insights</h3>
-                    <p className="text-body-sm opacity-80">Get detailed insights into your business performance and make data-driven decisions.</p>
+                    <h3 className="text-body font-heading mb-1">Analytics & Insights</h3>
+                    <p className="text-body-sm opacity-80">Make data-driven business decisions</p>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-12 pt-8 border-t border-white/20">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div>
-                    <p className="text-body-sm opacity-80">Trusted by fitness professionals worldwide</p>
-                    <p className="text-caption opacity-60">Join thousands of successful fitness businesses</p>
-                  </div>
-                </div>
+              <div className="mt-8 pt-6 border-t border-white/20">
+                <p className="text-body-sm opacity-80">Trusted by fitness professionals worldwide</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Right Side - Auth Forms */}
-        <div className="flex-1 flex items-center justify-center p-8">
-          <div className="w-full max-w-md">
-            <div className="text-center mb-8">
-              <div className="mb-6">
-                <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto">
+          <div className="w-full max-w-md h-full flex flex-col justify-center">
+            <div className="text-center mb-6">
+              <div className="mb-4">
+                <div className="w-12 h-12 bg-gradient-primary rounded-xl flex items-center justify-center mx-auto mb-3 shadow-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <h1 className="text-h2 font-display text-primary-text mb-2">
+                <h1 className="text-h3 font-display text-primary-text mb-1">
                   {isLogin ? 'Welcome Back' : 'Get Started'}
                 </h1>
-                <p className="text-body text-secondary-text">
+                <p className="text-body-sm text-secondary-text">
                   {isLogin 
                     ? 'Sign in to your account to continue' 
                     : 'Create your account and start managing your fitness business'
@@ -184,11 +188,11 @@ export default function AuthPage() {
               </div>
             </div>
 
-            <Card className="p-8 shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-              <form onSubmit={handleSubmit} className="space-y-6">
+            <Card className="p-6 shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {!isLogin && (
                   <>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                       <Input
                         label="First Name"
                         value={formData.firstName}
@@ -286,7 +290,7 @@ export default function AuthPage() {
                 </Button>
 
                 {isLogin && (
-                  <div className="relative my-6">
+                  <div className="relative my-4">
                     <div className="absolute inset-0 flex items-center">
                       <div className="w-full border-t border-border"></div>
                     </div>
@@ -301,9 +305,9 @@ export default function AuthPage() {
                     type="button"
                     variant="outline"
                     className="w-full"
-                    size="lg"
+                    size="md"
                   >
-                    <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                       <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                       <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                       <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
@@ -314,7 +318,7 @@ export default function AuthPage() {
                 )}
               </form>
 
-              <div className="mt-8 text-center">
+              <div className="mt-4 text-center">
                 <p className="text-body-sm text-secondary-text">
                   {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
                   <button
@@ -328,13 +332,25 @@ export default function AuthPage() {
               </div>
             </Card>
 
-            <div className="mt-8 text-center">
+            <div className="mt-4 text-center">
               <p className="text-caption text-muted">
                 By continuing, you agree to our{' '}
                 <a href="#" className="text-primary hover:text-primary-dark">Terms of Service</a>
                 {' '}and{' '}
                 <a href="#" className="text-primary hover:text-primary-dark">Privacy Policy</a>
               </p>
+            </div>
+
+            <div className="mt-3 text-center">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/dashboard')}
+                className="text-xs"
+              >
+                Skip to Dashboard (Temporary)
+              </Button>
             </div>
           </div>
         </div>
