@@ -1,11 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { 
   XMarkIcon,
   FireIcon,
   BoltIcon,
-  HeartIcon,
   UserGroupIcon,
   ClockIcon,
   MagnifyingGlassIcon,
@@ -261,15 +260,6 @@ export default function WorkoutSidebar({
 
 
 
-  const toggleFavorite = (workoutId: string) => {
-    // Here you would typically update the favorite status
-    const workout = filteredWorkouts.find(w => w.id === workoutId)
-    if (workout) {
-      announceToScreenReader(`${workout.isFavorite ? 'Removed from' : 'Added to'} favorites: ${workout.title}`)
-    }
-    console.log('Toggling favorite for workout:', workoutId)
-  }
-
   const toggleCardExpansion = (workoutId: string) => {
     setExpandedCards(prev => {
       const newSet = new Set(prev)
@@ -281,6 +271,40 @@ export default function WorkoutSidebar({
       return newSet
     })
   }
+
+  // Screen reader announcement function
+  const announceToScreenReader = React.useCallback((message: string) => {
+    const announcement = document.createElement('div')
+    announcement.setAttribute('aria-live', 'polite')
+    announcement.setAttribute('aria-atomic', 'true')
+    announcement.className = 'sr-only'
+    announcement.textContent = message
+    document.body.appendChild(announcement)
+    
+    // Remove after announcement
+    setTimeout(() => {
+      if (document.body.contains(announcement)) {
+        document.body.removeChild(announcement)
+      }
+    }, 1000)
+  }, [])
+
+  const toggleFavorite = useCallback((workoutId: string) => {
+    // Here you would typically update the favorite status
+    const workout = filteredWorkouts.find(w => w.id === workoutId)
+    if (workout) {
+      announceToScreenReader(`${workout.isFavorite ? 'Removed from' : 'Added to'} favorites: ${workout.title}`)
+    }
+    console.log('Toggling favorite for workout:', workoutId)
+  }, [filteredWorkouts, announceToScreenReader])
+
+  const handleDeleteTemplate = useCallback((templateId: string) => {
+    const template = customTemplates.find(t => t.id === templateId)
+    if (template && window.confirm(`Are you sure you want to delete "${template.title}"?`)) {
+      setCustomTemplates(prev => prev.filter(t => t.id !== templateId))
+      announceToScreenReader(`Workout template "${template.title}" deleted`)
+    }
+  }, [customTemplates, setCustomTemplates, announceToScreenReader])
 
   // Enhanced keyboard navigation for sidebar
   React.useEffect(() => {
@@ -369,7 +393,7 @@ export default function WorkoutSidebar({
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, onClose, focusedWorkoutIndex, filteredWorkouts])
+  }, [isOpen, onClose, focusedWorkoutIndex, filteredWorkouts, announceToScreenReader, customTemplates, handleDeleteTemplate, toggleFavorite])
 
   // Focus management when sidebar opens
   React.useEffect(() => {
@@ -413,23 +437,6 @@ export default function WorkoutSidebar({
     announceToScreenReader(`Started dragging ${workout.title} workout template`)
   }
 
-  // Screen reader announcement function
-  const announceToScreenReader = React.useCallback((message: string) => {
-    const announcement = document.createElement('div')
-    announcement.setAttribute('aria-live', 'polite')
-    announcement.setAttribute('aria-atomic', 'true')
-    announcement.className = 'sr-only'
-    announcement.textContent = message
-    document.body.appendChild(announcement)
-    
-    // Remove after announcement
-    setTimeout(() => {
-      if (document.body.contains(announcement)) {
-        document.body.removeChild(announcement)
-      }
-    }, 1000)
-  }, [])
-
   const handleDragEnd = () => {
     if (draggedWorkout) {
       announceToScreenReader(`Finished dragging ${draggedWorkout.title}`)
@@ -449,13 +456,6 @@ export default function WorkoutSidebar({
   }
 
   // Handle deleting custom template
-  const handleDeleteTemplate = (templateId: string) => {
-    const template = customTemplates.find(t => t.id === templateId)
-    if (template && window.confirm(`Are you sure you want to delete "${template.title}"?`)) {
-      setCustomTemplates(prev => prev.filter(t => t.id !== templateId))
-      announceToScreenReader(`Workout template "${template.title}" deleted`)
-    }
-  }
 
   if (!isOpen) return null
 

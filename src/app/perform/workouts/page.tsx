@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { 
   PlusIcon, 
   ChevronLeftIcon,
@@ -267,7 +267,7 @@ export default function WorkoutsPage() {
   }
 
   // Navigate calendar
-  const navigateDate = (direction: 'prev' | 'next') => {
+  const navigateDate = useCallback((direction: 'prev' | 'next') => {
     const newDate = new Date(currentDate)
     if (view === 'week') {
       newDate.setDate(currentDate.getDate() + (direction === 'next' ? 7 : -7))
@@ -275,7 +275,7 @@ export default function WorkoutsPage() {
       newDate.setMonth(currentDate.getMonth() + (direction === 'next' ? 1 : -1))
     }
     setCurrentDate(newDate)
-  }
+  }, [currentDate, view, setCurrentDate])
 
   const goToToday = () => {
     setCurrentDate(new Date())

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useCallback } from 'react'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { 
@@ -80,7 +80,7 @@ export default function AddWorkoutTemplateModal({
     }
   }, [isOpen])
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const newErrors: Record<string, string> = {}
 
     if (!title.trim()) {
@@ -102,9 +102,9 @@ export default function AddWorkoutTemplateModal({
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }
+  }, [title, description, duration, exercises, setErrors])
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     if (!validateForm()) return
 
     const validExercises = exercises.filter(ex => ex.trim())
@@ -122,7 +122,7 @@ export default function AddWorkoutTemplateModal({
 
     onSave(template)
     onClose()
-  }
+  }, [validateForm, exercises, title, description, type, intensity, duration, onSave, onClose])
 
   // Keyboard navigation
   React.useEffect(() => {
