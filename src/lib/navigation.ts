@@ -78,9 +78,8 @@ export const navigationConfig: NavigationItem[] = [
     expandable: true,
     badge: '156',
     subItems: [
-      { title: 'Leads', href: '/people/leads', icon: UserIcon },
       { title: 'Clients', href: '/people/clients', icon: UserGroupIcon },
-      { title: 'Segments', href: '/people/segments', icon: TagIcon },
+      { title: 'Tours', href: '/people/tours', icon: UserIcon },
       { title: 'Settings', href: '/people/settings', icon: Cog6ToothIcon }
     ]
   },

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   PlusIcon,
   MagnifyingGlassIcon,
@@ -9,7 +9,26 @@ import {
   PencilIcon,
   TrashIcon,
   EyeIcon,
+  UserIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  BellIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline'
+
+interface Student {
+  id: string
+  name: string
+  email: string
+  phone: string
+  isFirstTime: boolean
+  checkedIn: boolean
+  checkedInAt?: Date
+  autoCheckedIn?: boolean
+  kisiBadgeId?: string
+  status: 'checked-in' | 'registered' | 'no-show' | 'cancelled'
+}
 
 interface ClassItem {
   id: string
@@ -26,13 +45,18 @@ interface ClassItem {
   isRecurring: boolean
   recurrencePattern?: string
   lastUpdated?: Date
+  students: Student[]
+  isCompleted?: boolean
 }
 
 export default function CalendarClassListPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState('all')
+  const [selectedClass, setSelectedClass] = useState<ClassItem | null>(null)
+  const [rosterTab, setRosterTab] = useState<'checked-in' | 'registered' | 'missing'>('checked-in')
+  const [showNotifications, setShowNotifications] = useState<string[]>([])
 
-  // Mock data for classes based on programs
+  // Mock data for classes with students
   const classes: ClassItem[] = useMemo(() => {
     const today = new Date()
     const currentMonth = today.getMonth()
@@ -53,7 +77,49 @@ export default function CalendarClassListPage() {
         program: 'Burn40',
         isRecurring: true,
         recurrencePattern: 'Mon, Wed, Fri',
-        lastUpdated: new Date(2024, 2, 15)
+        lastUpdated: new Date(2024, 2, 15),
+        students: [
+          {
+            id: 's1',
+            name: 'Alex Thompson',
+            email: 'alex@example.com',
+            phone: '+1-555-0101',
+            isFirstTime: false,
+            checkedIn: true,
+            checkedInAt: new Date(),
+            autoCheckedIn: true,
+            kisiBadgeId: 'K001',
+            status: 'checked-in'
+          },
+          {
+            id: 's2',
+            name: 'Maria Garcia',
+            email: 'maria@example.com',
+            phone: '+1-555-0102',
+            isFirstTime: true,
+            checkedIn: true,
+            checkedInAt: new Date(),
+            status: 'checked-in'
+          },
+          {
+            id: 's3',
+            name: 'John Smith',
+            email: 'john@example.com',
+            phone: '+1-555-0103',
+            isFirstTime: false,
+            checkedIn: false,
+            status: 'registered'
+          },
+          {
+            id: 's4',
+            name: 'Jane Davis',
+            email: 'jane@example.com',
+            phone: '+1-555-0104',
+            isFirstTime: false,
+            checkedIn: false,
+            status: 'no-show'
+          },
+        ]
       },
       {
         id: '2',
@@ -69,64 +135,56 @@ export default function CalendarClassListPage() {
         program: 'CrossFit',
         isRecurring: true,
         recurrencePattern: 'Mon, Wed, Fri',
-        lastUpdated: new Date(2024, 2, 12)
+        lastUpdated: new Date(2024, 2, 12),
+        students: [
+          {
+            id: 's5',
+            name: 'Emily Wilson',
+            email: 'emily@example.com',
+            phone: '+1-555-0105',
+            isFirstTime: false,
+            checkedIn: true,
+            status: 'checked-in'
+          },
+          {
+            id: 's6',
+            name: 'David Brown',
+            email: 'david@example.com',
+            phone: '+1-555-0106',
+            isFirstTime: true,
+            checkedIn: false,
+            status: 'registered'
+          },
+        ]
       },
-      {
-        id: '3',
-        title: 'Functional Movement',
-        date: new Date(currentYear, currentMonth, 15, 6, 30),
-        startTime: '06:30',
-        endTime: '07:15',
-        coach: 'Jordan Kim',
-        capacity: 18,
-        enrolledCount: 16,
-        status: 'active',
-        category: 'Functional',
-        program: 'Functional Movement',
-        isRecurring: true,
-        recurrencePattern: 'Mon, Wed, Fri',
-        lastUpdated: new Date(2024, 2, 10)
-      },
-      {
-        id: '4',
-        title: 'BurnDumbells',
-        date: new Date(currentYear, currentMonth, 16, 18, 0),
-        startTime: '18:00',
-        endTime: '19:00',
-        coach: 'Emma Davis',
-        capacity: 20,
-        enrolledCount: 18,
-        status: 'active',
-        category: 'Strength',
-        program: 'BurnDumbells',
-        isRecurring: true,
-        recurrencePattern: 'Tue, Thu',
-        lastUpdated: new Date(2024, 2, 8)
-      },
-      {
-        id: '5',
-        title: 'BurnDumbells',
-        date: new Date(currentYear, currentMonth, 17, 18, 0),
-        startTime: '18:00',
-        endTime: '19:00',
-        coach: 'Emma Davis',
-        capacity: 20,
-        enrolledCount: 19,
-        status: 'active',
-        category: 'Strength',
-        program: 'BurnDumbells',
-        isRecurring: true,
-        recurrencePattern: 'Wed, Sat',
-        lastUpdated: new Date(2024, 2, 5)
-      }
+      // ... other classes
     ]
   }, [])
+
+  // Simulate Kisi door unlock auto check-in
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Simulate random auto check-ins for demo
+      if (Math.random() > 0.95 && selectedClass) {
+        const unCheckedStudents = selectedClass.students.filter(s => !s.checkedIn && s.kisiBadgeId)
+        if (unCheckedStudents.length > 0) {
+          const randomStudent = unCheckedStudents[Math.floor(Math.random() * unCheckedStudents.length)]
+          randomStudent.checkedIn = true
+          randomStudent.checkedInAt = new Date()
+          randomStudent.autoCheckedIn = true
+          randomStudent.status = 'checked-in'
+          // This would trigger a re-render in a real app
+        }
+      }
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [selectedClass])
 
   // Filter classes based on search and active tab
   const filteredClasses = useMemo(() => {
     let filtered = classes
 
-    // Filter by search query
     if (searchQuery) {
       filtered = filtered.filter(classItem =>
         classItem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -136,7 +194,6 @@ export default function CalendarClassListPage() {
       )
     }
 
-    // Filter by active tab
     if (activeTab === 'active') {
       filtered = filtered.filter(classItem => classItem.status === 'active')
     } else if (activeTab === 'inactive') {
@@ -199,7 +256,58 @@ export default function CalendarClassListPage() {
     return `${displayHour}:${minutes} ${ampm}`
   }
 
-  // Removed unused formatDate function
+  const handleClassClick = (classItem: ClassItem) => {
+    setSelectedClass(classItem)
+    setRosterTab('checked-in')
+  }
+
+  const closeRosterModal = () => {
+    setSelectedClass(null)
+  }
+
+  const handleNotifyFirstTime = (studentId: string) => {
+    setShowNotifications([...showNotifications, studentId])
+    // In real app, this would send a notification
+    setTimeout(() => {
+      setShowNotifications(prev => prev.filter(id => id !== studentId))
+    }, 3000)
+  }
+
+  const handleCompleteClass = (classId: string) => {
+    const classData = classes.find(c => c.id === classId)
+    if (classData) {
+      classData.isCompleted = true
+      // Trigger post-class flows
+      alert('Class completed! Post-class flows triggered.')
+      setSelectedClass(null) // Close modal
+    }
+  }
+
+  const getStudentsByTab = (classData: ClassItem) => {
+    switch (rosterTab) {
+      case 'checked-in':
+        return classData.students.filter(s => s.checkedIn)
+      case 'registered':
+        return classData.students.filter(s => !s.checkedIn && s.status === 'registered')
+      case 'missing':
+        return classData.students.filter(s => s.status === 'no-show' || (!s.checkedIn && s.status !== 'registered'))
+      default:
+        return []
+    }
+  }
+
+  const getStudentStatusColor = (status: string) => {
+    switch (status) {
+      case 'checked-in':
+        return 'text-emerald-600 bg-emerald-50 border-emerald-200'
+      case 'registered':
+        return 'text-blue-600 bg-blue-50 border-blue-200'
+      case 'no-show':
+        return 'text-red-600 bg-red-50 border-red-200'
+      default:
+        return 'text-gray-600 bg-gray-50 border-gray-200'
+    }
+  }
 
   return (
     <div className="p-6 space-y-6 bg-background min-h-screen">
@@ -289,80 +397,239 @@ export default function CalendarClassListPage() {
             </div>
           ) : (
             filteredClasses.map((classItem, index) => (
-              <div 
-                key={classItem.id}
-                className={`grid grid-cols-7 gap-4 px-6 py-4 hover:bg-accent transition-colors ${
-                  index < filteredClasses.length - 1 ? 'border-b border-border-light' : ''
-                }`}
-              >
-                {/* PROGRAM */}
-                <div className="flex items-center space-x-3">
-                  <div 
-                    className="w-3 h-3 rounded-full shadow-sm"
-                    style={{ backgroundColor: getProgramColor(classItem.program) }}
-                  />
-                  <div>
-                    <div className="font-medium text-primary-text">{classItem.program}</div>
-                    <div className="text-sm text-secondary-text">{formatTime(classItem.startTime)} - {formatTime(classItem.endTime)}</div>
-                  </div>
-                </div>
-
-                {/* CATEGORY */}
-                <div className="flex items-center">
-                  <span className="text-sm text-secondary-text">{classItem.category}</span>
-                </div>
-
-                {/* STATUS */}
-                <div className="flex items-center">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(classItem.status)}`}>
-                    {getStatusText(classItem.status)}
-                  </span>
-                </div>
-
-                {/* COACH */}
-                <div className="flex items-center">
-                  <span className="text-sm text-secondary-text">{classItem.coach}</span>
-                </div>
-
-                {/* ENROLLMENT */}
-                <div className="flex items-center">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm font-medium text-primary-text">{classItem.enrolledCount}/{classItem.capacity}</span>
-                    <div className="w-16 bg-accent rounded-full h-2 border border-border-light">
-                      <div
-                        className="h-2 rounded-full bg-gradient-to-r from-primary to-primary-dark transition-all duration-500"
-                        style={{
-                          width: `${(classItem.enrolledCount / classItem.capacity) * 100}%`,
-                        }}
-                      />
+              <div key={classItem.id}>
+                {/* Main Class Row */}
+                <div 
+                  className="grid grid-cols-7 gap-4 px-6 py-4 hover:bg-accent transition-colors cursor-pointer"
+                  onClick={() => handleClassClick(classItem)}
+                >
+                  {/* PROGRAM */}
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-3 h-3 rounded-full shadow-sm"
+                      style={{ backgroundColor: getProgramColor(classItem.program) }}
+                    />
+                    <div>
+                      <div className="font-medium text-primary-text">{classItem.program}</div>
+                      <div className="text-sm text-secondary-text">{formatTime(classItem.startTime)} - {formatTime(classItem.endTime)}</div>
                     </div>
                   </div>
-                </div>
 
-                {/* TIME */}
-                <div className="flex items-center">
-                  <span className="text-sm text-secondary-text">
-                    {classItem.lastUpdated ? getTimeAgo(classItem.lastUpdated) : '—'}
-                  </span>
-                </div>
+                  {/* CATEGORY */}
+                  <div className="flex items-center">
+                    <span className="text-sm text-secondary-text">{classItem.category}</span>
+                  </div>
 
-                {/* ACTIONS */}
-                <div className="flex items-center space-x-2">
-                  <button className="p-2 rounded-lg hover:bg-accent/80 transition-colors text-secondary-text hover:text-primary-text">
-                    <PencilIcon className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 rounded-lg hover:bg-accent/80 transition-colors text-secondary-text hover:text-primary-text">
-                    <EyeIcon className="h-4 w-4" />
-                  </button>
-                  <button className="p-2 rounded-lg hover:bg-red-500/20 transition-colors text-secondary-text hover:text-red-500">
-                    <TrashIcon className="h-4 w-4" />
-                  </button>
+                  {/* STATUS */}
+                  <div className="flex items-center">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(classItem.status)}`}>
+                      {getStatusText(classItem.status)}
+                    </span>
+                  </div>
+
+                  {/* COACH */}
+                  <div className="flex items-center">
+                    <span className="text-sm text-secondary-text">{classItem.coach}</span>
+                  </div>
+
+                  {/* ENROLLMENT */}
+                  <div className="flex items-center">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm font-medium text-primary-text">{classItem.enrolledCount}/{classItem.capacity}</span>
+                      <div className="w-16 bg-accent rounded-full h-2 border border-border-light">
+                        <div
+                          className="h-2 rounded-full bg-gradient-to-r from-primary to-primary-dark transition-all duration-500"
+                          style={{
+                            width: `${(classItem.enrolledCount / classItem.capacity) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* TIME */}
+                  <div className="flex items-center">
+                    <span className="text-sm text-secondary-text">
+                      {classItem.lastUpdated ? getTimeAgo(classItem.lastUpdated) : '—'}
+                    </span>
+                  </div>
+
+                  {/* ACTIONS */}
+                  <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+                    <button className="p-2 rounded-lg hover:bg-accent/80 transition-colors text-secondary-text hover:text-primary-text">
+                      <PencilIcon className="h-4 w-4" />
+                    </button>
+                    <button className="p-2 rounded-lg hover:bg-accent/80 transition-colors text-secondary-text hover:text-primary-text">
+                      <EyeIcon className="h-4 w-4" />
+                    </button>
+                    <button className="p-2 rounded-lg hover:bg-red-500/20 transition-colors text-secondary-text hover:text-red-500">
+                      <TrashIcon className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))
           )}
         </div>
       </div>
+
+      {/* Roster Modal */}
+      {selectedClass && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div 
+                  className="w-4 h-4 rounded-full"
+                  style={{ backgroundColor: getProgramColor(selectedClass.program) }}
+                />
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">{selectedClass.program} Roster</h2>
+                  <p className="text-sm text-gray-500">
+                    {formatTime(selectedClass.startTime)} - {formatTime(selectedClass.endTime)} • {selectedClass.coach}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-3">
+                {!selectedClass.isCompleted && (
+                  <button
+                    onClick={() => handleCompleteClass(selectedClass.id)}
+                    className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors flex items-center space-x-2"
+                  >
+                    <CheckCircleIcon className="h-4 w-4" />
+                    <span>Complete Class</span>
+                  </button>
+                )}
+                <button
+                  onClick={closeRosterModal}
+                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <XMarkIcon className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="px-6 py-4 overflow-y-auto max-h-[calc(90vh-120px)]">
+              {/* Roster Tabs */}
+              <div className="flex space-x-1 mb-6 bg-gray-100 rounded-lg p-1">
+                {[
+                  { 
+                    value: 'checked-in', 
+                    label: 'Checked In', 
+                    count: selectedClass.students.filter(s => s.checkedIn).length,
+                    icon: CheckCircleIcon
+                  },
+                  { 
+                    value: 'registered', 
+                    label: 'Registered', 
+                    count: selectedClass.students.filter(s => !s.checkedIn && s.status === 'registered').length,
+                    icon: UserIcon
+                  },
+                  { 
+                    value: 'missing', 
+                    label: 'Missing/Absent', 
+                    count: selectedClass.students.filter(s => s.status === 'no-show' || (!s.checkedIn && s.status !== 'registered')).length,
+                    icon: ExclamationTriangleIcon
+                  }
+                ].map((tab) => {
+                  const Icon = tab.icon
+                  return (
+                    <button
+                      key={tab.value}
+                      onClick={() => setRosterTab(tab.value as any)}
+                      className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 flex items-center space-x-2 ${
+                        rosterTab === tab.value
+                          ? 'bg-primary text-white shadow-sm'
+                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-200'
+                      }`}
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{tab.label}</span>
+                      <span className={`px-2 py-1 text-xs rounded-full ${
+                        rosterTab === tab.value 
+                          ? 'bg-white/20 text-white' 
+                          : 'bg-gray-300 text-gray-700'
+                      }`}>
+                        {tab.count}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Student List */}
+              <div className="space-y-3">
+                {getStudentsByTab(selectedClass).map((student) => (
+                  <div key={student.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex-shrink-0">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          <UserIcon className="h-5 w-5 text-primary" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <h4 className="font-medium text-gray-900">{student.name}</h4>
+                          {student.isFirstTime && (
+                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+                              First Time
+                            </span>
+                          )}
+                          {student.autoCheckedIn && (
+                            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                              Auto Check-in
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {student.email} • {student.phone}
+                        </div>
+                        {student.checkedInAt && (
+                          <div className="flex items-center space-x-1 text-xs text-gray-500 mt-1">
+                            <ClockIcon className="h-3 w-3" />
+                            <span>Checked in {getTimeAgo(student.checkedInAt)}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStudentStatusColor(student.status)}`}>
+                        {student.status.replace('-', ' ').toUpperCase()}
+                      </span>
+                      
+                      {student.isFirstTime && !showNotifications.includes(student.id) && (
+                        <button
+                          onClick={() => handleNotifyFirstTime(student.id)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Notify first-time student"
+                        >
+                          <BellIcon className="h-4 w-4" />
+                        </button>
+                      )}
+                      
+                      {showNotifications.includes(student.id) && (
+                        <div className="px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                          Notified ✓
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                
+                {getStudentsByTab(selectedClass).length === 0 && (
+                  <div className="text-center py-12 text-gray-500">
+                    <UserIcon className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                    <p>No students in this category</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

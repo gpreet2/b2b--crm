@@ -335,7 +335,9 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
               <span className="font-medium text-xs">Support</span>
             </button>
 
-            <button
+            <Link
+              href="/settings"
+              onClick={handleNavigation}
               className={cn(
                 "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left transition-all duration-200 text-secondary-text hover:bg-accent hover:text-primary-text group"
               )}
@@ -344,7 +346,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                 <Cog6ToothIcon className="h-4 w-4" />
               </div>
               <span className="font-medium text-xs">Settings</span>
-            </button>
+            </Link>
 
             <button
               className={cn(
