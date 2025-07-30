@@ -280,4 +280,25 @@ export interface FormField {
     pattern?: string
     message?: string
   }
+}
+
+// Tour Types
+export interface Tour {
+  id: string
+  prospectName: string
+  prospectEmail: string
+  prospectPhone: string
+  scheduledDate: Date
+  scheduledTime: string
+  duration: number // in minutes
+  tourType: 'individual' | 'group' | 'family'
+  assignedEmployeeId: string
+  assignedEmployee: Coach
+  status: 'scheduled' | 'confirmed' | 'completed' | 'cancelled' | 'no-show'
+  notes?: string
+  source: 'website' | 'phone' | 'walk-in' | 'referral' | 'social-media'
+  interests: string[] // Programs they're interested in
+  followUpDate?: Date
+  createdAt: Date
+  updatedAt: Date
 } 

@@ -21,6 +21,7 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
   const isAuthPage = pathname?.startsWith('/auth');
+  const isOnboardingPage = pathname?.startsWith('/onboarding');
   
   const user = {
     name: 'Admin User',
@@ -32,7 +33,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {isAuthPage ? (
+        {isAuthPage || isOnboardingPage ? (
           children
         ) : (
           <Layout

@@ -8,7 +8,7 @@ import {
   Cog6ToothIcon,
   XMarkIcon,
   ArrowRightOnRectangleIcon,
-  ShareIcon,
+  MapPinIcon,
   ClipboardDocumentIcon,
 } from "@heroicons/react/24/outline";
 import { NavigationItem, navigationConfig } from "@/lib/navigation";
@@ -22,6 +22,15 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
     const pathname = usePathname();
     const router = useRouter();
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+    const [selectedLocation, setSelectedLocation] = useState("Bakersfield, CA");
+    const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+
+    const locations = [
+      "Bakersfield, CA",
+      "Los Angeles, CA",
+      "San Francisco, CA",
+      "Sacramento, CA",
+    ];
 
     // Auto-expand parent menu when on a sub-page
     useEffect(() => {
@@ -102,38 +111,125 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
           />
         </div>
 
-        {/* Share Invite Code */}
-        <div className="relative px-6 py-4 border-b border-border-light bg-surface/80 backdrop-blur-sm flex-shrink-0 pb-6 mt-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="p-1.5 bg-primary/10 rounded-lg">
-                <ShareIcon className="h-3 w-3 text-primary" />
-              </div>
-              <div>
-                <span className="text-sm font-medium text-primary-text">
-                  Share Invite
-                </span>
-                <div className="text-xs text-secondary-text font-mono">
-                  GYM2024
+        {/* Location Selector */}
+        <div
+          className="px-6 py-4 border-b border-border-light flex-shrink-0 pb-6 mt-2"
+          style={{ backgroundColor: "#ffffff" }}
+        >
+          <div className="relative">
+            {/* Location Button */}
+            <button
+              onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
+              className="w-full flex items-center justify-between px-4 py-3 rounded-lg border-2 border-gray-200 hover:border-primary transition-all duration-200"
+              style={{ backgroundColor: "#ffffff" }}
+            >
+              <div className="flex items-center space-x-3">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  style={{ backgroundColor: "#fef2f2" }}
+                >
+                  <MapPinIcon className="h-4 w-4 text-primary" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs text-gray-500 font-medium">
+                    Location
+                  </div>
+                  <div className="text-sm font-semibold text-gray-900">
+                    {selectedLocation}
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText("GYM2024");
-              }}
-              className="p-2 hover:bg-primary/10 rounded-lg transition-all duration-200 text-secondary-text hover:text-primary group"
-              title="Copy & share invite code"
-            >
-              <ClipboardDocumentIcon className="h-4 w-4 group-hover:scale-110 transition-transform duration-200" />
+              <ChevronDownIcon
+                className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
+                  isLocationDropdownOpen ? "rotate-180" : ""
+                }`}
+              />
             </button>
+
+            {/* Dropdown Portal */}
+            {isLocationDropdownOpen && (
+              <>
+                {/* Backdrop */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setIsLocationDropdownOpen(false)}
+                />
+
+                {/* Dropdown Menu */}
+                <div className="absolute top-full left-0 right-0 mt-1 z-50">
+                  <div
+                    className="rounded-lg shadow-lg border border-gray-200 overflow-hidden"
+                    style={{ backgroundColor: "#ffffff" }}
+                  >
+                    {locations.map((location, index) => (
+                      <button
+                        key={location}
+                        onClick={() => {
+                          setSelectedLocation(location);
+                          setIsLocationDropdownOpen(false);
+                        }}
+                        className={`w-full px-4 py-3 text-left flex items-center space-x-3 transition-colors duration-150 ${
+                          index !== locations.length - 1
+                            ? "border-b border-gray-100"
+                            : ""
+                        }`}
+                        style={{
+                          backgroundColor:
+                            selectedLocation === location
+                              ? "#fef2f2"
+                              : "#ffffff",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (selectedLocation !== location) {
+                            e.currentTarget.style.backgroundColor = "#f9fafb";
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor =
+                            selectedLocation === location
+                              ? "#fef2f2"
+                              : "#ffffff";
+                        }}
+                      >
+                        <div
+                          className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                            selectedLocation === location
+                              ? "bg-primary/20"
+                              : "bg-gray-100"
+                          }`}
+                        >
+                          <MapPinIcon
+                            className={`h-3 w-3 ${
+                              selectedLocation === location
+                                ? "text-primary"
+                                : "text-gray-400"
+                            }`}
+                          />
+                        </div>
+                        <span
+                          className={`text-sm ${
+                            selectedLocation === location
+                              ? "text-gray-900 font-semibold"
+                              : "text-gray-700"
+                          }`}
+                        >
+                          {location}
+                        </span>
+                        {selectedLocation === location && (
+                          <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Mobile Close Button */}
           <button
             onClick={onClose}
-            className="lg:hidden p-2 rounded-lg hover:bg-accent text-secondary-text hover:text-primary-text transition-all duration-200 hover-lift"
+            className="lg:hidden absolute top-4 right-4 p-2 rounded-lg hover:bg-accent text-secondary-text hover:text-primary-text transition-all duration-200 hover-lift"
           >
             <XMarkIcon className="h-5 w-5" />
           </button>
