@@ -77,7 +77,7 @@ export default function SettingsPage() {
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
           <div className="space-y-2">
             <h1 className="text-4xl font-bold text-slate-900 tracking-tight">Settings</h1>
-            <p className="text-lg text-slate-600">Manage your gym's configuration and access controls</p>
+            <p className="text-lg text-slate-600">Manage your gym&apos;s configuration and access controls</p>
           </div>
           <div className="flex items-center gap-3">
             <Button variant="outline" className="gap-2 bg-white hover:bg-slate-50">
@@ -511,7 +511,7 @@ function BusinessRulesSettings() {
             </div>
             <div>
               <CardTitle className="text-2xl text-slate-900">Operating Hours</CardTitle>
-              <p className="text-slate-600 mt-1">Define your gym's daily operating schedule</p>
+              <p className="text-slate-600 mt-1">Define your gym&apos;s daily operating schedule</p>
             </div>
           </div>
         </CardHeader>

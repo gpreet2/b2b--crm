@@ -132,41 +132,7 @@ const Dashboard = React.forwardRef<HTMLDivElement, DashboardProps>(
       }
     ]
 
-    // Recent activities
-    const recentActivities = [
-      {
-        type: 'member',
-        title: 'New Member Joined',
-        message: 'John Smith completed registration',
-        time: '15 min ago',
-        status: 'success'
-      },
-      {
-        type: 'class',
-        title: 'Class Booking',
-        message: 'Maria Garcia booked HIIT Cardio',
-        time: '2 hours ago',
-        status: 'success'
-      },
-      {
-        type: 'alert',
-        title: 'Low Enrollment',
-        message: 'Yoga Flow has only 3 bookings',
-        time: '1 hour ago',
-        status: 'warning'
-      }
-    ]
 
-    // Activity data for the graph
-    const activityData = [
-      { day: 'S', hours: 2.5 },
-      { day: 'M', hours: 4.2 },
-      { day: 'T', hours: 3.8 },
-      { day: 'W', hours: 4.5 },
-      { day: 'T', hours: 3.2 },
-      { day: 'F', hours: 4.8 },
-      { day: 'S', hours: 3.5 }
-    ]
 
     return (
       <div

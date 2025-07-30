@@ -10,13 +10,13 @@ import {
   BookOpenIcon,
   UserGroupIcon,
   UserIcon,
-  TagIcon,
   DocumentTextIcon,
   BanknotesIcon,
   CurrencyDollarIcon,
   ChartPieIcon,
   DocumentChartBarIcon,
-  ListBulletIcon
+  ListBulletIcon,
+  AcademicCapIcon
 } from '@heroicons/react/24/outline'
 
 export interface NavigationItem {
@@ -79,6 +79,7 @@ export const navigationConfig: NavigationItem[] = [
     badge: '156',
     subItems: [
       { title: 'Clients', href: '/people/clients', icon: UserGroupIcon },
+      { title: 'Employees', href: '/people/employees', icon: AcademicCapIcon },
       { title: 'Tours', href: '/people/tours', icon: UserIcon },
       { title: 'Settings', href: '/people/settings', icon: Cog6ToothIcon }
     ]

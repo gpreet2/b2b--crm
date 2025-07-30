@@ -63,7 +63,7 @@ export default function ClientsPage() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false)
 
   // Mock data
-  const members: Member[] = [
+  const members: Member[] = useMemo(() => [
     {
       id: '1',
       name: 'Sarah Johnson',
@@ -155,7 +155,7 @@ export default function ClientsPage() {
       joinDate: new Date('2025-01-25'),
       classes: []
     }
-  ]
+  ], [])
 
   const filteredMembers = useMemo(() => {
     if (!searchQuery) return members
@@ -166,7 +166,7 @@ export default function ClientsPage() {
       member.email.toLowerCase().includes(query) ||
       member.phone.includes(searchQuery)
     )
-  }, [searchQuery])
+  }, [searchQuery, members])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -240,12 +240,7 @@ export default function ClientsPage() {
     }, 2000)
   }
 
-  const todaysClasses = members.flatMap(member => 
-    member.classes.filter(cls => {
-      const today = new Date()
-      return cls.date.toDateString() === today.toDateString()
-    }).map(cls => ({ ...cls, memberName: member.name, memberId: member.id }))
-  )
+
 
   return (
     <div className="min-h-screen bg-white">

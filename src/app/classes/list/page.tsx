@@ -396,7 +396,7 @@ export default function CalendarClassListPage() {
               </p>
             </div>
           ) : (
-            filteredClasses.map((classItem, index) => (
+            filteredClasses.map((classItem) => (
               <div key={classItem.id}>
                 {/* Main Class Row */}
                 <div 
@@ -538,7 +538,7 @@ export default function CalendarClassListPage() {
                   return (
                     <button
                       key={tab.value}
-                      onClick={() => setRosterTab(tab.value as any)}
+                      onClick={() => setRosterTab(tab.value as 'checked-in' | 'registered' | 'missing')}
                       className={`px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 flex items-center space-x-2 ${
                         rosterTab === tab.value
                           ? 'bg-primary text-white shadow-sm'

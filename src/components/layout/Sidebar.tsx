@@ -7,7 +7,6 @@ import {
   ChevronDownIcon,
   Cog6ToothIcon,
   XMarkIcon,
-  QuestionMarkCircleIcon,
   ArrowRightOnRectangleIcon,
   ShareIcon,
   ClipboardDocumentIcon,
@@ -324,16 +323,18 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
             {/* Separator */}
             <div className="w-full h-px bg-gradient-to-r from-transparent via-border to-transparent"></div>
 
-            <button
+            <Link
+              href="/forms"
+              onClick={handleNavigation}
               className={cn(
                 "w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left transition-all duration-200 text-secondary-text hover:bg-accent hover:text-primary-text group"
               )}
             >
               <div className="p-1.5 rounded-lg bg-accent text-secondary-text group-hover:bg-info/10 group-hover:text-info transition-all duration-200">
-                <QuestionMarkCircleIcon className="h-4 w-4" />
+                <ClipboardDocumentIcon className="h-4 w-4" />
               </div>
-              <span className="font-medium text-xs">Support</span>
-            </button>
+              <span className="font-medium text-xs">Forms</span>
+            </Link>
 
             <Link
               href="/settings"
