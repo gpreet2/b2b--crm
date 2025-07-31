@@ -15,9 +15,17 @@ import {
   BarChart3,
   Target,
   CheckCircle,
+  Plus,
+  UserPlus,
+  Building,
+  X,
 } from "lucide-react";
 import { mockCoaches, mockClasses, mockReservations } from "@/lib/mock-data";
 import { Coach } from "@/lib/types";
+
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Badge } from "@/components/ui/Badge";
 
 interface TrainerStats {
   id: string;
@@ -47,12 +55,53 @@ interface ClassWithAttendance {
   location: string;
 }
 
+interface NewStaffMember {
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  locationAssignments: string[];
+  primaryLocation: string;
+  programs: string[];
+}
+
 export default function EmployeesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTrainer, setSelectedTrainer] = useState<Coach | null>(null);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "performance">("list");
-  // const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false);
+  const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false);
+
+  const [newStaff, setNewStaff] = useState<NewStaffMember>({
+    name: "",
+    email: "",
+    phone: "",
+    role: "Trainer",
+    locationAssignments: [],
+    primaryLocation: "",
+    programs: [],
+  });
+
+  // Mock locations for the settings
+  const locations = [
+    { id: "1", name: "Downtown Fitness Center" },
+    { id: "2", name: "Westside Gym" },
+    { id: "3", name: "Eastside Athletic Club" },
+  ];
+
+  const roles = ["Admin", "Trainer", "Desk (Employee)"];
+
+  const programs = [
+    { id: "burn40", name: "Burn40", color: "bg-red-100 text-red-800" },
+    { id: "crossfit", name: "CrossFit", color: "bg-blue-100 text-blue-800" },
+    {
+      id: "burndumbells",
+      name: "BurnDumbells",
+      color: "bg-green-100 text-green-800",
+    },
+    { id: "yoga", name: "Yoga", color: "bg-purple-100 text-purple-800" },
+    { id: "pilates", name: "Pilates", color: "bg-pink-100 text-pink-800" },
+  ];
 
   // Calculate trainer statistics
   const getTrainerStats = (trainerId: string): TrainerStats => {
@@ -131,7 +180,7 @@ export default function EmployeesPage() {
         totalEnrolled > 0
           ? Math.round((totalAttended / totalEnrolled) * 100)
           : 0,
-      rating: 4.2 + Math.random() * 0.6, // Mock rating between 4.2-4.8
+      rating: 4.2 + (parseInt(trainerId, 10) % 6) * 0.1, // Deterministic rating between 4.2-4.8
       totalRevenue: completedClasses.length * 45, // Mock revenue calculation
       upcomingClasses: upcomingClasses.length,
       completedClassesThisMonth: completedThisMonth,
@@ -185,6 +234,77 @@ export default function EmployeesPage() {
   const handleBackToList = () => {
     setSelectedTrainer(null);
     setViewMode("list");
+  };
+
+  const addStaff = () => {
+    if (
+      newStaff.name &&
+      newStaff.email &&
+      newStaff.locationAssignments.length > 0
+    ) {
+      // Here you would typically send the data to your backend API
+      console.log("Adding new staff member:", newStaff);
+
+      setNewStaff({
+        name: "",
+        email: "",
+        phone: "",
+        role: "Trainer",
+        locationAssignments: [],
+        primaryLocation: "",
+        programs: [],
+      });
+      setShowAddEmployeeModal(false);
+    }
+  };
+
+  const handleLocationToggle = (locationId: string) => {
+    const isSelected = newStaff.locationAssignments.includes(locationId);
+    let updatedAssignments: string[];
+
+    if (isSelected) {
+      updatedAssignments = newStaff.locationAssignments.filter(
+        (id) => id !== locationId
+      );
+      // If removing the primary location, clear it
+      const updatedPrimary =
+        newStaff.primaryLocation === locationId ? "" : newStaff.primaryLocation;
+      setNewStaff({
+        ...newStaff,
+        locationAssignments: updatedAssignments,
+        primaryLocation: updatedPrimary,
+      });
+    } else {
+      updatedAssignments = [...newStaff.locationAssignments, locationId];
+      setNewStaff({
+        ...newStaff,
+        locationAssignments: updatedAssignments,
+        // If this is the first location, make it primary
+        primaryLocation: newStaff.primaryLocation || locationId,
+      });
+    }
+  };
+
+  const handlePrimaryLocationChange = (locationId: string) => {
+    setNewStaff({
+      ...newStaff,
+      primaryLocation: locationId,
+    });
+  };
+
+  const handleProgramToggle = (programId: string) => {
+    const isSelected = newStaff.programs.includes(programId);
+    if (isSelected) {
+      setNewStaff({
+        ...newStaff,
+        programs: newStaff.programs.filter((id) => id !== programId),
+      });
+    } else {
+      setNewStaff({
+        ...newStaff,
+        programs: [...newStaff.programs, programId],
+      });
+    }
   };
 
   if (viewMode === "performance" && selectedTrainer) {
@@ -501,13 +621,10 @@ export default function EmployeesPage() {
           </div>
 
           <button
-            onClick={() => {
-              // TODO: Implement add employee modal
-              console.log("Add employee clicked");
-            }}
+            onClick={() => setShowAddEmployeeModal(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
           >
-            <User className="h-4 w-4" />
+            <UserPlus className="h-4 w-4" />
             <span>Add Employee</span>
           </button>
         </div>
@@ -715,6 +832,281 @@ export default function EmployeesPage() {
           </table>
         </div>
       </div>
+
+      {/* Add Employee Modal */}
+      {showAddEmployeeModal && (
+        <div
+          className="fixed inset-0 flex items-center justify-center z-50 p-4"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}
+        >
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-red-100 rounded-xl">
+                    <UserPlus className="h-6 w-6 text-red-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-semibold text-gray-900">
+                      Add Staff Member
+                    </h2>
+                    <p className="text-gray-600 mt-1">
+                      Invite new team members to your gym
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowAddEmployeeModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-6 w-6" />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-gray-700">
+                      Full Name *
+                    </label>
+                    <Input
+                      value={newStaff.name}
+                      onChange={(e) =>
+                        setNewStaff({ ...newStaff, name: e.target.value })
+                      }
+                      placeholder="Enter full name"
+                      className="bg-gray-50 border-gray-200 focus:border-red-300 focus:ring-red-200"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-gray-700">
+                      Email Address *
+                    </label>
+                    <Input
+                      type="email"
+                      value={newStaff.email}
+                      onChange={(e) =>
+                        setNewStaff({ ...newStaff, email: e.target.value })
+                      }
+                      placeholder="Enter email address"
+                      className="bg-gray-50 border-gray-200 focus:border-red-300 focus:ring-red-200"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-gray-700">
+                      Phone Number
+                    </label>
+                    <Input
+                      type="tel"
+                      value={newStaff.phone}
+                      onChange={(e) =>
+                        setNewStaff({ ...newStaff, phone: e.target.value })
+                      }
+                      placeholder="Enter phone number"
+                      className="bg-gray-50 border-gray-200 focus:border-red-300 focus:ring-red-200"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-gray-700">
+                      Role
+                    </label>
+                    <select
+                      value={newStaff.role}
+                      onChange={(e) =>
+                        setNewStaff({
+                          ...newStaff,
+                          role: e.target.value,
+                          programs:
+                            e.target.value === "Trainer"
+                              ? newStaff.programs
+                              : [],
+                        })
+                      }
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-red-300 focus:ring-red-200 text-gray-900"
+                    >
+                      {roles.map((role) => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Location Assignments */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-3 block">
+                      Location Access *
+                    </label>
+                    <p className="text-xs text-gray-500 mb-4">
+                      Select which locations this staff member can access
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {locations.map((location) => (
+                        <label
+                          key={location.id}
+                          className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={newStaff.locationAssignments.includes(
+                              location.id
+                            )}
+                            onChange={() => handleLocationToggle(location.id)}
+                            className="w-4 h-4 text-red-600 bg-gray-50 border-gray-300 rounded focus:ring-red-500 focus:ring-2"
+                          />
+                          <div className="flex items-center gap-2">
+                            <Building className="h-4 w-4 text-gray-400" />
+                            <span className="text-sm font-medium text-gray-700">
+                              {location.name}
+                            </span>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Primary Location Selection */}
+                  {newStaff.locationAssignments.length > 1 && (
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-3 block">
+                        Primary Location
+                      </label>
+                      <p className="text-xs text-gray-500 mb-3">
+                        Select the main location for this staff member
+                      </p>
+                      <div className="space-y-2">
+                        {newStaff.locationAssignments.map((locationId) => {
+                          const location = locations.find(
+                            (l) => l.id === locationId
+                          );
+                          return (
+                            <label
+                              key={locationId}
+                              className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                            >
+                              <input
+                                type="radio"
+                                name="primaryLocation"
+                                value={locationId}
+                                checked={
+                                  newStaff.primaryLocation === locationId
+                                }
+                                onChange={() =>
+                                  handlePrimaryLocationChange(locationId)
+                                }
+                                className="w-4 h-4 text-blue-600 bg-blue-50 border-blue-300 focus:ring-blue-500 focus:ring-2"
+                              />
+                              <div className="flex items-center gap-2">
+                                <Building className="h-4 w-4 text-blue-600" />
+                                <span className="text-sm font-medium text-blue-900">
+                                  {location?.name}
+                                </span>
+                                <Badge className="bg-blue-100 text-blue-800 text-xs">
+                                  Primary
+                                </Badge>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Program Selection for Trainers */}
+                {newStaff.role === "Trainer" && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-3 block">
+                        Program Specializations
+                      </label>
+                      <p className="text-xs text-gray-500 mb-4">
+                        Select which programs this trainer can teach
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {programs.map((program) => (
+                          <label
+                            key={program.id}
+                            className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={newStaff.programs.includes(program.id)}
+                              onChange={() => handleProgramToggle(program.id)}
+                              className="w-4 h-4 text-blue-600 bg-gray-50 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                            />
+                            <div className="flex items-center gap-2">
+                              <div
+                                className={`w-3 h-3 rounded-full ${
+                                  program.id === "burn40"
+                                    ? "bg-red-500"
+                                    : program.id === "crossfit"
+                                    ? "bg-blue-500"
+                                    : program.id === "burndumbells"
+                                    ? "bg-green-500"
+                                    : program.id === "yoga"
+                                    ? "bg-purple-500"
+                                    : "bg-pink-500"
+                                }`}
+                              />
+                              <span className="text-sm font-medium text-gray-700">
+                                {program.name}
+                              </span>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <div className="space-y-1">
+                    {newStaff.locationAssignments.length === 0 &&
+                      (newStaff.name || newStaff.email) && (
+                        <p className="text-sm text-red-600">
+                          Please select at least one location for this staff
+                          member
+                        </p>
+                      )}
+                    {newStaff.role === "Trainer" &&
+                      newStaff.programs.length === 0 &&
+                      (newStaff.name || newStaff.email) && (
+                        <p className="text-sm text-red-600">
+                          Please select at least one program for this trainer
+                        </p>
+                      )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowAddEmployeeModal(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={addStaff}
+                      disabled={
+                        !newStaff.name ||
+                        !newStaff.email ||
+                        newStaff.locationAssignments.length === 0 ||
+                        (newStaff.role === "Trainer" &&
+                          newStaff.programs.length === 0)
+                      }
+                      className="bg-red-600 hover:bg-red-700 text-white gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add Staff Member
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
