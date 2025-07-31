@@ -1,0 +1,297 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": "1",
+        "title": "PHASE 0: Set up Database Schema with RLS from Day One",
+        "description": "Initialize Supabase database with complete schema including multi-tenancy support AND row-level security policies as core principle",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Create all database tables with RLS policies enforced from the start. Tables: owner_accounts, owner_organizations, organizations, users, cross_org_staff_assignments, roles, permissions, subscriptions, memberships, events, event_templates, event_bookings, workouts, transactions, notifications, client_segments, audit_log, waivers, onboarding_sessions. Every table MUST have RLS policies before any data insertion.",
+        "dependencies": [],
+        "testStrategy": "Verify RLS policies block unauthorized access, test that no table allows public access, validate foreign keys and constraints"
+      },
+      {
+        "id": "2",
+        "title": "PHASE 0: Create Database Backup Strategy",
+        "description": "Implement automated database backup and recovery procedures BEFORE any data goes in",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Set up automated Supabase backups, create point-in-time recovery procedures, implement data export functionality, document and TEST recovery procedures. If data isn't backed up, you don't have data.",
+        "dependencies": ["1"],
+        "testStrategy": "Actually perform a backup and restore to verify it works, test data integrity after restore"
+      },
+      {
+        "id": "3",
+        "title": "PHASE 0: Implement Error Handling Framework",
+        "description": "Create consistent error handling and logging - you can't debug what you can't see",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Create custom error classes, implement error middleware, add error logging with Sentry, ensure consistent error response format, add request ID tracking. This must exist before authentication work begins.",
+        "dependencies": [],
+        "testStrategy": "Test error responses for various scenarios, verify error logging captures all details, validate error format consistency"
+      },
+      {
+        "id": "4",
+        "title": "PHASE 0: Implement Data Validation Framework",
+        "description": "Create comprehensive input validation - prevent injection and bad data at entry point",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Implement validation middleware using Zod, create reusable validation schemas, add request sanitization, implement type checking. Every endpoint must validate input before processing.",
+        "dependencies": ["3"],
+        "testStrategy": "Test SQL injection attempts, test XSS attempts, verify all invalid inputs are rejected with proper errors"
+      },
+      {
+        "id": "5",
+        "title": "PHASE 0: Implement WorkOS Authentication Integration",
+        "description": "Set up WorkOS for enterprise SSO - the gateway to the entire system",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Configure WorkOS SDK, implement authentication endpoints with proper error handling, set up JWT token management with organization context, integrate with Supabase for session storage, implement refresh token flow with security best practices.",
+        "dependencies": ["1", "3", "4"],
+        "testStrategy": "Test login/logout flows, test invalid credentials, verify JWT contains org context, test token expiration and refresh"
+      },
+      {
+        "id": "6",
+        "title": "PHASE 0: Implement Permission System",
+        "description": "Create role-based permission system - no endpoint should exist without permission checks",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Implement permission middleware that runs on EVERY request, create default roles (Owner, Admin, Trainer, Front Desk), implement permission checking at API level not UI level, support cross-organization permissions, create permission management endpoints.",
+        "dependencies": ["1", "5"],
+        "testStrategy": "Test unauthorized access is blocked, test each role's permissions, verify cross-org isolation, test permission inheritance"
+      },
+      {
+        "id": "7",
+        "title": "PHASE 0: Implement Security and Compliance Framework",
+        "description": "Layer security headers, rate limiting, CORS, audit logging on top of secure auth/permission base",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Implement helmet.js for security headers, set up rate limiting with Redis, configure CORS for specific frontends only, implement comprehensive audit logging for all state changes, add GDPR/CCPA compliance endpoints, set up jurisdiction-aware configurations.",
+        "dependencies": ["1", "5", "6"],
+        "testStrategy": "Run OWASP security scan, test rate limiting blocks abuse, verify audit logs capture all admin actions, test GDPR data export/deletion"
+      },
+      {
+        "id": "8",
+        "title": "PHASE 0: Create CI/CD Pipeline",
+        "description": "Set up automated testing and deployment - nothing gets deployed without passing tests",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Configure GitHub Actions for CI/CD, set up ESLint and Prettier, configure TypeScript strict mode, set up automated testing that runs on EVERY PR, implement staging deployment, production deployment requires manual approval.",
+        "dependencies": [],
+        "testStrategy": "Verify pipeline blocks PRs with failing tests, ensure security scans run, validate deployment rollback works"
+      },
+      {
+        "id": "9",
+        "title": "PHASE 0: Implement Testing Framework",
+        "description": "Set up comprehensive testing infrastructure - now that we have something secure to test",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Configure Jest for unit tests, set up Supertest for integration tests, implement test database strategy with proper cleanup, create test utilities for auth mocking, set up code coverage reporting with 80% minimum.",
+        "dependencies": ["1", "5", "6"],
+        "testStrategy": "Ensure tests cover all security scenarios, verify mocks don't bypass real security, validate coverage requirements enforced"
+      },
+      {
+        "id": "10",
+        "title": "PHASE 1: Create Multi-Step Onboarding System",
+        "description": "First complex feature - implement stateful onboarding with all security measures",
+        "priority": "high",
+        "status": "pending",
+        "phase": "1-vertical-slice",
+        "details": "Create onboarding session management with encryption, implement state persistence with proper validation, handle incomplete signups securely, create recovery flows, implement cleanup jobs for orphaned sessions, integrate with owner accounts and organization creation.",
+        "dependencies": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
+        "testStrategy": "Test complete flow with security checks at each step, verify session hijacking is prevented, test cleanup of abandoned sessions"
+      },
+      {
+        "id": "11",
+        "title": "PHASE 1: Create Organization Management Module",
+        "description": "Implement organization creation for onboarding - with full security and audit trail",
+        "priority": "high",
+        "status": "pending",
+        "phase": "1-vertical-slice",
+        "details": "Create organization creation endpoint with full validation, implement parent-child relationships for franchises, add organization settings management, ensure all operations are audited, handle organization switching securely.",
+        "dependencies": ["10"],
+        "testStrategy": "Test organization creation with invalid data, verify data isolation between orgs, test audit trail captures all changes"
+      },
+      {
+        "id": "12",
+        "title": "PHASE 1: Implement User/Client Management (Read Only)",
+        "description": "Create secure endpoint to list clients - proves API contract for frontend",
+        "priority": "high",
+        "status": "pending",
+        "phase": "1-vertical-slice",
+        "details": "Implement GET endpoint for clients with full permission checks, ensure organization isolation, return empty array initially, implement pagination and filtering securely.",
+        "dependencies": ["11"],
+        "testStrategy": "Test unauthorized access is blocked, verify org isolation, test pagination doesn't leak data"
+      },
+      {
+        "id": "13",
+        "title": "PHASE 1: Create API Documentation",
+        "description": "Document the secure endpoints so frontend can start integration",
+        "priority": "high",
+        "status": "pending",
+        "phase": "1-vertical-slice",
+        "details": "Set up OpenAPI/Swagger specification, document authentication flow thoroughly, document all security requirements, provide example requests with proper auth headers, create security best practices guide.",
+        "dependencies": ["10", "11", "12"],
+        "testStrategy": "Validate OpenAPI spec, ensure security requirements are clear, test example requests actually work"
+      },
+      {
+        "id": "14",
+        "title": "PHASE 2: Complete User/Client Management CRUD",
+        "description": "Implement full client management with all security measures",
+        "priority": "medium",
+        "status": "pending",
+        "phase": "2-core-features",
+        "details": "Implement CREATE with validation and audit logging, UPDATE with permission checks and history tracking, DELETE with soft-delete and audit trail, implement client segments, add cross-location history tracking.",
+        "dependencies": ["12"],
+        "testStrategy": "Test all CRUD operations with invalid data, verify audit trail, test permission boundaries"
+      },
+      {
+        "id": "15",
+        "title": "PHASE 2: Implement Membership Management",
+        "description": "Create membership system with subscription management and access control",
+        "priority": "medium",
+        "status": "pending",
+        "phase": "2-core-features",
+        "details": "Create membership CRUD with full validation, implement access type management (subscription, day pass, drop-in), handle multi-location access securely, integrate with access control for door unlocking, audit all membership changes.",
+        "dependencies": ["14"],
+        "testStrategy": "Test membership state transitions, verify access calculations, test expiration handling"
+      },
+      {
+        "id": "16",
+        "title": "PHASE 2: Create Event Booking System",
+        "description": "Implement unified event system with booking management and capacity controls",
+        "priority": "medium",
+        "status": "pending",
+        "phase": "2-core-features",
+        "details": "Create event CRUD with validation, implement booking logic with atomic capacity management, add waitlist with fair promotion logic, support cross-location booking with permission checks, implement attendance tracking, handle cancellations with audit trail.",
+        "dependencies": ["14"],
+        "testStrategy": "Test race conditions in booking, verify capacity limits enforced, test waitlist fairness"
+      },
+      {
+        "id": "17",
+        "title": "PHASE 2: Implement Analytics Module",
+        "description": "Create analytics endpoints with proper data access controls",
+        "priority": "medium",
+        "status": "pending",
+        "phase": "2-core-features",
+        "details": "Implement revenue analytics with permission checks, create attendance reports with org isolation, add client analytics respecting privacy, implement cross-organization reporting for owners only, ensure no data leakage.",
+        "dependencies": ["14", "15", "16"],
+        "testStrategy": "Verify data isolation in reports, test performance with large datasets, validate calculations"
+      },
+      {
+        "id": "18",
+        "title": "PHASE 2: Create Notification Engine",
+        "description": "Implement notification system with user consent and preferences",
+        "priority": "medium",
+        "status": "pending",
+        "phase": "2-core-features",
+        "details": "Set up notification templates with sanitization, implement email sending with unsubscribe, create push notification infrastructure, enforce notification preferences, implement delivery tracking with privacy.",
+        "dependencies": ["14"],
+        "testStrategy": "Test opt-out is respected, verify template injection is prevented, test delivery tracking"
+      },
+      {
+        "id": "19",
+        "title": "PHASE 2: Create Background Job System",
+        "description": "Implement async job processing for scheduled tasks with monitoring",
+        "priority": "medium",
+        "status": "pending",
+        "phase": "2-core-features",
+        "details": "Set up Bull queue with Redis, implement job authentication and permissions, create nightly reconciliation jobs, implement cleanup jobs with audit logging, add job monitoring and alerting.",
+        "dependencies": ["1", "5", "6"],
+        "testStrategy": "Test job failures don't compromise security, verify retry logic, test job isolation"
+      },
+      {
+        "id": "20",
+        "title": "PHASE 2: Implement Caching Layer",
+        "description": "Set up Redis caching without compromising security",
+        "priority": "medium",
+        "status": "pending",
+        "phase": "2-core-features",
+        "details": "Configure Redis with authentication, implement caching with proper TTLs, ensure cached data respects permissions, add cache invalidation on updates, never cache sensitive data.",
+        "dependencies": ["1", "5", "6"],
+        "testStrategy": "Test cache doesn't leak data across orgs, verify invalidation works, test performance gains"
+      },
+      {
+        "id": "21",
+        "title": "PHASE 2: Create Health Check and Monitoring",
+        "description": "Implement health checks that don't expose sensitive information",
+        "priority": "medium",
+        "status": "pending",
+        "phase": "2-core-features",
+        "details": "Create health check endpoints with no sensitive data, integrate monitoring without exposing internals, add custom metrics for security events, implement alerting for anomalies.",
+        "dependencies": ["1", "5"],
+        "testStrategy": "Verify health endpoints don't leak information, test monitoring captures security events"
+      },
+      {
+        "id": "22",
+        "title": "PHASE 3: Implement Workout Builder Module",
+        "description": "Create workout template system with franchise controls",
+        "priority": "low",
+        "status": "pending",
+        "phase": "3-additional-features",
+        "details": "Create workout CRUD with ownership validation, implement exercise library with moderation, add franchise template support with restrictions, create workout logging with privacy, implement PR detection.",
+        "dependencies": ["14"],
+        "testStrategy": "Test template access controls, verify franchise restrictions, test data privacy"
+      },
+      {
+        "id": "23",
+        "title": "PHASE 3: Create Achievement System",
+        "description": "Implement gamification with privacy considerations",
+        "priority": "low",
+        "status": "pending",
+        "phase": "3-additional-features",
+        "details": "Define achievement criteria securely, implement achievement evaluation without exposing user data, create progress tracking with user consent, add achievement awarding with audit trail.",
+        "dependencies": ["14", "16"],
+        "testStrategy": "Test achievement logic doesn't leak user behavior, verify progress privacy"
+      },
+      {
+        "id": "24",
+        "title": "PHASE 3: Create Admin Tools Module",
+        "description": "Implement administrative tools with strict access controls",
+        "priority": "low",
+        "status": "pending",
+        "phase": "3-additional-features",
+        "details": "Create impersonation with full audit trail and time limits, implement manual overrides with approval workflow, ensure all admin actions are logged immutably, add break-glass procedures.",
+        "dependencies": ["1", "5", "6", "7"],
+        "testStrategy": "Test impersonation restrictions, verify audit trail completeness, test approval workflows"
+      },
+      {
+        "id": "25",
+        "title": "PHASE 3: Implement Document Management",
+        "description": "Create document system with version control and access logging",
+        "priority": "low",
+        "status": "pending",
+        "phase": "3-additional-features",
+        "details": "Create document upload with virus scanning, implement waiver signing with legal compliance, add version management with history, support multi-location sharing with permissions.",
+        "dependencies": ["11", "14"],
+        "testStrategy": "Test file upload security, verify signing audit trail, test access controls"
+      },
+      {
+        "id": "26",
+        "title": "PHASE 3: Implement Feature Flag System",
+        "description": "Create feature flag infrastructure for safe gradual rollouts",
+        "priority": "low",
+        "status": "pending",
+        "phase": "3-additional-features",
+        "details": "Implement feature flag evaluation with caching, create management interface with audit logging, support organization-specific flags safely, add percentage rollouts with monitoring.",
+        "dependencies": ["1", "5", "6"],
+        "testStrategy": "Test flag evaluation performance, verify org isolation, test rollout monitoring"
+      }
+    ],
+    "metadata": {
+      "created": "2025-07-31T01:49:15.746Z",
+      "updated": "2025-07-31T02:15:00.000Z",
+      "description": "Security-first task organization with Phase 0 (Secure Bedrock), Phase 1 (Vertical Slice), Phase 2 (Core Features), Phase 3 (Additional Features)"
+    }
+  }
+}

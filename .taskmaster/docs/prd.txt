@@ -1,0 +1,2570 @@
+TryZore - Unified Master Product & Engineering Blueprint
+
+Version 16.0 - Complete Vision with Enhanced Multi-Tenancy Support
+
+Document Purpose
+
+This is the definitive, unified blueprint for the TryZore platform - combining all product vision, technical architecture, user experience, and operational excellence from previous versions, with enhanced multi-tenancy support. It serves as the single source of truth for all stakeholders: product managers, engineers, designers, and business leaders.
+
+Table of Contents
+
+Part 0: Vision & Strategy
+
+Part 1: System Foundation
+
+Part 2: Technical Architecture
+
+Part 3: User Journeys
+
+Part 4: Platform Engines
+
+Part 5: Operational Systems
+
+Part 6: Business Operations
+
+Part 7: Compliance & Legal
+
+Part 8: Future Roadmap
+
+Part 0: Vision & Strategy
+Product Vision
+
+TryZore reimagines the fitness membership experience by eliminating friction at every touchpoint. We're building the operating system for modern fitness businesses - one that delights clients with seamless access while empowering owners with powerful tools to grow their business.
+
+Core Principles
+
+Client First: Every decision prioritizes the client experience
+
+Frictionless Access: Your phone is your membership card
+
+Transparent Business: Real-time analytics and insights for owners
+
+Scalable Architecture: Built for 1 gym or 1,000
+
+Compliance by Design: Jurisdiction-aware from day one
+
+Multi-Tenant Ready: Enterprise support for gym chains and franchises
+
+Target Market
+
+Primary: Boutique fitness studios (CrossFit, yoga, cycling, HIIT)
+
+Secondary: Small gym chains (2-10 locations)
+
+Enterprise: Large fitness brands and franchises (10+ locations)
+
+Part 1: System Foundation
+1.1 Core Data Models
+Multi-Tenancy Foundation
+Generated sql
+-- New owner account layer for multi-tenancy
+owner_accounts:
+  id, email, name, created_at,
+  is_enterprise (boolean),
+  billing_email (nullable)
+
+-- Linking table for owners to organizations
+owner_organizations:
+  owner_account_id, organization_id,
+  role (enum: owner, partner, viewer),
+  added_at
+
+-- Modified organizations table
+organizations:
+  id, name,
+  parent_org_id (nullable, for franchise hierarchies),
+  stripe_account_id, kisi_api_key_encrypted,
+  plan_tier (enum: free, pro, enterprise),
+  stripe_tax_configured (boolean),
+  jurisdiction (for compliance),
+  is_franchise_location (boolean)
+
+-- Cross-organization staff assignments
+cross_org_staff_assignments:
+  user_id, organization_id, role_id,
+  is_primary_org (boolean)
+
+Core Entities
+Generated sql
+-- Users & Access
+users:
+  id, workos_user_id, email, name,
+  phone (nullable),
+  status (enum: pending_claim, invited, active, deactivated),
+  owner_account_id (nullable, links to owner_accounts)
+  -- REMOVED org_id - users are global entities
+
+-- REMOVED staff_memberships table (replaced by cross_org_staff_assignments)
+
+-- Cross-organization staff assignments (handles all staff relationships)
+cross_org_staff_assignments:
+  user_id, organization_id, role_id,
+  is_primary_org (boolean),
+  PRIMARY KEY (user_id, organization_id)
+
+roles: id, org_id, name, description, is_editable (boolean)
+permissions: id, slug, description
+role_permissions: role_id, permission_id
+
+-- Memberships & Subscriptions
+subscriptions:
+  id, org_id, stripe_subscription_id,
+  paying_user_id (optional),
+  status (enum: active, past_due, lapsed, canceled, paused),
+  applied_promo_code (nullable)
+
+memberships:
+  id, subscription_id (nullable), user_id,
+  status (enum: active, suspended_by_owner),
+  access_expires_on (timestamp),
+  access_type (enum: subscription, day_pass, drop_in),
+  home_org_id, allowed_org_ids (array)
+
+-- Events & Bookings
+events:
+  id, org_id, type (enum: class, tour),
+  template_id (nullable), staff_user_id,
+  start_time, duration_minutes, spots_total,
+  location, status (enum: scheduled, completed, canceled)
+
+-- Note: While 'tour' is an event type in the data model, it is managed as a first-class object in the UI under the 'People' navigation section to emphasize its role in lead management
+
+event_templates:
+  id, org_id, type, name, category,
+  duration_minutes, difficulty (nullable),
+  default_spots, status,
+  is_franchise_template (boolean),
+  franchise_template_id (nullable)
+
+event_bookings:
+  id, event_id, user_id,
+  status (enum: booked, attended, canceled_late, no_show),
+  is_first_timer (boolean),
+  booking_org_id, attended_org_id
+
+waitlist: id, event_id, user_id, position, added_at
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+SQL
+IGNORE_WHEN_COPYING_END
+Supporting Entities
+Generated sql
+-- Fitness & Tracking
+workouts:
+  id, org_id, name, category,
+  exercises (JSONB), created_by_user_id,
+  is_template, is_franchise_template
+
+workout_logs:
+  id, user_id, workout_id,
+  completed_at, performance_data (JSONB)
+
+achievements: id, name, description, icon, criteria (JSONB)
+user_achievements: user_id, achievement_id, earned_at
+personal_records: id, user_id, exercise_name, weight, reps, logged_at
+
+-- Administrative
+transactions:
+  id, user_id, org_id, type, amount_cents,
+  stripe_charge_id, status, created_at
+
+notifications:
+  id, user_id, type, template_id,
+  status, payload (JSONB), sent_at
+
+client_segments:
+  id, org_id, name, rules (JSONB),
+  member_count, last_processed_at,
+  is_cross_org (boolean)
+
+audit_log:
+  id, org_id, actor_user_id,
+  action, target_entity_id, details (JSONB)
+
+-- Legal & Compliance
+waivers:
+  id, org_id, content, version,
+  status (enum: active, archived)
+
+signed_waivers: user_id, waiver_id, signed_at
+
+-- Multi-Org Analytics
+cross_org_analytics:
+  owner_account_id, metric_type,
+  metric_value, period_start, period_end
+
+-- Configuration
+org_settings:
+  - Timing: cancellation_window_hours, checkin_window_minutes_before
+  - Fees: noshow_fee_cents, late_cancel_fee_cents, drop_in_price_cents
+  - Hours: reservation_open_time, reservation_close_time
+  - Compliance: jurisdiction, tax_settings
+  - Multi-org: allow_cross_location_booking, honor_other_location_memberships
+
+-- Onboarding State Management (NEW)
+onboarding_sessions:
+  id, session_token, owner_account_id (nullable),
+  current_step (enum: account_created, organization_pending, complete),
+  step_data (JSONB), -- Stores temporary form data
+  expires_at, created_at, updated_at
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+SQL
+IGNORE_WHEN_COPYING_END
+1.2 External Service Contracts
+Stripe Integration
+
+Webhooks: subscription lifecycle, payment events, disputes
+
+Connect: OAuth for gym onboarding
+
+Customer Portal: Self-service billing management
+
+Payment Methods: Cards, ACH, digital wallets
+
+Multi-Account Support: Separate or consolidated billing for chains
+
+Kisi Access Control
+
+API Endpoints: places, doors, groups, unlock
+
+Real-time access management
+
+Group membership sync
+
+Offline mode support
+
+Multi-location access rules
+
+Additional Services
+
+Supabase: Real-time subscriptions, authentication
+
+SendGrid/Postmark: Transactional email
+
+Twilio: SMS notifications (future)
+
+WorkOS: Enterprise SSO
+
+1.3 Permission System Architecture
+Multi-Org Permission Structure
+Generated yaml
+Core Permissions:
+  # Organization Management (New)
+  organizations:
+    - view_all_orgs: See all organizations under account
+    - create_org: Create new gym locations
+    - edit_org: Modify organization settings
+    - delete_org: Remove organizations
+    - view_cross_org_analytics: See consolidated reports
+
+  events:
+    - view_all: See all scheduled events
+    - view_own: See only assigned events
+    - create: Create new events
+    - edit_all: Edit any event
+    - edit_own: Edit only assigned events
+    - cancel: Cancel events
+    - manage_attendance: Check in clients
+
+  clients:  # Updated from 'members'
+    - view_all: View all client profiles
+    - view_basic: View limited client info
+    - create: Create new clients
+    - edit: Edit client information
+    - add_note: Add notes to profiles
+    - grant_access: Override access controls
+    - view_cross_org: See clients across locations
+
+  financials:
+    - view_revenue: View revenue reports
+    - view_transactions: View transaction history
+    - process_refund: Issue refunds
+    - manage_billing: Access Stripe dashboard
+    - view_consolidated: See multi-org financials
+
+  settings:
+    - edit_gym: Modify gym settings
+    - manage_staff: Add/remove staff
+    - manage_roles: Create/edit roles
+    - manage_franchise: Edit franchise-wide settings
+
+  support:
+    - impersonate: Impersonate users
+    - manual_override: Manual data fixes
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Yaml
+IGNORE_WHEN_COPYING_END
+Default Role Mappings
+
+Enterprise Owner: * (all permissions across all owned organizations)
+
+Location Owner: * (all permissions for specific organization)
+
+Regional Manager: organizations.view_all_orgs, events.*, clients.view_cross_org, financials.view_consolidated
+
+Admin: events., clients., financials.view_*, financials.process_refund
+
+Trainer: events.view_own, events.edit_own, events.manage_attendance, clients.view_basic
+
+Front Desk: events.view_all, events.manage_attendance, clients.view_all, clients.create
+
+1.4 MVP Scope Definition
+
+IN SCOPE:
+
+Multi-organization support
+
+Cross-location client access (with simple location switcher)
+
+Cross-location staff management
+
+Consolidated billing options
+
+Unified event scheduling (classes & tours)
+
+Email/push notifications
+
+Drop-in/day pass purchases
+
+Client segments
+
+Workout builder
+
+Achievement system
+
+Stripe analytics integration
+
+Mobile-first experience
+
+Franchise template management
+
+Promotional tools (coupons, discounts, free trials)
+
+OUT OF SCOPE (Future releases):
+
+SMS notifications
+
+Wearables integration
+
+Lead management CRM
+
+Payroll processing
+
+Advanced inventory management
+
+Virtual class streaming
+
+Complex revenue splitting (Phase 2)
+
+Advanced bulk operations (Phase 2)
+
+Part 2: Technical Architecture
+2.1 System Design Principles
+API Architecture
+
+RESTful design with OpenAPI specification
+
+Versioned endpoints (/api/v1/...)
+
+Idempotent operations where applicable
+
+Permission enforcement at API level, not UI
+
+Multi-org context in all requests
+
+Rate limiting per organization
+
+Consistent error response format
+
+Technology Stack
+
+Backend: Node.js/TypeScript, Express
+
+Database: PostgreSQL with JSONB for flexibility
+
+Real-time: Supabase for subscriptions and auth
+
+Mobile: React Native with TypeScript
+
+Web: Next.js for admin dashboard
+
+Payments: Stripe (Connect, Subscriptions, Customer Portal)
+
+Access: Kisi API integration
+
+Jobs: pg_cron for async processing
+
+Cache: Redis for session management
+
+Monitoring: Datadog/Sentry
+
+Core Design Patterns
+
+Service Abstraction: All external APIs wrapped in service modules
+
+Async Processing: User-facing endpoints return fast, background jobs handle follow-up
+
+Audit Trail: All administrative actions logged immutably
+
+Graceful Degradation: System remains functional if external services fail
+
+Event Sourcing: Key business events stored for replay/debugging
+
+Multi-Tenant Isolation: Strict data separation with org context
+
+2.2 Authentication & Security
+Token Management
+Generated typescript
+interface TokenPair {
+  access_token: string; // 1 hour expiry
+  refresh_token: string; // 30 day expiry
+}
+
+interface SessionToken {
+  user_id: string;
+  org_id: string;
+  owner_account_id?: string;
+  available_org_ids: string[]; // For multi-org access
+  permissions: string[];
+  expires_at: Date;
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+Security Layers
+
+API Keys: For service-to-service communication
+
+JWT Tokens: For user sessions with org context
+
+Biometric Storage: Secure enclave for refresh tokens
+
+2FA Support: TOTP for staff accounts
+
+Rate Limiting: Per-user and per-IP
+
+CORS Configuration: Strict origin validation
+
+Organization Isolation: Mandatory org_id validation
+
+2.3 Data Architecture
+Caching Strategy
+
+Redis: Session tokens, rate limiting, hot data
+
+PostgreSQL: Source of truth for all data
+
+CDN: Static assets and API responses where applicable
+
+Organization-specific caches: Isolated cache namespaces
+
+Data Retention
+
+Audit logs: 7 years
+
+Transaction data: 7 years
+
+User activity: 2 years
+
+Deleted user data: 90 days (soft delete)
+
+Cross-org analytics: 5 years
+
+2.4 Multi-Step Onboarding Architecture
+Technical Complexity: Beyond "Reordering" Backend Logic
+
+While the core backend services (createOwnerAccount, createOrganization, etc.) exist, implementing a robust multi-step onboarding wizard introduces significant complexity that goes beyond simply "reordering" API calls:
+
+State Management Challenges
+Generated typescript
+interface OnboardingSession {
+  id: string;
+  sessionToken: string;
+  ownerAccountId?: string; // May be null if step 1 incomplete
+  currentStep: 'account_created' | 'organization_pending' | 'complete';
+  stepData: {
+    accountData?: Partial<OwnerAccount>;
+    organizationData?: Partial<Organization>;
+  };
+  expiresAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// State management service
+class OnboardingStateService {
+  async createSession(): Promise<OnboardingSession> {
+    // Create temporary session with 24hr expiry
+  }
+  
+  async updateSessionStep(sessionId: string, step: string, data: any): Promise<void> {
+    // Persist intermediate state to handle browser closes
+  }
+  
+  async resumeSession(sessionToken: string): Promise<OnboardingSession> {
+    // Allow users to resume incomplete onboarding
+  }
+  
+  async cleanupOrphanedSessions(): Promise<void> {
+    // Scheduled job to clean incomplete sessions > 24hrs old
+  }
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+Transactional Integrity Challenges
+Generated typescript
+// The challenge: Making multi-step flows atomic
+class OnboardingService {
+  async executeOnboarding(sessionId: string): Promise<void> {
+    const session = await this.getSession(sessionId);
+    
+    try {
+      // Step 1 already completed (owner account exists)
+      const ownerAccount = await this.getOwnerAccount(session.ownerAccountId);
+      
+      // Step 2: Create organization
+      const org = await this.createOrganization(session.stepData.organizationData);
+      
+      // Step 3: Link owner to organization
+      await this.linkOwnerToOrg(ownerAccount.id, org.id);
+      
+      // Step 4: Stripe Connect (external service - can fail!)
+      try {
+        await this.initiateStripeConnect(org.id);
+      } catch (stripeError) {
+        // Partial rollback needed - org exists but no payment
+        await this.markOrgAsIncomplete(org.id);
+        throw new OnboardingError('Payment setup failed', { 
+          recoverable: true,
+          orgId: org.id 
+        });
+      }
+      
+      await this.completeOnboarding(sessionId);
+    } catch (error) {
+      // Complex rollback logic needed
+      await this.rollbackOnboarding(sessionId, error);
+      throw error;
+    }
+  }
+  
+  private async rollbackOnboarding(sessionId: string, error: any): Promise<void> {
+    // Determining what to rollback is complex:
+    // - If org was created but Stripe failed, do we delete the org?
+    // - If owner account exists but has no orgs, do we delete it?
+    // - What if they have a partial Stripe Connect setup?
+  }
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+Edge Cases & Recovery Flows
+Generated typescript
+// Handling incomplete states
+enum OnboardingRecoveryAction {
+  RESUME_FROM_STEP = 'resume_from_step',
+  START_FRESH = 'start_fresh',
+  CLEANUP_AND_RETRY = 'cleanup_and_retry',
+  MANUAL_INTERVENTION = 'manual_intervention'
+}
+
+class OnboardingRecoveryService {
+  async determineRecoveryPath(email: string): Promise<OnboardingRecoveryAction> {
+    // Complex logic to determine state:
+    const existingAccount = await this.findOwnerAccount(email);
+    const existingOrgs = await this.findOrganizations(existingAccount?.id);
+    const activeSession = await this.findActiveSession(email);
+    
+    if (existingAccount && existingOrgs.length > 0) {
+      // Already onboarded - redirect to dashboard
+      return OnboardingRecoveryAction.START_FRESH;
+    }
+    
+    if (existingAccount && existingOrgs.length === 0) {
+      // Orphaned account - needs cleanup or resume
+      if (activeSession && !this.isExpired(activeSession)) {
+        return OnboardingRecoveryAction.RESUME_FROM_STEP;
+      }
+      return OnboardingRecoveryAction.CLEANUP_AND_RETRY;
+    }
+    
+    if (existingOrgs.some(org => !org.stripeAccountId)) {
+      // Partial setup - needs manual review
+      return OnboardingRecoveryAction.MANUAL_INTERVENTION;
+    }
+    
+    return OnboardingRecoveryAction.START_FRESH;
+  }
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+API Design for Multi-Step Flow
+Generated typescript
+// New endpoints needed for stateful onboarding
+POST   /api/v1/onboarding/start
+GET    /api/v1/onboarding/session/:sessionToken
+POST   /api/v1/onboarding/session/:sessionToken/step/:stepNumber
+POST   /api/v1/onboarding/session/:sessionToken/complete
+DELETE /api/v1/onboarding/session/:sessionToken
+GET    /api/v1/onboarding/recovery-options
+
+// Each step endpoint handles partial data and validation
+interface StepResponse {
+  success: boolean;
+  nextStep?: string;
+  errors?: ValidationError[];
+  sessionToken: string;
+  canGoBack: boolean;
+  canSkip: boolean;
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+Scheduled Cleanup Jobs
+Generated sql
+-- Cleanup job runs every hour
+-- Delete onboarding sessions older than 24 hours
+DELETE FROM onboarding_sessions 
+WHERE expires_at < NOW() 
+AND current_step != 'complete';
+
+-- Archive incomplete owner accounts for audit
+INSERT INTO archived_incomplete_signups 
+SELECT * FROM owner_accounts o
+WHERE NOT EXISTS (
+  SELECT 1 FROM owner_organizations oo 
+  WHERE oo.owner_account_id = o.id
+)
+AND o.created_at < NOW() - INTERVAL '7 days';
+
+-- Then delete the orphaned accounts
+DELETE FROM owner_accounts o
+WHERE NOT EXISTS (
+  SELECT 1 FROM owner_organizations oo 
+  WHERE oo.owner_account_id = o.id
+)
+AND o.created_at < NOW() - INTERVAL '7 days';
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+SQL
+IGNORE_WHEN_COPYING_END
+Part 3: User Journeys
+3.1 New Business Owner Onboarding
+Initial Setup Flow
+
+Step 1: Your Details
+
+Generated code
+Landing Page → "Start Free Trial"
+├── Your Details
+│   ├── Name: [_____________]
+│   └── Email: [_____________]
+├── Create Account
+│   └── Password: [_____________]
+└── Add Locations
+    ├── Location Name: [_____________]
+    ├── Address: [_____________]
+    └── [Save & Continue]
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Behind the Scenes - State Management:
+
+Generated typescript
+// Step 1 completion creates:
+{
+  sessionToken: "uuid-v4",
+  currentStep: "account_created",
+  ownerAccountId: "owner-uuid",
+  stepData: {
+    accountData: { name, email, hashedPassword }
+  },
+  expiresAt: "24hrs from now"
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+
+Step 2: Dashboard - Initial State
+
+Generated code
+Dashboard (Empty State)
+├── Connect Payment Processing
+│   ├── Title: "Connect Payment Processing"
+│   ├── Description: "Connect Stripe to start tracking revenue"
+│   └── [Connect to Stripe] → OAuth flow
+├── No revenue data shown until connected
+└── Focus on setup completion
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Recovery Scenarios:
+
+Generated code
+User Returns After Abandonment:
+├── Email exists in owner_accounts?
+│   ├── Yes → Check for organizations
+│   │   ├── Has orgs → Redirect to login
+│   │   └── No orgs → Resume or restart?
+│   └── No → Start fresh onboarding
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+3.2 Daily Operations
+Revenue Monitoring
+Generated code
+Dashboard (Owner View) - After Stripe Connected
+├── Today's Revenue: $1,250
+│   ├── Home Clients: $980
+│   ├── Visiting Clients: $180
+│   └── Drop-ins/Day Passes: $90
+├── Active Clients: 487
+│   ├── Single Location: 435
+│   └── Multi-Location: 52
+├── Monthly Recurring: $24,350
+├── Class Utilization: 78%
+├── Sister Locations Performance (if multi-org)
+└── [View Stripe Dashboard] → Detailed analytics
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Staff Management
+Generated code
+People → Employees → [+ Add Employee]
+├── Enter name, email, phone
+├── Select role (Admin/Trainer/Front Desk)
+├── Assign to locations (if multi-org) ← NEW
+│   ├── ☑ Main Street (Primary)
+│   ├── ☑ Downtown
+│   └── ☐ Westside
+├── Review permissions
+├── Send invite
+└── Track acceptance status
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+3.3 Employee Journeys
+Trainer Journey
+
+First Login
+
+Generated code
+Email Invite → "You're invited to join BackFit Gym"
+├── Click setup link
+├── Create password
+├── Set up 2FA (optional)
+└── Land on Trainer Dashboard with pre-assigned primary location
+    └── Location switcher available if assigned to multiple locations
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Class Management
+
+Generated code
+Dashboard
+├── Location: [Main Street ▼] ← NEW: Location Switcher
+├── Today's Classes
+│   ├── 6:00 AM - HIIT Blast (18/20) [View Roster]
+│   ├── 9:00 AM - Yoga Flow (22/25) [View Roster]
+│   └── 5:30 PM - Strength (20/20) FULL [Manage Waitlist]
+├── Switch Location → Downtown ← NEW
+│   └── 2:00 PM - CrossFit (15/20) [View Roster]
+├── Recent Notes
+└── Upcoming Tours
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Taking Attendance
+
+Generated code
+Class Roster → "HIIT Blast 6:00 AM"
+├── Current Location: Main Street ← NEW: Location Context
+├── Auto-checked: 16 clients (via door scan)
+├── Missing: 2 clients
+│   ├── Jane D. [Check In] [Mark No-Show]
+│   └── Mike R. [Check In] [Mark No-Show]
+├── First Timer Alert: "Sarah K. - First class!"
+└── [Complete Class] → Trigger post-class workflows
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Front Desk Journey
+
+Client Check-In Without Phone
+
+Generated code
+People → Search "Jane Smith"
+├── View client profile
+├── Status: Active ✓
+├── Home Location: This gym
+├── [Manual Check-In]
+├── Select current class
+└── "Checked into 9:00 AM Yoga"
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Walk-In Day Pass Sale
+
+Generated code
+Quick Actions → "Sell Day Pass"
+├── New Customer Form
+│   ├── Name: [_____________]
+│   ├── Email: [_____________]
+│   └── Phone: [_____________] (optional)
+├── Payment: $25.00
+├── [Process with Square/Stripe]
+├── Print/Email access code
+└── "Day pass active for 24 hours"
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+3.4 Client Journey - Complete Lifecycle
+Discovery & Purchase
+
+Path A: Monthly Membership
+
+Generated code
+join.tryzore.com/backfit
+├── Choose Membership
+│   ├── Basic: $79/month
+│   ├── Premium: $129/month (selected)
+│   └── Unlimited: $179/month
+├── Account Setup (minimal)
+│   ├── Name: [_____________]
+│   └── Email: [_____________]
+├── Payment
+│   ├── [Stripe Card Element]
+│   ├── Promo Code: [_____________] (optional)
+│   └── [Start Membership]
+└── Success → Download App
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Path B: First-Time Drop-In
+
+Generated code
+Public Schedule → "6:00 PM CrossFit" → [Book Class]
+├── Modal: "First Time at BackFit?"
+├── Drop-in Price: $20
+├── Quick Checkout
+│   ├── Name & Email only
+│   └── Apple Pay / Card
+├── Instant booking confirmation
+└── "Access granted until 7:30 PM"
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Path C: Day Pass Purchase
+
+Generated code
+Website → "Get a Day Pass"
+├── Simple form: Name, Email, Phone
+├── Payment: $25
+├── Immediate Kisi access
+└── 24-hour validity
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Mobile App Experience
+
+First App Launch
+
+Generated code
+Download → Open App
+├── Welcome Screen
+├── Sign Up / Log In
+│   └── Use purchase email
+├── Create Password
+├── Enable Biometrics
+├── Tour Scheduling Prompt
+│   └── "Schedule your free tour"
+└── Home Dashboard
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Daily Usage - Home Screen
+
+Generated code
+Good Morning, Alex! 🌅
+
+┌─────────────────────────────────────────┐
+│ 8-Day Streak 🔥                         │
+│ Keep it going!                          │
+└─────────────────────────────────────────┘
+
+Next Class
+┌─────────────────────────────────────────┐
+│ HIIT Blast                              │
+│ Today @ 6:00 PM                         │
+│ with Sarah - 18/20 spots                │
+│ @ Main Street Location                  │
+│ [Cancel Booking]                        │
+└─────────────────────────────────────────┘
+
+Recent Activity
+├── ✓ Yoga Flow - Yesterday
+└── ✓ Strength - Monday
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Booking a Class
+
+Generated code
+Classes Tab → Calendar View
+├── Tuesday, Nov 14
+│   ├── 6:00 AM - HIIT (3 spots) [Book]
+│   ├── 9:00 AM - Yoga (FULL) [Join Waitlist]
+│   └── 6:00 PM - CrossFit (8 spots) [Book]
+├── Booking Confirmation
+│   ├── "You're booked for HIIT at 6 AM"
+│   ├── "Cancel by 4 AM to avoid fee"
+│   └── [Add to Calendar]
+└── Push notification @ 4 AM: "HIIT in 2 hours!"
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Door Access
+
+Generated code
+Door Tab
+├── Location Check (automatic)
+├── Current Location: Main Street Gym
+├── Within 200m: Button Active (blue)
+│   └── [Tap to Unlock] → Success ✓
+├── After unlock: 60s cooldown
+└── "Access granted"
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Location Settings ← NEW: Simplified Location Switching
+
+Generated code
+Profile → Settings → Location
+├── Current Location: Main Street
+├── Change Location:
+│   ○ Main Street
+│   ● Downtown
+│   ○ Westside
+└── [Save] → App refreshes with Downtown view
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Progress Tracking
+
+Generated code
+Progress Tab
+┌─────────────────────────────────────────┐
+│ This Month                              │
+│ Classes: 12 ━━━━━━━━━━━━━━━━○ 75%      │
+│ Streak: 8 days                          │
+│ PRs: 3 new records                      │
+│ Location: Main Street                   │
+└─────────────────────────────────────────┘
+
+Achievements
+├── 🔥 Week Warrior (earned)
+├── 🎯 Month Master (23/30)
+└── 💪 PR Rookie (earned)
+
+Personal Records
+├── Squat: 225 lbs ⬆️ NEW!
+├── Bench: 185 lbs
+└── [+ Log New PR]
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Edge Cases & Special Flows
+
+Payment Failure
+
+Generated code
+App Opens → Persistent Banner
+┌─────────────────────────────────────────┐
+│ ⚠️ Payment Failed                      │
+│ Update your card to                     │
+│ maintain access.                        │
+│ [Update Payment Method]                 │
+└─────────────────────────────────────────┘
+├── Grace period: 7 days
+├── After grace period: Access revoked
+└── Door unlock disabled
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Waitlist Promotion
+
+Generated code
+Push Notification @ 4:47 PM
+"🎉 Good news! A spot opened up in
+CrossFit at 6 PM. You're confirmed!"
+├── Auto-moved from waitlist
+├── Standard cancellation rules apply
+└── High-priority notification
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Tour Booking
+
+Generated code
+Profile → "Schedule a Tour"
+├── Select Location
+├── Available Slots
+│   ├── Tomorrow 2:00 PM - Sarah
+│   ├── Tomorrow 5:00 PM - Mike
+│   └── Thursday 10:00 AM - Sarah
+├── Select slot → Confirm
+├── Reminder 1 day before
+└── Post-tour: Convert to client
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+3.5 Admin Journey (Multi-Location)
+Financial Management
+
+Consolidated Reporting
+
+Generated code
+Analytics → Multi-Location Overview
+├── Total Revenue (All Locations): $487,250
+├── Location Breakdown
+│   ├── Main Street: $124,350 (25.5%)
+│   ├── Downtown: $198,450 (40.7%)
+│   └── Westside: $164,450 (33.8%)
+├── Client Movement
+│   ├── Cross-location visits: 1,247
+│   └── Most traveled route: Main ↔ Downtown
+└── [Export Report]
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Handling Disputes
+
+Generated code
+Alert: "New chargeback: $79 - Jane Smith"
+├── View Details
+│   ├── Reason: "Unauthorized charge"
+│   ├── Client since: 3 months
+│   ├── Home location: Downtown
+│   └── Last attendance: 2 days ago
+├── Generate Evidence
+│   ├── Signed waiver ✓
+│   ├── Attendance history ✓
+│   ├── Access logs ✓
+│   └── [Submit to Stripe]
+└── Suspend access pending resolution
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Client Management
+
+Cross-Location Search
+
+Generated code
+People → Global Search
+├── "john@example.com"
+├── Results:
+│   ├── Home: Main Street
+│   ├── Status: Active
+│   ├── Visit History:
+│   │   ├── Main Street: 47 visits
+│   │   ├── Downtown: 12 visits
+│   │   └── Westside: 3 visits
+│   └── [View Full Profile]
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Client List View
+
+Generated code
+People → Clients Tab (Location: Main Street)
+Filter: [All] [Home Clients] [Visiting Clients] [Multi-Location]
+
+┌────────────────────────────────────────────────────────────┐
+│ CLIENT        CONTACT           MEMBERSHIP    LAST CHECK-IN │
+│ STATUS                                                      │
+├────────────────────────────────────────────────────────────┤
+│ Jane Smith    jane@email.com    Premium       Today        │
+│ Joined 1/2024 555-0123          Expires 12/25              │
+│ [Active]                                                    │
+├────────────────────────────────────────────────────────────┤
+│ John Doe      john@email.com    All Locations Yesterday    │
+│ Joined 3/2024 555-0124          Expires 11/30              │
+│ [Active]      ↳ Also visits: Downtown, Westside            │
+├────────────────────────────────────────────────────────────┤
+│ Sarah K.      sarah@email.com   Basic         3 days ago   │
+│ Joined 5/2024 555-0125          Expires 12/15              │
+│ [Active]      ↳ Home: Downtown                             │
+├────────────────────────────────────────────────────────────┤
+│ Mike R.       mike@email.com    Premium       30 days ago  │
+│ Joined 2/2024 555-0126          Expired 10/15              │
+│ [Expired]                                                   │
+└────────────────────────────────────────────────────────────┘
+
+Totals: 487 Home Clients | 52 Multi-Location | 18 Visiting
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Client Detail View
+
+Generated code
+Client Profile: John Doe
+├── Basic Info
+│   ├── Email: john@example.com
+│   ├── Phone: (555) 123-4567
+│   ├── Client Since: Jan 2024
+│   └── Status: Active ✓
+├── Membership Details
+│   ├── Type: Premium ($129/mo)
+│   ├── Access: All Locations (+$20/mo)
+│   ├── Home Location: Main Street
+│   ├── Allowed Locations: All (5 total)
+│   └── Billing: Auto-renews Oct 15
+├── Location Activity (Last 30 days)
+│   ├── Main Street: 15 visits (60%)
+│   ├── Downtown: 8 visits (32%)
+│   └── Westside: 2 visits (8%)
+├── Quick Actions
+│   ├── [Manual Check-in]
+│   ├── [Add Note]
+│   ├── [View Payment History]
+│   └── [Change Home Location]
+└── Activity Timeline
+    ├── Today: Attended HIIT @ Main Street
+    ├── Oct 10: Visited Downtown location
+    └── Oct 8: Upgraded to All-Location Access
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+
+Bulk Operations for Multi-Location
+
+NOTE: Advanced bulk operations are a Phase 2 feature and are out of scope for the MVP. See Part 8 for details.
+
+For MVP, client management is handled individually through the standard client profile interface.
+
+Creating Segments
+Generated code
+Marketing → Segments → [+ New Segment]
+├── Name: "Single Location Loyalists"
+├── Rules (AND)
+│   ├── Visits per month > 20
+│   ├── Locations visited = 1
+│   └── Membership = Premium
+├── Preview: 147 clients match
+├── [Create Segment]
+└── Use for targeted campaigns
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Manual Overrides
+Generated code
+Support Tools → Client Search
+├── Find: "john@example.com"
+├── Status: Lapsed (incorrect)
+├── [Manual Override]
+│   ├── Change to: Active
+│   ├── Apply to locations: All
+│   ├── Reason: "Webhook processing error"
+│   └── [Confirm Override]
+├── Logged in audit trail
+└── Access immediately restored
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Impersonation for Support
+Generated code
+Client Profile → [View as Client]
+├── Opens client's exact app view
+├── Banner: "Viewing as Jane Smith [End]"
+├── Can navigate all locations
+├── Read-only access
+└── Auto-expires in 15 minutes
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+3.6 Employee Management View
+Generated code
+People → Employees
+┌────────────────────────────────────────────────────────────┐
+│ TRAINER         SPECIALTIES    CLASSES    ATTENDANCE  RATING│
+│                                TAUGHT     RATE       STATUS │
+├────────────────────────────────────────────────────────────┤
+│ Sarah Johnson   CrossFit       45         98%        ★★★★★ │
+│ sarah@gym.com   Burn40                               Active │
+├────────────────────────────────────────────────────────────┤
+│ Mike Chen       Yoga           38         95%        ★★★★☆ │
+│ mike@gym.com    Pilates                              Active │
+├────────────────────────────────────────────────────────────┤
+│ Emma Wilson     HIIT           52         99%        ★★★★★ │
+│ emma@gym.com    Strength                             Active │
+└────────────────────────────────────────────────────────────┘
+
+[Add Employee]
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+3.7 Tour Management View
+Generated code
+People → Tours
+Filter: [All Tours] [Scheduled] [Confirmed] [Completed] [Cancelled]
+
+┌────────────────────────────────────────────────────────────┐
+│ Tomorrow, Nov 15 - 2:00 PM                                 │
+│ ┌──────────────────────────────────────────────────────┐  │
+│ │ Jennifer Martinez              Tour Guide: Sarah     │  │
+│ │ jennifer@email.com             Duration: 30 min      │  │
+│ │ (555) 987-6543                                       │  │
+│ │                                                      │  │
+│ │ Interested in: Weight Loss, Group Classes           │  │
+│ │ Status: [Scheduled]                                  │  │
+│ └──────────────────────────────────────────────────────┘  │
+├────────────────────────────────────────────────────────────┤
+│ Tomorrow, Nov 15 - 5:00 PM                                 │
+│ ┌──────────────────────────────────────────────────────┐  │
+│ │ Robert Kim                     Tour Guide: Mike     │  │
+│ │ robert@email.com               Duration: 30 min      │  │
+│ │ (555) 876-5432                                       │  │
+│ │                                                      │  │
+│ │ Interested in: CrossFit, Personal Training          │  │
+│ │ Status: [Confirmed]                                  │  │
+│ └──────────────────────────────────────────────────────┘  │
+├────────────────────────────────────────────────────────────┤
+│ Nov 14 - 3:00 PM (Completed)                              │
+│ ┌──────────────────────────────────────────────────────┐  │
+│ │ Lisa Thompson                  Tour Guide: Sarah     │  │
+│ │ lisa@email.com                 Duration: 45 min      │  │
+│ │ (555) 765-4321                                       │  │
+│ │                                                      │  │
+│ │ Interested in: Yoga, Meditation                      │  │
+│ │ Status: [Completed]                                  │  │
+│ │ Notes: Signed up for Premium membership after tour  │  │
+│ └──────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────┘
+
+[Schedule Tour]
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Part 4: Platform Engines
+4.1 Access Control Engine
+Architecture
+Generated typescript
+class KisiService {
+  async grantAccess(userId: string, accessType: MembershipType, locations: string[])
+  async revokeAccess(userId: string, locations?: string[])
+  async triggerUnlock(userId: string, doorId: string, orgId: string)
+  async syncGroupMemberships()
+  async updateCrossLocationAccess(userId: string, allowedOrgIds: string[])
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+Door Unlock Flow
+Generated code
+User Taps Unlock → Client Validation
+├── Check: Within 200m geofence ✓
+├── Check: Not in cooldown ✓
+├── Check: Valid for this location ✓
+└── API Call: POST /api/door/unlock
+    ├── Validate membership status
+    ├── Verify location access rights
+    ├── Apply rate limit (3/min)
+    ├── Call Kisi API
+    ├── Log unlock event with location
+    └── Return success + 60s cooldown
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Nightly Reconciliation
+Generated code
+Cron Job @ 2 AM
+├── Query all active memberships
+├── Group by allowed locations
+├── Fetch Kisi access list per location
+├── Compare states
+├── Revoke orphaned access
+├── Grant missing access
+└── Log cross-location sync results
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+4.2 Event Booking Engine
+Unified Event System
+Generated typescript
+enum EventType { CLASS = 'class', TOUR = 'tour' }
+
+interface Event {
+  id: string;
+  org_id: string;
+  type: EventType;
+  templateId?: string;
+  staffUserId: string;
+  startTime: Date;
+  spotsTotal: number;
+  spotsBooked: number;
+  allowCrossLocationBooking: boolean;
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+Booking Logic
+Generated code
+POST /api/events/:id/book
+├── Check capacity
+├── Verify location access
+│   ├── If home location → Allow
+│   ├── If client has switched location → Allow
+│   └── If restricted → Deny
+├── Process payment (if drop-in)
+├── Create booking with location context
+├── Send confirmation
+└── Return booking details
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Waitlist Processing
+Generated code
+Every minute: process_waitlists
+├── Find events with waitlists
+├── Check for cancellations
+├── Auto-promote next in line
+├── Send push notification
+├── Update positions
+└── Consider client's current location preference
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+4.3 Notification Engine
+Template System
+Generated yaml
+class_reminder:
+  type: push
+  trigger: 2_hours_before
+  title: "Class starting soon!"
+  body: "Your {class_name} class starts at {start_time} @ {location_name}"
+
+payment_failed:
+  type: email
+  trigger: immediate
+  subject: "Payment failed - Action required"
+  priority: high
+
+location_switched:
+  type: push
+  trigger: on_location_change
+  title: "Location updated"
+  body: "You're now viewing classes at {new_location_name}"
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Yaml
+IGNORE_WHEN_COPYING_END
+Delivery Pipeline
+Generated code
+Event Occurs → Check Preferences
+├── User opted in? ✓
+├── Channel enabled? ✓
+├── Location-specific prefs? ✓
+├── Queue notification
+├── Send via provider
+├── Track delivery
+└── Handle failures → Retry queue
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+4.4 Achievement Engine
+Multi-Location Achievements
+Generated javascript
+const achievements = [
+  {
+    id: 'week_warrior',
+    name: 'Week Warrior',
+    criteria: {
+      type: 'streak',
+      field: 'attendance_streak',
+      operator: 'gte',
+      value: 7
+    }
+  },
+  {
+    id: 'loyal_local',
+    name: 'Loyal Local',
+    criteria: {
+      type: 'percentage',
+      field: 'single_location_visits',
+      operator: 'gte',
+      value: 90
+    }
+  },
+  {
+    id: 'home_body',
+    name: 'Home Body',
+    criteria: {
+      type: 'percentage',
+      field: 'home_gym_visits',
+      operator: 'gte',
+      value: 80
+    }
+  }
+];
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+JavaScript
+IGNORE_WHEN_COPYING_END
+Processing Flow
+Generated code
+Trigger Event (e.g., class attended)
+├── Load user stats
+├── Include location context
+├── Query unearned achievements
+├── Evaluate each criteria
+├── Award new achievements
+├── Queue celebration notification
+└── Update UI badges
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+4.5 Financial Engine
+Subscription Lifecycle
+Generated code
+Stripe Webhook → Process Event
+├── subscription.created
+│   └── Create internal subscription
+├── subscription.updated
+│   ├── Update status
+│   └── Handle plan changes
+├── payment_failed
+│   ├── Set status: past_due
+│   ├── Start grace period
+│   └── Send warning email
+└── subscription.deleted
+    ├── Set status: canceled
+    └── Revoke access at all locations
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Multi-Org Billing
+Generated code
+Consolidated Billing Flow:
+├── Single Stripe customer
+├── Multiple subscriptions (per location)
+├── Or single subscription with metadata
+├── Monthly reconciliation
+└── Revenue split tracking
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Revenue Split Logic for Multi-Location Memberships
+
+NOTE: Advanced revenue splitting is a Phase 2 feature and is out of scope for the MVP. See Part 8 for details.
+
+For MVP, all membership revenue is attributed to the client's home location.
+
+Pro-Rated Upgrades
+Generated code
+Location Access Upgrade Flow:
+├── Client requests multi-location upgrade
+├── Calculate days remaining in billing cycle
+├── Pro-rate the add-on fee
+├── Process immediate charge
+├── Update allowed_org_ids array
+├── Grant immediate access
+└── Adjust next billing cycle
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Fee Processing
+Generated code
+No-Show Detection (post-class)
+├── Find booked but not attended
+├── Check for valid excuse
+├── Identify home vs visiting location
+├── Create $25 charge
+├── Attribute to correct location
+├── Log transaction
+└── Send notification
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Stripe Analytics Integration
+Generated code
+CRM Analytics Views:
+
+1. Location-Specific Dashboard
+├── Today's Revenue (this location only)
+├── MRR from Home Clients
+├── Revenue from Visiting Clients
+├── Drop-in/Day Pass Revenue
+├── No-Show/Late Cancel Fees
+└── [View in Stripe Dashboard] → Filtered view
+
+2. Enterprise Analytics Dashboard
+├── Total Revenue (all locations)
+├── Revenue by Location (pie chart)
+├── Cross-Location Client Flow
+│   ├── Heat map of client movement
+│   └── Most profitable client paths
+├── Membership Type Distribution
+│   ├── Single Location: 65%
+│   ├── Regional Access: 25%
+│   └── All Locations: 10%
+├── Revenue Attribution Report
+│   ├── Direct Revenue (home clients)
+│   ├── Shared Revenue (multi-location)
+│   └── Visit-based Attribution
+└── [Export Financial Report]
+
+3. Client Financial View (in CRM)
+├── Subscription: $149/month
+├── Home Location: Main Street
+├── Access Type: All Locations
+├── Visit Distribution (Last 30 days)
+│   ├── Main Street: 15 visits (60%)
+│   ├── Downtown: 8 visits (32%)
+│   └── Westside: 2 visits (8%)
+├── Lifetime Value: $1,788
+└── Payment History → Stripe Customer Portal
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+4.6 Workout Builder (Perform)
+Template Structure
+Generated json
+{
+  "name": "Upper Body Blast",
+  "category": "strength",
+  "is_franchise_template": true,
+  "allowed_locations": ["all"],
+  "exercises": [
+    {
+      "name": "Bench Press",
+      "sets": 4,
+      "reps": "8-10",
+      "rest": "90s",
+      "notes": "Control the descent"
+    }
+  ]
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Json
+IGNORE_WHEN_COPYING_END
+PR Detection
+Generated code
+Member logs workout performance
+├── Parse performance_data
+├── Compare to personal_records
+├── If new record found:
+│   ├── Create PR entry
+│   ├── Check PR achievements
+│   ├── Log location where achieved
+│   └── Show celebration
+└── Save workout log
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+4.7 Client Segmentation Engine
+Rule Structure
+Generated json
+{
+  "operator": "AND",
+  "conditions": [
+    {"field": "last_attended_at", "operator": "lt", "value": "30_days_ago"},
+    {"field": "membership_type", "operator": "eq", "value": "premium"},
+    {"field": "preferred_location", "operator": "eq", "value": "main_street"}
+  ]
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Json
+IGNORE_WHEN_COPYING_END
+Execution
+Generated code
+Nightly process_segments job
+├── Load all segments
+├── Evaluate rules against clients
+├── Include current location preference
+├── Update segment_members
+├── Calculate member_count per location
+└── Queue targeted campaigns
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+4.8 Franchise Template Engine
+Architecture
+Generated typescript
+interface FranchiseTemplate {
+  id: string;
+  type: 'workout' | 'class' | 'policy';
+  name: string;
+  content: any;
+  created_by: string; // owner_account_id
+  is_active: boolean;
+  allowed_modifications: string[]; // fields locations can customize
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+Template Distribution Flow
+Generated code
+Enterprise Owner Creates Template
+├── Type: Class Template
+├── Name: "Signature HIIT Blast"
+├── Duration: 45 minutes
+├── Max Spots: 20
+├── Required Equipment: Listed
+└── [Save as Franchise Template]
+    ├── Automatically visible to all locations
+    ├── Read-only for location managers
+    └── Can be scheduled but not edited
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+MVP Implementation Rules
+
+Franchise templates are read-only for individual locations
+
+Local owners can:
+
+View all franchise templates
+
+Schedule classes using templates
+
+Set instructor and time
+
+Cannot modify template content
+
+Enterprise owners can:
+
+Create/edit/delete franchise templates
+
+Updates apply immediately to all locations
+
+View usage statistics across locations
+
+Future Phase 2:
+
+Allow local customization with override tracking
+
+Version control for templates
+
+A/B testing across locations
+
+Usage in Scheduling
+Generated code
+Schedule → New Class → Choose Template
+├── My Templates
+│   ├── Morning Flow Yoga
+│   └── Strength Circuit
+├── Franchise Templates ← Clearly marked
+│   ├── 🏢 Signature HIIT Blast
+│   ├── 🏢 Foundation CrossFit
+│   └── 🏢 Recovery Stretch
+└── [Select Template]
+    └── Can set time/instructor but not modify content
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Part 5: Operational Systems
+5.1 Support Infrastructure
+Admin Impersonation
+Generated typescript
+async function impersonateUser(
+  adminId: string,
+  targetUserId: string,
+  allowedOrgIds?: string[]
+): Promise<SessionToken> {
+  // Verify admin permission
+  // Create temporary session with org context
+  // Log in audit trail
+  // Return limited token (15 min)
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+Manual Override System
+Generated code
+Support Tools → Break Glass Operations
+├── Search user/entity
+├── Select affected locations
+├── View current state
+├── Propose change
+├── Required: Reason
+├── Confirm with 2FA
+├── Execute change
+├── Log immutably
+└── Notify admins
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+5.2 Development & Testing
+Environment Seeding
+Generated bash
+npm run db:seed
+
+Creates:
+├── Demo owner account
+├── 3 organizations (Main, Downtown, Westside)
+├── Owner account (owner@demo.com)
+├── 5 staff members per location
+├── 150 clients
+│   ├── 100 single-location
+│   ├── 50 with location preferences
+├── Cross-location staff assignments
+├── 2 weeks of classes per location
+├── Booking history
+└── Sample transactions
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+Bash
+IGNORE_WHEN_COPYING_END
+Feature Flags
+Generated typescript
+interface FeatureFlag {
+  name: string;
+  enabled: boolean;
+  rolloutPercentage?: number;
+  targetOrgs?: string[];
+  targetOwnerAccounts?: string[];
+}
+
+// Usage
+if (await isFeatureEnabled('new_booking_flow', orgId, ownerAccountId)) {
+  // New implementation
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+5.3 Monitoring & Analytics
+Key Metrics Dashboard
+Generated code
+Real-time Monitoring
+├── Active users (by location)
+├── API response times
+├── Failed payments
+├── Door unlock success rate
+├── Cross-location traffic
+└── Webhook processing lag
+
+Business Analytics
+├── Client growth rate (by location)
+├── Location switching patterns
+├── Churn analysis
+├── Class utilization
+├── Revenue per client
+├── Trainer efficiency
+├── Peak usage times
+└── Location performance comparison
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Audit Trail
+Generated sql
+-- Every administrative action logged
+INSERT INTO audit_log (
+  actor_user_id,
+  action,
+  target_entity_id,
+  affected_org_ids,
+  details,
+  ip_address,
+  user_agent
+) VALUES (?, ?, ?, ?, ?, ?, ?);
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+SQL
+IGNORE_WHEN_COPYING_END
+Part 6: Business Operations
+6.1 Pricing Strategy
+Membership Tiers
+
+Single Location
+
+Basic ($79/mo): Unlimited classes, standard features
+
+Premium ($129/mo): + Guest passes, priority booking
+
+Unlimited ($179/mo): + Personal training credits
+
+Multi-Location Add-ons
+
+Regional Access (+$10/mo): Access to 3 locations
+
+All Locations (+$20/mo): Access to entire network
+
+Visitor Pass ($10): Single day at another location
+
+Enterprise/Franchise Pricing
+
+Custom pricing per location
+
+Volume discounts for 5+ locations
+
+Consolidated billing options
+
+White-label capabilities
+
+One-Time Purchases
+
+Day Pass: $25 (24-hour access)
+
+Drop-In: $20 (single class)
+
+Personal Training: $80/session
+
+Location Upgrade: $10 (permanent)
+
+6.1.1 Promotional Tools
+Coupon Management
+Generated code
+Settings → Promotions → [+ Create Coupon]
+├── Coupon Details
+│   ├── Code: SUMMER2025
+│   ├── Description: Summer Special
+│   └── Valid Locations: [✓ All] [✓ Main] [✓ Downtown]
+├── Discount Type
+│   ○ Percentage Off (15%)
+│   ● Fixed Amount ($20)
+│   ○ Free Trial Period (14 days)
+│   ○ First Month Free
+├── Applies To
+│   ├── [✓] New Clients Only
+│   ├── [ ] Existing Clients
+│   └── Membership Types: [✓ All] [✓ Basic] [✓ Premium]
+├── Limitations
+│   ├── Usage Limit: 100 total
+│   ├── Per Customer: 1 use
+│   └── Expires: Aug 31, 2025
+└── [Create Coupon]
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Common Promotion Types
+
+First Month Free: 100% off first payment, regular billing starts month 2
+
+Percentage Discount: 10-50% off for X months
+
+Fixed Discount: $X off monthly rate
+
+Extended Trial: 30 days free (vs standard 7)
+
+Buddy Pass: Bring a friend free for a month
+
+Corporate Rates: Special pricing for company employees
+
+Checkout Integration
+Generated code
+join.tryzore.com/backfit
+├── Choose Membership
+├── Account Setup
+├── Payment
+│   ├── [Stripe Card Element]
+│   ├── Promo Code: [SUMMER2025] [Apply]
+│   ├── ✓ Discount Applied: -$20
+│   ├── First Payment: $59 (was $79)
+│   └── [Start Membership]
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Tracking & Analytics
+Generated code
+Analytics → Promotions
+├── Active Coupons: 8
+├── Total Redeemed: 247
+├── Revenue Impact: -$4,940
+├── Conversion Rate: 32% (vs 18% without promo)
+├── Most Successful: NEWYEAR2025 (89 uses)
+└── [Export Report]
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+6.2 Growth Strategies
+Client Acquisition
+
+First-Timer Flow: Seamless drop-in experience
+
+Referral Program: Free month for successful referrals
+
+Corporate Packages: B2B sales for office wellness
+
+Cross-Location Discovery: Promote sister gyms
+
+Franchise Benefits: Network-wide promotions
+
+Retention Tactics
+
+Engagement Tracking: Proactive outreach for at-risk clients
+
+Achievement System: Gamification to drive attendance
+
+Community Features: Client challenges and leaderboards
+
+Location Variety: Encourage exploration of network
+
+Loyalty Rewards: Benefits for long-term clients
+
+6.3 Operational Excellence
+Staff Training
+
+Onboarding checklist for each role
+
+Multi-location policy training
+
+Video tutorials for common tasks
+
+Regular feature updates training
+
+Cross-location best practices
+
+Customer Support
+
+In-app chat (Phase 2)
+
+Email support with 24hr SLA
+
+Self-service knowledge base
+
+Location-specific support channels
+
+Escalation to regional managers
+
+Part 7: Compliance & Legal
+7.1 Jurisdiction Configuration
+Generated typescript
+const jurisdictionRules = {
+  'CA': {
+    allowsMemberCancellation: true,
+    cancellationNotice: 0,
+    refundPolicy: 'pro_rata',
+    requiresCancellationButton: true,
+    crossLocationLiability: 'separate'
+  },
+  'DEFAULT': {
+    allowsMemberCancellation: false,
+    cancellationNotice: 30,
+    refundPolicy: 'none',
+    requiresCancellationButton: false,
+    crossLocationLiability: 'unified'
+  }
+};
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+7.2 Data Privacy (GDPR/CCPA)
+Generated code
+Profile → Privacy Settings
+├── [Export My Data]
+│   ├── Compile all user data
+│   ├── Include cross-location history
+│   ├── Generate JSON export
+│   └── Email download link
+└── [Delete My Account]
+    ├── Multiple confirmations
+    ├── Cancel subscriptions
+    ├── Remove from all locations
+    ├── Anonymize PII
+    └── Preserve referential integrity
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+7.3 Forms & Documents Management
+Generated code
+Settings → Forms & Documents
+├── Document Types
+│   ├── Liability Waivers
+│   ├── Membership Terms
+│   ├── Health Questionnaires
+│   ├── Privacy Policies
+│   └── Custom Forms
+├── Document List
+│   ┌────────────────────────────────────────────────────┐
+│   │ NAME              TYPE       SIZE    DATE    STATUS │
+│   ├────────────────────────────────────────────────────┤
+│   │ Liability Waiver  Waiver     2.1MB   11/1    Active │
+│   │ Uploaded by: Admin                                  │
+│   │ Downloads: 487                                      │
+│   ├────────────────────────────────────────────────────┤
+│   │ Member Terms      Terms      1.5MB   10/15   Active │
+│   │ Uploaded by: Owner                                  │
+│   │ Downloads: 623                                      │
+│   └────────────────────────────────────────────────────┘
+├── Actions
+│   ├── [Upload New]
+│   ├── [Download]
+│   ├── [Share Link]
+│   └── [Archive]
+└── Multi-Location Options
+    ├── Franchise-wide documents
+    ├── Location-specific additions
+    ├── Re-signing flow for updates
+    ├── Cross-location validity
+    └── Version tracking per location
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Part 8: Future Roadmap
+Phase 2 (Q2 2025)
+
+SMS notifications
+
+Wearables integration (Apple Watch, Fitbit)
+
+Advanced analytics dashboard
+
+In-app chat support
+
+Virtual class streaming
+
+API for third-party integrations
+
+Complex Revenue Splitting: Visit-based attribution across locations
+
+Advanced Bulk Operations: Mass client management tools
+
+Custom Domains: Custom URLs for public membership pages
+
+Phase 3 (Q3 2025)
+
+Enterprise SSO (SAML/OIDC)
+
+Custom branded mobile apps
+
+Lead management CRM
+
+Automated marketing campaigns
+
+AI-powered class recommendations
+
+Equipment reservation system
+
+Phase 4 (Q4 2025)
+
+Marketplace for trainers
+
+Nutrition tracking integration
+
+Corporate wellness portal
+
+Advanced financial reporting
+
+Predictive analytics
+
+International expansion support
+
+Phase 5 (2026)
+
+Franchise management suite
+
+White-label platform
+
+Payment processing (become payment facilitator)
+
+Insurance integration
+
+Health data partnerships
+
+IoT equipment integration
+
+Technical Implementation Details
+API Endpoints
+Authentication
+Generated code
+POST /api/v1/auth/login
+POST /api/v1/auth/logout
+POST /api/v1/auth/refresh
+POST /api/v1/auth/forgot-password
+POST /api/v1/auth/reset-password
+POST /api/v1/auth/switch-organization
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Onboarding (NEW)
+Generated code
+POST   /api/v1/onboarding/start
+GET    /api/v1/onboarding/session/:sessionToken
+POST   /api/v1/onboarding/session/:sessionToken/step/:stepNumber
+POST   /api/v1/onboarding/session/:sessionToken/complete
+DELETE /api/v1/onboarding/session/:sessionToken
+GET    /api/v1/onboarding/recovery-options
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Organizations
+Generated code
+GET /api/v1/organizations
+GET /api/v1/organizations/:id
+POST /api/v1/organizations
+PUT /api/v1/organizations/:id
+DELETE /api/v1/organizations/:id
+GET /api/v1/organizations/:id/analytics
+POST /api/v1/organizations/:id/clone-settings
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Clients (Updated from Members)
+Generated code
+GET /api/v1/me
+PUT /api/v1/me
+GET /api/v1/clients
+GET /api/v1/clients/:id
+POST /api/v1/clients
+PUT /api/v1/clients/:id
+DELETE /api/v1/clients/:id
+GET /api/v1/clients/:id/cross-location-history
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Events
+Generated code
+GET /api/v1/events
+GET /api/v1/events/:id
+POST /api/v1/events
+PUT /api/v1/events/:id
+DELETE /api/v1/events/:id
+POST /api/v1/events/:id/book
+DELETE /api/v1/events/:id/bookings/:bookingId
+POST /api/v1/events/:id/waitlist
+GET /api/v1/events/cross-location
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Door Access
+Generated code
+POST /api/v1/door/unlock
+GET /api/v1/door/status
+GET /api/v1/door/nearby-locations
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Payments
+Generated code
+POST /api/v1/checkout/membership
+POST /api/v1/checkout/day-pass
+POST /api/v1/checkout/drop-in
+GET /api/v1/billing/portal
+POST /api/v1/webhooks/stripe
+GET /api/v1/billing/consolidated-invoice
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+IGNORE_WHEN_COPYING_END
+Database Migrations
+Generated sql
+-- Example migration for multi-tenancy
+CREATE TABLE owner_accounts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  is_enterprise BOOLEAN DEFAULT false,
+  billing_email VARCHAR(255),
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE owner_organizations (
+  owner_account_id UUID REFERENCES owner_accounts(id),
+  organization_id UUID REFERENCES organizations(id),
+  role VARCHAR(50) NOT NULL,
+  added_at TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (owner_account_id, organization_id)
+);
+
+-- Onboarding state management table (NEW)
+CREATE TABLE onboarding_sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_token VARCHAR(255) UNIQUE NOT NULL,
+  owner_account_id UUID REFERENCES owner_accounts(id),
+  current_step VARCHAR(50) NOT NULL,
+  step_data JSONB DEFAULT '{}',
+  expires_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Add multi-org support to existing tables
+ALTER TABLE organizations
+  ADD COLUMN parent_org_id UUID REFERENCES organizations(id),
+  ADD COLUMN is_franchise_location BOOLEAN DEFAULT false;
+
+ALTER TABLE memberships
+  ADD COLUMN home_org_id UUID REFERENCES organizations(id),
+  ADD COLUMN allowed_org_ids UUID[] DEFAULT ARRAY[]::UUID[];
+
+-- Cross-org staff assignments
+CREATE TABLE cross_org_staff_assignments (
+  user_id UUID REFERENCES users(id),
+  organization_id UUID REFERENCES organizations(id),
+  role_id UUID REFERENCES roles(id),
+  is_primary_org BOOLEAN DEFAULT false,
+  PRIMARY KEY (user_id, organization_id)
+);
+
+-- Indexes for performance
+CREATE INDEX idx_owner_orgs_owner ON owner_organizations(owner_account_id);
+CREATE INDEX idx_cross_location_bookings ON event_bookings(user_id, booking_org_id, attended_org_id);
+CREATE INDEX idx_multi_org_access ON memberships(user_id, allowed_org_ids);
+CREATE INDEX idx_staff_assignments ON cross_org_staff_assignments(user_id, organization_id);
+CREATE INDEX idx_onboarding_sessions_token ON onboarding_sessions(session_token);
+CREATE INDEX idx_onboarding_sessions_expiry ON onboarding_sessions(expires_at);
+
+-- Cleanup jobs for onboarding
+-- Run every hour to clean expired sessions
+CREATE OR REPLACE FUNCTION cleanup_expired_onboarding_sessions()
+RETURNS void AS $
+BEGIN
+  -- Archive expired sessions for audit
+  INSERT INTO archived_onboarding_sessions 
+  SELECT * FROM onboarding_sessions 
+  WHERE expires_at < NOW() 
+  AND current_step != 'complete';
+  
+  -- Delete expired sessions
+  DELETE FROM onboarding_sessions 
+  WHERE expires_at < NOW() 
+  AND current_step != 'complete';
+END;
+$ LANGUAGE plpgsql;
+
+-- Schedule the cleanup job
+SELECT cron.schedule('cleanup-onboarding-sessions', '0 * * * *', 'SELECT cleanup_expired_onboarding_sessions()');
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+SQL
+IGNORE_WHEN_COPYING_END
+Performance Optimization
+Caching Strategy
+Generated typescript
+// Cache member access status with org context
+const CACHE_TTL = 300; // 5 minutes
+
+async function checkMemberAccess(userId: string, orgId: string): Promise<boolean> {
+  const cacheKey = `access:${userId}:${orgId}`;
+  const cached = await redis.get(cacheKey);
+  
+  if (cached !== null) {
+    return cached === 'true';
+  }
+  
+  const hasAccess = await db.checkActiveAccess(userId, orgId);
+  await redis.setex(cacheKey, CACHE_TTL, hasAccess.toString());
+  return hasAccess;
+}
+
+// Cache onboarding session state
+async function cacheOnboardingSession(session: OnboardingSession): Promise<void> {
+  const cacheKey = `onboarding:${session.sessionToken}`;
+  await redis.setex(cacheKey, 3600, JSON.stringify(session)); // 1 hour cache
+}
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+TypeScript
+IGNORE_WHEN_COPYING_END
+Database Indexes
+Generated sql
+-- Optimize common queries
+CREATE INDEX idx_events_start_time_org ON events(org_id, start_time);
+CREATE INDEX idx_bookings_user_event ON event_bookings(user_id, event_id);
+CREATE INDEX idx_memberships_user_status ON memberships(user_id, status);
+CREATE INDEX idx_transactions_user_created ON transactions(user_id, created_at);
+CREATE INDEX idx_cross_org_analytics ON event_bookings(attended_org_id, created_at);
+
+-- Onboarding-specific indexes
+CREATE INDEX idx_owner_accounts_email ON owner_accounts(email);
+CREATE INDEX idx_incomplete_accounts ON owner_accounts(id) 
+WHERE NOT EXISTS (
+  SELECT 1 FROM owner_organizations 
+  WHERE owner_organizations.owner_account_id = owner_accounts.id
+);
+IGNORE_WHEN_COPYING_START
+content_copy
+download
+Use code with caution.
+SQL
+IGNORE_WHEN_COPYING_END
+Conclusion
+
+This unified master blueprint represents the complete vision and implementation guide for TryZore with enhanced multi-tenancy support. It combines all elements from previous versions while incorporating the critical UI updates and acknowledging the complexity of multi-step onboarding flows.
+
+Key Technical Considerations Added:
+
+State Management Complexity: The document now includes detailed onboarding session management, recovery flows, and cleanup jobs to handle incomplete states.
+
+Transactional Integrity: Comprehensive error handling and rollback strategies for multi-step flows where partial completion can occur.
+
+API Design: New endpoints specifically for stateful onboarding with proper session management.
+
+Edge Case Handling: Recovery paths for various failure scenarios including orphaned accounts, expired sessions, and partial Stripe setups.
+
+Scheduled Maintenance: Automated cleanup jobs to prevent database pollution from abandoned onboarding attempts.
+
+New Multi-Tenancy Features:
+
+Owner Account Layer: Separate authentication for business owners
+
+Cross-Organization Access: Clients can access multiple locations via simple location switcher
+
+Consolidated Billing: Single invoice for multi-location access
+
+Franchise Support: Templates and standardization across locations
+
+Enterprise Analytics: Aggregated reporting across all owned gyms
+
+Flexible Permissions: Role-based access across organizations
+
+Staff Multi-Location Support: Staff can work at multiple locations with location switching
+
+Key Terminology Updates:
+
+"Members" → "Clients" throughout the system
+
+"Staff" → "Employees" where appropriate
+
+"Waivers" → "Forms & Documents" for broader document management
+
+Unified "People" navigation containing Clients, Employees, and Tours
+
+Key Architectural Enhancements:
+
+Data Isolation: Strict org_id validation on all operations
+
+Scalable Design: Built for 1 to 1000+ locations
+
+Flexible Memberships: Support any access combination
+
+Unified Experience: Seamless client experience across locations
+
+Enterprise Ready: SSO, white-labeling, and API access planned
+
+Robust State Management: Proper handling of multi-step flows with recovery mechanisms
+
+The system is designed to be:
+
+Maintainable: Clear separation of concerns and documented patterns
+
+Scalable: Async processing and efficient data models
+
+Compliant: Jurisdiction-aware features from day one
+
+User-Friendly: Streamlined flows for all user types
+
+Robust: Comprehensive error handling and edge cases
+
+Enterprise-Grade: Full multi-tenancy from the ground up
+
+Resilient: Proper state management and recovery for complex flows
+
+This document serves as the single source of truth for building TryZore, enabling parallel development while ensuring all components integrate seamlessly. It acknowledges that while core business logic may be reused, implementing robust multi-step flows requires significant additional engineering effort for state management, error handling, and recovery mechanisms.
+
+so my job is to do Auth and integrations of all the feautres in the crm and app ie workout, settings. litteraly every feature
+
+my teammates job is to do Stripe and Kisi
+
+in this project/repo 
+
+i am doing backend for crm 
+
+We are using supabase for database and workOS for auth
+
+my responisbilies in this repo are auth and integrating the crm features and making it easy for me when i go to app repo to plug and play and implement those features 
