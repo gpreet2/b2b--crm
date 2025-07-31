@@ -1,4 +1,48 @@
-import { User, Client, Program, Class, Reservation, Exercise, Workout, DashboardStats, Coach, ReservationSettings, Tour } from './types'
+import { User, Client, Program, Class, Reservation, Exercise, Workout, DashboardStats, Coach, ReservationSettings, Tour, Location } from './types'
+
+// Mock Locations
+export const mockLocations: Location[] = [
+  {
+    id: '1',
+    name: 'Downtown Fitness Center',
+    address: '123 Main Street',
+    city: 'Downtown',
+    state: 'CA',
+    zipCode: '90210',
+    phone: '(555) 123-4567',
+    isActive: true,
+  },
+  {
+    id: '2',
+    name: 'Westside Gym',
+    address: '456 Oak Avenue',
+    city: 'Westside',
+    state: 'CA',
+    zipCode: '90211',
+    phone: '(555) 234-5678',
+    isActive: true,
+  },
+  {
+    id: '3',
+    name: 'Eastside Athletic Club',
+    address: '789 Pine Boulevard',
+    city: 'Eastside',
+    state: 'CA',
+    zipCode: '90212',
+    phone: '(555) 345-6789',
+    isActive: true,
+  },
+  {
+    id: '4',
+    name: 'Northside Training Center',
+    address: '321 Elm Street',
+    city: 'Northside',
+    state: 'CA',
+    zipCode: '90213',
+    phone: '(555) 456-7890',
+    isActive: false,
+  },
+]
 
 // Mock Users/Coaches
 export const mockUsers: User[] = [
@@ -52,7 +96,7 @@ export const mockUsers: User[] = [
   },
 ]
 
-// Mock Coaches with specialties - Updated for the three programs
+// Mock Coaches with specialties and location assignments
 export const mockCoaches: Coach[] = [
   {
     id: '1',
@@ -63,6 +107,7 @@ export const mockCoaches: Coach[] = [
     createdAt: new Date('2023-01-15'),
     specialties: ['Burn40', 'HIIT', 'Cardio', 'Weight Loss'],
     isActive: true,
+    locationAssignments: [],
   },
   {
     id: '2',
@@ -73,6 +118,7 @@ export const mockCoaches: Coach[] = [
     createdAt: new Date('2023-02-20'),
     specialties: ['CrossFit', 'Functional Fitness', 'Strength Training', 'Sports Performance'],
     isActive: true,
+    locationAssignments: [],
   },
   {
     id: '3',
@@ -83,6 +129,7 @@ export const mockCoaches: Coach[] = [
     createdAt: new Date('2023-03-10'),
     specialties: ['BurnDumbells', 'Strength Training', 'Dumbbell Training', 'Muscle Building'],
     isActive: true,
+    locationAssignments: [],
   },
   {
     id: '4',
@@ -93,6 +140,7 @@ export const mockCoaches: Coach[] = [
     createdAt: new Date('2023-04-05'),
     specialties: ['CrossFit', 'Burn40', 'Conditioning', 'Athletic Performance'],
     isActive: true,
+    locationAssignments: [],
   },
   {
     id: '5',
@@ -103,6 +151,86 @@ export const mockCoaches: Coach[] = [
     createdAt: new Date('2023-05-12'),
     specialties: ['BurnDumbells', 'Strength Training', 'Personal Training', 'Group Fitness'],
     isActive: true,
+    locationAssignments: [],
+  },
+]
+
+// Add location assignments after locations are defined
+mockCoaches[0].locationAssignments = [
+  {
+    locationId: '1',
+    location: mockLocations[0],
+    isPrimary: true,
+    accessLevel: 'full',
+    assignedDate: new Date('2023-01-15'),
+  },
+  {
+    locationId: '2',
+    location: mockLocations[1],
+    isPrimary: false,
+    accessLevel: 'full',
+    assignedDate: new Date('2023-06-01'),
+  },
+]
+
+mockCoaches[1].locationAssignments = [
+  {
+    locationId: '2',
+    location: mockLocations[1],
+    isPrimary: true,
+    accessLevel: 'full',
+    assignedDate: new Date('2023-02-20'),
+  },
+]
+
+mockCoaches[2].locationAssignments = [
+  {
+    locationId: '1',
+    location: mockLocations[0],
+    isPrimary: true,
+    accessLevel: 'full',
+    assignedDate: new Date('2023-03-10'),
+  },
+  {
+    locationId: '3',
+    location: mockLocations[2],
+    isPrimary: false,
+    accessLevel: 'limited',
+    assignedDate: new Date('2023-08-01'),
+  },
+]
+
+mockCoaches[3].locationAssignments = [
+  {
+    locationId: '3',
+    location: mockLocations[2],
+    isPrimary: true,
+    accessLevel: 'full',
+    assignedDate: new Date('2023-04-05'),
+  },
+]
+
+mockCoaches[4].locationAssignments = [
+  {
+    locationId: '1',
+    location: mockLocations[0],
+    isPrimary: true,
+    accessLevel: 'full',
+    assignedDate: new Date('2023-05-12'),
+  },
+  {
+    locationId: '2',
+    location: mockLocations[1],
+    isPrimary: false,
+    accessLevel: 'full',
+    assignedDate: new Date('2023-07-01'),
+  },
+  {
+    locationId: '3',
+    location: mockLocations[2],
+    isPrimary: false,
+    accessLevel: 'limited',
+    assignedDate: new Date('2023-09-01'),
   },
 ]
 
@@ -137,7 +265,7 @@ export const mockPrograms: Program[] = [
   },
 ]
 
-// Mock Clients
+// Mock Clients with location access
 export const mockClients: Client[] = [
   {
     id: '1',
@@ -152,7 +280,9 @@ export const mockClients: Client[] = [
       relationship: 'Spouse',
     },
     membershipType: 'active',
+    memberType: 'home',
     membershipStartDate: new Date('2023-01-15'),
+    locationAccess: [],
     notes: 'Prefers morning classes',
     createdAt: new Date('2023-01-15'),
     updatedAt: new Date('2024-01-15'),
@@ -170,7 +300,9 @@ export const mockClients: Client[] = [
       relationship: 'Husband',
     },
     membershipType: 'active',
+    memberType: 'multi-location',
     membershipStartDate: new Date('2023-02-10'),
+    locationAccess: [],
     notes: 'Loves yoga and strength training',
     createdAt: new Date('2023-02-10'),
     updatedAt: new Date('2024-01-15'),
@@ -188,7 +320,9 @@ export const mockClients: Client[] = [
       relationship: 'Sister',
     },
     membershipType: 'active',
+    memberType: 'visiting',
     membershipStartDate: new Date('2023-03-05'),
+    locationAccess: [],
     notes: 'Boxing enthusiast',
     createdAt: new Date('2023-03-05'),
     updatedAt: new Date('2024-01-15'),
@@ -206,8 +340,10 @@ export const mockClients: Client[] = [
       relationship: 'Father',
     },
     membershipType: 'suspended',
+    memberType: 'home',
     membershipStartDate: new Date('2023-01-20'),
     membershipEndDate: new Date('2024-02-20'),
+    locationAccess: [],
     notes: 'Suspended due to payment issues',
     createdAt: new Date('2023-01-20'),
     updatedAt: new Date('2024-01-15'),
@@ -225,10 +361,85 @@ export const mockClients: Client[] = [
       relationship: 'Wife',
     },
     membershipType: 'active',
+    memberType: 'multi-location',
     membershipStartDate: new Date('2023-04-12'),
+    locationAccess: [],
     notes: 'New member, interested in functional fitness',
     createdAt: new Date('2023-04-12'),
     updatedAt: new Date('2024-01-15'),
+  },
+]
+
+// Add location access after locations are defined
+mockClients[0].locationAccess = [
+  {
+    locationId: '1',
+    location: mockLocations[0],
+    accessType: 'home',
+    isHomeLocation: true,
+    accessStartDate: new Date('2023-01-15'),
+  },
+]
+
+mockClients[1].locationAccess = [
+  {
+    locationId: '1',
+    location: mockLocations[0],
+    accessType: 'home',
+    isHomeLocation: true,
+    accessStartDate: new Date('2023-02-10'),
+  },
+  {
+    locationId: '2',
+    location: mockLocations[1],
+    accessType: 'full',
+    isHomeLocation: false,
+    accessStartDate: new Date('2023-02-10'),
+  },
+  {
+    locationId: '3',
+    location: mockLocations[2],
+    accessType: 'full',
+    isHomeLocation: false,
+    accessStartDate: new Date('2023-06-01'),
+  },
+]
+
+mockClients[2].locationAccess = [
+  {
+    locationId: '2',
+    location: mockLocations[1],
+    accessType: 'limited',
+    isHomeLocation: false,
+    accessStartDate: new Date('2023-03-05'),
+    accessEndDate: new Date('2025-03-05'),
+  },
+]
+
+mockClients[3].locationAccess = [
+  {
+    locationId: '1',
+    location: mockLocations[0],
+    accessType: 'home',
+    isHomeLocation: true,
+    accessStartDate: new Date('2023-01-20'),
+  },
+]
+
+mockClients[4].locationAccess = [
+  {
+    locationId: '2',
+    location: mockLocations[1],
+    accessType: 'home',
+    isHomeLocation: true,
+    accessStartDate: new Date('2023-04-12'),
+  },
+  {
+    locationId: '1',
+    location: mockLocations[0],
+    accessType: 'full',
+    isHomeLocation: false,
+    accessStartDate: new Date('2023-04-12'),
   },
 ]
 

@@ -12,19 +12,15 @@ import {
   Ticket,
   MoreVertical,
 } from 'lucide-react'
+import { mockClients } from '@/lib/mock-data'
+import { Client } from '@/lib/types'
+import MemberProfileModal from '@/components/people/MemberProfileModal'
 
-interface Member {
-  id: string
-  name: string
-  email: string
-  phone: string
-  membershipStatus: 'active' | 'expired' | 'pending' | 'cancelled'
-  membershipType: string
+interface Member extends Client {
   membershipExpiry: Date
   lastCheckIn?: Date
   totalCheckIns: number
   profileImage?: string
-  joinDate: Date
   classes: ClassEnrollment[]
 }
 
@@ -50,11 +46,13 @@ interface DayPass {
   amount: number
 }
 
-export default function ClientsPage() {
+export default function MembersPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedMember, setSelectedMember] = useState<Member | null>(null)
   const [showDayPassModal, setShowDayPassModal] = useState(false)
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null)
+  const [showProfileModal, setShowProfileModal] = useState(false)
+  const [profileMember, setProfileMember] = useState<Member | null>(null)
   const [dayPassForm, setDayPassForm] = useState({
     name: '',
     email: '',
@@ -62,107 +60,21 @@ export default function ClientsPage() {
   })
   const [isProcessingPayment, setIsProcessingPayment] = useState(false)
 
-  // Mock data
-  const members: Member[] = useMemo(() => [
-    {
-      id: '1',
-      name: 'Sarah Johnson',
-      email: 'sarah.j@example.com',
-      phone: '(252) 555-0126',
-      membershipStatus: 'active',
-      membershipType: 'Premium Monthly',
-      membershipExpiry: new Date('2025-03-15'),
-      lastCheckIn: new Date('2025-01-28'),
-      totalCheckIns: 127,
-      joinDate: new Date('2024-06-15'),
-      classes: [
-        {
-          id: 'c1',
-          classId: 'class1',
-          className: 'Morning Yoga',
-          date: new Date('2025-01-29'),
-          time: '9:00 AM',
-          checkedIn: false
-        },
-        {
-          id: 'c2',
-          classId: 'class2',
-          className: 'CrossFit',
-          date: new Date('2025-01-28'),
-          time: '6:00 PM',
-          checkedIn: true,
-          checkedInAt: new Date('2025-01-28T18:05:00')
-        }
-      ]
-    },
-    {
-      id: '2',
-      name: 'Michael Chen',
-      email: 'mchen@example.com',
-      phone: '(252) 555-0127',
-      membershipStatus: 'active',
-      membershipType: 'Basic Monthly',
-      membershipExpiry: new Date('2025-02-28'),
-      lastCheckIn: new Date('2025-01-27'),
-      totalCheckIns: 89,
-      joinDate: new Date('2024-09-01'),
-      classes: []
-    },
-    {
-      id: '3',
-      name: 'Emily Rodriguez',
-      email: 'emily.r@example.com',
-      phone: '(252) 555-0128',
-      membershipStatus: 'expired',
-      membershipType: 'Premium Annual',
-      membershipExpiry: new Date('2025-01-15'),
-      lastCheckIn: new Date('2025-01-10'),
-      totalCheckIns: 234,
-      joinDate: new Date('2023-12-01'),
-      classes: []
-    },
-    {
-      id: '4',
-      name: 'James Wilson',
-      email: 'j.wilson@example.com',
-      phone: '(252) 555-0129',
-      membershipStatus: 'active',
-      membershipType: 'Student Monthly',
-      membershipExpiry: new Date('2025-02-01'),
-      lastCheckIn: new Date('2025-01-29'),
-      totalCheckIns: 45,
-      joinDate: new Date('2024-11-15'),
-      classes: [
-        {
-          id: 'c3',
-          classId: 'class3',
-          className: 'HIIT Training',
-          date: new Date('2025-01-29'),
-          time: '5:30 PM',
-          checkedIn: false
-        }
-      ]
-    },
-    {
-      id: '5',
-      name: 'Lisa Thompson',
-      email: 'lisa.t@example.com',
-      phone: '(252) 555-0130',
-      membershipStatus: 'pending',
-      membershipType: 'Premium Monthly',
-      membershipExpiry: new Date('2025-02-05'),
-      totalCheckIns: 0,
-      joinDate: new Date('2025-01-25'),
-      classes: []
-    }
-  ], [])
+  // Convert mock clients to members with additional fields
+  const members: Member[] = useMemo(() => mockClients.map(client => ({
+    ...client,
+    membershipExpiry: new Date('2025-03-15'), // Mock expiry date
+    lastCheckIn: Math.random() > 0.3 ? new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000) : undefined,
+    totalCheckIns: Math.floor(Math.random() * 200) + 10,
+    classes: [] // Mock empty classes for now
+  })), [])
 
   const filteredMembers = useMemo(() => {
     if (!searchQuery) return members
     
     const query = searchQuery.toLowerCase()
     return members.filter(member =>
-      member.name.toLowerCase().includes(query) ||
+      `${member.firstName} ${member.lastName}`.toLowerCase().includes(query) ||
       member.email.toLowerCase().includes(query) ||
       member.phone.includes(searchQuery)
     )
@@ -172,14 +84,40 @@ export default function ClientsPage() {
     switch (status) {
       case 'active':
         return 'bg-green-100 text-green-800'
-      case 'expired':
+      case 'suspended':
         return 'bg-red-100 text-red-800'
-      case 'pending':
+      case 'inactive':
         return 'bg-yellow-100 text-yellow-800'
-      case 'cancelled':
-        return 'bg-gray-100 text-gray-800'
+      case 'employee':
+        return 'bg-blue-100 text-blue-800'
       default:
         return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getMemberTypeColor = (type: string) => {
+    switch (type) {
+      case 'home':
+        return 'bg-blue-100 text-blue-800'
+      case 'multi-location':
+        return 'bg-purple-100 text-purple-800'
+      case 'visiting':
+        return 'bg-orange-100 text-orange-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getMemberTypeLabel = (type: string) => {
+    switch (type) {
+      case 'home':
+        return 'Home Member'
+      case 'multi-location':
+        return 'Multi-Location'
+      case 'visiting':
+        return 'Visiting Member'
+      default:
+        return type
     }
   }
 
@@ -209,6 +147,12 @@ export default function ClientsPage() {
 
   const handleViewClasses = (member: Member) => {
     setSelectedMember(member)
+    setActiveDropdownId(null)
+  }
+
+  const handleViewProfile = (member: Member) => {
+    setProfileMember(member)
+    setShowProfileModal(true)
     setActiveDropdownId(null)
   }
 
@@ -248,7 +192,7 @@ export default function ClientsPage() {
       <div className="bg-white border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Clients</h1>
+            <h1 className="text-2xl font-semibold text-gray-900">Members</h1>
             <p className="text-sm text-gray-500 mt-1">Manage members and day passes</p>
           </div>
           
@@ -289,6 +233,9 @@ export default function ClientsPage() {
                   Contact
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Type
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Membership
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -313,8 +260,8 @@ export default function ClientsPage() {
                         </div>
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{member.name}</div>
-                        <div className="text-sm text-gray-500">Member since {formatDate(member.joinDate)}</div>
+                        <div className="text-sm font-medium text-gray-900">{member.firstName} {member.lastName}</div>
+                        <div className="text-sm text-gray-500">Member since {formatDate(member.membershipStartDate)}</div>
                       </div>
                     </div>
                   </td>
@@ -323,15 +270,20 @@ export default function ClientsPage() {
                     <div className="text-sm text-gray-500">{member.phone}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{member.membershipType}</div>
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getMemberTypeColor(member.memberType)}`}>
+                      {getMemberTypeLabel(member.memberType)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">Premium Monthly</div>
                     <div className="text-sm text-gray-500">Expires {formatDate(member.membershipExpiry)}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {member.lastCheckIn ? getTimeAgo(member.lastCheckIn) : 'Never'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(member.membershipStatus)}`}>
-                      {member.membershipStatus}
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(member.membershipType)}`}>
+                      {member.membershipType}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -361,6 +313,7 @@ export default function ClientsPage() {
                               <span>View Classes</span>
                             </button>
                             <button
+                              onClick={() => handleViewProfile(member)}
                               className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2"
                             >
                               <User className="h-4 w-4" />
@@ -385,7 +338,7 @@ export default function ClientsPage() {
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-medium text-gray-900">
-                  Classes for {selectedMember.name}
+                  Classes for {selectedMember.firstName} {selectedMember.lastName}
                 </h2>
                 <button
                   onClick={() => setSelectedMember(null)}
@@ -535,6 +488,16 @@ export default function ClientsPage() {
           </div>
         </div>
       )}
+
+      {/* Member Profile Modal */}
+      <MemberProfileModal
+        member={profileMember}
+        isOpen={showProfileModal}
+        onClose={() => {
+          setShowProfileModal(false)
+          setProfileMember(null)
+        }}
+      />
     </div>
   )
 }

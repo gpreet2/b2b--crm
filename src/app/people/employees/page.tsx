@@ -52,6 +52,7 @@ export default function EmployeesPage() {
   const [selectedTrainer, setSelectedTrainer] = useState<Coach | null>(null);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "performance">("list");
+  // const [showAddEmployeeModal, setShowAddEmployeeModal] = useState(false);
 
   // Calculate trainer statistics
   const getTrainerStats = (trainerId: string): TrainerStats => {
@@ -499,7 +500,13 @@ export default function EmployeesPage() {
             </p>
           </div>
 
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2">
+          <button
+            onClick={() => {
+              // TODO: Implement add employee modal
+              console.log("Add employee clicked");
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+          >
             <User className="h-4 w-4" />
             <span>Add Employee</span>
           </button>

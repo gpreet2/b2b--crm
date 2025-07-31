@@ -7,7 +7,7 @@ export default function PeoplePage() {
     <div>
       <div className="mb-4 sm:mb-6">
         <h1 className="text-h2 sm:text-h1 font-heading text-primary-text">People</h1>
-        <p className="text-sm sm:text-body text-secondary-text">Manage leads, clients, and customer segments</p>
+        <p className="text-sm sm:text-body text-secondary-text">Manage leads, members, and customer segments</p>
       </div>
 
       <Card>
@@ -21,7 +21,7 @@ export default function PeoplePage() {
           <div className="p-4 sm:p-8 text-center text-muted">
             <UsersIcon className="h-8 w-8 sm:h-12 sm:w-12 mx-auto mb-3 sm:mb-4 text-muted" />
             <p className="text-sm sm:text-body">People management system</p>
-            <p className="text-xs sm:text-body-sm">Manage leads, clients, segments, and customer relationships</p>
+            <p className="text-xs sm:text-body-sm">Manage leads, members, segments, and customer relationships</p>
           </div>
         </CardContent>
       </Card>

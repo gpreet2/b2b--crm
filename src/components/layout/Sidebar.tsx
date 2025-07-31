@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useLocation } from "@/contexts/LocationContext";
 import {
   ChevronDownIcon,
   Cog6ToothIcon,
@@ -21,8 +22,9 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
   ({ className, onClose, ...props }, ref) => {
     const pathname = usePathname();
     const router = useRouter();
+    const { selectedLocation, switchLocation, isLocationSwitching } =
+      useLocation();
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
-    const [selectedLocation, setSelectedLocation] = useState("Bakersfield, CA");
     const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
 
     const locations = [
@@ -119,20 +121,34 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
           <div className="relative">
             {/* Location Button */}
             <button
-              onClick={() => setIsLocationDropdownOpen(!isLocationDropdownOpen)}
-              className="w-full flex items-center justify-between px-4 py-3 rounded-lg border-2 border-gray-200 hover:border-primary transition-all duration-200"
+              onClick={() =>
+                !isLocationSwitching &&
+                setIsLocationDropdownOpen(!isLocationDropdownOpen)
+              }
+              disabled={isLocationSwitching}
+              className={`w-full flex items-center justify-between px-4 py-3 rounded-lg border-2 transition-all duration-200 ${
+                isLocationSwitching
+                  ? "border-primary/50 cursor-not-allowed"
+                  : "border-gray-200 hover:border-primary"
+              }`}
               style={{ backgroundColor: "#ffffff" }}
             >
               <div className="flex items-center space-x-3">
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center"
+                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                    isLocationSwitching ? "animate-pulse" : ""
+                  }`}
                   style={{ backgroundColor: "#fef2f2" }}
                 >
-                  <MapPinIcon className="h-4 w-4 text-primary" />
+                  {isLocationSwitching ? (
+                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <MapPinIcon className="h-4 w-4 text-primary" />
+                  )}
                 </div>
                 <div className="text-left">
                   <div className="text-xs text-gray-500 font-medium">
-                    Location
+                    {isLocationSwitching ? "Switching..." : "Location"}
                   </div>
                   <div className="text-sm font-semibold text-gray-900">
                     {selectedLocation}
@@ -141,13 +157,15 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
               </div>
               <ChevronDownIcon
                 className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${
-                  isLocationDropdownOpen ? "rotate-180" : ""
+                  isLocationDropdownOpen && !isLocationSwitching
+                    ? "rotate-180"
+                    : ""
                 }`}
               />
             </button>
 
             {/* Dropdown Portal */}
-            {isLocationDropdownOpen && (
+            {isLocationDropdownOpen && !isLocationSwitching && (
               <>
                 {/* Backdrop */}
                 <div
@@ -164,9 +182,9 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                     {locations.map((location, index) => (
                       <button
                         key={location}
-                        onClick={() => {
-                          setSelectedLocation(location);
+                        onClick={async () => {
                           setIsLocationDropdownOpen(false);
+                          await switchLocation(location);
                         }}
                         className={`w-full px-4 py-3 text-left flex items-center space-x-3 transition-colors duration-150 ${
                           index !== locations.length - 1

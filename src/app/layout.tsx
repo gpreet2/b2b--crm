@@ -2,6 +2,8 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Layout } from "@/components/layout/Layout";
+import { LocationProvider, useLocation } from "@/contexts/LocationContext";
+import { LocationSwitchLoader } from "@/components/ui/LocationSwitchLoader";
 import { usePathname } from "next/navigation";
 
 const geistSans = Geist({
@@ -14,11 +16,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+function AppContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAuthPage = pathname?.startsWith('/auth');
   const isOnboardingPage = pathname?.startsWith('/onboarding');
@@ -28,23 +26,63 @@ export default function RootLayout({
     email: 'admin@fitnesspro.com'
   };
 
+  if (isAuthPage || isOnboardingPage) {
+    return children;
+  }
+
+  return (
+    <LocationProvider>
+      <LocationAwareLayout user={user}>
+        {children}
+      </LocationAwareLayout>
+    </LocationProvider>
+  );
+}
+
+function LocationAwareLayout({ 
+  children, 
+  user 
+}: { 
+  children: React.ReactNode;
+  user: { name: string; email: string };
+}) {
+  const { isLocationSwitching, selectedLocation } = useLocation();
+
+  return (
+    <>
+      <Layout
+        headerProps={{
+          user,
+          notifications: 5
+        }}
+        className={isLocationSwitching ? "location-switching" : ""}
+      >
+        <div 
+          key={selectedLocation} 
+          className={`location-content-wrapper ${!isLocationSwitching ? 'location-content-fade-in' : ''}`}
+        >
+          {children}
+        </div>
+      </Layout>
+      <LocationSwitchLoader 
+        isVisible={isLocationSwitching} 
+        locationName={selectedLocation}
+      />
+    </>
+  );
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {isAuthPage || isOnboardingPage ? (
-          children
-        ) : (
-          <Layout
-            headerProps={{
-              user,
-              notifications: 5
-            }}
-          >
-            {children}
-          </Layout>
-        )}
+        <AppContent>{children}</AppContent>
       </body>
     </html>
   );

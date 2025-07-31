@@ -8,6 +8,27 @@ export interface User {
   createdAt: Date
 }
 
+// Location Types
+export interface Location {
+  id: string
+  name: string
+  address: string
+  city: string
+  state: string
+  zipCode: string
+  phone?: string
+  isActive: boolean
+}
+
+export interface LocationAccess {
+  locationId: string
+  location: Location
+  accessType: 'home' | 'full' | 'limited'
+  isHomeLocation: boolean
+  accessStartDate?: Date
+  accessEndDate?: Date
+}
+
 // Client/Member Types
 export interface Client {
   id: string
@@ -22,8 +43,10 @@ export interface Client {
     relationship: string
   }
   membershipType: 'active' | 'suspended' | 'inactive' | 'employee'
+  memberType: 'home' | 'multi-location' | 'visiting'
   membershipStartDate: Date
   membershipEndDate?: Date
+  locationAccess: LocationAccess[]
   notes?: string
   photo?: string
   createdAt: Date
@@ -64,10 +87,20 @@ export interface Class {
   notes?: string
 }
 
+// Staff Location Assignment
+export interface StaffLocationAssignment {
+  locationId: string
+  location: Location
+  isPrimary: boolean
+  accessLevel: 'full' | 'limited'
+  assignedDate: Date
+}
+
 // Coach Entity (extending User with coach-specific properties)
 export interface Coach extends User {
   specialties: string[]
   isActive: boolean
+  locationAssignments: StaffLocationAssignment[]
 }
 
 // Reservation Settings
