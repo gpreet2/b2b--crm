@@ -8,9 +8,71 @@
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Create all database tables with RLS policies enforced from the start. Tables: owner_accounts, owner_organizations, organizations, users, cross_org_staff_assignments, roles, permissions, subscriptions, memberships, events, event_templates, event_bookings, workouts, transactions, notifications, client_segments, audit_log, waivers, onboarding_sessions. Every table MUST have RLS policies before any data insertion.",
+        "details": "Create all database tables with RLS policies enforced from the start. Every table MUST have RLS policies before any data insertion.",
         "dependencies": [],
-        "testStrategy": "Verify RLS policies block unauthorized access, test that no table allows public access, validate foreign keys and constraints"
+        "testStrategy": "Verify RLS policies block unauthorized access, test that no table allows public access, validate foreign keys and constraints",
+        "subtasks": [
+          {
+            "id": "1.1",
+            "title": "Create Supabase project and configure environment",
+            "description": "Set up Supabase project, configure environment variables, establish connection",
+            "status": "pending"
+          },
+          {
+            "id": "1.2",
+            "title": "Create core multi-tenancy tables with RLS",
+            "description": "owner_accounts, owner_organizations, organizations with strict RLS policies",
+            "status": "pending"
+          },
+          {
+            "id": "1.3",
+            "title": "Create user and permission tables with RLS",
+            "description": "users, roles, permissions, role_permissions, cross_org_staff_assignments",
+            "status": "pending"
+          },
+          {
+            "id": "1.4",
+            "title": "Create generic tagging system tables",
+            "description": "tags (id, name, type, org_id), taggables (tag_id, taggable_id, taggable_type) for flexible tagging of employees, tours, classes",
+            "status": "pending"
+          },
+          {
+            "id": "1.5",
+            "title": "Create event tables with tour metadata support",
+            "description": "events, event_templates, event_bookings with tour_type and lead_source fields",
+            "status": "pending"
+          },
+          {
+            "id": "1.6",
+            "title": "Create membership and subscription tables",
+            "description": "subscriptions, memberships with multi-location support and RLS",
+            "status": "pending"
+          },
+          {
+            "id": "1.7",
+            "title": "Create notification tables for in-app notifications",
+            "description": "notifications table with read_at timestamp, user_id, type, payload",
+            "status": "pending"
+          },
+          {
+            "id": "1.8",
+            "title": "Create supporting tables",
+            "description": "workouts, transactions, client_segments, audit_log, waivers, onboarding_sessions",
+            "status": "pending"
+          },
+          {
+            "id": "1.9",
+            "title": "Create indexes and constraints",
+            "description": "Add all foreign keys, unique constraints, and performance indexes",
+            "status": "pending"
+          },
+          {
+            "id": "1.10",
+            "title": "Document RLS policies",
+            "description": "Create comprehensive documentation of all RLS policies per table",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "2",
@@ -19,9 +81,41 @@
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Set up automated Supabase backups, create point-in-time recovery procedures, implement data export functionality, document and TEST recovery procedures. If data isn't backed up, you don't have data.",
+        "details": "Set up automated Supabase backups, create point-in-time recovery procedures, implement data export functionality, document and TEST recovery procedures.",
         "dependencies": ["1"],
-        "testStrategy": "Actually perform a backup and restore to verify it works, test data integrity after restore"
+        "testStrategy": "Actually perform a backup and restore to verify it works, test data integrity after restore",
+        "subtasks": [
+          {
+            "id": "2.1",
+            "title": "Configure Supabase automatic backups",
+            "description": "Enable daily automated backups in Supabase dashboard",
+            "status": "pending"
+          },
+          {
+            "id": "2.2",
+            "title": "Create manual backup scripts",
+            "description": "Scripts for on-demand full database exports using pg_dump",
+            "status": "pending"
+          },
+          {
+            "id": "2.3",
+            "title": "Implement point-in-time recovery procedures",
+            "description": "Document and test PITR recovery process",
+            "status": "pending"
+          },
+          {
+            "id": "2.4",
+            "title": "Create data export API endpoints",
+            "description": "Endpoints for GDPR compliance - export user data on request",
+            "status": "pending"
+          },
+          {
+            "id": "2.5",
+            "title": "Test complete restore process",
+            "description": "Actually restore from backup and verify data integrity",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "3",
@@ -30,9 +124,41 @@
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Create custom error classes, implement error middleware, add error logging with Sentry, ensure consistent error response format, add request ID tracking. This must exist before authentication work begins.",
+        "details": "Create custom error classes, implement error middleware, add error logging with Sentry, ensure consistent error response format, add request ID tracking.",
         "dependencies": [],
-        "testStrategy": "Test error responses for various scenarios, verify error logging captures all details, validate error format consistency"
+        "testStrategy": "Test error responses for various scenarios, verify error logging captures all details, validate error format consistency",
+        "subtasks": [
+          {
+            "id": "3.1",
+            "title": "Create custom error classes",
+            "description": "AppError, ValidationError, AuthError, PermissionError, NotFoundError",
+            "status": "pending"
+          },
+          {
+            "id": "3.2",
+            "title": "Implement error middleware",
+            "description": "Global error handler that catches all errors and formats responses",
+            "status": "pending"
+          },
+          {
+            "id": "3.3",
+            "title": "Set up Sentry integration",
+            "description": "Configure Sentry for error tracking with proper environment separation",
+            "status": "pending"
+          },
+          {
+            "id": "3.4",
+            "title": "Implement request ID tracking",
+            "description": "Add unique request IDs to all requests for tracing",
+            "status": "pending"
+          },
+          {
+            "id": "3.5",
+            "title": "Create error response standards",
+            "description": "Consistent JSON error format with code, message, details",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "4",
@@ -41,9 +167,41 @@
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Implement validation middleware using Zod, create reusable validation schemas, add request sanitization, implement type checking. Every endpoint must validate input before processing.",
+        "details": "Implement validation middleware using Zod, create reusable validation schemas, add request sanitization, implement type checking.",
         "dependencies": ["3"],
-        "testStrategy": "Test SQL injection attempts, test XSS attempts, verify all invalid inputs are rejected with proper errors"
+        "testStrategy": "Test SQL injection attempts, test XSS attempts, verify all invalid inputs are rejected with proper errors",
+        "subtasks": [
+          {
+            "id": "4.1",
+            "title": "Set up Zod validation library",
+            "description": "Install and configure Zod for TypeScript runtime validation",
+            "status": "pending"
+          },
+          {
+            "id": "4.2",
+            "title": "Create validation middleware",
+            "description": "Middleware that validates request body, params, and query",
+            "status": "pending"
+          },
+          {
+            "id": "4.3",
+            "title": "Build reusable validation schemas",
+            "description": "Common schemas for email, phone, UUID, organization context",
+            "status": "pending"
+          },
+          {
+            "id": "4.4",
+            "title": "Implement sanitization helpers",
+            "description": "HTML stripping, SQL escape, trim whitespace",
+            "status": "pending"
+          },
+          {
+            "id": "4.5",
+            "title": "Create type generation from schemas",
+            "description": "Auto-generate TypeScript types from Zod schemas",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "5",
@@ -52,9 +210,47 @@
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Configure WorkOS SDK, implement authentication endpoints with proper error handling, set up JWT token management with organization context, integrate with Supabase for session storage, implement refresh token flow with security best practices.",
+        "details": "Configure WorkOS SDK, implement authentication endpoints with proper error handling, set up JWT token management with organization context.",
         "dependencies": ["1", "3", "4"],
-        "testStrategy": "Test login/logout flows, test invalid credentials, verify JWT contains org context, test token expiration and refresh"
+        "testStrategy": "Test login/logout flows, test invalid credentials, verify JWT contains org context, test token expiration and refresh",
+        "subtasks": [
+          {
+            "id": "5.1",
+            "title": "Configure WorkOS SDK",
+            "description": "Install SDK, set up API keys, configure webhooks",
+            "status": "pending"
+          },
+          {
+            "id": "5.2",
+            "title": "Create authentication endpoints",
+            "description": "POST /auth/login, POST /auth/logout, POST /auth/refresh",
+            "status": "pending"
+          },
+          {
+            "id": "5.3",
+            "title": "Implement JWT token management",
+            "description": "Token generation with org context, secure storage, rotation",
+            "status": "pending"
+          },
+          {
+            "id": "5.4",
+            "title": "Create organization switcher endpoint",
+            "description": "POST /auth/switch-organization - validates permission and returns new JWT",
+            "status": "pending"
+          },
+          {
+            "id": "5.5",
+            "title": "Integrate with Supabase sessions",
+            "description": "Store sessions in Supabase for persistence",
+            "status": "pending"
+          },
+          {
+            "id": "5.6",
+            "title": "Implement refresh token flow",
+            "description": "Secure refresh token rotation with blacklisting",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "6",
@@ -63,9 +259,41 @@
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Implement permission middleware that runs on EVERY request, create default roles (Owner, Admin, Trainer, Front Desk), implement permission checking at API level not UI level, support cross-organization permissions, create permission management endpoints.",
+        "details": "Implement permission middleware that runs on EVERY request, create default roles, implement permission checking at API level.",
         "dependencies": ["1", "5"],
-        "testStrategy": "Test unauthorized access is blocked, test each role's permissions, verify cross-org isolation, test permission inheritance"
+        "testStrategy": "Test unauthorized access is blocked, test each role's permissions, verify cross-org isolation",
+        "subtasks": [
+          {
+            "id": "6.1",
+            "title": "Create permission middleware",
+            "description": "Middleware that checks permissions on every request",
+            "status": "pending"
+          },
+          {
+            "id": "6.2",
+            "title": "Define permission structure",
+            "description": "Resource-based permissions (events.create, clients.view, etc.)",
+            "status": "pending"
+          },
+          {
+            "id": "6.3",
+            "title": "Create default roles",
+            "description": "Owner, Admin, Trainer, Front Desk with predefined permissions",
+            "status": "pending"
+          },
+          {
+            "id": "6.4",
+            "title": "Implement organization context checks",
+            "description": "Ensure users can only access their organization's data",
+            "status": "pending"
+          },
+          {
+            "id": "6.5",
+            "title": "Build permission management endpoints",
+            "description": "APIs to manage roles and permissions",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "7",
@@ -74,9 +302,41 @@
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Implement helmet.js for security headers, set up rate limiting with Redis, configure CORS for specific frontends only, implement comprehensive audit logging for all state changes, add GDPR/CCPA compliance endpoints, set up jurisdiction-aware configurations.",
+        "details": "Implement helmet.js for security headers, set up rate limiting with Redis, configure CORS, implement audit logging.",
         "dependencies": ["1", "5", "6"],
-        "testStrategy": "Run OWASP security scan, test rate limiting blocks abuse, verify audit logs capture all admin actions, test GDPR data export/deletion"
+        "testStrategy": "Run OWASP security scan, test rate limiting blocks abuse, verify audit logs capture all admin actions",
+        "subtasks": [
+          {
+            "id": "7.1",
+            "title": "Configure helmet.js security headers",
+            "description": "CSP, HSTS, X-Frame-Options, etc.",
+            "status": "pending"
+          },
+          {
+            "id": "7.2",
+            "title": "Implement rate limiting with Redis",
+            "description": "Per-user and per-IP rate limiting",
+            "status": "pending"
+          },
+          {
+            "id": "7.3",
+            "title": "Set up CORS configuration",
+            "description": "Whitelist specific frontend domains only",
+            "status": "pending"
+          },
+          {
+            "id": "7.4",
+            "title": "Create audit logging system",
+            "description": "Log all state changes with actor, action, target",
+            "status": "pending"
+          },
+          {
+            "id": "7.5",
+            "title": "Implement GDPR/CCPA endpoints",
+            "description": "Data export and deletion endpoints",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "8",
@@ -85,9 +345,41 @@
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Configure GitHub Actions for CI/CD, set up ESLint and Prettier, configure TypeScript strict mode, set up automated testing that runs on EVERY PR, implement staging deployment, production deployment requires manual approval.",
+        "details": "Configure GitHub Actions for CI/CD, set up linting, testing, and deployment workflows.",
         "dependencies": [],
-        "testStrategy": "Verify pipeline blocks PRs with failing tests, ensure security scans run, validate deployment rollback works"
+        "testStrategy": "Verify pipeline blocks PRs with failing tests, ensure security scans run",
+        "subtasks": [
+          {
+            "id": "8.1",
+            "title": "Set up GitHub Actions workflow",
+            "description": "Create .github/workflows for CI/CD",
+            "status": "pending"
+          },
+          {
+            "id": "8.2",
+            "title": "Configure ESLint and Prettier",
+            "description": "Linting and formatting rules",
+            "status": "pending"
+          },
+          {
+            "id": "8.3",
+            "title": "Set up TypeScript strict mode",
+            "description": "Enable all strict checks",
+            "status": "pending"
+          },
+          {
+            "id": "8.4",
+            "title": "Create test automation",
+            "description": "Run tests on every PR",
+            "status": "pending"
+          },
+          {
+            "id": "8.5",
+            "title": "Implement deployment workflows",
+            "description": "Staging auto-deploy, production manual approval",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "9",
@@ -96,9 +388,41 @@
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Configure Jest for unit tests, set up Supertest for integration tests, implement test database strategy with proper cleanup, create test utilities for auth mocking, set up code coverage reporting with 80% minimum.",
+        "details": "Configure Jest for unit tests, set up Supertest for integration tests, create test utilities.",
         "dependencies": ["1", "5", "6"],
-        "testStrategy": "Ensure tests cover all security scenarios, verify mocks don't bypass real security, validate coverage requirements enforced"
+        "testStrategy": "Ensure tests cover all security scenarios, verify mocks don't bypass real security",
+        "subtasks": [
+          {
+            "id": "9.1",
+            "title": "Configure Jest and test environment",
+            "description": "Set up Jest with TypeScript support",
+            "status": "pending"
+          },
+          {
+            "id": "9.2",
+            "title": "Set up Supertest for API testing",
+            "description": "Integration test setup",
+            "status": "pending"
+          },
+          {
+            "id": "9.3",
+            "title": "Create test database strategy",
+            "description": "Isolated test database with migrations",
+            "status": "pending"
+          },
+          {
+            "id": "9.4",
+            "title": "Build auth test utilities",
+            "description": "Helpers for mocking authenticated requests",
+            "status": "pending"
+          },
+          {
+            "id": "9.5",
+            "title": "Set up coverage reporting",
+            "description": "80% minimum coverage enforcement",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "10",
@@ -107,9 +431,41 @@
         "priority": "high",
         "status": "pending",
         "phase": "1-vertical-slice",
-        "details": "Create onboarding session management with encryption, implement state persistence with proper validation, handle incomplete signups securely, create recovery flows, implement cleanup jobs for orphaned sessions, integrate with owner accounts and organization creation.",
+        "details": "Create onboarding session management with encryption, implement state persistence with proper validation.",
         "dependencies": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
-        "testStrategy": "Test complete flow with security checks at each step, verify session hijacking is prevented, test cleanup of abandoned sessions"
+        "testStrategy": "Test complete flow with security checks at each step, verify session hijacking is prevented",
+        "subtasks": [
+          {
+            "id": "10.1",
+            "title": "Create onboarding session management",
+            "description": "Session creation, storage, expiration",
+            "status": "pending"
+          },
+          {
+            "id": "10.2",
+            "title": "Implement state persistence",
+            "description": "Save progress between steps securely",
+            "status": "pending"
+          },
+          {
+            "id": "10.3",
+            "title": "Build recovery flows",
+            "description": "Handle browser close, expired sessions",
+            "status": "pending"
+          },
+          {
+            "id": "10.4",
+            "title": "Create cleanup jobs",
+            "description": "Remove orphaned sessions after 24 hours",
+            "status": "pending"
+          },
+          {
+            "id": "10.5",
+            "title": "Integrate with owner/org creation",
+            "description": "Connect to organization creation flow",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "11",
@@ -118,9 +474,41 @@
         "priority": "high",
         "status": "pending",
         "phase": "1-vertical-slice",
-        "details": "Create organization creation endpoint with full validation, implement parent-child relationships for franchises, add organization settings management, ensure all operations are audited, handle organization switching securely.",
+        "details": "Create organization creation endpoint with full validation, implement parent-child relationships.",
         "dependencies": ["10"],
-        "testStrategy": "Test organization creation with invalid data, verify data isolation between orgs, test audit trail captures all changes"
+        "testStrategy": "Test organization creation with invalid data, verify data isolation between orgs",
+        "subtasks": [
+          {
+            "id": "11.1",
+            "title": "Create organization CRUD endpoints",
+            "description": "POST, GET, PUT, DELETE /organizations",
+            "status": "pending"
+          },
+          {
+            "id": "11.2",
+            "title": "Implement franchise hierarchy",
+            "description": "Parent-child org relationships",
+            "status": "pending"
+          },
+          {
+            "id": "11.3",
+            "title": "Build settings management",
+            "description": "Organization-specific configurations",
+            "status": "pending"
+          },
+          {
+            "id": "11.4",
+            "title": "Add audit trail",
+            "description": "Log all organization changes",
+            "status": "pending"
+          },
+          {
+            "id": "11.5",
+            "title": "Create org switching logic",
+            "description": "Secure context switching between orgs",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "12",
@@ -129,9 +517,41 @@
         "priority": "high",
         "status": "pending",
         "phase": "1-vertical-slice",
-        "details": "Implement GET endpoint for clients with full permission checks, ensure organization isolation, return empty array initially, implement pagination and filtering securely.",
+        "details": "Implement GET endpoint for clients with full permission checks, ensure organization isolation.",
         "dependencies": ["11"],
-        "testStrategy": "Test unauthorized access is blocked, verify org isolation, test pagination doesn't leak data"
+        "testStrategy": "Test unauthorized access is blocked, verify org isolation",
+        "subtasks": [
+          {
+            "id": "12.1",
+            "title": "Create GET /clients endpoint",
+            "description": "List clients with pagination",
+            "status": "pending"
+          },
+          {
+            "id": "12.2",
+            "title": "Implement organization filtering",
+            "description": "Ensure data isolation",
+            "status": "pending"
+          },
+          {
+            "id": "12.3",
+            "title": "Add search and filters",
+            "description": "Name, email, status filters",
+            "status": "pending"
+          },
+          {
+            "id": "12.4",
+            "title": "Create response DTOs",
+            "description": "Clean data transfer objects",
+            "status": "pending"
+          },
+          {
+            "id": "12.5",
+            "title": "Add permission checks",
+            "description": "Verify user can view clients",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "13",
@@ -140,9 +560,41 @@
         "priority": "high",
         "status": "pending",
         "phase": "1-vertical-slice",
-        "details": "Set up OpenAPI/Swagger specification, document authentication flow thoroughly, document all security requirements, provide example requests with proper auth headers, create security best practices guide.",
+        "details": "Set up OpenAPI/Swagger specification, document authentication flow thoroughly.",
         "dependencies": ["10", "11", "12"],
-        "testStrategy": "Validate OpenAPI spec, ensure security requirements are clear, test example requests actually work"
+        "testStrategy": "Validate OpenAPI spec, ensure security requirements are clear",
+        "subtasks": [
+          {
+            "id": "13.1",
+            "title": "Set up Swagger/OpenAPI",
+            "description": "Configure swagger-ui-express",
+            "status": "pending"
+          },
+          {
+            "id": "13.2",
+            "title": "Document auth flow",
+            "description": "Complete auth documentation",
+            "status": "pending"
+          },
+          {
+            "id": "13.3",
+            "title": "Add security schemas",
+            "description": "Document security requirements",
+            "status": "pending"
+          },
+          {
+            "id": "13.4",
+            "title": "Create example requests",
+            "description": "Provide working examples",
+            "status": "pending"
+          },
+          {
+            "id": "13.5",
+            "title": "Build integration guide",
+            "description": "Frontend integration guide",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "14",
@@ -151,9 +603,41 @@
         "priority": "medium",
         "status": "pending",
         "phase": "2-core-features",
-        "details": "Implement CREATE with validation and audit logging, UPDATE with permission checks and history tracking, DELETE with soft-delete and audit trail, implement client segments, add cross-location history tracking.",
+        "details": "Implement CREATE, UPDATE, DELETE with validation and audit logging.",
         "dependencies": ["12"],
-        "testStrategy": "Test all CRUD operations with invalid data, verify audit trail, test permission boundaries"
+        "testStrategy": "Test all CRUD operations with invalid data, verify audit trail",
+        "subtasks": [
+          {
+            "id": "14.1",
+            "title": "Implement client creation",
+            "description": "POST /clients with validation",
+            "status": "pending"
+          },
+          {
+            "id": "14.2",
+            "title": "Build update endpoints",
+            "description": "PUT/PATCH /clients/:id",
+            "status": "pending"
+          },
+          {
+            "id": "14.3",
+            "title": "Add soft delete",
+            "description": "DELETE with data retention",
+            "status": "pending"
+          },
+          {
+            "id": "14.4",
+            "title": "Create employee specialty management",
+            "description": "API endpoints for attaching/detaching tags to employees",
+            "status": "pending"
+          },
+          {
+            "id": "14.5",
+            "title": "Implement client segments",
+            "description": "Dynamic client grouping",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "15",
@@ -162,9 +646,41 @@
         "priority": "medium",
         "status": "pending",
         "phase": "2-core-features",
-        "details": "Create membership CRUD with full validation, implement access type management (subscription, day pass, drop-in), handle multi-location access securely, integrate with access control for door unlocking, audit all membership changes.",
+        "details": "Create membership CRUD with full validation, implement access type management.",
         "dependencies": ["14"],
-        "testStrategy": "Test membership state transitions, verify access calculations, test expiration handling"
+        "testStrategy": "Test membership state transitions, verify access calculations",
+        "subtasks": [
+          {
+            "id": "15.1",
+            "title": "Create membership endpoints",
+            "description": "CRUD for memberships",
+            "status": "pending"
+          },
+          {
+            "id": "15.2",
+            "title": "Implement access types",
+            "description": "Subscription, day pass, drop-in",
+            "status": "pending"
+          },
+          {
+            "id": "15.3",
+            "title": "Build multi-location logic",
+            "description": "Cross-location access management",
+            "status": "pending"
+          },
+          {
+            "id": "15.4",
+            "title": "Add expiration handling",
+            "description": "Automated status updates",
+            "status": "pending"
+          },
+          {
+            "id": "15.5",
+            "title": "Create access verification",
+            "description": "Check member access rights",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "16",
@@ -173,9 +689,41 @@
         "priority": "medium",
         "status": "pending",
         "phase": "2-core-features",
-        "details": "Create event CRUD with validation, implement booking logic with atomic capacity management, add waitlist with fair promotion logic, support cross-location booking with permission checks, implement attendance tracking, handle cancellations with audit trail.",
+        "details": "Create event CRUD with validation, implement booking logic with tour metadata support.",
         "dependencies": ["14"],
-        "testStrategy": "Test race conditions in booking, verify capacity limits enforced, test waitlist fairness"
+        "testStrategy": "Test race conditions in booking, verify capacity limits enforced",
+        "subtasks": [
+          {
+            "id": "16.1",
+            "title": "Create event management endpoints",
+            "description": "CRUD for events with templates",
+            "status": "pending"
+          },
+          {
+            "id": "16.2",
+            "title": "Implement tour metadata fields",
+            "description": "tour_type (individual/family/group), lead_source (walk-in/website/referral)",
+            "status": "pending"
+          },
+          {
+            "id": "16.3",
+            "title": "Build booking logic",
+            "description": "Atomic capacity management",
+            "status": "pending"
+          },
+          {
+            "id": "16.4",
+            "title": "Create waitlist system",
+            "description": "Fair waitlist promotion",
+            "status": "pending"
+          },
+          {
+            "id": "16.5",
+            "title": "Add attendance tracking",
+            "description": "Check-in and no-show handling",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "17",
@@ -184,9 +732,41 @@
         "priority": "medium",
         "status": "pending",
         "phase": "2-core-features",
-        "details": "Implement revenue analytics with permission checks, create attendance reports with org isolation, add client analytics respecting privacy, implement cross-organization reporting for owners only, ensure no data leakage.",
+        "details": "Implement revenue analytics with permission checks, create attendance reports.",
         "dependencies": ["14", "15", "16"],
-        "testStrategy": "Verify data isolation in reports, test performance with large datasets, validate calculations"
+        "testStrategy": "Verify data isolation in reports, test performance with large datasets",
+        "subtasks": [
+          {
+            "id": "17.1",
+            "title": "Create revenue analytics",
+            "description": "Revenue reports by location",
+            "status": "pending"
+          },
+          {
+            "id": "17.2",
+            "title": "Build attendance reports",
+            "description": "Class utilization metrics",
+            "status": "pending"
+          },
+          {
+            "id": "17.3",
+            "title": "Implement client analytics",
+            "description": "Client behavior patterns",
+            "status": "pending"
+          },
+          {
+            "id": "17.4",
+            "title": "Add cross-org reporting",
+            "description": "Multi-location dashboards",
+            "status": "pending"
+          },
+          {
+            "id": "17.5",
+            "title": "Create export functionality",
+            "description": "CSV/PDF report exports",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "18",
@@ -195,9 +775,41 @@
         "priority": "medium",
         "status": "pending",
         "phase": "2-core-features",
-        "details": "Set up notification templates with sanitization, implement email sending with unsubscribe, create push notification infrastructure, enforce notification preferences, implement delivery tracking with privacy.",
+        "details": "Set up notification templates with sanitization, implement in-app notifications with read/unread status.",
         "dependencies": ["14"],
-        "testStrategy": "Test opt-out is respected, verify template injection is prevented, test delivery tracking"
+        "testStrategy": "Test opt-out is respected, verify template injection is prevented",
+        "subtasks": [
+          {
+            "id": "18.1",
+            "title": "Create notification templates",
+            "description": "Email and push templates",
+            "status": "pending"
+          },
+          {
+            "id": "18.2",
+            "title": "Implement in-app notifications",
+            "description": "GET /notifications with unread count, POST /notifications/:id/mark-as-read",
+            "status": "pending"
+          },
+          {
+            "id": "18.3",
+            "title": "Build preference system",
+            "description": "User notification preferences",
+            "status": "pending"
+          },
+          {
+            "id": "18.4",
+            "title": "Add delivery tracking",
+            "description": "Track notification delivery",
+            "status": "pending"
+          },
+          {
+            "id": "18.5",
+            "title": "Create unsubscribe flow",
+            "description": "One-click unsubscribe",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "19",
@@ -206,9 +818,41 @@
         "priority": "medium",
         "status": "pending",
         "phase": "2-core-features",
-        "details": "Set up Bull queue with Redis, implement job authentication and permissions, create nightly reconciliation jobs, implement cleanup jobs with audit logging, add job monitoring and alerting.",
+        "details": "Set up Bull queue with Redis, implement job authentication and permissions.",
         "dependencies": ["1", "5", "6"],
-        "testStrategy": "Test job failures don't compromise security, verify retry logic, test job isolation"
+        "testStrategy": "Test job failures don't compromise security, verify retry logic",
+        "subtasks": [
+          {
+            "id": "19.1",
+            "title": "Set up Bull queue",
+            "description": "Configure job queue with Redis",
+            "status": "pending"
+          },
+          {
+            "id": "19.2",
+            "title": "Create job authentication",
+            "description": "Secure job execution context",
+            "status": "pending"
+          },
+          {
+            "id": "19.3",
+            "title": "Build reconciliation jobs",
+            "description": "Nightly data consistency checks",
+            "status": "pending"
+          },
+          {
+            "id": "19.4",
+            "title": "Implement cleanup jobs",
+            "description": "Remove orphaned data",
+            "status": "pending"
+          },
+          {
+            "id": "19.5",
+            "title": "Add job monitoring",
+            "description": "Job status and alerting",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "20",
@@ -217,9 +861,41 @@
         "priority": "medium",
         "status": "pending",
         "phase": "2-core-features",
-        "details": "Configure Redis with authentication, implement caching with proper TTLs, ensure cached data respects permissions, add cache invalidation on updates, never cache sensitive data.",
+        "details": "Configure Redis with authentication, implement caching with proper TTLs.",
         "dependencies": ["1", "5", "6"],
-        "testStrategy": "Test cache doesn't leak data across orgs, verify invalidation works, test performance gains"
+        "testStrategy": "Test cache doesn't leak data across orgs, verify invalidation works",
+        "subtasks": [
+          {
+            "id": "20.1",
+            "title": "Configure Redis connection",
+            "description": "Set up Redis with auth",
+            "status": "pending"
+          },
+          {
+            "id": "20.2",
+            "title": "Implement cache middleware",
+            "description": "Smart caching layer",
+            "status": "pending"
+          },
+          {
+            "id": "20.3",
+            "title": "Add cache invalidation",
+            "description": "Invalidate on updates",
+            "status": "pending"
+          },
+          {
+            "id": "20.4",
+            "title": "Create cache utilities",
+            "description": "Helper functions",
+            "status": "pending"
+          },
+          {
+            "id": "20.5",
+            "title": "Monitor cache performance",
+            "description": "Hit/miss ratios",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "21",
@@ -228,9 +904,41 @@
         "priority": "medium",
         "status": "pending",
         "phase": "2-core-features",
-        "details": "Create health check endpoints with no sensitive data, integrate monitoring without exposing internals, add custom metrics for security events, implement alerting for anomalies.",
+        "details": "Create health check endpoints with no sensitive data, integrate monitoring.",
         "dependencies": ["1", "5"],
-        "testStrategy": "Verify health endpoints don't leak information, test monitoring captures security events"
+        "testStrategy": "Verify health endpoints don't leak information",
+        "subtasks": [
+          {
+            "id": "21.1",
+            "title": "Create health endpoints",
+            "description": "GET /health, /ready, /live",
+            "status": "pending"
+          },
+          {
+            "id": "21.2",
+            "title": "Add dependency checks",
+            "description": "Database, Redis health",
+            "status": "pending"
+          },
+          {
+            "id": "21.3",
+            "title": "Integrate monitoring",
+            "description": "Datadog/New Relic setup",
+            "status": "pending"
+          },
+          {
+            "id": "21.4",
+            "title": "Create custom metrics",
+            "description": "Business metrics",
+            "status": "pending"
+          },
+          {
+            "id": "21.5",
+            "title": "Set up alerting",
+            "description": "Anomaly detection",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "22",
@@ -239,9 +947,41 @@
         "priority": "low",
         "status": "pending",
         "phase": "3-additional-features",
-        "details": "Create workout CRUD with ownership validation, implement exercise library with moderation, add franchise template support with restrictions, create workout logging with privacy, implement PR detection.",
+        "details": "Create workout CRUD with ownership validation, implement exercise library.",
         "dependencies": ["14"],
-        "testStrategy": "Test template access controls, verify franchise restrictions, test data privacy"
+        "testStrategy": "Test template access controls, verify franchise restrictions",
+        "subtasks": [
+          {
+            "id": "22.1",
+            "title": "Create workout CRUD",
+            "description": "Template management",
+            "status": "pending"
+          },
+          {
+            "id": "22.2",
+            "title": "Build exercise library",
+            "description": "Exercise database",
+            "status": "pending"
+          },
+          {
+            "id": "22.3",
+            "title": "Add franchise templates",
+            "description": "Shared templates",
+            "status": "pending"
+          },
+          {
+            "id": "22.4",
+            "title": "Create logging endpoints",
+            "description": "Workout tracking",
+            "status": "pending"
+          },
+          {
+            "id": "22.5",
+            "title": "Implement PR detection",
+            "description": "Personal records",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "23",
@@ -250,9 +990,41 @@
         "priority": "low",
         "status": "pending",
         "phase": "3-additional-features",
-        "details": "Define achievement criteria securely, implement achievement evaluation without exposing user data, create progress tracking with user consent, add achievement awarding with audit trail.",
+        "details": "Define achievement criteria securely, implement achievement evaluation.",
         "dependencies": ["14", "16"],
-        "testStrategy": "Test achievement logic doesn't leak user behavior, verify progress privacy"
+        "testStrategy": "Test achievement logic doesn't leak user behavior",
+        "subtasks": [
+          {
+            "id": "23.1",
+            "title": "Define achievement types",
+            "description": "Achievement categories",
+            "status": "pending"
+          },
+          {
+            "id": "23.2",
+            "title": "Create evaluation engine",
+            "description": "Achievement logic",
+            "status": "pending"
+          },
+          {
+            "id": "23.3",
+            "title": "Build progress tracking",
+            "description": "User progress",
+            "status": "pending"
+          },
+          {
+            "id": "23.4",
+            "title": "Add awarding system",
+            "description": "Achievement grants",
+            "status": "pending"
+          },
+          {
+            "id": "23.5",
+            "title": "Create privacy controls",
+            "description": "Opt-in sharing",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "24",
@@ -261,9 +1033,41 @@
         "priority": "low",
         "status": "pending",
         "phase": "3-additional-features",
-        "details": "Create impersonation with full audit trail and time limits, implement manual overrides with approval workflow, ensure all admin actions are logged immutably, add break-glass procedures.",
+        "details": "Create impersonation with full audit trail and time limits.",
         "dependencies": ["1", "5", "6", "7"],
-        "testStrategy": "Test impersonation restrictions, verify audit trail completeness, test approval workflows"
+        "testStrategy": "Test impersonation restrictions, verify audit trail completeness",
+        "subtasks": [
+          {
+            "id": "24.1",
+            "title": "Build impersonation system",
+            "description": "Time-limited impersonation",
+            "status": "pending"
+          },
+          {
+            "id": "24.2",
+            "title": "Create override tools",
+            "description": "Manual corrections",
+            "status": "pending"
+          },
+          {
+            "id": "24.3",
+            "title": "Add approval workflows",
+            "description": "Multi-step approvals",
+            "status": "pending"
+          },
+          {
+            "id": "24.4",
+            "title": "Implement audit trail",
+            "description": "Immutable logging",
+            "status": "pending"
+          },
+          {
+            "id": "24.5",
+            "title": "Create support dashboard",
+            "description": "Admin interface",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "25",
@@ -272,9 +1076,41 @@
         "priority": "low",
         "status": "pending",
         "phase": "3-additional-features",
-        "details": "Create document upload with virus scanning, implement waiver signing with legal compliance, add version management with history, support multi-location sharing with permissions.",
+        "details": "Create document upload with virus scanning, implement waiver signing.",
         "dependencies": ["11", "14"],
-        "testStrategy": "Test file upload security, verify signing audit trail, test access controls"
+        "testStrategy": "Test file upload security, verify signing audit trail",
+        "subtasks": [
+          {
+            "id": "25.1",
+            "title": "Build upload system",
+            "description": "Secure file uploads",
+            "status": "pending"
+          },
+          {
+            "id": "25.2",
+            "title": "Add virus scanning",
+            "description": "Malware protection",
+            "status": "pending"
+          },
+          {
+            "id": "25.3",
+            "title": "Create signing flow",
+            "description": "Digital signatures",
+            "status": "pending"
+          },
+          {
+            "id": "25.4",
+            "title": "Implement versioning",
+            "description": "Document history",
+            "status": "pending"
+          },
+          {
+            "id": "25.5",
+            "title": "Add access controls",
+            "description": "Permission-based access",
+            "status": "pending"
+          }
+        ]
       },
       {
         "id": "26",
@@ -283,15 +1119,47 @@
         "priority": "low",
         "status": "pending",
         "phase": "3-additional-features",
-        "details": "Implement feature flag evaluation with caching, create management interface with audit logging, support organization-specific flags safely, add percentage rollouts with monitoring.",
+        "details": "Implement feature flag evaluation with caching, create management interface.",
         "dependencies": ["1", "5", "6"],
-        "testStrategy": "Test flag evaluation performance, verify org isolation, test rollout monitoring"
+        "testStrategy": "Test flag evaluation performance, verify org isolation",
+        "subtasks": [
+          {
+            "id": "26.1",
+            "title": "Create flag storage",
+            "description": "Database schema",
+            "status": "pending"
+          },
+          {
+            "id": "26.2",
+            "title": "Build evaluation engine",
+            "description": "Flag logic",
+            "status": "pending"
+          },
+          {
+            "id": "26.3",
+            "title": "Add management API",
+            "description": "Flag CRUD",
+            "status": "pending"
+          },
+          {
+            "id": "26.4",
+            "title": "Implement rollouts",
+            "description": "Percentage rollouts",
+            "status": "pending"
+          },
+          {
+            "id": "26.5",
+            "title": "Create monitoring",
+            "description": "Flag usage metrics",
+            "status": "pending"
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-07-31T01:49:15.746Z",
-      "updated": "2025-07-31T02:15:00.000Z",
-      "description": "Security-first task organization with Phase 0 (Secure Bedrock), Phase 1 (Vertical Slice), Phase 2 (Core Features), Phase 3 (Additional Features)"
+      "updated": "2025-07-31T02:45:00.000Z",
+      "description": "Security-first task organization with comprehensive subtasks including mockup-revealed features"
     }
   }
 }
