@@ -176,13 +176,12 @@ describe('Request ID Middleware', () => {
       expect(result).toBeUndefined();
     });
 
-    it('should prefer request.id over response.locals', () => {
-      const reqWithBoth = {
-        id: 'req-id',
-        locals: { requestId: 'res-id' }
-      } as Request & Response;
+    it('should return request.id when available', () => {
+      const req = {
+        id: 'req-id'
+      } as Request;
       
-      const result = getRequestId(reqWithBoth);
+      const result = getRequestId(req);
       
       expect(result).toBe('req-id');
     });

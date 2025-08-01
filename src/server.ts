@@ -3,7 +3,7 @@ import './instrument';
 
 import express from 'express';
 import * as Sentry from '@sentry/node';
-import { initializeDatabase } from './config/database';
+import { initializeDatabase, getDatabase } from './config/database';
 import { errorHandler } from './middleware/error.middleware';
 import { requestIdMiddleware } from './middleware/request-id.middleware';
 import { monitoringRouter } from './api/monitoring';
@@ -48,7 +48,7 @@ process.on('SIGTERM', async () => {
   
   // Close database connections
   try {
-    const db = require('./config/database').getDatabase();
+    const db = getDatabase();
     await db.shutdown();
   } catch (error) {
     logger.error('Error shutting down database', { error });
@@ -91,7 +91,7 @@ async function startServer() {
 }
 
 // Only start if this file is run directly
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   startServer();
 }
 

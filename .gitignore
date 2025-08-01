@@ -60,4 +60,72 @@ node_modules/
 
 # Task files
 # tasks.json
-# tasks/ 
+# tasks/
+
+# Build output
+tsconfig.tsbuildinfo
+.next/
+out/
+dist/
+
+# Lock files (keep only one)
+pnpm-lock.yaml
+yarn.lock
+
+# Example files
+*.example.ts
+*.example.js
+
+# Editor specific
+.cursor/
+.claude/
+.kiro/
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# IDE specific
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Mac specific
+.AppleDouble
+.LSOverride
+
+# Windows specific
+desktop.ini
+
+# Linux specific
+.directory
+
+# Project specific
+UI_Plan.md
+status.md
