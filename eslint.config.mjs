@@ -18,6 +18,15 @@ const eslintConfig = [
       "react/no-unescaped-entities": "warn",
       "@typescript-eslint/no-empty-object-type": "warn",
       "@next/next/no-img-element": "warn",
+      "@typescript-eslint/no-namespace": "off", // Required for Express type augmentation
+      "@typescript-eslint/no-unsafe-function-type": "error",
+      "@typescript-eslint/no-require-imports": "error",
+    },
+  },
+  {
+    files: ["**/*.d.ts"],
+    rules: {
+      "@typescript-eslint/no-namespace": "off", // Declaration files need namespace
     },
   },
 ];

@@ -1,4 +1,4 @@
-import { Request, Response, Router } from 'express';
+import { Request, Response, Router, NextFunction } from 'express';
 import { createClient } from '@supabase/supabase-js';
 import { Parser } from 'json2csv';
 import archiver from 'archiver';
@@ -13,7 +13,7 @@ const supabase = createClient(
 );
 
 // Middleware to verify admin/owner permissions
-const verifyExportPermission = async (req: Request, res: Response, next: Function) => {
+const verifyExportPermission = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
