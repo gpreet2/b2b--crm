@@ -34,12 +34,13 @@ export default function OnboardingPage() {
     password: "",
     confirmPassword: "",
   });
+  const [verificationCode, setVerificationCode] = useState("");
   const [locations, setLocations] = useState<Location[]>([
     { id: "1", name: "", address: "" },
   ]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const steps = [
     {
@@ -56,12 +57,18 @@ export default function OnboardingPage() {
     },
     {
       id: 3,
+      title: "Verify email",
+      description: "Confirm your email address",
+      icon: Lock,
+    },
+    {
+      id: 4,
       title: "Add locations",
       description: "Set up your gym locations",
       icon: MapPin,
     },
     {
-      id: 4,
+      id: 5,
       title: "All set!",
       description: "Ready to transform fitness",
       icon: Sparkles,
@@ -72,6 +79,15 @@ export default function OnboardingPage() {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handleVerificationCodeChange = (value: string) => {
+    // Only allow numbers and limit to 6 digits
+    const numericValue = value.replace(/\D/g, "").slice(0, 6);
+    setVerificationCode(numericValue);
+    if (errors.verificationCode) {
+      setErrors((prev) => ({ ...prev, verificationCode: "" }));
     }
   };
 
@@ -133,6 +149,12 @@ export default function OnboardingPage() {
         newErrors.confirmPassword = "Passwords do not match";
       }
     } else if (currentStep === 3) {
+      if (!verificationCode) {
+        newErrors.verificationCode = "Verification code is required";
+      } else if (verificationCode.length !== 6) {
+        newErrors.verificationCode = "Verification code must be 6 digits";
+      }
+    } else if (currentStep === 4) {
       locations.forEach((location) => {
         if (!location.name)
           newErrors[`location_${location.id}_name`] =
@@ -148,7 +170,7 @@ export default function OnboardingPage() {
   };
 
   const handleNext = () => {
-    if (currentStep === 4) {
+    if (currentStep === 5) {
       handleSubmit();
       return;
     }
@@ -344,6 +366,59 @@ export default function OnboardingPage() {
       case 3:
         return (
           <div className="space-y-6 animate-in fade-in duration-300">
+            <div className="max-w-2xl mx-auto text-center mb-8">
+              <h3 className="text-lg font-semibold text-primary-text mb-2">
+                Check Your Email
+              </h3>
+              <p className="text-secondary-text text-sm">
+                We&apos;ve sent a verification code to{" "}
+                <span className="font-medium text-primary">{formData.email}</span>
+              </p>
+            </div>
+
+            <div className="max-w-sm mx-auto">
+              <label className="block text-xs font-medium text-secondary-text mb-2 uppercase tracking-wide">
+                Verification Code
+              </label>
+              <input
+                type="text"
+                value={verificationCode}
+                onChange={(e) => handleVerificationCodeChange(e.target.value)}
+                className={`w-full px-4 py-4 rounded-xl border text-center text-2xl tracking-widest font-mono ${
+                  errors.verificationCode
+                    ? "border-danger focus:border-danger"
+                    : "border-border focus:border-primary"
+                } focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all bg-surface shadow-sm hover:shadow-md`}
+                placeholder="000000"
+                maxLength={6}
+              />
+              {errors.verificationCode && (
+                <p className="mt-1 text-xs text-danger font-medium">
+                  {errors.verificationCode}
+                </p>
+              )}
+              <p className="mt-2 text-xs text-secondary-text text-center">
+                Enter the 6-digit code from your email
+              </p>
+            </div>
+
+            <div className="bg-gradient-to-r from-primary/5 to-primary-light/5 rounded-xl p-4 border border-primary/10 max-w-2xl mx-auto">
+              <div className="flex items-start space-x-3">
+                <Lock className="w-4 h-4 text-primary mt-0.5" />
+                <div className="text-xs text-secondary-text">
+                  <p className="font-medium mb-1">Secure Verification</p>
+                  <p className="text-muted">
+                    For demo purposes, any 6-digit code will work. Didn&apos;t receive an email? Check your spam folder.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="space-y-6 animate-in fade-in duration-300">
             <div className="max-h-[500px] overflow-y-auto pr-2 space-y-6">
               {locations.map((location, index) => (
                 <div
@@ -440,7 +515,7 @@ export default function OnboardingPage() {
           </div>
         );
 
-      case 4:
+      case 5:
         return (
           <div className="text-center space-y-8 animate-in fade-in duration-300">
             <div className="relative">
@@ -703,10 +778,12 @@ export default function OnboardingPage() {
                 `}
               >
                 <span>
-                  {currentStep === 4
+                  {currentStep === 5
                     ? isLoading
                       ? "Setting up..."
                       : "Launch Dashboard"
+                    : currentStep === 2
+                    ? "Send Verification Email"
                     : "Continue"}
                 </span>
                 {!isLoading && <ChevronRight className="w-5 h-5" />}
