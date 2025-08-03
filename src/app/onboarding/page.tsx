@@ -30,16 +30,13 @@ export default function OnboardingPage() {
     organizationName: "",
     firstName: "",
     lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
   });
   const [locations, setLocations] = useState<Location[]>([
     { id: "1", name: "", address: "" },
   ]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const totalSteps = 4;
+  const totalSteps = 3;
 
   const steps = [
     {
@@ -50,21 +47,15 @@ export default function OnboardingPage() {
     },
     {
       id: 2,
-      title: "Create account",
-      description: "Set up your login credentials",
-      icon: Mail,
-    },
-    {
-      id: 3,
       title: "Add locations",
       description: "Set up your gym locations",
       icon: MapPin,
     },
     {
-      id: 4,
-      title: "All set!",
-      description: "Ready to transform fitness",
-      icon: Sparkles,
+      id: 3,
+      title: "Create account",
+      description: "Set up your login credentials",
+      icon: Mail,
     },
   ];
 
@@ -117,22 +108,6 @@ export default function OnboardingPage() {
       if (!formData.firstName) newErrors.firstName = "First name is required";
       if (!formData.lastName) newErrors.lastName = "Last name is required";
     } else if (currentStep === 2) {
-      if (!formData.email) {
-        newErrors.email = "Email is required";
-      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        newErrors.email = "Please enter a valid email";
-      }
-      if (!formData.password) {
-        newErrors.password = "Password is required";
-      } else if (formData.password.length < 6) {
-        newErrors.password = "Password must be at least 6 characters";
-      }
-      if (!formData.confirmPassword) {
-        newErrors.confirmPassword = "Please confirm your password";
-      } else if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = "Passwords do not match";
-      }
-    } else if (currentStep === 3) {
       locations.forEach((location) => {
         if (!location.name)
           newErrors[`location_${location.id}_name`] =
@@ -148,7 +123,7 @@ export default function OnboardingPage() {
   };
 
   const handleNext = () => {
-    if (currentStep === 4) {
+    if (currentStep === 3) {
       handleSubmit();
       return;
     }
@@ -164,12 +139,43 @@ export default function OnboardingPage() {
 
   const handleSubmit = async () => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsLoading(false);
-    console.log("Onboarding completed:", { formData, locations });
+    
+    try {
+      // Store onboarding data in session storage to persist after auth
+      sessionStorage.setItem('onboardingData', JSON.stringify({
+        organizationName: formData.organizationName,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        locations: locations,
+      }));
 
-    // Navigate to dashboard after successful onboarding
-    router.push("/dashboard");
+      // Use AuthKit's user management authentication for sign up
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Sign up response:', data);
+
+      if (response.ok && data.url) {
+        console.log('Redirecting to WorkOS:', data.url);
+        window.location.href = data.url;
+      } else {
+        setIsLoading(false);
+        setErrors({ email: data.error || "Failed to start authentication. Please try again." });
+      }
+    } catch (error) {
+      console.error("Auth error:", error);
+      setIsLoading(false);
+      setErrors({ email: "Failed to start authentication. Please try again." });
+    }
   };
 
   const getStepContent = () => {
@@ -253,95 +259,6 @@ export default function OnboardingPage() {
         );
 
       case 2:
-        return (
-          <div className="space-y-6 animate-in fade-in duration-300">
-            <div className="max-w-2xl mx-auto">
-              <label className="block text-xs font-medium text-secondary-text mb-2 uppercase tracking-wide">
-                Email Address
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                className={`w-full px-4 py-3 rounded-xl border ${
-                  errors.email
-                    ? "border-danger focus:border-danger"
-                    : "border-border focus:border-primary"
-                } focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all bg-surface shadow-sm hover:shadow-md`}
-                placeholder="john@fitprogym.com"
-              />
-              {errors.email && (
-                <p className="mt-1 text-xs text-danger font-medium">
-                  {errors.email}
-                </p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              <div>
-                <label className="block text-xs font-medium text-secondary-text mb-2 uppercase tracking-wide">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) =>
-                    handleInputChange("password", e.target.value)
-                  }
-                  className={`w-full px-4 py-3 rounded-xl border ${
-                    errors.password
-                      ? "border-danger focus:border-danger"
-                      : "border-border focus:border-primary"
-                  } focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all bg-surface shadow-sm hover:shadow-md`}
-                  placeholder="••••••••"
-                />
-                {errors.password && (
-                  <p className="mt-1 text-xs text-danger font-medium">
-                    {errors.password}
-                  </p>
-                )}
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-secondary-text mb-2 uppercase tracking-wide">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) =>
-                    handleInputChange("confirmPassword", e.target.value)
-                  }
-                  className={`w-full px-4 py-3 rounded-xl border ${
-                    errors.confirmPassword
-                      ? "border-danger focus:border-danger"
-                      : "border-border focus:border-primary"
-                  } focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all bg-surface shadow-sm hover:shadow-md`}
-                  placeholder="••••••••"
-                />
-                {errors.confirmPassword && (
-                  <p className="mt-1 text-xs text-danger font-medium">
-                    {errors.confirmPassword}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-gradient-to-r from-primary/5 to-primary-light/5 rounded-xl p-4 border border-primary/10 max-w-2xl mx-auto">
-              <div className="flex items-start space-x-3">
-                <Lock className="w-4 h-4 text-primary mt-0.5" />
-                <div className="text-xs text-secondary-text">
-                  <p className="font-medium mb-1">Password Security</p>
-                  <p className="text-muted">
-                    Use at least 6 characters with a mix of letters and numbers
-                    for better security
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 3:
         return (
           <div className="space-y-6 animate-in fade-in duration-300">
             <div className="max-h-[500px] overflow-y-auto pr-2 space-y-6">
@@ -440,7 +357,7 @@ export default function OnboardingPage() {
           </div>
         );
 
-      case 4:
+      case 3:
         return (
           <div className="text-center space-y-8 animate-in fade-in duration-300">
             <div className="relative">
@@ -450,7 +367,7 @@ export default function OnboardingPage() {
                 <div className="absolute -top-6 -left-6 w-24 h-24 bg-white/30 rounded-full blur-xl"></div>
                 <div className="relative z-10 flex items-center justify-center h-full">
                   <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-2xl">
-                    <Check className="w-10 h-10 text-success" strokeWidth={3} />
+                    <Mail className="w-10 h-10 text-primary" />
                   </div>
                 </div>
               </div>
@@ -458,28 +375,40 @@ export default function OnboardingPage() {
 
             <div className="space-y-4">
               <h3 className="text-2xl font-bold text-primary-text">
-                Welcome to B2B Gym CRM!
+                Ready to Create Your Account!
               </h3>
               <p className="text-secondary-text max-w-md mx-auto">
-                Your fitness business is ready to go! Start managing your
-                classes, members, and locations all in one place.
+                Click continue to set up your account with WorkOS. You'll be able to sign in with your email and password.
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
-              <div className="bg-accent rounded-xl p-4">
-                <div className="text-2xl font-bold text-primary">0</div>
-                <div className="text-xs text-muted mt-1">Members</div>
-              </div>
-              <div className="bg-accent rounded-xl p-4">
-                <div className="text-2xl font-bold text-primary">
-                  {locations.length}
+            <div className="bg-surface-light rounded-xl p-6 max-w-md mx-auto">
+              <h4 className="text-sm font-semibold text-primary-text mb-4">Your Business Summary:</h4>
+              <div className="space-y-3 text-left">
+                <div className="flex justify-between">
+                  <span className="text-xs text-secondary-text">Organization:</span>
+                  <span className="text-xs text-primary-text font-medium">{formData.organizationName}</span>
                 </div>
-                <div className="text-xs text-muted mt-1">Locations</div>
+                <div className="flex justify-between">
+                  <span className="text-xs text-secondary-text">Owner:</span>
+                  <span className="text-xs text-primary-text font-medium">{formData.firstName} {formData.lastName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-xs text-secondary-text">Locations:</span>
+                  <span className="text-xs text-primary-text font-medium">{locations.length} location{locations.length > 1 ? 's' : ''}</span>
+                </div>
               </div>
-              <div className="bg-accent rounded-xl p-4">
-                <div className="text-2xl font-bold text-primary">∞</div>
-                <div className="text-xs text-muted mt-1">Possibilities</div>
+            </div>
+
+            <div className="bg-gradient-to-r from-primary/5 to-primary-light/5 rounded-xl p-4 border border-primary/10 max-w-md mx-auto">
+              <div className="flex items-start space-x-3">
+                <Lock className="w-4 h-4 text-primary mt-0.5" />
+                <div className="text-xs text-secondary-text">
+                  <p className="font-medium mb-1">Secure Authentication</p>
+                  <p className="text-muted">
+                    You'll be redirected to WorkOS to create your account securely
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -695,7 +624,7 @@ export default function OnboardingPage() {
                 className={`
                   flex items-center space-x-2 px-6 py-3 rounded-xl font-medium transition-all
                   ${
-                    currentStep === 4
+                    currentStep === 3
                       ? "bg-gradient-to-r from-success to-success text-white hover:from-success hover:to-success shadow-lg shadow-success/25"
                       : "bg-gradient-to-r from-primary to-primary-dark text-white hover:from-primary-dark hover:to-primary shadow-lg shadow-primary/25"
                   }
@@ -703,10 +632,10 @@ export default function OnboardingPage() {
                 `}
               >
                 <span>
-                  {currentStep === 4
+                  {currentStep === 3
                     ? isLoading
-                      ? "Setting up..."
-                      : "Launch Dashboard"
+                      ? "Redirecting to WorkOS..."
+                      : "Create Account"
                     : "Continue"}
                 </span>
                 {!isLoading && <ChevronRight className="w-5 h-5" />}
