@@ -50,16 +50,34 @@ export default function AuthPage() {
 
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      // Use AuthKit's user management authentication (not SSO)
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
-    setIsLoading(false);
+      const data = await response.json();
+      console.log('Sign in response:', data);
 
-    // Here you would typically handle the actual authentication
-    console.log("Login submitted:", formData);
-
-    // Redirect to dashboard after successful login
-    router.push("/dashboard");
+      if (response.ok && data.url) {
+        console.log('Redirecting to WorkOS:', data.url);
+        window.location.href = data.url;
+      } else {
+        setIsLoading(false);
+        setErrors({ email: data.error || "Authentication failed. Please try again." });
+      }
+    } catch (error) {
+      console.error("Auth error:", error);
+      setIsLoading(false);
+      setErrors({ email: "Authentication failed. Please try again." });
+    }
   };
 
   return (
@@ -321,7 +339,7 @@ export default function AuthPage() {
                   Don&apos;t have an account?{" "}
                   <button
                     type="button"
-                    onClick={() => router.push("/onboarding")}
+                    onClick={() => router.push("/create-account")}
                     className="text-primary hover:text-primary-dark font-medium"
                   >
                     Create account
