@@ -1,18 +1,19 @@
 import { handleAuth } from '@workos-inc/authkit-nextjs';
-import { logger } from '@/utils/logger';
+
 import { initializeDatabase, getDatabase } from '@/config/database';
+import { logger } from '@/utils/logger';
 
 export const GET = handleAuth({
   returnPathname: '/dashboard',
   baseURL: process.env.NEXT_PUBLIC_APP_URL,
-  signUpReturnPathname: '/dashboard',
+  // signUpReturnPathname: '/dashboard', // This property doesn't exist in HandleAuthOptions
   onSuccess: async ({ user, oauthTokens, authenticationMethod, organizationId }) => {
     try {
       // Initialize database if not already done
       let db;
       try {
         db = getDatabase();
-      } catch (error) {
+      } catch (_error) {
         // Database not initialized, initialize it now
         const dbInstance = initializeDatabase({
           supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,7 +22,7 @@ export const GET = handleAuth({
         await dbInstance.initialize();
         db = dbInstance;
       }
-      
+
       // Log successful authentication
       logger.info('User authenticated successfully', {
         userId: user.id,
@@ -31,7 +32,8 @@ export const GET = handleAuth({
       });
 
       // Store user in database if not exists
-      const { data: existingUser } = await db.getSupabaseClient()
+      const { data: existingUser } = await db
+        .getSupabaseClient()
         .from('users')
         .select('id')
         .eq('workos_user_id', user.id)
@@ -39,7 +41,8 @@ export const GET = handleAuth({
 
       if (!existingUser) {
         // Create user in database
-        const { error } = await db.getSupabaseClient()
+        const { error } = await db
+          .getSupabaseClient()
           .from('users')
           .insert({
             workos_user_id: user.id,
@@ -66,15 +69,16 @@ export const GET = handleAuth({
 
       // Update organization association if provided
       if (organizationId && existingUser) {
-        const { error: orgError } = await db.getSupabaseClient()
-          .from('user_organizations')
-          .upsert({
+        const { error: orgError } = await db.getSupabaseClient().from('user_organizations').upsert(
+          {
             user_id: user.id,
             organization_id: organizationId,
             updated_at: new Date().toISOString(),
-          }, {
+          },
+          {
             onConflict: 'user_id,organization_id',
-          });
+          }
+        );
 
         if (orgError) {
           logger.error('Failed to update user organization', {
@@ -101,7 +105,7 @@ export const GET = handleAuth({
       // Don't throw - let the user continue
     }
   },
-  onError: async ({ error, request }) => {
+  onError: ({ error, request }) => {
     logger.error('Authentication error', {
       error: error instanceof Error ? error.message : String(error),
       url: request.url,

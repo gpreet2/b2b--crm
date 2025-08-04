@@ -13,7 +13,7 @@ declare global {
       };
       requestId?: string;
     }
-    
+
     interface Response {
       locals: {
         requestId?: string;

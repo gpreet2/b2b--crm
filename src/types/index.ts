@@ -4,10 +4,7 @@ export type {
   SuccessResponse,
   ResponseMetadata,
   ErrorCode,
-  StatusCode
+  StatusCode,
 } from './error-response.types';
 
-export {
-  ErrorCodes,
-  StatusCodes
-} from './error-response.types';
+export { ErrorCodes, StatusCodes } from './error-response.types';

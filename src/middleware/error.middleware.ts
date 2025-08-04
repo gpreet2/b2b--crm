@@ -1,9 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { 
-  BaseError,
-  NotFoundError
-} from '../errors';
+
 import { captureException, addBreadcrumb } from '../config/sentry';
+import { BaseError, NotFoundError } from '../errors';
 
 interface ErrorResponse {
   error: {
@@ -36,7 +34,7 @@ export function errorHandler(
     stack: error.stack,
     path: req.path,
     method: req.method,
-    requestId: req.id
+    requestId: req.id,
   });
 
   // Add breadcrumb for Sentry
@@ -49,8 +47,8 @@ export function errorHandler(
       errorMessage: error.message,
       path: req.path,
       method: req.method,
-      requestId: req.id
-    }
+      requestId: req.id,
+    },
   });
 
   // Default error values
@@ -65,7 +63,7 @@ export function errorHandler(
     code = error.code;
     message = error.message;
     details = error.details;
-  } 
+  }
   // Handle validation errors from libraries
   else if (error.name === 'ValidationError') {
     statusCode = 400;
@@ -78,8 +76,7 @@ export function errorHandler(
     statusCode = 401;
     code = 'INVALID_TOKEN';
     message = 'Invalid authentication token';
-  }
-  else if (error.name === 'TokenExpiredError') {
+  } else if (error.name === 'TokenExpiredError') {
     statusCode = 401;
     code = 'TOKEN_EXPIRED';
     message = 'Authentication token has expired';
@@ -90,7 +87,7 @@ export function errorHandler(
     code = 'AUTH_ERROR';
     message = 'Authentication failed';
   }
-  
+
   // Create error response
   const errorResponse: ErrorResponse = {
     error: {
@@ -100,8 +97,8 @@ export function errorHandler(
       timestamp: new Date().toISOString(),
       path: req.path,
       method: req.method,
-      requestId: req.id
-    }
+      requestId: req.id,
+    },
   };
 
   // Add details if available (not in production for security)
@@ -123,12 +120,12 @@ export function errorHandler(
         headers: req.headers,
         query: req.query,
         body: req.body,
-        user: (req as any).user
+        user: (req as any).user,
       },
       statusCode,
-      code
+      code,
     });
-    
+
     // Add Sentry event ID to response in non-production
     if (process.env.NODE_ENV !== 'production') {
       (errorResponse.error as any).sentryId = eventId;
@@ -143,11 +140,7 @@ export function errorHandler(
  * 404 Not Found handler
  * Catches requests to undefined routes
  */
-export function notFoundHandler(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
+export function notFoundHandler(req: Request, res: Response, next: NextFunction): void {
   const error = new NotFoundError('Route', `${req.method} ${req.path}`);
   next(error);
 }
@@ -168,12 +161,7 @@ export function asyncHandler(
  * Express error logger middleware
  * Logs errors before passing to error handler
  */
-export function errorLogger(
-  error: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void {
+export function errorLogger(error: Error, req: Request, res: Response, next: NextFunction): void {
   // Add error context breadcrumb
   addBreadcrumb({
     message: `Error in ${req.method} ${req.path}`,
@@ -184,9 +172,9 @@ export function errorLogger(
       method: req.method,
       statusCode: res.statusCode,
       ip: req.ip,
-      userAgent: req.get('user-agent')
-    }
+      userAgent: req.get('user-agent'),
+    },
   });
-  
+
   next(error);
 }

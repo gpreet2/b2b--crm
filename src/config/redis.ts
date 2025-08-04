@@ -1,5 +1,6 @@
-import { Redis } from '@upstash/redis';
 import { Ratelimit } from '@upstash/ratelimit';
+import { Redis } from '@upstash/redis';
+
 import { logger } from '@/utils/logger';
 
 /**
@@ -77,15 +78,15 @@ export async function testRedisConnection(): Promise<boolean> {
     await redis.set(testKey, 'connected', { ex: 10 }); // Expire in 10 seconds
     const result = await redis.get(testKey);
     await redis.del(testKey); // Clean up
-    
+
     const isConnected = result === 'connected';
-    
+
     if (isConnected) {
       logger.info('Redis connection successful');
     } else {
       logger.error('Redis connection test failed: Unexpected response');
     }
-    
+
     return isConnected;
   } catch (error) {
     logger.error('Redis connection failed', { error });
@@ -123,11 +124,11 @@ export const RATE_LIMIT_CONFIG = {
   AUTH_LIMIT: 10,
   SENSITIVE_LIMIT: 20,
   UPLOAD_LIMIT: 5,
-  
+
   // Extended rate limits
   HOURLY_LIMIT: 1000,
   DAILY_LIMIT: 10000,
-  
+
   // Rate limit headers
   HEADERS: {
     LIMIT: 'X-RateLimit-Limit',
@@ -135,10 +136,10 @@ export const RATE_LIMIT_CONFIG = {
     RESET: 'X-RateLimit-Reset',
     RETRY_AFTER: 'Retry-After',
   },
-  
+
   // Rate limit response codes
   STATUS_CODE: 429,
-  
+
   // Skip rate limiting for these user agents (health checks, monitoring)
   SKIP_USER_AGENTS: [
     'UptimeRobot',
@@ -147,11 +148,7 @@ export const RATE_LIMIT_CONFIG = {
     'StatusCake',
     'curl', // For internal health checks
   ],
-  
+
   // Skip rate limiting for these IPs (internal services)
-  SKIP_IPS: [
-    '127.0.0.1',
-    '::1',
-    'localhost',
-  ],
+  SKIP_IPS: ['127.0.0.1', '::1', 'localhost'],
 } as const;

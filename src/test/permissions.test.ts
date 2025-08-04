@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+
 import {
   RESOURCES,
   ACTIONS,
@@ -40,7 +41,7 @@ describe('Permission Structure Tests', () => {
         const found = codePermissions.find(
           p => p.resource === dbPerm.resource && p.action === dbPerm.action
         );
-        
+
         expect(found).toBeDefined();
         expect(found?.description).toBe(dbPerm.description);
       }
@@ -99,7 +100,7 @@ describe('Permission Structure Tests', () => {
 
     it('should get permissions by resource', () => {
       const clientPerms = getPermissionsByResource(RESOURCES.CLIENTS);
-      
+
       expect(clientPerms).toHaveLength(5); // view, create, update, delete, export
       expect(clientPerms.every(p => p.resource === RESOURCES.CLIENTS)).toBe(true);
       expect(clientPerms.map(p => p.action)).toContain(ACTIONS.CLIENTS.VIEW);
@@ -110,7 +111,7 @@ describe('Permission Structure Tests', () => {
   describe('Permission structure completeness', () => {
     it('should have descriptions for all permissions', () => {
       const permissions = getAllPermissions();
-      
+
       for (const perm of permissions) {
         expect(perm.description).toBeDefined();
         expect(perm.description).not.toBe('');
@@ -119,7 +120,7 @@ describe('Permission Structure Tests', () => {
 
     it('should have consistent action naming', () => {
       const commonActions = ['view', 'create', 'update', 'delete'];
-      
+
       // Check that resources with CRUD operations have consistent naming
       const crudResources = [
         RESOURCES.CLIENTS,
@@ -130,7 +131,7 @@ describe('Permission Structure Tests', () => {
 
       for (const resource of crudResources) {
         const actions = PERMISSION_DEFINITIONS[resource];
-        
+
         // Should have at least view action
         expect(Object.keys(actions)).toContain('view');
       }

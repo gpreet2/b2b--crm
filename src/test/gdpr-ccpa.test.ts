@@ -1,5 +1,6 @@
-import request from 'supertest';
 import express from 'express';
+import request from 'supertest';
+
 import gdprCcpaRouter, { DataRequestType, RequestStatus } from '@/routes/gdpr-ccpa';
 
 const app = express();
@@ -104,9 +105,7 @@ describe('GDPR/CCPA Compliance API', () => {
 
   describe('GET /api/gdpr-ccpa/requests', () => {
     it('should list data privacy requests', async () => {
-      const response = await request(app)
-        .get('/api/gdpr-ccpa/requests')
-        .expect(200);
+      const response = await request(app).get('/api/gdpr-ccpa/requests').expect(200);
 
       expect(response.body).toMatchObject({
         requests: expect.arrayContaining([
@@ -189,7 +188,9 @@ describe('GDPR/CCPA Compliance API', () => {
         .expect(200);
 
       expect(response.body).toMatchObject({
-        message: expect.stringContaining('Data erasure completed in compliance with GDPR Article 17'),
+        message: expect.stringContaining(
+          'Data erasure completed in compliance with GDPR Article 17'
+        ),
         request_id: 'req-123',
         total_deleted: expect.any(Number),
         deletion_results: expect.objectContaining({
@@ -213,9 +214,7 @@ describe('GDPR/CCPA Compliance API', () => {
 
   describe('GET /api/gdpr-ccpa/consent/:userId', () => {
     it('should get user consent status', async () => {
-      const response = await request(app)
-        .get('/api/gdpr-ccpa/consent/user-456')
-        .expect(200);
+      const response = await request(app).get('/api/gdpr-ccpa/consent/user-456').expect(200);
 
       expect(response.body).toMatchObject({
         user_id: 'user-456',
@@ -230,9 +229,7 @@ describe('GDPR/CCPA Compliance API', () => {
             legal_basis: expect.any(String),
           }),
         }),
-        withdrawal_rights: expect.arrayContaining([
-          expect.stringContaining('withdraw consent'),
-        ]),
+        withdrawal_rights: expect.arrayContaining([expect.stringContaining('withdraw consent')]),
         last_updated: expect.any(String),
       });
     });
@@ -301,7 +298,7 @@ describe('GDPR/CCPA Compliance API', () => {
         note: expect.stringContaining('structured, commonly used format'),
       });
 
-      expect(response.headers['content-type']).toContain('application/json'); 
+      expect(response.headers['content-type']).toContain('application/json');
       expect(response.headers['content-disposition']).toContain('attachment');
       expect(response.headers['content-disposition']).toContain('data-export-user-456.json');
     });

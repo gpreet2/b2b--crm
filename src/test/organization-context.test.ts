@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+
 import {
   verifyOrganizationAccess,
   getOrganizationSettings,
@@ -26,10 +27,7 @@ describe('Organization Context Functions', () => {
         .single();
 
       if (userOrg) {
-        const hasAccess = await verifyOrganizationAccess(
-          userOrg.user_id,
-          userOrg.organization_id
-        );
+        const hasAccess = await verifyOrganizationAccess(userOrg.user_id, userOrg.organization_id);
         expect(hasAccess).toBe(true);
 
         // Test with non-existent organization
@@ -86,10 +84,7 @@ describe('Organization Context Functions', () => {
         expect(unknownFeature).toBe(false);
 
         // Clean up
-        await supabase
-          .from('organizations')
-          .delete()
-          .eq('id', testOrg.id);
+        await supabase.from('organizations').delete().eq('id', testOrg.id);
       }
     });
   });

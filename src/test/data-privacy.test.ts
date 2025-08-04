@@ -1,6 +1,7 @@
-import request from 'supertest';
-import express from 'express';
 import { createClient } from '@supabase/supabase-js';
+import express from 'express';
+import request from 'supertest';
+
 import dataPrivacyRouter, { DataRequestType, RequestStatus } from '@/routes/simple-data-privacy';
 
 const app = express();
@@ -217,15 +218,13 @@ describe('Data Privacy API', () => {
         },
       ];
 
-      mockSupabase.select.mockResolvedValueOnce({ 
-        data: mockRequests, 
-        error: null, 
-        count: 2 
+      mockSupabase.select.mockResolvedValueOnce({
+        data: mockRequests,
+        error: null,
+        count: 2,
       });
 
-      const response = await request(app)
-        .get('/api/privacy/requests')
-        .expect(200);
+      const response = await request(app).get('/api/privacy/requests').expect(200);
 
       expect(response.body).toMatchObject({
         requests: mockRequests,
@@ -238,10 +237,10 @@ describe('Data Privacy API', () => {
     });
 
     it('should filter requests by status', async () => {
-      mockSupabase.select.mockResolvedValueOnce({ 
-        data: [], 
-        error: null, 
-        count: 0 
+      mockSupabase.select.mockResolvedValueOnce({
+        data: [],
+        error: null,
+        count: 0,
       });
 
       await request(app)
@@ -264,9 +263,7 @@ describe('Data Privacy API', () => {
 
       mockSupabase.single.mockResolvedValueOnce({ data: mockRequest, error: null });
 
-      const response = await request(app)
-        .get('/api/privacy/requests/req-123')
-        .expect(200);
+      const response = await request(app).get('/api/privacy/requests/req-123').expect(200);
 
       expect(response.body).toMatchObject(mockRequest);
       expect(mockSupabase.eq).toHaveBeenCalledWith('id', 'req-123');
@@ -276,9 +273,7 @@ describe('Data Privacy API', () => {
     it('should return 404 for non-existent request', async () => {
       mockSupabase.single.mockResolvedValueOnce({ data: null, error: new Error('Not found') });
 
-      const response = await request(app)
-        .get('/api/privacy/requests/non-existent')
-        .expect(404);
+      const response = await request(app).get('/api/privacy/requests/non-existent').expect(404);
 
       expect(response.body.error).toBe('Request not found');
     });
@@ -295,9 +290,12 @@ describe('Data Privacy API', () => {
       };
 
       mockSupabase.single.mockResolvedValueOnce({ data: mockRequest, error: null });
-      
+
       // Mock data from various tables
-      mockSupabase.select.mockResolvedValue({ data: [{ id: 'data-1', name: 'Test Data' }], error: null });
+      mockSupabase.select.mockResolvedValue({
+        data: [{ id: 'data-1', name: 'Test Data' }],
+        error: null,
+      });
       mockSupabase.update.mockResolvedValueOnce({ error: null });
 
       const response = await request(app)
@@ -307,7 +305,7 @@ describe('Data Privacy API', () => {
 
       expect(response.headers['content-type']).toContain('application/json');
       expect(response.headers['content-disposition']).toContain('attachment');
-      
+
       expect(mockSupabase.update).toHaveBeenCalledWith({
         status: RequestStatus.COMPLETED,
         fulfilled_at: expect.any(String),
@@ -359,10 +357,10 @@ describe('Data Privacy API', () => {
       };
 
       mockSupabase.single.mockResolvedValueOnce({ data: mockRequest, error: null });
-      
+
       // Mock audit logs check
       mockSupabase.select.mockResolvedValueOnce({ data: [], error: null });
-      
+
       // Mock deletion results
       mockSupabase.delete.mockResolvedValue({ count: 5, error: null });
       mockSupabase.update.mockResolvedValueOnce({ error: null });
@@ -451,9 +449,7 @@ describe('Data Privacy API', () => {
 
       mockSupabase.select.mockResolvedValueOnce({ data: mockConsents, error: null });
 
-      const response = await request(app)
-        .get('/api/privacy/consent/user-456')
-        .expect(200);
+      const response = await request(app).get('/api/privacy/consent/user-456').expect(200);
 
       expect(response.body).toMatchObject({
         user_id: 'user-456',
@@ -537,9 +533,9 @@ describe('Data Privacy API', () => {
         DataRequestType.OBJECTION,
       ];
 
-      mockSupabase.insert.mockResolvedValue({ 
-        data: { id: 'req-123', status: RequestStatus.PENDING }, 
-        error: null 
+      mockSupabase.insert.mockResolvedValue({
+        data: { id: 'req-123', status: RequestStatus.PENDING },
+        error: null,
       });
 
       for (const requestType of validTypes) {
@@ -572,9 +568,9 @@ describe('Data Privacy API', () => {
 
   describe('Error Handling', () => {
     it('should handle database errors gracefully', async () => {
-      mockSupabase.insert.mockResolvedValueOnce({ 
-        data: null, 
-        error: new Error('Database connection failed') 
+      mockSupabase.insert.mockResolvedValueOnce({
+        data: null,
+        error: new Error('Database connection failed'),
       });
 
       const response = await request(app)

@@ -10,11 +10,11 @@ export enum LogLevel {
 }
 
 export interface LogContext {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 class Logger {
-  private isDevelopment = process.env.NODE_ENV !== 'production';
+  private readonly isDevelopment = process.env.NODE_ENV !== 'production';
 
   private log(level: LogLevel, message: string, context?: LogContext): void {
     const timestamp = new Date().toISOString();
@@ -65,7 +65,7 @@ class Logger {
   }
 
   // Template literal function for structured logging
-  fmt(strings: TemplateStringsArray, ...values: any[]): string {
+  fmt(strings: TemplateStringsArray, ...values: unknown[]): string {
     return strings.reduce((result, str, i) => {
       const value = i < values.length ? values[i] : '';
       return result + str + value;

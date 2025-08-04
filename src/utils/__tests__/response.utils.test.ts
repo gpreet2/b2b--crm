@@ -1,4 +1,5 @@
 import { Response } from 'express';
+
 import {
   sendSuccess,
   sendPaginatedSuccess,
@@ -7,12 +8,12 @@ import {
   ResponseBuilder,
   isErrorResponse,
   isSuccessResponse,
-  transformResponse
+  transformResponse,
 } from '../response.utils';
 
 // Mock request ID middleware
 jest.mock('../../middleware/request-id.middleware', () => ({
-  getRequestId: jest.fn().mockReturnValue('test-request-id')
+  getRequestId: jest.fn().mockReturnValue('test-request-id'),
 }));
 
 describe('Response Utils', () => {
@@ -20,52 +21,52 @@ describe('Response Utils', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     mockResponse = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
       send: jest.fn().mockReturnThis(),
-      setHeader: jest.fn().mockReturnThis()
+      setHeader: jest.fn().mockReturnThis(),
     };
   });
 
   describe('sendSuccess', () => {
     it('should send success response with default status', () => {
       const data = { message: 'Success' };
-      
+
       sendSuccess(mockResponse as Response, data);
-      
+
       expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith({
         data,
         meta: {
           requestId: 'test-request-id',
-          timestamp: expect.any(String)
-        }
+          timestamp: expect.any(String),
+        },
       });
     });
 
     it('should send success response with custom status', () => {
       const data = { id: 1 };
-      
+
       sendSuccess(mockResponse as Response, data, 201);
-      
+
       expect(mockResponse.status).toHaveBeenCalledWith(201);
     });
 
     it('should include custom metadata', () => {
       const data = { items: [] };
       const meta = { version: '1.0' };
-      
+
       sendSuccess(mockResponse as Response, data, 200, meta);
-      
+
       expect(mockResponse.json).toHaveBeenCalledWith({
         data,
         meta: {
           requestId: 'test-request-id',
           timestamp: expect.any(String),
-          version: '1.0'
-        }
+          version: '1.0',
+        },
       });
     });
   });
@@ -74,9 +75,9 @@ describe('Response Utils', () => {
     it('should send paginated response with calculated total pages', () => {
       const data = [{ id: 1 }, { id: 2 }];
       const pagination = { page: 1, limit: 10, total: 25 };
-      
+
       sendPaginatedSuccess(mockResponse as Response, data, pagination);
-      
+
       expect(mockResponse.json).toHaveBeenCalledWith({
         data,
         meta: {
@@ -86,9 +87,9 @@ describe('Response Utils', () => {
             page: 1,
             limit: 10,
             total: 25,
-            totalPages: 3
-          }
-        }
+            totalPages: 3,
+          },
+        },
       });
     });
   });
@@ -96,22 +97,22 @@ describe('Response Utils', () => {
   describe('sendCreated', () => {
     it('should send 201 response', () => {
       const data = { id: 123, name: 'New Item' };
-      
+
       sendCreated(mockResponse as Response, data);
-      
+
       expect(mockResponse.status).toHaveBeenCalledWith(201);
       expect(mockResponse.json).toHaveBeenCalledWith({
         data,
-        meta: expect.any(Object)
+        meta: expect.any(Object),
       });
     });
 
     it('should set Location header when provided', () => {
       const data = { id: 123 };
       const location = '/api/items/123';
-      
+
       sendCreated(mockResponse as Response, data, location);
-      
+
       expect(mockResponse.setHeader).toHaveBeenCalledWith('Location', location);
     });
   });
@@ -119,7 +120,7 @@ describe('Response Utils', () => {
   describe('sendNoContent', () => {
     it('should send 204 with no body', () => {
       sendNoContent(mockResponse as Response);
-      
+
       expect(mockResponse.status).toHaveBeenCalledWith(204);
       expect(mockResponse.send).toHaveBeenCalled();
       expect(mockResponse.json).not.toHaveBeenCalled();
@@ -129,44 +130,44 @@ describe('Response Utils', () => {
   describe('ResponseBuilder', () => {
     it('should build basic success response', () => {
       const data = { result: 'test' };
-      
+
       ResponseBuilder.success(data).send(mockResponse as Response);
-      
+
       expect(mockResponse.status).toHaveBeenCalledWith(200);
       expect(mockResponse.json).toHaveBeenCalledWith({
         data,
         meta: expect.objectContaining({
-          requestId: 'test-request-id'
-        })
+          requestId: 'test-request-id',
+        }),
       });
     });
 
     it('should chain methods fluently', () => {
       const data = { items: [] };
-      
+
       ResponseBuilder.success(data)
         .status(201)
         .withMeta({ version: '2.0' })
         .withHeader('X-Custom', 'value')
         .send(mockResponse as Response);
-      
+
       expect(mockResponse.status).toHaveBeenCalledWith(201);
       expect(mockResponse.setHeader).toHaveBeenCalledWith('X-Custom', 'value');
       expect(mockResponse.json).toHaveBeenCalledWith({
         data,
         meta: expect.objectContaining({
-          version: '2.0'
-        })
+          version: '2.0',
+        }),
       });
     });
 
     it('should add pagination metadata', () => {
       const data = [1, 2, 3];
-      
+
       ResponseBuilder.success(data)
         .withPagination({ page: 2, limit: 3, total: 10 })
         .send(mockResponse as Response);
-      
+
       expect(mockResponse.json).toHaveBeenCalledWith({
         data,
         meta: expect.objectContaining({
@@ -174,9 +175,9 @@ describe('Response Utils', () => {
             page: 2,
             limit: 3,
             total: 10,
-            totalPages: 4
-          }
-        })
+            totalPages: 4,
+          },
+        }),
       });
     });
   });
@@ -210,73 +211,70 @@ describe('Response Utils', () => {
 
     it('should include only specified fields', () => {
       const data = { id: 1, name: 'Test', secret: 'hidden' };
-      
+
       const result = transformResponse(data, { fields: ['id', 'name'] });
-      
+
       expect(result).toEqual({ id: 1, name: 'Test' });
     });
 
     it('should exclude specified fields', () => {
       const data = { id: 1, name: 'Test', password: 'secret' };
-      
+
       const result = transformResponse(data, { exclude: ['password'] });
-      
+
       expect(result).toEqual({ id: 1, name: 'Test' });
     });
 
     it('should apply custom transform function', () => {
       const data = { firstName: 'John', lastName: 'Doe' };
-      
+
       const result = transformResponse(data, {
-        transform: (item) => ({
+        transform: item => ({
           ...item,
-          fullName: `${item.firstName} ${item.lastName}`
-        })
+          fullName: `${item.firstName} ${item.lastName}`,
+        }),
       });
-      
+
       expect(result).toEqual({
         firstName: 'John',
         lastName: 'Doe',
-        fullName: 'John Doe'
+        fullName: 'John Doe',
       });
     });
 
     it('should handle arrays', () => {
       const data = [
         { id: 1, secret: 'a' },
-        { id: 2, secret: 'b' }
+        { id: 2, secret: 'b' },
       ];
-      
+
       const result = transformResponse(data, { exclude: ['secret'] });
-      
-      expect(result).toEqual([
-        { id: 1 },
-        { id: 2 }
-      ]);
+
+      expect(result).toEqual([{ id: 1 }, { id: 2 }]);
     });
 
     it('should apply multiple transformations', () => {
-      const data = { 
-        id: 1, 
+      const data = {
+        id: 1,
         firstName: 'Jane',
         lastName: 'Smith',
         password: 'secret',
-        email: 'jane@example.com' 
+        email: 'jane@example.com',
       };
-      
+
       const result = transformResponse(data, {
         fields: ['id', 'firstName', 'lastName', 'fullName'],
-        transform: (item) => ({
+        transform: item => ({
           ...item,
-          fullName: `${item.firstName} ${item.lastName}`
-        })
+          fullName: `${item.firstName} ${item.lastName}`,
+        }),
       });
-      
+
       expect(result).toEqual({
         id: 1,
         firstName: 'Jane',
         lastName: 'Smith',
-        fullName: 'Jane Smith'
+        fullName: 'Jane Smith',
       });
     });
   });

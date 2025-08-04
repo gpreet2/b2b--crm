@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@workos-inc/authkit-nextjs';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
 import { getSupabaseClient } from '@/config/supabase';
 import { checkPermission } from '@/middleware/permissions.middleware';
-import { z } from 'zod';
+
 
 // Schema for query parameters
 const querySchema = z.object({
@@ -17,7 +19,7 @@ const querySchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const auth = await withAuth({ ensureSignedIn: false });
-    
+
     if (!auth.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
@@ -64,10 +66,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Error fetching permissions:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch permissions' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch permissions' }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -76,9 +75,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Permission endpoint error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

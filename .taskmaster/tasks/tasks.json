@@ -82,9 +82,7 @@
         "status": "pending",
         "phase": "0-secure-bedrock",
         "details": "Set up automated Supabase backups, create point-in-time recovery procedures, implement data export functionality, document and TEST recovery procedures.",
-        "dependencies": [
-          "1"
-        ],
+        "dependencies": ["1"],
         "testStrategy": "Actually perform a backup and restore to verify it works, test data integrity after restore",
         "subtasks": [
           {
@@ -170,9 +168,7 @@
         "status": "pending",
         "phase": "0-secure-bedrock",
         "details": "Implement validation middleware using Zod, create reusable validation schemas, add request sanitization, implement type checking.",
-        "dependencies": [
-          "3"
-        ],
+        "dependencies": ["3"],
         "testStrategy": "Test SQL injection attempts, test XSS attempts, verify all invalid inputs are rejected with proper errors",
         "subtasks": [
           {
@@ -215,11 +211,7 @@
         "status": "pending",
         "phase": "0-secure-bedrock",
         "details": "Configure WorkOS SDK, implement authentication endpoints with proper error handling, set up JWT token management with organization context.",
-        "dependencies": [
-          "1",
-          "3",
-          "4"
-        ],
+        "dependencies": ["1", "3", "4"],
         "testStrategy": "Test login/logout flows, test invalid credentials, verify JWT contains org context, test token expiration and refresh",
         "subtasks": [
           {
@@ -268,10 +260,7 @@
         "status": "pending",
         "phase": "0-secure-bedrock",
         "details": "Implement permission middleware that runs on EVERY request, create default roles, implement permission checking at API level.",
-        "dependencies": [
-          "1",
-          "5"
-        ],
+        "dependencies": ["1", "5"],
         "testStrategy": "Test unauthorized access is blocked, test each role's permissions, verify cross-org isolation",
         "subtasks": [
           {
@@ -314,11 +303,7 @@
         "status": "pending",
         "phase": "0-secure-bedrock",
         "details": "Implement helmet.js for security headers, set up rate limiting with Redis, configure CORS, implement audit logging.",
-        "dependencies": [
-          "1",
-          "5",
-          "6"
-        ],
+        "dependencies": ["1", "5", "6"],
         "testStrategy": "Run OWASP security scan, test rate limiting blocks abuse, verify audit logs capture all admin actions",
         "subtasks": [
           {
@@ -404,11 +389,7 @@
         "status": "pending",
         "phase": "0-secure-bedrock",
         "details": "Configure Jest for unit tests, set up Supertest for integration tests, create test utilities.",
-        "dependencies": [
-          "1",
-          "5",
-          "6"
-        ],
+        "dependencies": ["1", "5", "6"],
         "testStrategy": "Ensure tests cover all security scenarios, verify mocks don't bypass real security",
         "subtasks": [
           {
@@ -451,17 +432,7 @@
         "status": "pending",
         "phase": "1-vertical-slice",
         "details": "Create onboarding session management with encryption, implement state persistence with proper validation.",
-        "dependencies": [
-          "1",
-          "2",
-          "3",
-          "4",
-          "5",
-          "6",
-          "7",
-          "8",
-          "9"
-        ],
+        "dependencies": ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
         "testStrategy": "Test complete flow with security checks at each step, verify session hijacking is prevented",
         "subtasks": [
           {
@@ -504,9 +475,7 @@
         "status": "pending",
         "phase": "1-vertical-slice",
         "details": "Create organization creation endpoint with full validation, implement parent-child relationships.",
-        "dependencies": [
-          "10"
-        ],
+        "dependencies": ["10"],
         "testStrategy": "Test organization creation with invalid data, verify data isolation between orgs",
         "subtasks": [
           {
@@ -549,9 +518,7 @@
         "status": "pending",
         "phase": "1-vertical-slice",
         "details": "Implement GET endpoint for clients with full permission checks, ensure organization isolation.",
-        "dependencies": [
-          "11"
-        ],
+        "dependencies": ["11"],
         "testStrategy": "Test unauthorized access is blocked, verify org isolation",
         "subtasks": [
           {
@@ -594,11 +561,7 @@
         "status": "pending",
         "phase": "1-vertical-slice",
         "details": "Set up OpenAPI/Swagger specification, document authentication flow thoroughly.",
-        "dependencies": [
-          "10",
-          "11",
-          "12"
-        ],
+        "dependencies": ["10", "11", "12"],
         "testStrategy": "Validate OpenAPI spec, ensure security requirements are clear",
         "subtasks": [
           {
@@ -641,9 +604,7 @@
         "status": "pending",
         "phase": "2-core-features",
         "details": "Implement CREATE, UPDATE, DELETE with validation and audit logging.",
-        "dependencies": [
-          "12"
-        ],
+        "dependencies": ["12"],
         "testStrategy": "Test all CRUD operations with invalid data, verify audit trail",
         "subtasks": [
           {
@@ -686,9 +647,7 @@
         "status": "pending",
         "phase": "2-core-features",
         "details": "Create membership CRUD with full validation, implement access type management.",
-        "dependencies": [
-          "14"
-        ],
+        "dependencies": ["14"],
         "testStrategy": "Test membership state transitions, verify access calculations",
         "subtasks": [
           {
@@ -731,9 +690,7 @@
         "status": "pending",
         "phase": "2-core-features",
         "details": "Create event CRUD with validation, implement booking logic with tour metadata support.",
-        "dependencies": [
-          "14"
-        ],
+        "dependencies": ["14"],
         "testStrategy": "Test race conditions in booking, verify capacity limits enforced",
         "subtasks": [
           {
@@ -776,11 +733,7 @@
         "status": "pending",
         "phase": "2-core-features",
         "details": "Implement revenue analytics with permission checks, create attendance reports.",
-        "dependencies": [
-          "14",
-          "15",
-          "16"
-        ],
+        "dependencies": ["14", "15", "16"],
         "testStrategy": "Verify data isolation in reports, test performance with large datasets",
         "subtasks": [
           {
@@ -823,9 +776,7 @@
         "status": "pending",
         "phase": "2-core-features",
         "details": "Set up notification templates with sanitization, implement in-app notifications with read/unread status.",
-        "dependencies": [
-          "14"
-        ],
+        "dependencies": ["14"],
         "testStrategy": "Test opt-out is respected, verify template injection is prevented",
         "subtasks": [
           {
@@ -868,11 +819,7 @@
         "status": "pending",
         "phase": "2-core-features",
         "details": "Set up Bull queue with Redis, implement job authentication and permissions.",
-        "dependencies": [
-          "1",
-          "5",
-          "6"
-        ],
+        "dependencies": ["1", "5", "6"],
         "testStrategy": "Test job failures don't compromise security, verify retry logic",
         "subtasks": [
           {
@@ -915,11 +862,7 @@
         "status": "pending",
         "phase": "2-core-features",
         "details": "Configure Redis with authentication, implement caching with proper TTLs.",
-        "dependencies": [
-          "1",
-          "5",
-          "6"
-        ],
+        "dependencies": ["1", "5", "6"],
         "testStrategy": "Test cache doesn't leak data across orgs, verify invalidation works",
         "subtasks": [
           {
@@ -962,10 +905,7 @@
         "status": "pending",
         "phase": "2-core-features",
         "details": "Create health check endpoints with no sensitive data, integrate monitoring.",
-        "dependencies": [
-          "1",
-          "5"
-        ],
+        "dependencies": ["1", "5"],
         "testStrategy": "Verify health endpoints don't leak information",
         "subtasks": [
           {
@@ -1008,9 +948,7 @@
         "status": "pending",
         "phase": "3-additional-features",
         "details": "Create workout CRUD with ownership validation, implement exercise library.",
-        "dependencies": [
-          "14"
-        ],
+        "dependencies": ["14"],
         "testStrategy": "Test template access controls, verify franchise restrictions",
         "subtasks": [
           {
@@ -1053,10 +991,7 @@
         "status": "pending",
         "phase": "3-additional-features",
         "details": "Define achievement criteria securely, implement achievement evaluation.",
-        "dependencies": [
-          "14",
-          "16"
-        ],
+        "dependencies": ["14", "16"],
         "testStrategy": "Test achievement logic doesn't leak user behavior",
         "subtasks": [
           {
@@ -1099,12 +1034,7 @@
         "status": "pending",
         "phase": "3-additional-features",
         "details": "Create impersonation with full audit trail and time limits.",
-        "dependencies": [
-          "1",
-          "5",
-          "6",
-          "7"
-        ],
+        "dependencies": ["1", "5", "6", "7"],
         "testStrategy": "Test impersonation restrictions, verify audit trail completeness",
         "subtasks": [
           {
@@ -1147,10 +1077,7 @@
         "status": "pending",
         "phase": "3-additional-features",
         "details": "Create document upload with virus scanning, implement waiver signing.",
-        "dependencies": [
-          "11",
-          "14"
-        ],
+        "dependencies": ["11", "14"],
         "testStrategy": "Test file upload security, verify signing audit trail",
         "subtasks": [
           {
@@ -1193,11 +1120,7 @@
         "status": "pending",
         "phase": "3-additional-features",
         "details": "Implement feature flag evaluation with caching, create management interface.",
-        "dependencies": [
-          "1",
-          "5",
-          "6"
-        ],
+        "dependencies": ["1", "5", "6"],
         "testStrategy": "Test flag evaluation performance, verify org isolation",
         "subtasks": [
           {

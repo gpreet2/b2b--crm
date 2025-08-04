@@ -1,6 +1,8 @@
-import { Request, Response, Router } from 'express';
-import { createClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
+
+import { createClient } from '@supabase/supabase-js';
+import { Request, Response, Router } from 'express';
+
 import { logger } from '@/utils/logger';
 
 const router = Router();
@@ -15,12 +17,12 @@ const supabase = createClient(
  * Data Privacy Request Types
  */
 export enum DataRequestType {
-  ACCESS = 'access',          // GDPR Article 15, CCPA Right to Know
-  PORTABILITY = 'portability', // GDPR Article 20, CCPA Right to Data Portability  
+  ACCESS = 'access', // GDPR Article 15, CCPA Right to Know
+  PORTABILITY = 'portability', // GDPR Article 20, CCPA Right to Data Portability
   RECTIFICATION = 'rectification', // GDPR Article 16, CCPA Right to Correct
-  ERASURE = 'erasure',        // GDPR Article 17, CCPA Right to Delete
+  ERASURE = 'erasure', // GDPR Article 17, CCPA Right to Delete
   RESTRICTION = 'restriction', // GDPR Article 18
-  OBJECTION = 'objection',    // GDPR Article 21, CCPA Right to Opt-Out
+  OBJECTION = 'objection', // GDPR Article 21, CCPA Right to Opt-Out
 }
 
 export enum RequestStatus {
@@ -36,7 +38,7 @@ export enum RequestStatus {
  */
 const PERSONAL_DATA_TABLES = [
   'users',
-  'clients', 
+  'clients',
   'user_organizations',
   'client_organizations',
   'event_participants',
@@ -50,13 +52,7 @@ const PERSONAL_DATA_TABLES = [
  */
 router.post('/requests', async (req: Request, res: Response) => {
   try {
-    const {
-      request_type,
-      description,
-      legal_basis,
-      requester_email,
-      user_id,
-    } = req.body;
+    const { request_type, description, legal_basis, requester_email, user_id } = req.body;
 
     const organizationId = req.headers['x-organization-id'] as string;
     if (!organizationId) {
@@ -260,14 +256,14 @@ router.post('/requests/:id/fulfill/access', async (req: Request, res: Response) 
 
     // Collect user data from relevant tables
     const personalData: Record<string, any> = {};
-    
+
     for (const tableName of PERSONAL_DATA_TABLES) {
       try {
         const { data: tableData } = await supabase
           .from(tableName)
           .select('*')
           .or(`user_id.eq.${request.user_id},client_id.eq.${request.user_id}`);
-        
+
         if (tableData && tableData.length > 0) {
           personalData[tableName] = tableData;
         }
@@ -302,9 +298,11 @@ router.post('/requests/:id/fulfill/access', async (req: Request, res: Response) 
     };
 
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', `attachment; filename="data-access-${request.user_id}.json"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="data-access-${request.user_id}.json"`
+    );
     res.json(accessData);
-
   } catch (error) {
     logger.error('Error fulfilling data access request', { error });
     res.status(500).json({ error: 'Internal server error' });
@@ -375,7 +373,7 @@ router.post('/requests/:id/fulfill/erasure', async (req: Request, res: Response)
       .update({
         status: RequestStatus.COMPLETED,
         fulfilled_at: new Date().toISOString(),
-        fulfillment_data: { 
+        fulfillment_data: {
           deletion_results: deletionResults,
           total_deleted: totalDeleted,
         },
@@ -393,7 +391,6 @@ router.post('/requests/:id/fulfill/erasure', async (req: Request, res: Response)
       deletion_results: deletionResults,
       completion_date: new Date().toISOString(),
     });
-
   } catch (error) {
     logger.error('Error fulfilling data erasure request', { error });
     res.status(500).json({ error: 'Internal server error' });
@@ -444,10 +441,10 @@ router.post('/requests/:id/fulfill/rectification', async (req: Request, res: Res
         if (updateError) {
           updateResults[tableName] = { status: 'error', error: updateError.message };
         } else {
-          updateResults[tableName] = { 
-            status: 'updated', 
+          updateResults[tableName] = {
+            status: 'updated',
             count: data?.length || 0,
-            updated_fields: Object.keys(updates)
+            updated_fields: Object.keys(updates),
           };
         }
       } catch (tableError) {
@@ -461,7 +458,7 @@ router.post('/requests/:id/fulfill/rectification', async (req: Request, res: Res
       .update({
         status: RequestStatus.COMPLETED,
         fulfilled_at: new Date().toISOString(),
-        fulfillment_data: { 
+        fulfillment_data: {
           rectification_results: updateResults,
           corrections_applied: corrections,
         },
@@ -478,7 +475,6 @@ router.post('/requests/:id/fulfill/rectification', async (req: Request, res: Res
       rectification_results: updateResults,
       completion_date: new Date().toISOString(),
     });
-
   } catch (error) {
     logger.error('Error fulfilling data rectification request', { error });
     res.status(500).json({ error: 'Internal server error' });
@@ -510,8 +506,9 @@ router.get('/consent/:userId', async (req: Request, res: Response) => {
       consent_summary: {
         marketing: consents?.find(c => c.consent_type === 'marketing')?.granted || false,
         analytics: consents?.find(c => c.consent_type === 'analytics')?.granted || false,
-        third_party_sharing: consents?.find(c => c.consent_type === 'third_party_sharing')?.granted || false,
-      }
+        third_party_sharing:
+          consents?.find(c => c.consent_type === 'third_party_sharing')?.granted || false,
+      },
     });
   } catch (error) {
     logger.error('Error fetching consent status', { error });
@@ -542,12 +539,10 @@ router.post('/consent/:userId', async (req: Request, res: Response) => {
       updated_by: (req as any).user?.id,
     }));
 
-    const { error } = await supabase
-      .from('user_consents')
-      .upsert(consentRecords, { 
-        onConflict: 'user_id,organization_id,consent_type',
-        ignoreDuplicates: false 
-      });
+    const { error } = await supabase.from('user_consents').upsert(consentRecords, {
+      onConflict: 'user_id,organization_id,consent_type',
+      ignoreDuplicates: false,
+    });
 
     if (error) {
       logger.error('Failed to update consent preferences', { error });

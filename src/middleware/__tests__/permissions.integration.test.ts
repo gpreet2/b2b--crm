@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import {
-  requirePermission,
-  requireRole,
-  AuthenticatedRequest,
-} from '../permissions.middleware';
+
 import { AuthError, PermissionError } from '@/errors';
+
+import { requirePermission, requireRole, AuthenticatedRequest } from '../permissions.middleware';
 
 // Integration tests that verify the middleware behavior without mocking internals
 describe('Permission Middleware Integration', () => {
@@ -23,12 +21,12 @@ describe('Permission Middleware Integration', () => {
       },
       authOrganizationId: 'test-org',
     };
-    
+
     mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
     };
-    
+
     mockNext = jest.fn();
   });
 
@@ -37,11 +35,7 @@ describe('Permission Middleware Integration', () => {
       mockReq.authUser = undefined;
       const middleware = requirePermission('users', 'read');
 
-      await middleware(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await middleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -55,11 +49,7 @@ describe('Permission Middleware Integration', () => {
       mockReq.authOrganizationId = undefined;
       const middleware = requirePermission('users', 'read');
 
-      await middleware(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await middleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -75,11 +65,7 @@ describe('Permission Middleware Integration', () => {
       mockReq.authUser = undefined;
       const middleware = requireRole('admin');
 
-      await middleware(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await middleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -93,11 +79,7 @@ describe('Permission Middleware Integration', () => {
       mockReq.authOrganizationId = undefined;
       const middleware = requireRole('admin');
 
-      await middleware(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await middleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -111,11 +93,7 @@ describe('Permission Middleware Integration', () => {
       mockReq.authOrganizationId = undefined;
       const middleware = requireRole(['admin', 'owner']);
 
-      await middleware(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await middleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({

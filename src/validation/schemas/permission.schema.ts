@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 import { RESOURCES } from '@/config/permissions';
 
 /**
@@ -30,12 +31,14 @@ export const permissionCheckSchema = z.object({
  * Schema for bulk permission check
  */
 export const bulkPermissionCheckSchema = z.object({
-  permissions: z.array(
-    z.object({
-      resource: z.string().min(1),
-      action: z.string().min(1),
-    })
-  ).min(1, 'At least one permission is required'),
+  permissions: z
+    .array(
+      z.object({
+        resource: z.string().min(1),
+        action: z.string().min(1),
+      })
+    )
+    .min(1, 'At least one permission is required'),
   organizationId: z.string().uuid('Invalid organization ID'),
   userId: z.string().uuid('Invalid user ID').optional(),
 });
@@ -45,13 +48,15 @@ export const bulkPermissionCheckSchema = z.object({
  */
 export const rolePermissionAssignmentSchema = z.object({
   roleId: z.string().uuid('Invalid role ID'),
-  permissions: z.array(
-    z.object({
-      resource: z.string().min(1),
-      action: z.string().min(1),
-      granted: z.boolean().default(true),
-    })
-  ).min(1, 'At least one permission is required'),
+  permissions: z
+    .array(
+      z.object({
+        resource: z.string().min(1),
+        action: z.string().min(1),
+        granted: z.boolean().default(true),
+      })
+    )
+    .min(1, 'At least one permission is required'),
 });
 
 /**

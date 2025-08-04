@@ -1,20 +1,21 @@
-import React from 'react'
-import { cn } from '@/lib/utils'
+import React from 'react';
+
+import { cn } from '@/lib/utils';
 
 export interface SwitchProps {
-  checked?: boolean
-  onCheckedChange?: (checked: boolean) => void
-  disabled?: boolean
-  className?: string
-  id?: string
+  checked?: boolean;
+  onCheckedChange?: (checked: boolean) => void;
+  disabled?: boolean;
+  className?: string;
+  id?: string;
 }
 
 const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
   ({ className, checked = false, onCheckedChange, disabled = false, id, ...props }, ref) => {
     return (
       <button
-        type="button"
-        role="switch"
+        type='button'
+        role='switch'
         aria-checked={checked}
         data-state={checked ? 'checked' : 'unchecked'}
         disabled={disabled}
@@ -36,10 +37,10 @@ const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(
           )}
         />
       </button>
-    )
+    );
   }
-)
+);
 
-Switch.displayName = 'Switch'
+Switch.displayName = 'Switch';
 
-export { Switch }
+export { Switch };

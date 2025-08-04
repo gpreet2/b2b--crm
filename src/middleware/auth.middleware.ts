@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
 import { withAuth } from '@workos-inc/authkit-nextjs';
-import { logger } from '@/utils/logger';
+import { Request, Response, NextFunction } from 'express';
+
 import { AuthError, PermissionError } from '@/errors';
+import { logger } from '@/utils/logger';
 
 interface AuthenticatedRequest extends Request {
   authUser?: {
@@ -18,32 +19,28 @@ interface AuthenticatedRequest extends Request {
 /**
  * Middleware to require authentication
  */
-export async function requireAuth(
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) {
+export async function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+
+    if (!authHeader?.startsWith('Bearer ')) {
       throw new AuthError('No authorization token provided');
     }
 
     // For API routes, we need to validate the JWT token
     // WorkOS AuthKit handles this automatically for page routes
     // For API routes called from client, the access token should be passed
-    
+
     // This is a simplified version - in production you'd validate the JWT
     const token = authHeader.replace('Bearer ', '');
-    
+
     // Add user context to request
     // In a real implementation, decode and verify the JWT token
     req.authUser = {
       id: 'placeholder',
       email: 'placeholder@example.com',
     };
-    
+
     next();
   } catch (error) {
     logger.error('Authentication failed', { error });
@@ -55,11 +52,7 @@ export async function requireAuth(
  * Middleware to require specific role
  */
 export function requireRole(role: 'owner' | 'admin' | 'member') {
-  return async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
+  return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.authUser) {
         throw new AuthError('Authentication required');
@@ -70,11 +63,7 @@ export function requireRole(role: 'owner' | 'admin' | 'member') {
       }
 
       // Check role using WorkOS API
-      const hasRequiredRole = await hasRole(
-        req.authUser.id,
-        req.authOrganizationId,
-        role
-      );
+      const hasRequiredRole = await hasRole(req.authUser.id, req.authOrganizationId, role);
 
       if (!hasRequiredRole) {
         throw new PermissionError(`Requires ${role} role`);
@@ -91,30 +80,23 @@ export function requireRole(role: 'owner' | 'admin' | 'member') {
  * Middleware to require organization membership
  */
 export function requireOrganization() {
-  return async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
+  return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.authUser) {
         throw new AuthError('Authentication required');
       }
 
-      const organizationId = req.params.organizationId || 
-                           req.body?.organizationId ||
-                           req.query.organizationId as string;
+      const organizationId =
+        req.params.organizationId ||
+        req.body?.organizationId ||
+        (req.query.organizationId as string);
 
       if (!organizationId) {
         throw new PermissionError('Organization ID required');
       }
 
       // Verify membership
-      const isMember = await hasRole(
-        req.authUser.id,
-        organizationId,
-        'member'
-      );
+      const isMember = await hasRole(req.authUser.id, organizationId, 'member');
 
       if (!isMember) {
         throw new PermissionError('Not a member of this organization');

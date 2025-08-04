@@ -1,56 +1,48 @@
-"use client"
-import React, { useState } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
-import { NavigationSubItem } from '@/lib/navigation'
-import { ChevronDownIcon } from '@heroicons/react/24/outline'
+'use client';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import React, { useState } from 'react';
+
+import { NavigationSubItem } from '@/lib/navigation';
+import { cn } from '@/lib/utils';
 
 export interface SubNavigationProps {
-  items: NavigationSubItem[]
-  className?: string
+  items: NavigationSubItem[];
+  className?: string;
 }
 
-export const SubNavigation: React.FC<SubNavigationProps> = ({ 
-  items, 
-  className 
-}) => {
-  const pathname = usePathname()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  
-  const activeItem = items.find(item => item.href === pathname)
+export const SubNavigation: React.FC<SubNavigationProps> = ({ items, className }) => {
+  const pathname = usePathname();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const activeItem = items.find(item => item.href === pathname);
 
   return (
     <div className={cn('bg-surface border-b border-surface', className)}>
       {/* Mobile Dropdown */}
-      <div className="block sm:hidden">
+      <div className='block sm:hidden'>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-primary-text bg-surface hover:bg-accent transition-colors"
+          className='w-full flex items-center justify-between px-4 py-3 text-sm font-medium text-primary-text bg-surface hover:bg-accent transition-colors'
         >
-          <div className="flex items-center space-x-2">
-            {activeItem?.icon && <activeItem.icon className="h-4 w-4" />}
+          <div className='flex items-center space-x-2'>
+            {activeItem?.icon ? <activeItem.icon className='h-4 w-4' /> : null}
             <span>{activeItem?.title || 'Select Section'}</span>
-            {activeItem?.badge && (
-              <span className="px-2 py-0.5 text-xs bg-primary text-white rounded-full">
+            {activeItem?.badge ? <span className='px-2 py-0.5 text-xs bg-primary text-white rounded-full'>
                 {activeItem.badge}
-              </span>
-            )}
+              </span> : null}
           </div>
-          <ChevronDownIcon 
-            className={cn(
-              'h-4 w-4 transition-transform',
-              isMobileMenuOpen ? 'rotate-180' : ''
-            )} 
+          <ChevronDownIcon
+            className={cn('h-4 w-4 transition-transform', isMobileMenuOpen ? 'rotate-180' : '')}
           />
         </button>
-        
-        {isMobileMenuOpen && (
-          <div className="border-t border-surface bg-accent">
-            {items.map((item) => {
-              const isActive = pathname === item.href
-              const Icon = item.icon
-              
+
+        {isMobileMenuOpen ? <div className='border-t border-surface bg-accent'>
+            {items.map(item => {
+              const isActive = pathname === item.href;
+              const Icon = item.icon;
+
               return (
                 <Link
                   key={item.href}
@@ -63,26 +55,23 @@ export const SubNavigation: React.FC<SubNavigationProps> = ({
                       : 'text-secondary-text hover:text-primary-text hover:bg-surface'
                   )}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className='h-4 w-4' />
                   <span>{item.title}</span>
-                  {item.badge && (
-                    <span className="px-2 py-0.5 text-xs bg-primary text-white rounded-full ml-auto">
+                  {item.badge ? <span className='px-2 py-0.5 text-xs bg-primary text-white rounded-full ml-auto'>
                       {item.badge}
-                    </span>
-                  )}
+                    </span> : null}
                 </Link>
-              )
+              );
             })}
-          </div>
-        )}
+          </div> : null}
       </div>
 
       {/* Desktop Horizontal Navigation */}
-      <nav className="hidden sm:flex space-x-1 px-4">
-        {items.map((item) => {
-          const isActive = pathname === item.href
-          const Icon = item.icon
-          
+      <nav className='hidden sm:flex space-x-1 px-4'>
+        {items.map(item => {
+          const isActive = pathname === item.href;
+          const Icon = item.icon;
+
           return (
             <Link
               key={item.href}
@@ -94,17 +83,15 @@ export const SubNavigation: React.FC<SubNavigationProps> = ({
                   : 'text-secondary-text hover:text-primary-text hover:bg-accent'
               )}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className='h-4 w-4' />
               <span>{item.title}</span>
-              {item.badge && (
-                <span className="px-2 py-0.5 text-xs bg-primary text-white rounded-full">
+              {item.badge ? <span className='px-2 py-0.5 text-xs bg-primary text-white rounded-full'>
                   {item.badge}
-                </span>
-              )}
+                </span> : null}
             </Link>
-          )
+          );
         })}
       </nav>
     </div>
-  )
-} 
+  );
+};

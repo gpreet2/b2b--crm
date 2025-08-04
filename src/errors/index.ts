@@ -8,7 +8,7 @@ export {
   BadRequestError,
   ConflictError,
   ServiceUnavailableError,
-  TooManyRequestsError
+  TooManyRequestsError,
 } from './app.error';
 
 // Validation Errors
@@ -16,7 +16,7 @@ export {
   ValidationError,
   InvalidInputError,
   MissingFieldError,
-  InvalidFormatError
+  InvalidFormatError,
 } from './validation.error';
 
 // Auth Errors
@@ -27,7 +27,7 @@ export {
   TokenExpiredError,
   InvalidTokenError,
   SessionExpiredError,
-  MFARequiredError
+  MFARequiredError,
 } from './auth.error';
 
 // Permission Errors
@@ -36,7 +36,7 @@ export {
   ForbiddenError,
   InsufficientPermissionsError,
   OrganizationAccessError,
-  ResourceOwnershipError
+  ResourceOwnershipError,
 } from './permission.error';
 
 // Not Found Errors
@@ -47,7 +47,7 @@ export {
   ClientNotFoundError,
   EventNotFoundError,
   MembershipNotFoundError,
-  RouteNotFoundError
+  RouteNotFoundError,
 } from './not-found.error';
 
 // Export type guards
@@ -56,5 +56,5 @@ export {
   isAuthError,
   isValidationError,
   isPermissionError,
-  isNotFoundError
+  isNotFoundError,
 } from './utils';

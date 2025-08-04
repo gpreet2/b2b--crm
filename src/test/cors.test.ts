@@ -1,10 +1,11 @@
-import request from 'supertest';
 import express, { Request, Response } from 'express';
-import { 
-  corsMiddleware, 
-  corsMiddlewareVariants, 
-  validateCorsConfig, 
-  getCorsConfigSummary 
+import request from 'supertest';
+
+import {
+  corsMiddleware,
+  corsMiddlewareVariants,
+  validateCorsConfig,
+  getCorsConfigSummary,
 } from '@/middleware/cors.middleware';
 
 describe('CORS Middleware', () => {
@@ -28,18 +29,18 @@ describe('CORS Middleware', () => {
 
   beforeEach(() => {
     app = express();
-    
+
     // Test routes with different CORS configurations
     app.use('/api', corsMiddleware);
     app.get('/api/test', (req: Request, res: Response) => {
       res.json({ message: 'API endpoint' });
     });
-    
+
     app.use('/api/strict', corsMiddlewareVariants.strict);
     app.get('/api/strict/test', (req: Request, res: Response) => {
       res.json({ message: 'Strict endpoint' });
     });
-    
+
     app.use('/public', corsMiddlewareVariants.public);
     app.get('/public/health', (req: Request, res: Response) => {
       res.json({ status: 'healthy' });
@@ -49,20 +50,15 @@ describe('CORS Middleware', () => {
   describe('Basic CORS Functionality', () => {
     it('should allow requests from allowed origins', async () => {
       const allowedOrigin = 'http://localhost:3000';
-      
-      const response = await request(app)
-        .get('/api/test')
-        .set('Origin', allowedOrigin)
-        .expect(200);
+
+      const response = await request(app).get('/api/test').set('Origin', allowedOrigin).expect(200);
 
       expect(response.headers['access-control-allow-origin']).toBe(allowedOrigin);
       expect(response.headers['access-control-allow-credentials']).toBe('true');
     });
 
     it('should allow requests with no origin (mobile apps, Postman)', async () => {
-      const response = await request(app)
-        .get('/api/test')
-        .expect(200);
+      const response = await request(app).get('/api/test').expect(200);
 
       // Should not block requests without origin
       expect(response.status).toBe(200);
@@ -85,7 +81,7 @@ describe('CORS Middleware', () => {
   describe('Preflight Requests', () => {
     it('should handle OPTIONS preflight requests correctly', async () => {
       const origin = 'http://localhost:3000';
-      
+
       const response = await request(app)
         .options('/api/test')
         .set('Origin', origin)
@@ -102,7 +98,7 @@ describe('CORS Middleware', () => {
 
     it('should block preflight requests from disallowed origins', async () => {
       const disallowedOrigin = 'https://malicious-site.com';
-      
+
       const response = await request(app)
         .options('/api/test')
         .set('Origin', disallowedOrigin)
@@ -134,7 +130,7 @@ describe('CORS Middleware', () => {
     it('should be more permissive in development environment', async () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'development';
-      
+
       // Create fresh app for development mode
       const devApp = express();
       devApp.use('/api', corsMiddleware);
@@ -149,7 +145,7 @@ describe('CORS Middleware', () => {
         .expect(200);
 
       expect(response.headers['access-control-allow-origin']).toBe('http://localhost:8080');
-      
+
       // Restore environment
       process.env.NODE_ENV = originalEnv;
     });
@@ -157,7 +153,7 @@ describe('CORS Middleware', () => {
     it('should have shorter preflight cache in development', async () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'development';
-      
+
       const devApp = express();
       devApp.use('/api', corsMiddleware);
       devApp.get('/api/test', (req: Request, res: Response) => {
@@ -172,14 +168,14 @@ describe('CORS Middleware', () => {
 
       const maxAge = parseInt(response.headers['access-control-max-age']);
       expect(maxAge).toBeLessThanOrEqual(300); // 5 minutes or less in development
-      
+
       process.env.NODE_ENV = originalEnv;
     });
 
     it('should have longer preflight cache in production', async () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'production';
-      
+
       const prodApp = express();
       prodApp.use('/api', corsMiddleware);
       prodApp.get('/api/test', (req: Request, res: Response) => {
@@ -196,16 +192,14 @@ describe('CORS Middleware', () => {
 
       const maxAge = parseInt(response.headers['access-control-max-age']);
       expect(maxAge).toBeGreaterThan(300); // More than 5 minutes in production
-      
+
       process.env.NODE_ENV = originalEnv;
     });
   });
 
   describe('Strict CORS Mode', () => {
     it('should block requests without valid origin in strict mode', async () => {
-      const response = await request(app)
-        .get('/api/strict/test')
-        .expect(403);
+      const response = await request(app).get('/api/strict/test').expect(403);
 
       expect(response.body.error).toBe('CORS policy violation');
       expect(response.body.code).toBe('CORS_STRICT_MODE');
@@ -358,7 +352,7 @@ describe('CORS Middleware', () => {
   describe('Configuration Validation', () => {
     it('should validate CORS configuration', () => {
       const validation = validateCorsConfig();
-      
+
       expect(validation).toBeDefined();
       expect(typeof validation.isValid).toBe('boolean');
       expect(Array.isArray(validation.errors)).toBe(true);
@@ -366,7 +360,7 @@ describe('CORS Middleware', () => {
 
     it('should provide configuration summary', () => {
       const summary = getCorsConfigSummary();
-      
+
       expect(summary).toBeDefined();
       expect(summary.environment).toBeDefined();
       expect(Array.isArray(summary.allowedOrigins)).toBe(true);
@@ -377,7 +371,7 @@ describe('CORS Middleware', () => {
 
     it('should include proper configuration in summary', () => {
       const summary = getCorsConfigSummary();
-      
+
       expect(summary.credentials).toBe(true);
       expect(summary.methods).toContain('GET');
       expect(summary.methods).toContain('POST');
@@ -390,7 +384,7 @@ describe('CORS Middleware', () => {
     it('should handle multiple concurrent preflight requests', async () => {
       const origin = 'http://localhost:3000';
       const promises = [];
-      
+
       // Send multiple preflight requests simultaneously
       for (let i = 0; i < 10; i++) {
         promises.push(
@@ -400,9 +394,9 @@ describe('CORS Middleware', () => {
             .set('Access-Control-Request-Method', 'POST')
         );
       }
-      
+
       const responses = await Promise.all(promises);
-      
+
       // All should succeed
       responses.forEach(response => {
         expect(response.status).toBe(204);
@@ -416,14 +410,14 @@ describe('CORS Middleware', () => {
         { origin: 'http://localhost:3001', userAgent: 'React Native' },
         { origin: 'http://127.0.0.1:3000', userAgent: 'Expo' },
       ];
-      
+
       for (const testCase of testCases) {
         const response = await request(app)
           .get('/api/test')
           .set('Origin', testCase.origin)
           .set('User-Agent', testCase.userAgent)
           .expect(200);
-        
+
         expect(response.headers['access-control-allow-origin']).toBe(testCase.origin);
       }
     });

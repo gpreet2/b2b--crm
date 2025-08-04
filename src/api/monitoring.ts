@@ -1,7 +1,8 @@
+import * as Sentry from '@sentry/node';
 import { Request, Response, Router } from 'express';
+
 import { getDatabase } from '../config/database';
 import { logger } from '../utils/logger';
-import * as Sentry from '@sentry/node';
 
 export const monitoringRouter = Router();
 
@@ -14,7 +15,7 @@ interface HealthCheckResponse {
       status: 'pass' | 'fail';
       latency?: number;
       error?: string;
-      metrics?: any;
+      metrics?: Record<string, unknown>;
     };
     supabase: {
       status: 'pass' | 'fail';
@@ -31,7 +32,7 @@ interface HealthCheckResponse {
 
 // Health check endpoint
 monitoringRouter.get('/health', async (req: Request, res: Response) => {
-  const startTime = Date.now();
+  const _startTime = Date.now();
   const response: HealthCheckResponse = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -39,10 +40,10 @@ monitoringRouter.get('/health', async (req: Request, res: Response) => {
     checks: {
       database: { status: 'pass' },
       supabase: { status: 'pass' },
-      memory: { 
+      memory: {
         status: 'pass',
         usage: process.memoryUsage(),
-        percentUsed: 0
+        percentUsed: 0,
       },
     },
   };
@@ -52,13 +53,13 @@ monitoringRouter.get('/health', async (req: Request, res: Response) => {
     const dbCheckStart = Date.now();
     try {
       const db = getDatabase();
-      
+
       // Try a simple query if PostgreSQL is configured
       try {
         await db.query('SELECT 1');
         response.checks.database.latency = Date.now() - dbCheckStart;
         response.checks.database.metrics = db.getMetrics();
-      } catch (error) {
+      } catch (_error) {
         // PostgreSQL might not be configured, check Supabase client
         const client = db.getSupabaseClient();
         if (!client) {
@@ -77,18 +78,15 @@ monitoringRouter.get('/health', async (req: Request, res: Response) => {
     try {
       const db = getDatabase();
       const client = db.getSupabaseClient();
-      
+
       // Try to query a non-existent table (should fail with specific error)
-      const { error } = await client
-        .from('_health_check_test')
-        .select('count')
-        .limit(1);
-      
+      const { error } = await client.from('_health_check_test').select('count').limit(1);
+
       // PGRST116 means table doesn't exist, which is expected
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
-      
+
       response.checks.supabase.latency = Date.now() - supabaseCheckStart;
     } catch (error) {
       response.checks.supabase.status = 'fail';
@@ -99,21 +97,21 @@ monitoringRouter.get('/health', async (req: Request, res: Response) => {
 
     // Check memory usage
     const memUsage = process.memoryUsage();
-    const totalMemory = process.env.NODE_MEMORY_LIMIT 
-      ? parseInt(process.env.NODE_MEMORY_LIMIT) * 1024 * 1024 
+    const totalMemory = process.env.NODE_MEMORY_LIMIT
+      ? parseInt(process.env.NODE_MEMORY_LIMIT) * 1024 * 1024
       : 512 * 1024 * 1024; // Default 512MB
-    
+
     const percentUsed = (memUsage.heapUsed / totalMemory) * 100;
     response.checks.memory.percentUsed = Math.round(percentUsed * 100) / 100;
-    
+
     if (percentUsed > 90) {
       response.checks.memory.status = 'fail';
       response.status = response.status === 'unhealthy' ? 'unhealthy' : 'degraded';
     }
 
     // Set appropriate status code
-    const statusCode = response.status === 'healthy' ? 200 : 
-                      response.status === 'degraded' ? 200 : 503;
+    const statusCode =
+      response.status === 'healthy' ? 200 : response.status === 'degraded' ? 200 : 503;
 
     res.status(statusCode).json(response);
   } catch (error) {
@@ -125,7 +123,7 @@ monitoringRouter.get('/health', async (req: Request, res: Response) => {
 
 // Liveness probe - simple check that the process is running
 monitoringRouter.get('/live', (req: Request, res: Response) => {
-  res.status(200).json({ 
+  res.status(200).json({
     status: 'alive',
     timestamp: new Date().toISOString(),
     pid: process.pid,
@@ -133,24 +131,24 @@ monitoringRouter.get('/live', (req: Request, res: Response) => {
 });
 
 // Readiness probe - check if the app is ready to serve traffic
-monitoringRouter.get('/ready', async (req: Request, res: Response) => {
+monitoringRouter.get('/ready', (req: Request, res: Response) => {
   try {
     const db = getDatabase();
     const metrics = db.getMetrics();
-    
+
     if (!metrics.isHealthy) {
-      return res.status(503).json({ 
+      return res.status(503).json({
         status: 'not ready',
         reason: 'Database not healthy',
       });
     }
 
-    res.status(200).json({ 
+    res.status(200).json({
       status: 'ready',
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    res.status(503).json({ 
+    res.status(503).json({
       status: 'not ready',
       reason: error instanceof Error ? error.message : 'Unknown error',
     });
@@ -158,12 +156,12 @@ monitoringRouter.get('/ready', async (req: Request, res: Response) => {
 });
 
 // Metrics endpoint for monitoring tools
-monitoringRouter.get('/metrics', async (req: Request, res: Response) => {
+monitoringRouter.get('/metrics', (req: Request, res: Response) => {
   try {
     const db = getDatabase();
     const dbMetrics = db.getMetrics();
     const memUsage = process.memoryUsage();
-    
+
     const metrics = {
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),

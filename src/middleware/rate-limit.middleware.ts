@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+
 import { rateLimiters, RateLimiterType, RATE_LIMIT_CONFIG } from '@/config/redis';
 import { logger } from '@/utils/logger';
 
@@ -19,14 +20,16 @@ function getClientId(req: Request): string {
   // Priority order: authenticated user ID > IP address > fallback
   const userId = (req as any).user?.id;
   const forwarded = req.headers['x-forwarded-for'];
-  const ip = forwarded ? 
-    (Array.isArray(forwarded) ? forwarded[0] : forwarded.split(',')[0]) : 
-    req.ip || req.connection.remoteAddress || 'unknown';
-  
+  const ip = forwarded
+    ? Array.isArray(forwarded)
+      ? forwarded[0]
+      : forwarded.split(',')[0]
+    : req.ip || req.connection.remoteAddress || 'unknown';
+
   if (userId) {
     return `user:${userId}`;
   }
-  
+
   return `ip:${ip}`;
 }
 
@@ -36,22 +39,22 @@ function getClientId(req: Request): string {
 function shouldSkipRateLimit(req: Request): boolean {
   const userAgent = req.get('User-Agent') || '';
   const clientIp = req.ip || '';
-  
+
   // Skip for health check user agents
   if (RATE_LIMIT_CONFIG.SKIP_USER_AGENTS.some(ua => userAgent.includes(ua))) {
     return true;
   }
-  
+
   // Skip for internal IPs
   if (RATE_LIMIT_CONFIG.SKIP_IPS.includes(clientIp)) {
     return true;
   }
-  
+
   // Skip if explicitly marked (for testing or special cases)
   if (req.headers['x-skip-rate-limit'] === 'true') {
     return true;
   }
-  
+
   return false;
 }
 
@@ -84,20 +87,20 @@ export function createRateLimitMiddleware(
       if (shouldSkipRateLimit(req) || options.skip?.(req)) {
         return next();
       }
-      
+
       // Get the appropriate rate limiter
       const limiter = rateLimiters[limiterType];
       if (!limiter) {
         logger.error(`Invalid rate limiter type: ${limiterType}`);
         return next();
       }
-      
+
       // Generate client identifier
       const clientId = options.keyGenerator?.(req) || getClientId(req);
-      
+
       // Apply rate limiting
       const result = await limiter.limit(clientId);
-      
+
       // Apply rate limit headers
       applyRateLimitHeaders(res, {
         success: result.success,
@@ -105,7 +108,7 @@ export function createRateLimitMiddleware(
         remaining: result.remaining,
         reset: new Date(result.reset),
       });
-      
+
       // Check if rate limit exceeded
       if (!result.success) {
         // Log rate limit violation
@@ -120,16 +123,16 @@ export function createRateLimitMiddleware(
           userAgent: req.get('User-Agent'),
           ip: req.ip,
         });
-        
+
         // Apply retry-after header
         const retryAfter = Math.ceil((result.reset - Date.now()) / 1000);
         res.set(RATE_LIMIT_CONFIG.HEADERS.RETRY_AFTER, retryAfter.toString());
-        
+
         // Call custom handler if provided
         if (options.onLimitReached) {
           return options.onLimitReached(req, res);
         }
-        
+
         // Default rate limit response
         return res.status(RATE_LIMIT_CONFIG.STATUS_CODE).json({
           error: 'Rate limit exceeded',
@@ -141,7 +144,7 @@ export function createRateLimitMiddleware(
           reset: new Date(result.reset).toISOString(),
         });
       }
-      
+
       // Log successful rate limit check in development
       if (process.env.NODE_ENV === 'development') {
         logger.debug('Rate limit check passed', {
@@ -151,16 +154,16 @@ export function createRateLimitMiddleware(
           limit: result.limit,
         });
       }
-      
+
       next();
     } catch (error) {
-      logger.error('Rate limiting error', { 
+      logger.error('Rate limiting error', {
         error,
         limiterType,
         url: req.url,
         method: req.method,
       });
-      
+
       // Don't block requests if rate limiting fails
       next();
     }
@@ -220,17 +223,17 @@ export const dailyRateLimit = createRateLimitMiddleware('daily', {
  */
 export function multiRateLimit(limiterTypes: RateLimiterType[]) {
   const middlewares = limiterTypes.map(type => createRateLimitMiddleware(type));
-  
+
   return async (req: Request, res: Response, next: NextFunction) => {
     let index = 0;
-    
+
     const runNext = async () => {
       if (index >= middlewares.length) {
         return next();
       }
-      
+
       const middleware = middlewares[index++];
-      
+
       try {
         await new Promise<void>((resolve, reject) => {
           middleware(req, res, (err?: any) => {
@@ -238,19 +241,19 @@ export function multiRateLimit(limiterTypes: RateLimiterType[]) {
             else resolve();
           });
         });
-        
+
         // If response was already sent (rate limit exceeded), stop here
         if (res.headersSent) {
           return;
         }
-        
+
         // Continue to next middleware
         await runNext();
       } catch (error) {
         next(error);
       }
     };
-    
+
     await runNext();
   };
 }
@@ -266,11 +269,11 @@ export function createUserTierRateLimit(
     keyGenerator: (req: Request) => {
       const user = (req as any).user;
       const baseId = getClientId(req);
-      
+
       if (user?.tier && tierMultipliers[user.tier]) {
         return `${baseId}:tier:${user.tier}`;
       }
-      
+
       return baseId;
     },
   });
@@ -284,9 +287,9 @@ export const rateLimitMiddleware = {
   auth: authRateLimit,
   sensitive: sensitiveRateLimit,
   upload: uploadRateLimit,
-  hourly: hourlyRateLimit, 
+  hourly: hourlyRateLimit,
   daily: dailyRateLimit,
-  
+
   // Common combinations
   strictAuth: multiRateLimit(['auth', 'hourly']),
   apiWithUploads: multiRateLimit(['general', 'upload', 'daily']),

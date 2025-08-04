@@ -1,8 +1,8 @@
-import { BaseError } from './base.error';
 import { AuthError } from './auth.error';
-import { ValidationError } from './validation.error';
-import { PermissionError } from './permission.error';
+import { BaseError } from './base.error';
 import { NotFoundError } from './not-found.error';
+import { PermissionError } from './permission.error';
+import { ValidationError } from './validation.error';
 
 // Error type guards
 export function isOperationalError(error: Error): boolean {

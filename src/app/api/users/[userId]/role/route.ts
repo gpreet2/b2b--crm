@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@workos-inc/authkit-nextjs';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
 import { getSupabaseClient } from '@/config/supabase';
 import { checkPermission, getUserRole } from '@/middleware/permissions.middleware';
-import { z } from 'zod';
+
 
 // Schema for updating user role
 const updateRoleSchema = z.object({
@@ -22,7 +24,7 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const auth = await withAuth({ ensureSignedIn: false });
-    
+
     if (!auth.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
@@ -35,12 +37,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // Get user's current role
     const roleSlug = await getUserRole(userId, auth.organizationId);
-    
+
     if (!roleSlug) {
-      return NextResponse.json(
-        { error: 'User not found in organization' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found in organization' }, { status: 404 });
     }
 
     // Get full role details
@@ -51,10 +50,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .single();
 
     if (error || !role) {
-      return NextResponse.json(
-        { error: 'Role not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Role not found' }, { status: 404 });
     }
 
     // Get user details
@@ -71,10 +67,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     console.error('Get user role error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -85,7 +78,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const auth = await withAuth({ ensureSignedIn: false });
-    
+
     if (!auth.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
@@ -132,10 +125,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     if (updateError) {
       console.error('Error updating user role:', updateError);
-      return NextResponse.json(
-        { error: 'Failed to update user role' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to update user role' }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -150,11 +140,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         { status: 400 }
       );
     }
-    
+
     console.error('Update user role error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

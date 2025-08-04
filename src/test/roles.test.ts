@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+
 import {
   DEFAULT_ROLES,
   ROLE_DEFINITIONS,
@@ -35,7 +36,7 @@ describe('Role Configuration Tests', () => {
       for (const [key, slug] of Object.entries(DEFAULT_ROLES)) {
         const roleDefinition = ROLE_DEFINITIONS[slug];
         const dbRole = dbRoles!.find(r => r.slug === slug);
-        
+
         expect(dbRole).toBeDefined();
         expect(dbRole?.name).toBe(roleDefinition.name);
         expect(dbRole?.description).toBe(roleDefinition.description);
@@ -50,28 +51,30 @@ describe('Role Configuration Tests', () => {
       // Get permission counts from database
       const { data: roleCounts, error } = await supabase
         .from('roles')
-        .select(`
+        .select(
+          `
           slug,
           role_permissions!inner(count)
-        `)
+        `
+        )
         .eq('is_system', true);
 
       expect(error).toBeNull();
 
       // Expected permission counts based on database query
       const expectedCounts: Record<string, number> = {
-        owner: 37,    // Has all permissions
-        admin: 36,    // All except billing
-        trainer: 16,  // Client, event, workout management
+        owner: 37, // Has all permissions
+        admin: 36, // All except billing
+        trainer: 16, // Client, event, workout management
         front_desk: 7, // Basic operations
-        member: 2,    // View-only access
+        member: 2, // View-only access
       };
 
       // Verify counts match expectations
       for (const [slug, expectedCount] of Object.entries(expectedCounts)) {
         const roleData = roleCounts!.find(r => r.slug === slug);
         const actualCount = roleData?.role_permissions?.length || 0;
-        
+
         // For now, we just check that roles have permissions assigned
         // The exact count might vary as permissions are added/removed
         expect(actualCount).toBeGreaterThan(0);
@@ -133,9 +136,7 @@ describe('Role Configuration Tests', () => {
         .select('permission_id')
         .eq('role_id', ownerRole!.id);
 
-      const { data: allPerms } = await supabase
-        .from('permissions')
-        .select('id');
+      const { data: allPerms } = await supabase.from('permissions').select('id');
 
       // Owner should have all permissions
       expect(ownerPerms!.length).toBe(allPerms!.length);
@@ -150,20 +151,21 @@ describe('Role Configuration Tests', () => {
 
       const { data: adminPerms } = await supabase
         .from('role_permissions')
-        .select(`
+        .select(
+          `
           permission:permissions!inner(
             resource,
             action
           )
-        `)
+        `
+        )
         .eq('role_id', adminRole!.id);
 
       // Admin should not have billing permission
       const hasBilling = adminPerms!.some(
-        p => p.permission.resource === 'organization' && 
-            p.permission.action === 'billing'
+        p => p.permission.resource === 'organization' && p.permission.action === 'billing'
       );
-      
+
       expect(hasBilling).toBe(false);
     });
 
@@ -176,12 +178,14 @@ describe('Role Configuration Tests', () => {
 
       const { data: memberPerms } = await supabase
         .from('role_permissions')
-        .select(`
+        .select(
+          `
           permission:permissions!inner(
             resource,
             action
           )
-        `)
+        `
+        )
         .eq('role_id', memberRole!.id);
 
       // Member should only have view permissions

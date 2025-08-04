@@ -1,13 +1,14 @@
-import { 
-  withAuth, 
-  getSignInUrl, 
-  getSignUpUrl, 
+import {
+  withAuth,
+  getSignInUrl,
+  getSignUpUrl,
   signOut,
   refreshSession,
   getWorkOS,
 } from '@workos-inc/authkit-nextjs';
-import { logger } from '@/utils/logger';
+
 import { AuthError, PermissionError } from '@/errors';
+import { logger } from '@/utils/logger';
 
 // Re-export WorkOS auth functions
 export { withAuth, getSignInUrl, getSignUpUrl, signOut, refreshSession, getWorkOS };
@@ -44,7 +45,7 @@ export async function requireOrganization(organizationId: string) {
 export async function switchOrganization(organizationId: string) {
   try {
     const result = await refreshSession({ organizationId });
-    
+
     if (!result) {
       throw new AuthError('Failed to switch organization');
     }
@@ -71,15 +72,15 @@ export async function switchOrganization(organizationId: string) {
  */
 export async function getUserOrganizations(userId: string) {
   const workos = getWorkOS();
-  
+
   try {
-    const { data: organizationMemberships } = await workos.userManagement
-      .listOrganizationMemberships({
+    const { data: organizationMemberships } =
+      await workos.userManagement.listOrganizationMemberships({
         userId,
         limit: 100,
       });
 
-    return organizationMemberships.map((membership) => ({
+    return organizationMemberships.map(membership => ({
       id: membership.organizationId,
       name: 'Organization', // Organization details need to be fetched separately
       role: membership.role?.slug || 'member',
@@ -97,18 +98,17 @@ export async function getUserOrganizations(userId: string) {
  * Check if user has specific role in organization
  */
 export async function hasRole(
-  userId: string, 
-  organizationId: string, 
+  userId: string,
+  organizationId: string,
   requiredRole: 'owner' | 'admin' | 'member'
 ) {
   const workos = getWorkOS();
-  
+
   try {
-    const { data: memberships } = await workos.userManagement
-      .listOrganizationMemberships({
-        userId,
-        organizationId,
-      });
+    const { data: memberships } = await workos.userManagement.listOrganizationMemberships({
+      userId,
+      organizationId,
+    });
 
     if (memberships.length === 0) {
       return false;
@@ -142,7 +142,7 @@ export async function inviteToOrganization(
   role: 'admin' | 'member' = 'member'
 ) {
   const workos = getWorkOS();
-  
+
   try {
     const invitation = await workos.userManagement.sendInvitation({
       organizationId,

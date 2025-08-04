@@ -1,16 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@workos-inc/authkit-nextjs';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Try to get the authenticated user from JWT
     const { user, sessionId, organizationId, impersonator } = await withAuth();
 
     if (!user) {
-      return NextResponse.json({
-        authenticated: false,
-        message: 'No user session found',
-      }, { status: 401 });
+      return NextResponse.json(
+        {
+          authenticated: false,
+          message: 'No user session found',
+        },
+        { status: 401 }
+      );
     }
 
     return NextResponse.json({
@@ -30,9 +33,12 @@ export async function GET(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    return NextResponse.json({
-      authenticated: false,
-      error: error instanceof Error ? error.message : 'Failed to verify JWT',
-    }, { status: 401 });
+    return NextResponse.json(
+      {
+        authenticated: false,
+        error: error instanceof Error ? error.message : 'Failed to verify JWT',
+      },
+      { status: 401 }
+    );
   }
 }

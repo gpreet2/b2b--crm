@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Test script for refresh token endpoint
  * Run with: npx tsx src/app/api/auth/refresh/test-refresh.ts
@@ -5,16 +6,16 @@
 
 async function testRefreshEndpoint() {
   const baseUrl = 'http://localhost:3000';
-  
+
   console.log('🧪 Testing Refresh Token Endpoint\n');
-  
+
   // Test 1: GET session status without authentication
   console.log('1️⃣ Testing GET session status without authentication...');
   try {
     const response = await fetch(`${baseUrl}/api/auth/refresh`, {
       method: 'GET',
     });
-    
+
     console.log(`   Status: ${response.status}`);
     const data = await response.json();
     console.log(`   Response:`, data);
@@ -33,7 +34,7 @@ async function testRefreshEndpoint() {
       },
       body: JSON.stringify({}),
     });
-    
+
     console.log(`   Status: ${response.status}`);
     const data = await response.json();
     console.log(`   Response:`, data);
@@ -52,7 +53,7 @@ async function testRefreshEndpoint() {
       },
       body: JSON.stringify({ organizationId: 'org_test123' }),
     });
-    
+
     console.log(`   Status: ${response.status}`);
     const data = await response.json();
     console.log(`   Response:`, data);

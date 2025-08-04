@@ -1,12 +1,7 @@
 import { BaseError } from './base.error';
 
 export class AppError extends BaseError {
-  constructor(
-    message: string,
-    statusCode = 500,
-    code = 'APP_ERROR',
-    details?: any
-  ) {
+  constructor(message: string, statusCode = 500, code = 'APP_ERROR', details?: any) {
     super(message, statusCode, code, true, details);
     this.name = 'AppError';
   }

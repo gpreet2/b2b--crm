@@ -1,12 +1,7 @@
 import { BaseError } from './base.error';
 
 export class AuthError extends BaseError {
-  constructor(
-    message: string,
-    statusCode = 401,
-    code = 'AUTH_ERROR',
-    details?: any
-  ) {
+  constructor(message: string, statusCode = 401, code = 'AUTH_ERROR', details?: any) {
     super(message, statusCode, code, true, details);
     this.name = 'AuthError';
   }

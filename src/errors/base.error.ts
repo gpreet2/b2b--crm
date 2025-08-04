@@ -30,13 +30,13 @@ export abstract class BaseError extends Error {
       code: this.code,
       statusCode: this.statusCode,
       details: this.details,
-      timestamp: this.timestamp
+      timestamp: this.timestamp,
     };
-    
+
     if (process.env.NODE_ENV === 'development') {
       json.stack = this.stack;
     }
-    
+
     return json;
   }
 }

@@ -1,124 +1,122 @@
-import React, { createContext, useContext, useState } from 'react'
-import { cn } from '@/lib/utils'
+import React, { createContext, useContext, useState } from 'react';
+
+import { cn } from '@/lib/utils';
 
 export interface Tab {
-  id: string
-  label: string
-  content: React.ReactNode
-  disabled?: boolean
+  id: string;
+  label: string;
+  content: React.ReactNode;
+  disabled?: boolean;
 }
 
 interface TabsContextType {
-  value: string
-  onValueChange: (value: string) => void
+  value: string;
+  onValueChange: (value: string) => void;
 }
 
-const TabsContext = createContext<TabsContextType | undefined>(undefined)
+const TabsContext = createContext<TabsContextType | undefined>(undefined);
 
 const useTabsContext = () => {
-  const context = useContext(TabsContext)
+  const context = useContext(TabsContext);
   if (!context) {
-    throw new Error('Tabs components must be used within a Tabs component')
+    throw new Error('Tabs components must be used within a Tabs component');
   }
-  return context
-}
+  return context;
+};
 
 export interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
-  tabs?: Tab[]
-  activeTab?: string
-  onTabChange?: (tabId: string) => void
-  variant?: 'default' | 'pills' | 'underline'
-  size?: 'sm' | 'md' | 'lg'
-  value?: string
-  onValueChange?: (value: string) => void
-  children?: React.ReactNode
-  defaultValue?: string
+  tabs?: Tab[];
+  activeTab?: string;
+  onTabChange?: (tabId: string) => void;
+  variant?: 'default' | 'pills' | 'underline';
+  size?: 'sm' | 'md' | 'lg';
+  value?: string;
+  onValueChange?: (value: string) => void;
+  children?: React.ReactNode;
+  defaultValue?: string;
 }
 
 export interface TabsListProps extends React.HTMLAttributes<HTMLDivElement> {
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 export interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  value: string
+  value: string;
 }
 
 export interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  value: string
-  children?: React.ReactNode
+  value: string;
+  children?: React.ReactNode;
 }
 
 const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
-  ({ 
-    className, 
-    tabs,
-    activeTab,
-    onTabChange,
-    variant = 'default',
-    value,
-    onValueChange,
-    children,
-    defaultValue,
-    ...props 
-  }, ref) => {
+  (
+    {
+      className,
+      tabs,
+      activeTab,
+      onTabChange,
+      variant = 'default',
+      value,
+      onValueChange,
+      children,
+      defaultValue,
+      ...props
+    },
+    ref
+  ) => {
     // Handle both old API (tabs prop) and new API (children with TabsList/TabsTrigger)
-    const isLegacyAPI = tabs && activeTab && onTabChange
-    
+    const isLegacyAPI = tabs && activeTab && onTabChange;
+
     // For new API, manage internal state if no controlled value is provided
-    const [internalValue, setInternalValue] = useState(defaultValue || '')
-    const currentValue = value || activeTab || internalValue
-    const handleValueChange = onValueChange || onTabChange || setInternalValue
-    
+    const [internalValue, setInternalValue] = useState(defaultValue || '');
+    const currentValue = value || activeTab || internalValue;
+    const handleValueChange = onValueChange || onTabChange || setInternalValue;
+
     const variants = {
       default: 'border-b border-border',
       pills: 'space-x-1',
-      underline: 'border-b border-border'
-    }
-    
+      underline: 'border-b border-border',
+    };
+
     const tabVariants = {
       default: {
         base: 'px-4 py-2 text-sm font-medium border-b-2 border-transparent',
         active: 'border-primary text-primary',
         inactive: 'text-secondary-text hover:text-primary-text hover:border-border',
-        disabled: 'text-muted cursor-not-allowed'
+        disabled: 'text-muted cursor-not-allowed',
       },
       pills: {
         base: 'px-3 py-2 text-sm font-medium rounded-md',
         active: 'bg-primary text-white',
         inactive: 'text-secondary-text hover:text-primary-text hover:bg-accent',
-        disabled: 'text-muted cursor-not-allowed'
+        disabled: 'text-muted cursor-not-allowed',
       },
       underline: {
         base: 'px-4 py-2 text-sm font-medium border-b-2 border-transparent',
         active: 'border-primary text-primary',
         inactive: 'text-secondary-text hover:text-primary-text hover:border-border',
-        disabled: 'text-muted cursor-not-allowed'
-      }
-    }
+        disabled: 'text-muted cursor-not-allowed',
+      },
+    };
 
     // Only try to find active tab content if using legacy API and tabs exist
-    const activeTabContent = isLegacyAPI && tabs ? tabs.find(tab => tab.id === currentValue)?.content : null
+    const activeTabContent =
+      isLegacyAPI && tabs ? tabs.find(tab => tab.id === currentValue)?.content : null;
 
     const contextValue: TabsContextType = {
       value: currentValue,
-      onValueChange: handleValueChange
-    }
+      onValueChange: handleValueChange,
+    };
 
     return (
       <TabsContext.Provider value={contextValue}>
-        <div className="w-full" {...props}>
+        <div className='w-full' {...props}>
           {isLegacyAPI ? (
             // Legacy API with tabs prop
             <>
-              <div
-                ref={ref}
-                className={cn(
-                  'flex',
-                  variants[variant],
-                  className
-                )}
-              >
-                {tabs?.map((tab) => (
+              <div ref={ref} className={cn('flex', variants[variant], className)}>
+                {tabs?.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => !tab.disabled && handleValueChange?.(tab.id)}
@@ -127,8 +125,8 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
                       currentValue === tab.id
                         ? tabVariants[variant].active
                         : tab.disabled
-                        ? tabVariants[variant].disabled
-                        : tabVariants[variant].inactive,
+                          ? tabVariants[variant].disabled
+                          : tabVariants[variant].inactive,
                       'transition-colors duration-200'
                     )}
                     disabled={tab.disabled}
@@ -137,11 +135,7 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
                   </button>
                 ))}
               </div>
-              {activeTabContent && (
-                <div className="mt-4">
-                  {activeTabContent}
-                </div>
-              )}
+              {activeTabContent ? <div className='mt-4'>{activeTabContent}</div> : null}
             </>
           ) : (
             // New API with children
@@ -151,29 +145,27 @@ const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
           )}
         </div>
       </TabsContext.Provider>
-    )
+    );
   }
-)
+);
 
-const TabsList = React.forwardRef<HTMLDivElement, TabsListProps>(
-  ({ className, ...props }, ref) => {
-    return (
-      <div
-        ref={ref}
-        className={cn(
-          'inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground',
-          className
-        )}
-        {...props}
-      />
-    )
-  }
-)
+const TabsList = React.forwardRef<HTMLDivElement, TabsListProps>(({ className, ...props }, ref) => {
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground',
+        className
+      )}
+      {...props}
+    />
+  );
+});
 
 const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
   ({ className, value, ...props }, ref) => {
-    const { value: selectedValue, onValueChange } = useTabsContext()
-    const isSelected = selectedValue === value
+    const { value: selectedValue, onValueChange } = useTabsContext();
+    const isSelected = selectedValue === value;
 
     return (
       <button
@@ -187,17 +179,17 @@ const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
         onClick={() => onValueChange(value)}
         {...props}
       />
-    )
+    );
   }
-)
+);
 
 const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
   ({ className, value, ...props }, ref) => {
-    const { value: selectedValue } = useTabsContext()
-    const isSelected = selectedValue === value
+    const { value: selectedValue } = useTabsContext();
+    const isSelected = selectedValue === value;
 
     if (!isSelected) {
-      return null
+      return null;
     }
 
     return (
@@ -210,13 +202,13 @@ const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
         data-state={isSelected ? 'active' : 'inactive'}
         {...props}
       />
-    )
+    );
   }
-)
+);
 
-Tabs.displayName = 'Tabs'
-TabsList.displayName = 'TabsList'
-TabsTrigger.displayName = 'TabsTrigger'
-TabsContent.displayName = 'TabsContent'
+Tabs.displayName = 'Tabs';
+TabsList.displayName = 'TabsList';
+TabsTrigger.displayName = 'TabsTrigger';
+TabsContent.displayName = 'TabsContent';
 
-export { Tabs, TabsList, TabsTrigger, TabsContent } 
+export { Tabs, TabsList, TabsTrigger, TabsContent };

@@ -1,4 +1,5 @@
 import { Request, Response, Router } from 'express';
+
 import { logger } from '@/utils/logger';
 
 const router = Router();
@@ -7,12 +8,12 @@ const router = Router();
  * GDPR/CCPA Data Request Types
  */
 export enum DataRequestType {
-  ACCESS = 'access',          // GDPR Article 15, CCPA Right to Know
-  PORTABILITY = 'portability', // GDPR Article 20, CCPA Right to Data Portability  
+  ACCESS = 'access', // GDPR Article 15, CCPA Right to Know
+  PORTABILITY = 'portability', // GDPR Article 20, CCPA Right to Data Portability
   RECTIFICATION = 'rectification', // GDPR Article 16, CCPA Right to Correct
-  ERASURE = 'erasure',        // GDPR Article 17, CCPA Right to Delete
+  ERASURE = 'erasure', // GDPR Article 17, CCPA Right to Delete
   RESTRICTION = 'restriction', // GDPR Article 18
-  OBJECTION = 'objection',    // GDPR Article 21, CCPA Right to Opt-Out
+  OBJECTION = 'objection', // GDPR Article 21, CCPA Right to Opt-Out
 }
 
 export enum RequestStatus {
@@ -28,12 +29,7 @@ export enum RequestStatus {
  */
 router.post('/requests', async (req: Request, res: Response) => {
   try {
-    const {
-      request_type,
-      description,
-      legal_basis = 'gdpr',
-      requester_email,
-    } = req.body;
+    const { request_type, description, legal_basis = 'gdpr', requester_email } = req.body;
 
     const organizationId = req.headers['x-organization-id'] as string;
     if (!organizationId) {
@@ -89,7 +85,7 @@ router.get('/requests', async (req: Request, res: Response) => {
         fulfilled_at: new Date().toISOString(),
       },
       {
-        id: 'req-2', 
+        id: 'req-2',
         request_type: DataRequestType.ERASURE,
         status: RequestStatus.PENDING,
         legal_basis: 'ccpa',
@@ -151,7 +147,7 @@ router.post('/requests/:id/fulfill/access', async (req: Request, res: Response) 
       request_id: id,
       data_subject_rights: [
         'Right to access (GDPR Article 15)',
-        'Right to rectification (GDPR Article 16)', 
+        'Right to rectification (GDPR Article 16)',
         'Right to erasure (GDPR Article 17)',
         'Right to restrict processing (GDPR Article 18)',
         'Right to data portability (GDPR Article 20)',
@@ -197,7 +193,7 @@ router.post('/requests/:id/fulfill/access', async (req: Request, res: Response) 
  */
 router.post('/requests/:id/fulfill/erasure', async (req: Request, res: Response) => {
   try {
-    const { id } = req.params; 
+    const { id } = req.params;
     const { confirm_deletion = false } = req.body;
 
     if (!confirm_deletion) {

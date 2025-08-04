@@ -1,14 +1,11 @@
 import { BaseError } from './base.error';
 
 export class NotFoundError extends BaseError {
-  constructor(
-    resource: string,
-    identifier?: string | number
-  ) {
+  constructor(resource: string, identifier?: string | number) {
     const message = identifier
       ? `${resource} with identifier '${identifier}' not found`
       : `${resource} not found`;
-    
+
     super(message, 404, 'NOT_FOUND', true, { resource, identifier });
     this.name = 'NotFoundError';
   }
@@ -51,13 +48,12 @@ export class MembershipNotFoundError extends NotFoundError {
 
 export class RouteNotFoundError extends BaseError {
   constructor(method: string, path: string) {
-    super(
-      `Route ${method} ${path} not found`,
-      404,
-      'ROUTE_NOT_FOUND',
-      true,
-      { resource: 'Route', identifier: `${method} ${path}`, method, path }
-    );
+    super(`Route ${method} ${path} not found`, 404, 'ROUTE_NOT_FOUND', true, {
+      resource: 'Route',
+      identifier: `${method} ${path}`,
+      method,
+      path,
+    });
     this.name = 'RouteNotFoundError';
   }
 }

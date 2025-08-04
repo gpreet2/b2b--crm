@@ -1,9 +1,6 @@
-'use client'
+'use client';
 
-import React, { useState, useMemo } from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { 
+import {
   ChevronUpIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
@@ -12,23 +9,27 @@ import {
   PencilIcon,
   TrashIcon,
   CalendarIcon,
-  MapPinIcon
-} from '@heroicons/react/24/outline'
-import { Class, Program, Coach } from '@/lib/types'
+  MapPinIcon,
+} from '@heroicons/react/24/outline';
+import React, { useState, useMemo } from 'react';
+
+import { Button } from '@/components/ui/Button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Class, Program, Coach } from '@/lib/types';
 
 interface ClassTableProps {
-  classes: Class[]
-  programs: Program[]
-  coaches: Coach[]
-  onClassClick?: (classItem: Class) => void
-  onEditClass?: (classItem: Class) => void
-  onDeleteClass?: (classItem: Class) => void
+  classes: Class[];
+  programs: Program[];
+  coaches: Coach[];
+  onClassClick?: (classItem: Class) => void;
+  onEditClass?: (classItem: Class) => void;
+  onDeleteClass?: (classItem: Class) => void;
 
-  pageSize?: number
+  pageSize?: number;
 }
 
-type SortField = 'name' | 'date' | 'startTime' | 'program' | 'coach' | 'enrolled' | 'status'
-type SortDirection = 'asc' | 'desc'
+type SortField = 'name' | 'date' | 'startTime' | 'program' | 'coach' | 'enrolled' | 'status';
+type SortDirection = 'asc' | 'desc';
 
 export default function ClassTable({
   classes,
@@ -37,270 +38,271 @@ export default function ClassTable({
   onClassClick,
   onEditClass,
   onDeleteClass,
-  pageSize = 10
+  pageSize = 10,
 }: ClassTableProps) {
-  const [sortField, setSortField] = useState<SortField>('date')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
-  const [currentPage, setCurrentPage] = useState(1)
+  const [sortField, setSortField] = useState<SortField>('date');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Create lookup maps
   const programMap = useMemo(() => {
-    return programs.reduce((acc, program) => {
-      acc[program.id] = program
-      return acc
-    }, {} as Record<string, Program>)
-  }, [programs])
+    return programs.reduce(
+      (acc, program) => {
+        acc[program.id] = program;
+        return acc;
+      },
+      {} as Record<string, Program>
+    );
+  }, [programs]);
 
   const coachMap = useMemo(() => {
-    return coaches.reduce((acc, coach) => {
-      acc[coach.id] = coach
-      return acc
-    }, {} as Record<string, Coach>)
-  }, [coaches])
+    return coaches.reduce(
+      (acc, coach) => {
+        acc[coach.id] = coach;
+        return acc;
+      },
+      {} as Record<string, Coach>
+    );
+  }, [coaches]);
 
   // Sort classes
   const sortedClasses = useMemo(() => {
     return [...classes].sort((a, b) => {
-      let aValue: string | number
-      let bValue: string | number
+      let aValue: string | number;
+      let bValue: string | number;
 
       switch (sortField) {
         case 'name':
-          aValue = a.name.toLowerCase()
-          bValue = b.name.toLowerCase()
-          break
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
         case 'date':
-          aValue = new Date(a.date).getTime()
-          bValue = new Date(b.date).getTime()
-          break
+          aValue = new Date(a.date).getTime();
+          bValue = new Date(b.date).getTime();
+          break;
         case 'startTime':
-          aValue = a.startTime
-          bValue = b.startTime
-          break
+          aValue = a.startTime;
+          bValue = b.startTime;
+          break;
         case 'program':
-          aValue = programMap[a.programId]?.name.toLowerCase() || ''
-          bValue = programMap[b.programId]?.name.toLowerCase() || ''
-          break
+          aValue = programMap[a.programId]?.name.toLowerCase() || '';
+          bValue = programMap[b.programId]?.name.toLowerCase() || '';
+          break;
         case 'coach':
-          aValue = coachMap[a.coachId]?.name.toLowerCase() || ''
-          bValue = coachMap[b.coachId]?.name.toLowerCase() || ''
-          break
+          aValue = coachMap[a.coachId]?.name.toLowerCase() || '';
+          bValue = coachMap[b.coachId]?.name.toLowerCase() || '';
+          break;
         case 'enrolled':
-          aValue = a.enrolled
-          bValue = b.enrolled
-          break
+          aValue = a.enrolled;
+          bValue = b.enrolled;
+          break;
         case 'status':
-          aValue = a.status
-          bValue = b.status
-          break
+          aValue = a.status;
+          bValue = b.status;
+          break;
         default:
-          return 0
+          return 0;
       }
 
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1
-      return 0
-    })
-  }, [classes, sortField, sortDirection, programMap, coachMap])
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [classes, sortField, sortDirection, programMap, coachMap]);
 
   // Pagination
-  const totalPages = Math.ceil(sortedClasses.length / pageSize)
-  const startIndex = (currentPage - 1) * pageSize
-  const endIndex = startIndex + pageSize
-  const paginatedClasses = sortedClasses.slice(startIndex, endIndex)
+  const totalPages = Math.ceil(sortedClasses.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedClasses = sortedClasses.slice(startIndex, endIndex);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      setSortField(field)
-      setSortDirection('asc')
+      setSortField(field);
+      setSortDirection('asc');
     }
-  }
+  };
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
-      year: 'numeric'
-    })
-  }
+      year: 'numeric',
+    });
+  };
 
   const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':')
-    const hour = parseInt(hours)
-    const ampm = hour >= 12 ? 'PM' : 'AM'
-    const displayHour = hour % 12 || 12
-    return `${displayHour}:${minutes} ${ampm}`
-  }
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour % 12 || 12;
+    return `${displayHour}:${minutes} ${ampm}`;
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return 'bg-green-100 text-green-800'
+        return 'bg-green-100 text-green-800';
       case 'cancelled':
-        return 'bg-red-100 text-red-800'
+        return 'bg-red-100 text-red-800';
       case 'completed':
-        return 'bg-gray-100 text-gray-800'
+        return 'bg-gray-100 text-gray-800';
       default:
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-blue-100 text-blue-800';
     }
-  }
+  };
 
   const SortButton = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
     <button
       onClick={() => handleSort(field)}
-      className="flex items-center space-x-1 text-left font-medium text-gray-900 hover:text-gray-600 transition-colors"
+      className='flex items-center space-x-1 text-left font-medium text-gray-900 hover:text-gray-600 transition-colors'
     >
       <span>{children}</span>
-      {sortField === field && (
-        sortDirection === 'asc' ? 
-          <ChevronUpIcon className="h-4 w-4" /> : 
-          <ChevronDownIcon className="h-4 w-4" />
-      )}
+      {sortField === field &&
+        (sortDirection === 'asc' ? (
+          <ChevronUpIcon className='h-4 w-4' />
+        ) : (
+          <ChevronDownIcon className='h-4 w-4' />
+        ))}
     </button>
-  )
+  );
 
   return (
-    <Card className="border-border shadow-sm">
+    <Card className='border-border shadow-sm'>
       <CardHeader>
         <CardTitle>Classes ({sortedClasses.length})</CardTitle>
       </CardHeader>
 
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-accent border-b border-border">
+      <CardContent className='p-0'>
+        <div className='overflow-x-auto'>
+          <table className='w-full'>
+            <thead className='bg-accent border-b border-border'>
               <tr>
-                <th className="px-4 py-3 text-left">
-                  <SortButton field="name">Class Name</SortButton>
+                <th className='px-4 py-3 text-left'>
+                  <SortButton field='name'>Class Name</SortButton>
                 </th>
-                <th className="px-4 py-3 text-left">
-                  <SortButton field="program">Program</SortButton>
+                <th className='px-4 py-3 text-left'>
+                  <SortButton field='program'>Program</SortButton>
                 </th>
-                <th className="px-4 py-3 text-left">
-                  <SortButton field="date">Date</SortButton>
+                <th className='px-4 py-3 text-left'>
+                  <SortButton field='date'>Date</SortButton>
                 </th>
-                <th className="px-4 py-3 text-left">
-                  <SortButton field="startTime">Time</SortButton>
+                <th className='px-4 py-3 text-left'>
+                  <SortButton field='startTime'>Time</SortButton>
                 </th>
-                <th className="px-4 py-3 text-left">
-                  <SortButton field="coach">Coach</SortButton>
+                <th className='px-4 py-3 text-left'>
+                  <SortButton field='coach'>Coach</SortButton>
                 </th>
-                <th className="px-4 py-3 text-left">
-                  <SortButton field="enrolled">Capacity</SortButton>
+                <th className='px-4 py-3 text-left'>
+                  <SortButton field='enrolled'>Capacity</SortButton>
                 </th>
-                <th className="px-4 py-3 text-left">Location</th>
-                <th className="px-4 py-3 text-left">
-                  <SortButton field="status">Status</SortButton>
+                <th className='px-4 py-3 text-left'>Location</th>
+                <th className='px-4 py-3 text-left'>
+                  <SortButton field='status'>Status</SortButton>
                 </th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className='px-4 py-3 text-right'>Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
-              {paginatedClasses.map((classItem) => {
-                const program = programMap[classItem.programId]
-                const coach = coachMap[classItem.coachId]
+            <tbody className='divide-y divide-border'>
+              {paginatedClasses.map(classItem => {
+                const program = programMap[classItem.programId];
+                const coach = coachMap[classItem.coachId];
 
                 return (
-                  <tr key={classItem.id} className="hover:bg-accent transition-colors">
-                    <td className="px-4 py-3">
-                      <div className="font-medium text-primary-text">{classItem.name}</div>
-                      {classItem.isRecurring && (
-                        <div className="text-xs text-info flex items-center mt-1">
-                          <CalendarIcon className="h-3 w-3 mr-1" />
+                  <tr key={classItem.id} className='hover:bg-accent transition-colors'>
+                    <td className='px-4 py-3'>
+                      <div className='font-medium text-primary-text'>{classItem.name}</div>
+                      {classItem.isRecurring ? <div className='text-xs text-info flex items-center mt-1'>
+                          <CalendarIcon className='h-3 w-3 mr-1' />
                           Recurring
-                        </div>
-                      )}
+                        </div> : null}
                     </td>
-                    
-                    <td className="px-4 py-3">
-                      {program && (
-                        <div className="flex items-center space-x-2">
-                          <div 
-                            className="w-3 h-3 rounded-full"
+
+                    <td className='px-4 py-3'>
+                      {program ? <div className='flex items-center space-x-2'>
+                          <div
+                            className='w-3 h-3 rounded-full'
                             style={{ backgroundColor: program.color }}
                           />
-                          <span className="text-sm text-primary-text">{program.name}</span>
-                        </div>
-                      )}
+                          <span className='text-sm text-primary-text'>{program.name}</span>
+                        </div> : null}
                     </td>
-                    
-                    <td className="px-4 py-3">
-                      <div className="text-sm text-primary-text">{formatDate(classItem.date)}</div>
+
+                    <td className='px-4 py-3'>
+                      <div className='text-sm text-primary-text'>{formatDate(classItem.date)}</div>
                     </td>
-                    
-                    <td className="px-4 py-3">
-                      <div className="text-sm text-primary-text">
+
+                    <td className='px-4 py-3'>
+                      <div className='text-sm text-primary-text'>
                         {formatTime(classItem.startTime)} - {formatTime(classItem.endTime)}
                       </div>
                     </td>
-                    
-                    <td className="px-4 py-3">
-                      {coach && (
-                        <div className="text-sm text-primary-text">{coach.name}</div>
-                      )}
+
+                    <td className='px-4 py-3'>
+                      {coach ? <div className='text-sm text-primary-text'>{coach.name}</div> : null}
                     </td>
-                    
-                    <td className="px-4 py-3">
-                      <div className="text-sm font-medium text-primary-text">
+
+                    <td className='px-4 py-3'>
+                      <div className='text-sm font-medium text-primary-text'>
                         {classItem.enrolled}/{classItem.capacity}
                       </div>
-                      <div className="w-16 bg-accent rounded-full h-1 mt-1 border border-border-light">
-                        <div 
-                          className="h-1 rounded-full bg-primary transition-all duration-300"
-                          style={{ width: `${Math.min((classItem.enrolled / classItem.capacity) * 100, 100)}%` }}
+                      <div className='w-16 bg-accent rounded-full h-1 mt-1 border border-border-light'>
+                        <div
+                          className='h-1 rounded-full bg-primary transition-all duration-300'
+                          style={{
+                            width: `${Math.min((classItem.enrolled / classItem.capacity) * 100, 100)}%`,
+                          }}
                         />
                       </div>
                     </td>
-                    
-                    <td className="px-4 py-3">
-                      <div className="text-sm text-primary-text flex items-center">
-                        <MapPinIcon className="h-3 w-3 mr-1 text-secondary-text" />
+
+                    <td className='px-4 py-3'>
+                      <div className='text-sm text-primary-text flex items-center'>
+                        <MapPinIcon className='h-3 w-3 mr-1 text-secondary-text' />
                         {classItem.location}
                       </div>
                     </td>
-                    
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border border-border-light ${getStatusColor(classItem.status)}`}>
+
+                    <td className='px-4 py-3'>
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full border border-border-light ${getStatusColor(classItem.status)}`}
+                      >
                         {classItem.status.charAt(0).toUpperCase() + classItem.status.slice(1)}
                       </span>
                     </td>
-                    
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end space-x-2">
+
+                    <td className='px-4 py-3'>
+                      <div className='flex items-center justify-end space-x-2'>
                         <Button
-                          variant="ghost"
-                          size="sm"
+                          variant='ghost'
+                          size='sm'
                           onClick={() => onClassClick?.(classItem)}
-                          className="p-1"
+                          className='p-1'
                         >
-                          <EyeIcon className="h-4 w-4" />
+                          <EyeIcon className='h-4 w-4' />
                         </Button>
-                        {onEditClass && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
+                        {onEditClass ? <Button
+                            variant='ghost'
+                            size='sm'
                             onClick={() => onEditClass(classItem)}
-                            className="p-1"
+                            className='p-1'
                           >
-                            <PencilIcon className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {onDeleteClass && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
+                            <PencilIcon className='h-4 w-4' />
+                          </Button> : null}
+                        {onDeleteClass ? <Button
+                            variant='ghost'
+                            size='sm'
                             onClick={() => onDeleteClass(classItem)}
-                            className="p-1 text-danger hover:text-danger-dark"
+                            className='p-1 text-danger hover:text-danger-dark'
                           >
-                            <TrashIcon className="h-4 w-4" />
-                          </Button>
-                        )}
+                            <TrashIcon className='h-4 w-4' />
+                          </Button> : null}
                       </div>
                     </td>
                   </tr>
-                )
+                );
               })}
             </tbody>
           </table>
@@ -308,37 +310,38 @@ export default function ClassTable({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="border-t border-border px-4 py-3 flex items-center justify-between">
-            <div className="text-sm text-secondary-text">
-              Showing {startIndex + 1} to {Math.min(endIndex, sortedClasses.length)} of {sortedClasses.length} results
+          <div className='border-t border-border px-4 py-3 flex items-center justify-between'>
+            <div className='text-sm text-secondary-text'>
+              Showing {startIndex + 1} to {Math.min(endIndex, sortedClasses.length)} of{' '}
+              {sortedClasses.length} results
             </div>
-            
-            <div className="flex items-center space-x-2">
+
+            <div className='flex items-center space-x-2'>
               <Button
-                variant="outline"
-                size="sm"
+                variant='outline'
+                size='sm'
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
-                <ChevronLeftIcon className="h-4 w-4" />
+                <ChevronLeftIcon className='h-4 w-4' />
               </Button>
-              
-              <span className="text-sm text-secondary-text">
+
+              <span className='text-sm text-secondary-text'>
                 Page {currentPage} of {totalPages}
               </span>
-              
+
               <Button
-                variant="outline"
-                size="sm"
+                variant='outline'
+                size='sm'
                 onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
               >
-                <ChevronRightIcon className="h-4 w-4" />
+                <ChevronRightIcon className='h-4 w-4' />
               </Button>
             </div>
           </div>
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

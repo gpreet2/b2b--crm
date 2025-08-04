@@ -1,8 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@workos-inc/authkit-nextjs';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
 import { getSupabaseClient } from '@/config/supabase';
 import { checkPermission } from '@/middleware/permissions.middleware';
-import { z } from 'zod';
+
 
 // Schema for updating role permissions
 const updatePermissionsSchema = z.object({
@@ -27,7 +29,7 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const auth = await withAuth({ ensureSignedIn: false });
-    
+
     if (!auth.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
@@ -52,7 +54,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     // Get all permissions with role assignment status
     const { data: permissions, error } = await getSupabaseClient()
       .from('permissions')
-      .select(`
+      .select(
+        `
         id,
         resource,
         action,
@@ -60,16 +63,14 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         role_permissions!left(
           role_id
         )
-      `)
+      `
+      )
       .order('resource', { ascending: true })
       .order('action', { ascending: true });
 
     if (error) {
       console.error('Error fetching permissions:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch permissions' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch permissions' }, { status: 500 });
     }
 
     // Transform data to include granted status
@@ -87,10 +88,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     console.error('Get role permissions error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -101,7 +99,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const auth = await withAuth({ ensureSignedIn: false });
-    
+
     if (!auth.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
@@ -157,10 +155,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
     if (deleteError) {
       console.error('Error removing permissions:', deleteError);
-      return NextResponse.json(
-        { error: 'Failed to update permissions' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to update permissions' }, { status: 500 });
     }
 
     // Then, add the new permissions
@@ -178,10 +173,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 
       if (insertError) {
         console.error('Error adding permissions:', insertError);
-        return NextResponse.json(
-          { error: 'Failed to update permissions' },
-          { status: 500 }
-        );
+        return NextResponse.json({ error: 'Failed to update permissions' }, { status: 500 });
       }
     }
 
@@ -196,11 +188,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
         { status: 400 }
       );
     }
-    
+
     console.error('Update role permissions error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
