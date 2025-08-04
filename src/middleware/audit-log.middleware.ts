@@ -305,7 +305,7 @@ export function auditMiddleware(
         const baseMetadata = { ...extractedDetails, ...extractedMetadata };
 
         // Add response time and status to metadata
-        const metadata = {
+        const metadata: Record<string, any> = {
           ...baseMetadata,
           response_time_ms: Date.now() - startTime,
           status_code: res.statusCode,
@@ -471,10 +471,9 @@ export const auditCRUD = {
 
   create: (entityType: string) =>
     auditMiddleware(AUDITABLE_ACTIONS.DATA_CREATE, entityType, {
-      extractEntityId: (req, res) => {
-        // Try to get ID from response body or params
-        const responseData = (res as any).locals?.responseData;
-        return responseData?.id || req.params.id;
+      extractEntityId: (req: any) => {
+        // Try to get ID from params for create operations
+        return req.params.id;
       },
       extractMetadata: req => ({
         created_fields: Object.keys(req.body || {}),

@@ -156,15 +156,15 @@ export function transformResponse<T>(
 
   // Apply custom transform first
   if (transform) {
-    result = transform(result);
+    result = transform(result as T);
   }
 
   // Include only specified fields
   if (fields && fields.length > 0) {
     const filtered: Record<string, unknown> = {};
     fields.forEach(field => {
-      if (field in result) {
-        filtered[field] = result[field];
+      if (result && typeof result === 'object' && field in result) {
+        filtered[field] = (result as Record<string, unknown>)[field];
       }
     });
     result = filtered;
@@ -173,7 +173,9 @@ export function transformResponse<T>(
   // Exclude specified fields
   if (exclude && exclude.length > 0) {
     exclude.forEach(field => {
-      delete result[field];
+      if (result && typeof result === 'object') {
+        delete (result as Record<string, unknown>)[field];
+      }
     });
   }
 

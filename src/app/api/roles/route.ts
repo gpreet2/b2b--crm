@@ -52,7 +52,7 @@ export async function GET() {
     // Transform the data to include permission count
     const rolesWithCounts = roles.map(role => ({
       ...role,
-      permissionCount: role.role_permissions?.[0]?.count || 0,
+      permissionCount: role.role_permissions?.[0]?.count ?? 0,
       role_permissions: undefined,
     }));
 
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       );
     }

@@ -93,6 +93,7 @@ export function sanitizeUrl(url: string): string {
     }
 
     // Prevent javascript: and data: URLs
+    // eslint-disable-next-line no-script-url
     if (url.toLowerCase().includes('javascript:') || url.toLowerCase().includes('data:')) {
       throw new Error('Unsafe URL');
     }
@@ -152,9 +153,9 @@ export function sanitizeObject<T extends Record<string, unknown>>(obj: T): Parti
       if (typeof value === 'string') {
         cleaned[key as keyof T] = sanitizeText(value) as T[keyof T];
       } else if (typeof value === 'object' && !Array.isArray(value)) {
-        cleaned[key as keyof T] = sanitizeObject(value) as T[keyof T];
+        cleaned[key as keyof T] = sanitizeObject(value as Record<string, unknown>) as T[keyof T];
       } else {
-        cleaned[key as keyof T] = value;
+        cleaned[key as keyof T] = value as T[keyof T];
       }
     }
   }

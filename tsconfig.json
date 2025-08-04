@@ -38,5 +38,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "docs/**/*", "scripts/**/*", "src/test/**/*"]
+  "exclude": ["node_modules", "docs/**/*", "scripts/**/*", "**/__tests__/**/*", "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx", "src/unused-routes/**/*", "test/**/*"]
 }

@@ -171,11 +171,12 @@ function handlePreflightRequest(
       requestedHeaders: req.get('Access-Control-Request-Headers'),
     });
 
-    return res.status(403).json({
+    res.status(403).json({
       error: 'CORS policy violation',
       code: 'CORS_NOT_ALLOWED',
       message: 'Origin not allowed by CORS policy',
     });
+    return;
   }
 
   // Set preflight response headers
@@ -339,11 +340,12 @@ export const corsMiddlewareVariants = {
         method: req.method,
       });
 
-      return res.status(403).json({
+      res.status(403).json({
         error: 'CORS policy violation',
         code: 'CORS_STRICT_MODE',
         message: 'Origin not allowed in strict mode',
       });
+      return;
     }
 
     corsMiddleware(req, res, next);
@@ -356,7 +358,8 @@ export const corsMiddlewareVariants = {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     if (req.method === 'OPTIONS') {
-      return res.status(204).end();
+      res.status(204).end();
+      return;
     }
 
     next();

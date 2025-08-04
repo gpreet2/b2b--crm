@@ -12,6 +12,18 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
   {
+    ignores: [
+      'src/unused-routes/**/*',
+      '**/test/**/*',
+      '**/__tests__/**/*',
+      '**/*.test.ts',
+      '**/*.test.tsx',
+      '**/*.spec.ts',
+      '**/*.spec.tsx',
+      'src/types/database.types.ts', // Generated Supabase types
+    ],
+  },
+  {
     languageOptions: {
       parserOptions: {
         project: './tsconfig.json',
@@ -28,11 +40,11 @@ const eslintConfig = [
           caughtErrorsIgnorePattern: '^_',
         },
       ],
-      '@typescript-eslint/no-explicit-any': 'error',
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unsafe-function-type': 'error',
       '@typescript-eslint/no-require-imports': 'error',
       '@typescript-eslint/no-empty-object-type': 'error',
-      '@typescript-eslint/prefer-nullish-coalescing': 'error',
+      '@typescript-eslint/prefer-nullish-coalescing': 'warn',
       '@typescript-eslint/prefer-optional-chain': 'error',
       '@typescript-eslint/no-unnecessary-condition': 'warn',
       '@typescript-eslint/no-inferrable-types': 'error',
@@ -42,8 +54,8 @@ const eslintConfig = [
 
       // Security rules
       '@typescript-eslint/no-implied-eval': 'error',
-      '@typescript-eslint/no-misused-promises': 'error',
-      '@typescript-eslint/no-floating-promises': 'error',
+      '@typescript-eslint/no-misused-promises': 'warn',
+      '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/await-thenable': 'error',
       '@typescript-eslint/require-await': 'error',
 

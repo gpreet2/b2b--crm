@@ -173,7 +173,7 @@ export async function getUserRole(userId: string, organizationId: string): Promi
       slug: string;
       name: string;
     }
-    return (data.role as RoleData).slug;
+    return (data.role as unknown as RoleData).slug;
   } catch (error) {
     logger.error('Error fetching user role', { error });
     return null;

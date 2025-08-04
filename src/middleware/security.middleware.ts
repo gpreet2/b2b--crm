@@ -88,10 +88,11 @@ export function validateRequestHeaders(req: Request, res: Response, next: NextFu
             userAgent: req.get('User-Agent'),
           });
 
-          return res.status(400).json({
+          res.status(400).json({
             error: 'Invalid request headers',
             code: 'INVALID_HEADERS',
           });
+          return;
         }
       }
 
@@ -112,10 +113,11 @@ export function validateRequestHeaders(req: Request, res: Response, next: NextFu
 
       // Only require Content-Type if there's actually a body
       if (contentLength && parseInt(contentLength, 10) > 0 && !contentType) {
-        return res.status(400).json({
+        res.status(400).json({
           error: 'Content-Type header required',
           code: 'MISSING_CONTENT_TYPE',
         });
+        return;
       }
     }
 
@@ -138,11 +140,12 @@ export function validateRequestHeaders(req: Request, res: Response, next: NextFu
       const maxSize = parseInt(SECURITY_CONSTANTS.MAX_REQUEST_SIZE.replace('mb', '')) * 1024 * 1024;
 
       if (size > maxSize) {
-        return res.status(413).json({
+        res.status(413).json({
           error: 'Request entity too large',
           code: 'REQUEST_TOO_LARGE',
           maxSize: SECURITY_CONSTANTS.MAX_REQUEST_SIZE,
         });
+        return;
       }
     }
 
@@ -230,7 +233,7 @@ export function blockSuspiciousRequests(req: Request, res: Response, next: NextF
     let url: string;
     try {
       url = decodeURIComponent(req.url);
-    } catch (error) {
+    } catch (_error) {
       // If URL can't be decoded, it's suspicious
       logger.warn('Malformed URL detected', {
         url: req.url,
@@ -238,10 +241,11 @@ export function blockSuspiciousRequests(req: Request, res: Response, next: NextF
         userAgent: req.get('User-Agent'),
       });
 
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Invalid request',
         code: 'MALFORMED_URL',
       });
+      return;
     }
 
     for (const pattern of suspiciousUrlPatterns) {
@@ -254,10 +258,11 @@ export function blockSuspiciousRequests(req: Request, res: Response, next: NextF
           userAgent: req.get('User-Agent'),
         });
 
-        return res.status(400).json({
+        res.status(400).json({
           error: 'Invalid request',
           code: 'SUSPICIOUS_REQUEST',
         });
+        return;
       }
     }
 
@@ -270,10 +275,11 @@ export function blockSuspiciousRequests(req: Request, res: Response, next: NextF
         ip: req.ip,
       });
 
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Too many query parameters',
         code: 'EXCESSIVE_PARAMETERS',
       });
+      return;
     }
 
     next();

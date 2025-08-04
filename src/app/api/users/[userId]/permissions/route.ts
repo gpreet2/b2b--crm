@@ -3,17 +3,15 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getUserPermissions, getUserRole , checkPermission } from '@/middleware/permissions.middleware';
 
-interface RouteParams {
-  params: {
-    userId: string;
-  };
-}
-
 /**
  * GET /api/users/[userId]/permissions
  * Get all permissions for a specific user in the current organization
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  _request: NextRequest,
+  context: { params: Promise<{ userId: string }> }
+) {
+  const params = await context.params;
   try {
     const auth = await withAuth({ ensureSignedIn: false });
 
