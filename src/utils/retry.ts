@@ -31,19 +31,16 @@ export class RetryError extends Error {
   }
 }
 
-export async function retry<T>(
-  fn: () => Promise<T>,
-  options: RetryOptions = {}
-): Promise<T> {
+export async function retry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
   const opts = { ...DEFAULT_OPTIONS, ...options };
   let lastError: Error = new Error('No attempts made');
-  
+
   for (let attempt = 1; attempt <= opts.maxAttempts; attempt++) {
     try {
       return await fn();
     } catch (error) {
       lastError = error as Error;
-      
+
       if (attempt === opts.maxAttempts) {
         throw new RetryError(
           `Failed after ${opts.maxAttempts} attempts: ${lastError.message}`,
@@ -51,26 +48,26 @@ export async function retry<T>(
           lastError
         );
       }
-      
+
       if (!opts.shouldRetry(lastError)) {
         throw lastError;
       }
-      
+
       const delay = calculateDelay(attempt, opts);
-      
+
       logger.warn('Operation failed, retrying', {
         attempt,
         maxAttempts: opts.maxAttempts,
         delay,
         error: lastError.message,
       });
-      
+
       opts.onRetry(lastError, attempt);
-      
+
       await sleep(delay);
     }
   }
-  
+
   throw new RetryError(
     `Failed after ${opts.maxAttempts} attempts: ${lastError.message}`,
     opts.maxAttempts,
@@ -83,11 +80,11 @@ function calculateDelay(attempt: number, options: Required<RetryOptions>): numbe
     options.initialDelayMs * Math.pow(options.factor, attempt - 1),
     options.maxDelayMs
   );
-  
+
   if (options.jitter) {
     delay = delay * (0.5 + Math.random() * 0.5);
   }
-  
+
   return Math.round(delay);
 }
 
@@ -111,7 +108,7 @@ export function isRetryableError(error: Error): boolean {
     'deadlock',
     'lock timeout',
   ];
-  
+
   return retryablePatterns.some(pattern => errorMessage.includes(pattern));
 }
 
@@ -119,13 +116,13 @@ export class CircuitBreaker {
   private failures = 0;
   private lastFailureTime = 0;
   private state: 'closed' | 'open' | 'half-open' = 'closed';
-  
+
   constructor(
-    private readonly threshold: number = 5,
-    private readonly timeout: number = 60000,
-    private readonly halfOpenTimeout: number = 30000
+    private readonly threshold = 5,
+    private readonly timeout = 60000,
+    private readonly halfOpenTimeout = 30000
   ) {}
-  
+
   async execute<T>(fn: () => Promise<T>): Promise<T> {
     if (this.state === 'open') {
       const now = Date.now();
@@ -134,7 +131,7 @@ export class CircuitBreaker {
       }
       this.state = 'half-open';
     }
-    
+
     try {
       const result = await fn();
       if (this.state === 'half-open') {
@@ -146,11 +143,11 @@ export class CircuitBreaker {
       throw error;
     }
   }
-  
+
   private recordFailure(): void {
     this.failures++;
     this.lastFailureTime = Date.now();
-    
+
     if (this.failures >= this.threshold) {
       this.state = 'open';
       logger.error('Circuit breaker opened', {
@@ -159,18 +156,18 @@ export class CircuitBreaker {
       });
     }
   }
-  
+
   private reset(): void {
     this.failures = 0;
     this.lastFailureTime = 0;
     this.state = 'closed';
     logger.info('Circuit breaker reset');
   }
-  
+
   getState(): string {
     return this.state;
   }
-  
+
   getMetrics() {
     return {
       state: this.state,

@@ -11,9 +11,9 @@ jest.mock('@/utils/logger', () => ({
   },
 }));
 
-import request from 'supertest';
-import express, { Request, Response } from 'express';
 import { createClient } from '@supabase/supabase-js';
+import express, { Request, Response } from 'express';
+import request from 'supertest';
 const mockSupabase = {
   from: jest.fn().mockReturnThis(),
   insert: jest.fn().mockReturnThis(),
@@ -45,13 +45,13 @@ describe('Audit Logging System', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Setup mock Supabase responses
     mockSupabase.insert.mockResolvedValue({ error: null });
-    
+
     app = express();
     app.use(express.json());
-    
+
     // Mock user and security context middleware
     app.use((req: Request, res: Response, next) => {
       (req as any).user = {
@@ -151,27 +151,28 @@ describe('Audit Logging System', () => {
       mockSupabase.insert.mockResolvedValueOnce({ error: new Error('Database error') });
 
       // Should not throw
-      await expect(createAuditLog({
-        action: AUDITABLE_ACTIONS.DATA_READ,
-        entity_type: RESOURCE_TYPES.CLIENT,
-      })).resolves.not.toThrow();
+      await expect(
+        createAuditLog({
+          action: AUDITABLE_ACTIONS.DATA_READ,
+          entity_type: RESOURCE_TYPES.CLIENT,
+        })
+      ).resolves.not.toThrow();
     });
   });
 
   describe('Audit Middleware', () => {
     it('should audit successful requests', async () => {
-      app.get('/test/:id', 
+      app.get(
+        '/test/:id',
         auditMiddleware(AUDITABLE_ACTIONS.DATA_READ, RESOURCE_TYPES.CLIENT, {
-          extractEntityId: (req) => req.params.id,
+          extractEntityId: req => req.params.id,
         }),
         (req: Request, res: Response) => {
           res.json({ message: 'Success' });
         }
       );
 
-      await request(app)
-        .get('/test/client-123')
-        .expect(200);
+      await request(app).get('/test/client-123').expect(200);
 
       // Allow time for async audit log creation
       await new Promise(resolve => setTimeout(resolve, 10));
@@ -191,16 +192,15 @@ describe('Audit Logging System', () => {
     });
 
     it('should audit failed requests', async () => {
-      app.get('/test/error',
+      app.get(
+        '/test/error',
         auditMiddleware(AUDITABLE_ACTIONS.DATA_READ, RESOURCE_TYPES.CLIENT),
         (req: Request, res: Response) => {
           res.status(404).json({ error: 'Not found' });
         }
       );
 
-      await request(app)
-        .get('/test/error')
-        .expect(404);
+      await request(app).get('/test/error').expect(404);
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -215,9 +215,10 @@ describe('Audit Logging System', () => {
     });
 
     it('should extract custom details', async () => {
-      app.post('/test',
+      app.post(
+        '/test',
         auditMiddleware(AUDITABLE_ACTIONS.DATA_CREATE, RESOURCE_TYPES.CLIENT, {
-          extractDetails: (req) => ({
+          extractDetails: req => ({
             created_fields: Object.keys(req.body),
             custom_data: 'test',
           }),
@@ -247,7 +248,8 @@ describe('Audit Logging System', () => {
     });
 
     it('should skip auditing when shouldAudit returns false', async () => {
-      app.get('/test/conditional',
+      app.get(
+        '/test/conditional',
         auditMiddleware(AUDITABLE_ACTIONS.DATA_READ, RESOURCE_TYPES.CLIENT, {
           shouldAudit: (req, res) => false, // Never audit
         }),
@@ -256,9 +258,7 @@ describe('Audit Logging System', () => {
         }
       );
 
-      await request(app)
-        .get('/test/conditional')
-        .expect(200);
+      await request(app).get('/test/conditional').expect(200);
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -381,7 +381,7 @@ describe('Audit Logging System', () => {
       for (let i = 0; i < operations.length; i++) {
         const { method, action } = operations[i];
         jest.clearAllMocks(); // Clear previous calls
-        
+
         // Call with different parameters for export vs other operations
         if (action === AUDITABLE_ACTIONS.DATA_EXPORT) {
           await method(mockReq, RESOURCE_TYPES.CLIENT, { test: 'data' });
@@ -472,13 +472,15 @@ describe('Audit Logging System', () => {
 
   describe('CRUD Audit Middleware', () => {
     it('should audit read operations', async () => {
-      app.get('/clients/:id', auditCRUD.read(RESOURCE_TYPES.CLIENT), (req: Request, res: Response) => {
-        res.json({ id: req.params.id, name: 'Test Client' });
-      });
+      app.get(
+        '/clients/:id',
+        auditCRUD.read(RESOURCE_TYPES.CLIENT),
+        (req: Request, res: Response) => {
+          res.json({ id: req.params.id, name: 'Test Client' });
+        }
+      );
 
-      await request(app)
-        .get('/clients/client-123')
-        .expect(200);
+      await request(app).get('/clients/client-123').expect(200);
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -492,9 +494,13 @@ describe('Audit Logging System', () => {
     });
 
     it('should audit create operations', async () => {
-      app.post('/clients', auditCRUD.create(RESOURCE_TYPES.CLIENT), (req: Request, res: Response) => {
-        res.json({ id: 'new-client-123', ...req.body });
-      });
+      app.post(
+        '/clients',
+        auditCRUD.create(RESOURCE_TYPES.CLIENT),
+        (req: Request, res: Response) => {
+          res.json({ id: 'new-client-123', ...req.body });
+        }
+      );
 
       await request(app)
         .post('/clients')
@@ -515,14 +521,15 @@ describe('Audit Logging System', () => {
     });
 
     it('should audit update operations', async () => {
-      app.put('/clients/:id', auditCRUD.update(RESOURCE_TYPES.CLIENT), (req: Request, res: Response) => {
-        res.json({ id: req.params.id, ...req.body });
-      });
+      app.put(
+        '/clients/:id',
+        auditCRUD.update(RESOURCE_TYPES.CLIENT),
+        (req: Request, res: Response) => {
+          res.json({ id: req.params.id, ...req.body });
+        }
+      );
 
-      await request(app)
-        .put('/clients/client-123')
-        .send({ name: 'Updated Client' })
-        .expect(200);
+      await request(app).put('/clients/client-123').send({ name: 'Updated Client' }).expect(200);
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -539,13 +546,15 @@ describe('Audit Logging System', () => {
     });
 
     it('should audit delete operations', async () => {
-      app.delete('/clients/:id', auditCRUD.delete(RESOURCE_TYPES.CLIENT), (req: Request, res: Response) => {
-        res.status(204).send();
-      });
+      app.delete(
+        '/clients/:id',
+        auditCRUD.delete(RESOURCE_TYPES.CLIENT),
+        (req: Request, res: Response) => {
+          res.status(204).send();
+        }
+      );
 
-      await request(app)
-        .delete('/clients/client-123')
-        .expect(204);
+      await request(app).delete('/clients/client-123').expect(204);
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -561,7 +570,8 @@ describe('Audit Logging System', () => {
 
   describe('Context Extraction', () => {
     it('should extract complete audit context from request', async () => {
-      app.get('/test', 
+      app.get(
+        '/test',
         auditMiddleware(AUDITABLE_ACTIONS.DATA_READ, RESOURCE_TYPES.CLIENT),
         (req: Request, res: Response) => {
           res.json({ message: 'Success' });
@@ -591,17 +601,16 @@ describe('Audit Logging System', () => {
       // Create app without mock middleware
       const simpleApp = express();
       simpleApp.use(express.json());
-      
-      simpleApp.get('/test',
+
+      simpleApp.get(
+        '/test',
         auditMiddleware(AUDITABLE_ACTIONS.DATA_READ, RESOURCE_TYPES.CLIENT),
         (req: Request, res: Response) => {
           res.json({ message: 'Success' });
         }
       );
 
-      await request(simpleApp)
-        .get('/test')
-        .expect(200);
+      await request(simpleApp).get('/test').expect(200);
 
       await new Promise(resolve => setTimeout(resolve, 10));
 
@@ -621,7 +630,8 @@ describe('Audit Logging System', () => {
     it('should handle audit logging errors without affecting request', async () => {
       mockSupabase.insert.mockRejectedValueOnce(new Error('Supabase connection failed'));
 
-      app.get('/test',
+      app.get(
+        '/test',
         auditMiddleware(AUDITABLE_ACTIONS.DATA_READ, RESOURCE_TYPES.CLIENT),
         (req: Request, res: Response) => {
           res.json({ message: 'Success' });
@@ -629,13 +639,12 @@ describe('Audit Logging System', () => {
       );
 
       // Request should still succeed even if audit logging fails
-      await request(app)
-        .get('/test')
-        .expect(200);
+      await request(app).get('/test').expect(200);
     });
 
     it('should include response time in audit details', async () => {
-      app.get('/slow-test',
+      app.get(
+        '/slow-test',
         auditMiddleware(AUDITABLE_ACTIONS.DATA_READ, RESOURCE_TYPES.CLIENT),
         (req: Request, res: Response) => {
           // Simulate slow operation
@@ -643,9 +652,7 @@ describe('Audit Logging System', () => {
         }
       );
 
-      await request(app)
-        .get('/slow-test')
-        .expect(200);
+      await request(app).get('/slow-test').expect(200);
 
       await new Promise(resolve => setTimeout(resolve, 20));
 

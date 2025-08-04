@@ -6,5 +6,5 @@ export {
   ResponseBuilder,
   isErrorResponse,
   isSuccessResponse,
-  transformResponse
+  transformResponse,
 } from './response.utils';

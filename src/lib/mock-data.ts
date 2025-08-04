@@ -1,4 +1,16 @@
-import { User, Client, Program, Class, Reservation, Exercise, Workout, DashboardStats, Coach, ReservationSettings, Tour } from './types'
+import {
+  User,
+  Client,
+  Program,
+  Class,
+  Reservation,
+  Exercise,
+  Workout,
+  DashboardStats,
+  Coach,
+  ReservationSettings,
+  Tour,
+} from './types';
 
 // Mock Users/Coaches
 export const mockUsers: User[] = [
@@ -50,7 +62,7 @@ export const mockUsers: User[] = [
     avatar: '/avatars/admin.jpg',
     createdAt: new Date('2023-01-01'),
   },
-]
+];
 
 // Mock Coaches with specialties - Updated for the three programs
 export const mockCoaches: Coach[] = [
@@ -104,7 +116,7 @@ export const mockCoaches: Coach[] = [
     specialties: ['BurnDumbells', 'Strength Training', 'Personal Training', 'Group Fitness'],
     isActive: true,
   },
-]
+];
 
 // Mock Programs - Only the three specific programs
 export const mockPrograms: Program[] = [
@@ -135,7 +147,7 @@ export const mockPrograms: Program[] = [
     isActive: true,
     createdAt: new Date('2023-01-01'),
   },
-]
+];
 
 // Mock Clients
 export const mockClients: Client[] = [
@@ -230,7 +242,7 @@ export const mockClients: Client[] = [
     createdAt: new Date('2023-04-12'),
     updatedAt: new Date('2024-01-15'),
   },
-]
+];
 
 // Mock Classes - Comprehensive scheduling data
 export const mockClasses: Class[] = [
@@ -654,7 +666,7 @@ export const mockClasses: Class[] = [
     status: 'cancelled',
     notes: 'Cancelled due to coach illness',
   },
-]
+];
 
 // Mock Reservations
 export const mockReservations: Reservation[] = [
@@ -703,7 +715,7 @@ export const mockReservations: Reservation[] = [
     status: 'confirmed',
     reservedAt: new Date('2024-01-15T14:20:00'),
   },
-]
+];
 
 // Mock Exercises
 export const mockExercises: Exercise[] = [
@@ -718,7 +730,7 @@ export const mockExercises: Exercise[] = [
       'Start in a plank position with hands slightly wider than shoulders',
       'Lower your body until chest nearly touches the floor',
       'Push back up to starting position',
-      'Keep your core tight throughout the movement'
+      'Keep your core tight throughout the movement',
     ],
     createdAt: new Date('2023-01-01'),
   },
@@ -733,7 +745,7 @@ export const mockExercises: Exercise[] = [
       'Stand with feet shoulder-width apart',
       'Lower your body as if sitting back into a chair',
       'Keep your chest up and knees behind toes',
-      'Return to standing position'
+      'Return to standing position',
     ],
     createdAt: new Date('2023-01-01'),
   },
@@ -748,7 +760,7 @@ export const mockExercises: Exercise[] = [
       'Start standing, then drop into a squat position',
       'Place hands on ground and kick feet back into plank',
       'Perform a push-up, then jump feet back to squat',
-      'Jump up from squat position'
+      'Jump up from squat position',
     ],
     createdAt: new Date('2023-01-01'),
   },
@@ -763,7 +775,7 @@ export const mockExercises: Exercise[] = [
       'Start in forearm plank position',
       'Keep body in straight line from head to heels',
       'Engage core muscles',
-      'Hold position for specified time'
+      'Hold position for specified time',
     ],
     createdAt: new Date('2023-01-01'),
   },
@@ -778,11 +790,11 @@ export const mockExercises: Exercise[] = [
       'Start in plank position',
       'Drive one knee toward chest',
       'Quickly switch legs in running motion',
-      'Keep core engaged throughout'
+      'Keep core engaged throughout',
     ],
     createdAt: new Date('2023-01-01'),
   },
-]
+];
 
 // Mock Workouts
 export const mockWorkouts: Workout[] = [
@@ -855,28 +867,28 @@ export const mockWorkouts: Workout[] = [
     isTemplate: true,
     createdAt: new Date('2023-01-01'),
   },
-]
+];
 
 // Mock Dashboard Stats
 export const mockDashboardStats: DashboardStats = {
   totalMembers: 156,
   activeClassesToday: 8,
-  revenueThisMonth: 15420.50,
+  revenueThisMonth: 15420.5,
   pendingReservations: 23,
   averageClassAttendance: 78.5,
   newMembersThisMonth: 12,
-}
+};
 
 // Mock Reservation Settings
 export const mockReservationSettings: ReservationSettings = {
   reservationOpenHours: 168, // 7 days (7 * 24 hours)
   reservationCloseHours: 2, // 2 hours before class
   cancellationDeadlineHours: 12, // 12 hours before class
-  lateCancellationFee: 15.00, // $15 fee for late cancellation
-  noShowFee: 25.00, // $25 fee for no-show
+  lateCancellationFee: 15.0, // $15 fee for late cancellation
+  noShowFee: 25.0, // $25 fee for no-show
   noShowPenaltyEnabled: true,
   autoWaitlistEnabled: true,
-}
+};
 
 // Mock Tours
 export const mockTours: Tour[] = [
@@ -1027,5 +1039,5 @@ export const mockTours: Tour[] = [
     interests: ['BurnDumbells', 'Strength Training'],
     createdAt: new Date('2025-01-27'),
     updatedAt: new Date('2025-01-29'),
-  }
-] 
+  },
+];

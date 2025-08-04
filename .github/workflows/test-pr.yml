@@ -1,0 +1,157 @@
+name: Test PR with Real Data
+
+on:
+  pull_request:
+    branches: [main, auth, backend]
+    types: [opened, synchronize, reopened, ready_for_review]
+  # Allow manual trigger for testing
+  workflow_dispatch:
+
+# Concurrency: Cancel previous runs for the same PR
+concurrency:
+  group: pr-tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-pr:
+    name: Comprehensive PR Testing with Real Data
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # Skip draft PRs unless explicitly requested
+    if: github.event.pull_request.draft == false || contains(github.event.pull_request.labels.*.name, 'test-draft')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linting and type checking
+        run: |
+          npm run format:check
+          npm run lint
+          npm run typecheck
+
+      - name: Run comprehensive test suite with real data
+        run: ./scripts/test-with-real-data.sh
+        env:
+          # Real environment variables for testing
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          WORKOS_CLIENT_ID: ${{ secrets.WORKOS_CLIENT_ID }}
+          WORKOS_API_KEY: ${{ secrets.WORKOS_API_KEY }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          NODE_ENV: test
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        if: success() || failure()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: unittests,integration
+          name: pr-${{ github.event.pull_request.number }}
+          fail_ci_if_error: false
+
+      - name: Generate test summary
+        if: success() || failure()
+        run: |
+          echo "## 🧪 Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "- **PR**: #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.head_ref }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "✅ **Status**: All tests passed with real data" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Test Categories Completed" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Unit tests (isolated functionality)" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Integration tests (real Supabase, WorkOS, Redis)" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Middleware tests (permissions, security, rate limiting)" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ GDPR/CCPA compliance tests (real data handling)" >> $GITHUB_STEP_SUMMARY
+            echo "- ✅ Code coverage thresholds met" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Status**: Some tests failed" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Please check the logs above for details and fix any failing tests." >> $GITHUB_STEP_SUMMARY
+            echo "This PR cannot be merged until all tests pass." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Comment PR on failure
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ **Tests failed for this PR**
+              
+              The comprehensive test suite with real data integration failed. 
+              
+              **Next steps:**
+              1. Check the [workflow logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details
+              2. Fix any failing tests locally
+              3. Push your changes to trigger tests again
+              
+              **What was tested:**
+              - Unit tests with isolated functionality
+              - Integration tests with real Supabase, WorkOS, and Redis
+              - Security middleware and rate limiting
+              - GDPR/CCPA compliance with real data operations
+              - Code coverage analysis
+              
+              This PR cannot be merged until all tests pass. 🧪`
+            })
+
+  # Optional: Build verification to ensure tests don't break build
+  build-check:
+    name: Verify Build After Tests
+    needs: test-pr
+    runs-on: ubuntu-latest
+    if: success()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_WORKOS_CLIENT_ID: ${{ secrets.WORKOS_CLIENT_ID }}
+
+      - name: Verify build artifacts
+        run: |
+          if [[ -d ".next" && -f ".next/BUILD_ID" ]]; then
+            echo "✅ Build artifacts created successfully"
+            echo "Build ID: $(cat .next/BUILD_ID)"
+          else
+            echo "❌ Build artifacts missing"
+            exit 1
+          fi

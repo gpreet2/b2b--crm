@@ -1,5 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { getDatabase } from '../config/database';
+
 
 export const dashboardRouter = Router();
 
@@ -417,7 +417,7 @@ dashboardRouter.get('/', (req: Request, res: Response) => {
 </body>
 </html>
   `;
-  
+
   res.setHeader('Content-Type', 'text/html');
   res.send(html);
 });

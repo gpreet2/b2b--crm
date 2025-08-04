@@ -15,7 +15,7 @@ import {
   createInitials,
   maskSensitiveData,
   sanitizeCreditCard,
-  sanitizers
+  sanitizers,
 } from '../utils/sanitization';
 
 describe('Sanitization Utilities', () => {
@@ -147,7 +147,7 @@ describe('Sanitization Utilities', () => {
     });
 
     it('should limit filename length', () => {
-      const longName = 'a'.repeat(300) + '.txt';
+      const longName = `${'a'.repeat(300)  }.txt`;
       const result = sanitizeFileName(longName);
       expect(result.length).toBeLessThanOrEqual(255);
       expect(result.endsWith('.txt')).toBe(true);
@@ -183,19 +183,19 @@ describe('Sanitization Utilities', () => {
         age: null,
         email: '',
         phone: undefined,
-        city: 'New York'
+        city: 'New York',
       };
       const result = sanitizeObject(input);
       expect(result).toEqual({
         name: 'John',
-        city: 'New York'
+        city: 'New York',
       });
     });
 
     it('should sanitize string values', () => {
       const input = {
         name: '  John  <script>alert("XSS")</script>  ',
-        description: 'Normal text'
+        description: 'Normal text',
       };
       const result = sanitizeObject(input);
       expect(result.name).toBe('John');
@@ -209,9 +209,9 @@ describe('Sanitization Utilities', () => {
           email: null,
           profile: {
             bio: '  Bio text  ',
-            age: 25
-          }
-        }
+            age: 25,
+          },
+        },
       };
       const result = sanitizeObject(input);
       expect(result).toEqual({
@@ -219,9 +219,9 @@ describe('Sanitization Utilities', () => {
           name: 'John',
           profile: {
             bio: 'Bio text',
-            age: 25
-          }
-        }
+            age: 25,
+          },
+        },
       });
     });
   });
@@ -261,7 +261,9 @@ describe('Sanitization Utilities', () => {
   describe('sanitizeSearchQuery', () => {
     it('should remove dangerous characters', () => {
       expect(sanitizeSearchQuery('normal search')).toBe('normal search');
-      expect(sanitizeSearchQuery('search<script>alert("XSS")</script>')).toBe('searchscriptalertXSSscript');
+      expect(sanitizeSearchQuery('search<script>alert("XSS")</script>')).toBe(
+        'searchscriptalertXSSscript'
+      );
       expect(sanitizeSearchQuery('"quoted" search')).toBe('quoted search');
     });
 

@@ -1,15 +1,16 @@
-import request from 'supertest';
 import express, { Request, Response } from 'express';
-import { 
-  createRateLimitMiddleware, 
-  generalRateLimit, 
-  authRateLimit, 
+import request from 'supertest';
+
+import { testRedisConnection, getRedisInfo } from '@/config/redis';
+import {
+  createRateLimitMiddleware,
+  generalRateLimit,
+  authRateLimit,
   sensitiveRateLimit,
   uploadRateLimit,
   multiRateLimit,
-  rateLimitMiddleware 
+  rateLimitMiddleware,
 } from '@/middleware/rate-limit.middleware';
-import { testRedisConnection, getRedisInfo } from '@/config/redis';
 
 describe('Rate Limiting', () => {
   let app: express.Application;
@@ -25,24 +26,24 @@ describe('Rate Limiting', () => {
   beforeEach(() => {
     app = express();
     app.use(express.json());
-    
+
     // Test routes
     app.get('/test', generalRateLimit, (req: Request, res: Response) => {
       res.json({ message: 'Test endpoint' });
     });
-    
+
     app.post('/auth/login', authRateLimit, (req: Request, res: Response) => {
       res.json({ message: 'Login successful' });
     });
-    
+
     app.get('/admin/users', sensitiveRateLimit, (req: Request, res: Response) => {
       res.json({ message: 'Admin endpoint' });
     });
-    
+
     app.post('/upload', uploadRateLimit, (req: Request, res: Response) => {
       res.json({ message: 'Upload successful' });
     });
-    
+
     app.get('/multi', multiRateLimit(['general', 'hourly']), (req: Request, res: Response) => {
       res.json({ message: 'Multi-limited endpoint' });
     });
@@ -64,9 +65,7 @@ describe('Rate Limiting', () => {
 
   describe('General Rate Limiting', () => {
     it('should allow requests within limit', async () => {
-      const response = await request(app)
-        .get('/test')
-        .expect(200);
+      const response = await request(app).get('/test').expect(200);
 
       expect(response.headers['x-ratelimit-limit']).toBeDefined();
       expect(response.headers['x-ratelimit-remaining']).toBeDefined();
@@ -74,9 +73,7 @@ describe('Rate Limiting', () => {
     });
 
     it('should include rate limit headers', async () => {
-      const response = await request(app)
-        .get('/test')
-        .expect(200);
+      const response = await request(app).get('/test').expect(200);
 
       expect(parseInt(response.headers['x-ratelimit-limit'])).toBeGreaterThan(0);
       expect(parseInt(response.headers['x-ratelimit-remaining'])).toBeGreaterThanOrEqual(0);
@@ -87,21 +84,20 @@ describe('Rate Limiting', () => {
       // Make multiple requests rapidly from the same IP to exceed the limit
       const promises = [];
       const testIp = '192.168.1.100';
-      
-      for (let i = 0; i < 65; i++) { // Exceed the 60/minute limit
+
+      for (let i = 0; i < 65; i++) {
+        // Exceed the 60/minute limit
         promises.push(
-          request(app)
-            .get('/test')
-            .set('X-Forwarded-For', testIp) // Use same IP for all requests
+          request(app).get('/test').set('X-Forwarded-For', testIp) // Use same IP for all requests
         );
       }
 
       const responses = await Promise.all(promises);
-      
+
       // At least some should be rate limited
       const rateLimitedResponses = responses.filter(r => r.status === 429);
       expect(rateLimitedResponses.length).toBeGreaterThan(0);
-      
+
       // Check rate limit response format
       if (rateLimitedResponses.length > 0) {
         const rateLimited = rateLimitedResponses[0];
@@ -127,7 +123,7 @@ describe('Rate Limiting', () => {
     it('should rate limit by IP + email combination', async () => {
       const email = 'test@example.com';
       const requests = [];
-      
+
       // Make multiple requests with the same email and IP
       for (let i = 0; i < 12; i++) {
         requests.push(
@@ -140,7 +136,7 @@ describe('Rate Limiting', () => {
 
       const responses = await Promise.all(requests);
       const rateLimited = responses.filter(r => r.status === 429);
-      
+
       expect(rateLimited.length).toBeGreaterThan(0);
     }, 10000);
   });
@@ -186,20 +182,16 @@ describe('Rate Limiting', () => {
   describe('Rate Limit Bypass', () => {
     it('should skip rate limiting for health check user agents', async () => {
       const userAgents = ['UptimeRobot', 'Pingdom', 'HealthChecker'];
-      
+
       for (const ua of userAgents) {
         // Make many requests with health check user agent
         const promises = [];
         for (let i = 0; i < 10; i++) {
-          promises.push(
-            request(app)
-              .get('/test')
-              .set('User-Agent', ua)
-          );
+          promises.push(request(app).get('/test').set('User-Agent', ua));
         }
-        
+
         const responses = await Promise.all(promises);
-        
+
         // All should succeed (no rate limiting)
         responses.forEach(response => {
           expect(response.status).toBe(200);
@@ -209,16 +201,13 @@ describe('Rate Limiting', () => {
 
     it('should skip rate limiting with bypass header', async () => {
       const promises = [];
-      for (let i = 0; i < 70; i++) { // Well over the limit
-        promises.push(
-          request(app)
-            .get('/test')
-            .set('X-Skip-Rate-Limit', 'true')
-        );
+      for (let i = 0; i < 70; i++) {
+        // Well over the limit
+        promises.push(request(app).get('/test').set('X-Skip-Rate-Limit', 'true'));
       }
 
       const responses = await Promise.all(promises);
-      
+
       // All should succeed
       responses.forEach(response => {
         expect(response.status).toBe(200);
@@ -229,19 +218,17 @@ describe('Rate Limiting', () => {
   describe('Custom Rate Limiter Creation', () => {
     it('should create custom rate limiter with specific configuration', async () => {
       const customApp = express();
-      
+
       const customRateLimit = createRateLimitMiddleware('general', {
         message: 'Custom rate limit message',
-        keyGenerator: (req) => `custom:${req.ip}`,
+        keyGenerator: req => `custom:${req.ip}`,
       });
-      
+
       customApp.get('/custom', customRateLimit, (req: Request, res: Response) => {
         res.json({ message: 'Custom endpoint' });
       });
 
-      const response = await request(customApp)
-        .get('/custom')
-        .expect(200);
+      const response = await request(customApp).get('/custom').expect(200);
 
       expect(response.headers['x-ratelimit-limit']).toBeDefined();
     });
@@ -251,27 +238,27 @@ describe('Rate Limiting', () => {
     it('should not block requests if rate limiting fails', async () => {
       // Create a middleware that uses an invalid limiter type
       const faultyApp = express();
-      
-      // This should gracefully handle the error and not block requests
-      faultyApp.get('/test', (req, res, next) => {
-        // Simulate rate limiting error by calling next with an error
-        // but the middleware should catch and handle it
-        next();
-      }, (req: Request, res: Response) => {
-        res.json({ message: 'Should still work' });
-      });
 
-      await request(faultyApp)
-        .get('/test')
-        .expect(200);
+      // This should gracefully handle the error and not block requests
+      faultyApp.get(
+        '/test',
+        (req, res, next) => {
+          // Simulate rate limiting error by calling next with an error
+          // but the middleware should catch and handle it
+          next();
+        },
+        (req: Request, res: Response) => {
+          res.json({ message: 'Should still work' });
+        }
+      );
+
+      await request(faultyApp).get('/test').expect(200);
     });
   });
 
   describe('Rate Limit Headers', () => {
     it('should include all required rate limit headers', async () => {
-      const response = await request(app)
-        .get('/test')
-        .expect(200);
+      const response = await request(app).get('/test').expect(200);
 
       expect(response.headers['x-ratelimit-limit']).toMatch(/^\d+$/);
       expect(response.headers['x-ratelimit-remaining']).toMatch(/^\d+$/);
@@ -283,15 +270,13 @@ describe('Rate Limiting', () => {
       const promises = [];
       for (let i = 0; i < 65; i++) {
         promises.push(
-          request(app)
-            .get('/test')
-            .set('X-Forwarded-For', '192.168.1.100') // Use same IP
+          request(app).get('/test').set('X-Forwarded-For', '192.168.1.100') // Use same IP
         );
       }
 
       const responses = await Promise.all(promises);
       const rateLimited = responses.find(r => r.status === 429);
-      
+
       if (rateLimited) {
         expect(rateLimited.headers['retry-after']).toBeDefined();
         expect(parseInt(rateLimited.headers['retry-after'])).toBeGreaterThan(0);
@@ -312,14 +297,16 @@ describe('Rate Limiting', () => {
 
     it('should work with pre-configured combinations', async () => {
       const combinedApp = express();
-      
-      combinedApp.get('/strict-auth', rateLimitMiddleware.strictAuth, (req: Request, res: Response) => {
-        res.json({ message: 'Strict auth endpoint' });
-      });
 
-      const response = await request(combinedApp)
-        .get('/strict-auth')
-        .expect(200);
+      combinedApp.get(
+        '/strict-auth',
+        rateLimitMiddleware.strictAuth,
+        (req: Request, res: Response) => {
+          res.json({ message: 'Strict auth endpoint' });
+        }
+      );
+
+      const response = await request(combinedApp).get('/strict-auth').expect(200);
 
       expect(response.headers['x-ratelimit-limit']).toBeDefined();
     });

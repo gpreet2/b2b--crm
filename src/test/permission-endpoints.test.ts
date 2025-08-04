@@ -1,6 +1,6 @@
 /**
  * Permission Management Endpoints Test
- * 
+ *
  * This file documents the available permission management endpoints.
  * These endpoints provide a complete API for managing roles and permissions.
  */
@@ -12,7 +12,7 @@ describe('Permission Management Endpoints', () => {
       // Query params:
       // - resource: Filter by resource (e.g., 'clients', 'events')
       // - action: Filter by action (e.g., 'view', 'create')
-      
+
       expect('/api/permissions').toBeDefined();
     });
   });

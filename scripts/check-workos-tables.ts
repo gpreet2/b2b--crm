@@ -12,8 +12,8 @@ async function checkTables() {
   const supabase = createClient(supabaseUrl, supabaseServiceKey, {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
-    }
+      persistSession: false,
+    },
   });
 
   console.log('Checking WorkOS tables...');
@@ -54,7 +54,6 @@ async function checkTables() {
     } else {
       console.log('✓ User_organizations table exists');
     }
-
   } catch (error) {
     console.error('Error checking tables:', error);
   }

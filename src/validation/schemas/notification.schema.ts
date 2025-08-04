@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { commonSchemas } from './common.schema';
 
 // Notification types
 export const notificationTypeEnum = z.enum([
@@ -15,7 +14,7 @@ export const notificationTypeEnum = z.enum([
   'message_received',
   'announcement',
   'system_update',
-  'custom'
+  'custom',
 ]);
 
 // Notification channels
@@ -37,7 +36,7 @@ export const notificationSchema = z.object({
   data: z.object({}).passthrough().optional(),
   scheduled_for: z.string().datetime().optional(),
   expires_at: z.string().datetime().optional(),
-  organization_id: z.string().uuid()
+  organization_id: z.string().uuid(),
 });
 
 // Send notification request schema
@@ -51,7 +50,7 @@ export const sendNotificationSchema = z.object({
   data: z.object({}).passthrough().optional(),
   scheduled_for: z.string().datetime().optional(),
   template_id: z.string().uuid().optional(),
-  template_variables: z.object({}).passthrough().optional()
+  template_variables: z.object({}).passthrough().optional(),
 });
 
 // Notification template schema
@@ -62,96 +61,118 @@ export const notificationTemplateSchema = z.object({
   channels: z.array(notificationChannelEnum).min(1),
   subject_template: z.string().max(200).optional(), // For email
   body_template: z.string().min(1).max(5000),
-  variables: z.array(z.object({
-    name: z.string(),
-    type: z.enum(['string', 'number', 'date', 'boolean']),
-    required: z.boolean().default(true),
-    default_value: z.any().optional()
-  })).optional(),
+  variables: z
+    .array(
+      z.object({
+        name: z.string(),
+        type: z.enum(['string', 'number', 'date', 'boolean']),
+        required: z.boolean().default(true),
+        default_value: z.any().optional(),
+      })
+    )
+    .optional(),
   is_active: z.boolean().default(true),
-  organization_id: z.string().uuid()
+  organization_id: z.string().uuid(),
 });
 
 // Notification preferences update schema
 export const updateNotificationPreferencesSchema = z.object({
-  email: z.object({
-    enabled: z.boolean().optional(),
-    types: z.object({
-      booking_confirmation: z.boolean().optional(),
-      booking_reminder: z.boolean().optional(),
-      booking_cancellation: z.boolean().optional(),
-      waitlist_promotion: z.boolean().optional(),
-      membership_expiring: z.boolean().optional(),
-      membership_renewed: z.boolean().optional(),
-      payment_success: z.boolean().optional(),
-      payment_failed: z.boolean().optional(),
-      achievement_earned: z.boolean().optional(),
-      message_received: z.boolean().optional(),
-      announcement: z.boolean().optional(),
-      system_update: z.boolean().optional(),
-      custom: z.boolean().optional()
-    }).optional()
-  }).optional(),
-  sms: z.object({
-    enabled: z.boolean().optional(),
-    types: z.object({
-      booking_confirmation: z.boolean().optional(),
-      booking_reminder: z.boolean().optional(),
-      booking_cancellation: z.boolean().optional(),
-      waitlist_promotion: z.boolean().optional(),
-      membership_expiring: z.boolean().optional(),
-      membership_renewed: z.boolean().optional(),
-      payment_success: z.boolean().optional(),
-      payment_failed: z.boolean().optional(),
-      achievement_earned: z.boolean().optional(),
-      message_received: z.boolean().optional(),
-      announcement: z.boolean().optional(),
-      system_update: z.boolean().optional(),
-      custom: z.boolean().optional()
-    }).optional()
-  }).optional(),
-  push: z.object({
-    enabled: z.boolean().optional(),
-    types: z.object({
-      booking_confirmation: z.boolean().optional(),
-      booking_reminder: z.boolean().optional(),
-      booking_cancellation: z.boolean().optional(),
-      waitlist_promotion: z.boolean().optional(),
-      membership_expiring: z.boolean().optional(),
-      membership_renewed: z.boolean().optional(),
-      payment_success: z.boolean().optional(),
-      payment_failed: z.boolean().optional(),
-      achievement_earned: z.boolean().optional(),
-      message_received: z.boolean().optional(),
-      announcement: z.boolean().optional(),
-      system_update: z.boolean().optional(),
-      custom: z.boolean().optional()
-    }).optional()
-  }).optional(),
-  in_app: z.object({
-    enabled: z.boolean().optional(),
-    types: z.object({
-      booking_confirmation: z.boolean().optional(),
-      booking_reminder: z.boolean().optional(),
-      booking_cancellation: z.boolean().optional(),
-      waitlist_promotion: z.boolean().optional(),
-      membership_expiring: z.boolean().optional(),
-      membership_renewed: z.boolean().optional(),
-      payment_success: z.boolean().optional(),
-      payment_failed: z.boolean().optional(),
-      achievement_earned: z.boolean().optional(),
-      message_received: z.boolean().optional(),
-      announcement: z.boolean().optional(),
-      system_update: z.boolean().optional(),
-      custom: z.boolean().optional()
-    }).optional()
-  }).optional(),
-  quiet_hours: z.object({
-    enabled: z.boolean().default(false),
-    start_time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
-    end_time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
-    timezone: z.string()
-  }).optional()
+  email: z
+    .object({
+      enabled: z.boolean().optional(),
+      types: z
+        .object({
+          booking_confirmation: z.boolean().optional(),
+          booking_reminder: z.boolean().optional(),
+          booking_cancellation: z.boolean().optional(),
+          waitlist_promotion: z.boolean().optional(),
+          membership_expiring: z.boolean().optional(),
+          membership_renewed: z.boolean().optional(),
+          payment_success: z.boolean().optional(),
+          payment_failed: z.boolean().optional(),
+          achievement_earned: z.boolean().optional(),
+          message_received: z.boolean().optional(),
+          announcement: z.boolean().optional(),
+          system_update: z.boolean().optional(),
+          custom: z.boolean().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+  sms: z
+    .object({
+      enabled: z.boolean().optional(),
+      types: z
+        .object({
+          booking_confirmation: z.boolean().optional(),
+          booking_reminder: z.boolean().optional(),
+          booking_cancellation: z.boolean().optional(),
+          waitlist_promotion: z.boolean().optional(),
+          membership_expiring: z.boolean().optional(),
+          membership_renewed: z.boolean().optional(),
+          payment_success: z.boolean().optional(),
+          payment_failed: z.boolean().optional(),
+          achievement_earned: z.boolean().optional(),
+          message_received: z.boolean().optional(),
+          announcement: z.boolean().optional(),
+          system_update: z.boolean().optional(),
+          custom: z.boolean().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+  push: z
+    .object({
+      enabled: z.boolean().optional(),
+      types: z
+        .object({
+          booking_confirmation: z.boolean().optional(),
+          booking_reminder: z.boolean().optional(),
+          booking_cancellation: z.boolean().optional(),
+          waitlist_promotion: z.boolean().optional(),
+          membership_expiring: z.boolean().optional(),
+          membership_renewed: z.boolean().optional(),
+          payment_success: z.boolean().optional(),
+          payment_failed: z.boolean().optional(),
+          achievement_earned: z.boolean().optional(),
+          message_received: z.boolean().optional(),
+          announcement: z.boolean().optional(),
+          system_update: z.boolean().optional(),
+          custom: z.boolean().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+  in_app: z
+    .object({
+      enabled: z.boolean().optional(),
+      types: z
+        .object({
+          booking_confirmation: z.boolean().optional(),
+          booking_reminder: z.boolean().optional(),
+          booking_cancellation: z.boolean().optional(),
+          waitlist_promotion: z.boolean().optional(),
+          membership_expiring: z.boolean().optional(),
+          membership_renewed: z.boolean().optional(),
+          payment_success: z.boolean().optional(),
+          payment_failed: z.boolean().optional(),
+          achievement_earned: z.boolean().optional(),
+          message_received: z.boolean().optional(),
+          announcement: z.boolean().optional(),
+          system_update: z.boolean().optional(),
+          custom: z.boolean().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+  quiet_hours: z
+    .object({
+      enabled: z.boolean().default(false),
+      start_time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+      end_time: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+      timezone: z.string(),
+    })
+    .optional(),
 });
 
 // Notification status schema
@@ -163,7 +184,7 @@ export const notificationStatusSchema = z.object({
   delivered_at: z.string().datetime().optional(),
   read_at: z.string().datetime().optional(),
   failed_at: z.string().datetime().optional(),
-  error_message: z.string().optional()
+  error_message: z.string().optional(),
 });
 
 // In-app notification schema
@@ -178,13 +199,13 @@ export const inAppNotificationSchema = z.object({
   is_read: z.boolean().default(false),
   read_at: z.string().datetime().optional(),
   created_at: z.string().datetime(),
-  expires_at: z.string().datetime().optional()
+  expires_at: z.string().datetime().optional(),
 });
 
 // Mark notifications as read schema
 export const markNotificationsReadSchema = z.object({
   notification_ids: z.array(z.string().uuid()).min(1).max(100),
-  read_at: z.string().datetime().optional()
+  read_at: z.string().datetime().optional(),
 });
 
 // Notification analytics schema
@@ -193,5 +214,5 @@ export const notificationAnalyticsSchema = z.object({
   end_date: z.string().datetime(),
   type: notificationTypeEnum.optional(),
   channel: notificationChannelEnum.optional(),
-  group_by: z.enum(['day', 'week', 'month', 'type', 'channel']).optional()
+  group_by: z.enum(['day', 'week', 'month', 'type', 'channel']).optional(),
 });

@@ -1,5 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
 import { createClient } from '@supabase/supabase-js';
+import { Request, Response, NextFunction } from 'express';
+
+import { AuthError, PermissionError } from '@/errors';
+
 import {
   checkPermission,
   requirePermission,
@@ -10,7 +13,7 @@ import {
   loadUserPermissions,
   AuthenticatedRequest,
 } from '../permissions.middleware';
-import { AuthError, PermissionError } from '@/errors';
+
 
 describe('Permission Middleware', () => {
   let supabase: ReturnType<typeof createClient>;
@@ -65,15 +68,13 @@ describe('Permission Middleware', () => {
     if (roleError) throw roleError;
 
     // Assign user to organization with admin role
-    const { error: assignError } = await supabase
-      .from('user_organizations')
-      .insert({
-        user_id: testUserId,
-        organization_id: testOrgId,
-        role_id: adminRole.id,
-        role: 'admin',
-        is_active: true,
-      });
+    const { error: assignError } = await supabase.from('user_organizations').insert({
+      user_id: testUserId,
+      organization_id: testOrgId,
+      role_id: adminRole.id,
+      role: 'admin',
+      is_active: true,
+    });
 
     if (assignError) throw assignError;
   });
@@ -89,17 +90,11 @@ describe('Permission Middleware', () => {
     }
 
     if (testUserId) {
-      await supabase
-        .from('users')
-        .delete()
-        .eq('id', testUserId);
+      await supabase.from('users').delete().eq('id', testUserId);
     }
 
     if (testOrgId) {
-      await supabase
-        .from('organizations')
-        .delete()
-        .eq('id', testOrgId);
+      await supabase.from('organizations').delete().eq('id', testOrgId);
     }
   });
 
@@ -114,23 +109,18 @@ describe('Permission Middleware', () => {
       },
       authOrganizationId: testOrgId,
     };
-    
+
     mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
     };
-    
+
     mockNext = jest.fn();
   });
 
   describe('checkPermission with real database', () => {
     it('should return true for admin permissions', async () => {
-      const result = await checkPermission(
-        testUserId,
-        testOrgId,
-        'users',
-        'read'
-      );
+      const result = await checkPermission(testUserId, testOrgId, 'users', 'read');
 
       expect(result).toBe(true);
     });
@@ -144,34 +134,19 @@ describe('Permission Middleware', () => {
       ];
 
       for (const perm of permissions) {
-        const result = await checkPermission(
-          testUserId,
-          testOrgId,
-          perm.resource,
-          perm.action
-        );
+        const result = await checkPermission(testUserId, testOrgId, perm.resource, perm.action);
         expect(result).toBe(true);
       }
     });
 
     it('should return false for non-existent user', async () => {
-      const result = await checkPermission(
-        'non-existent-user-id',
-        testOrgId,
-        'users',
-        'read'
-      );
+      const result = await checkPermission('non-existent-user-id', testOrgId, 'users', 'read');
 
       expect(result).toBe(false);
     });
 
     it('should return false for non-existent organization', async () => {
-      const result = await checkPermission(
-        testUserId,
-        'non-existent-org-id',
-        'users',
-        'read'
-      );
+      const result = await checkPermission(testUserId, 'non-existent-org-id', 'users', 'read');
 
       expect(result).toBe(false);
     });
@@ -194,25 +169,25 @@ describe('Permission Middleware', () => {
 
       expect(permissions).toBeInstanceOf(Array);
       expect(permissions.length).toBeGreaterThan(0);
-      
+
       // Admin should have many permissions
       expect(permissions.length).toBeGreaterThan(20);
-      
+
       // Check for specific expected permissions
       const hasUsersRead = permissions.some(
-        p => p.resource === 'users' && p.action === 'read' && p.granted === true
+        p => p.resource === 'users' && p.action === 'read' && p.granted
       );
       const hasEventsCreate = permissions.some(
-        p => p.resource === 'events' && p.action === 'create' && p.granted === true
+        p => p.resource === 'events' && p.action === 'create' && p.granted
       );
-      
+
       expect(hasUsersRead).toBe(true);
       expect(hasEventsCreate).toBe(true);
     });
 
     it('should return empty array for non-existent user', async () => {
       const permissions = await getUserPermissions('non-existent-user', testOrgId);
-      
+
       expect(permissions).toEqual([]);
     });
   });
@@ -220,13 +195,13 @@ describe('Permission Middleware', () => {
   describe('getUserRole with real database', () => {
     it('should fetch user role correctly', async () => {
       const role = await getUserRole(testUserId, testOrgId);
-      
+
       expect(role).toBe('admin');
     });
 
     it('should return null for non-existent user', async () => {
       const role = await getUserRole('non-existent-user', testOrgId);
-      
+
       expect(role).toBeNull();
     });
 
@@ -245,7 +220,7 @@ describe('Permission Middleware', () => {
         .single();
 
       const role = await getUserRole(newUser!.id, testOrgId);
-      
+
       expect(role).toBeNull();
 
       // Clean up
@@ -256,19 +231,19 @@ describe('Permission Middleware', () => {
   describe('hasRole with real database', () => {
     it('should return true when user has the role', async () => {
       const result = await hasRole(testUserId, testOrgId, ['admin']);
-      
+
       expect(result).toBe(true);
     });
 
     it('should return true when user has one of multiple roles', async () => {
       const result = await hasRole(testUserId, testOrgId, ['owner', 'admin', 'trainer']);
-      
+
       expect(result).toBe(true);
     });
 
     it('should return false when user lacks the role', async () => {
       const result = await hasRole(testUserId, testOrgId, ['owner']);
-      
+
       expect(result).toBe(false);
     });
   });
@@ -277,11 +252,7 @@ describe('Permission Middleware', () => {
     it('should allow access when permission exists', async () => {
       const middleware = requirePermission('users', 'read');
 
-      await middleware(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await middleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith();
       expect(mockNext).not.toHaveBeenCalledWith(expect.any(Error));
@@ -307,26 +278,20 @@ describe('Permission Middleware', () => {
         .select()
         .single();
 
-      await supabase
-        .from('user_organizations')
-        .insert({
-          user_id: limitedUser!.id,
-          organization_id: testOrgId,
-          role_id: memberRole!.id,
-          role: 'member',
-          is_active: true,
-        });
+      await supabase.from('user_organizations').insert({
+        user_id: limitedUser!.id,
+        organization_id: testOrgId,
+        role_id: memberRole!.id,
+        role: 'member',
+        is_active: true,
+      });
 
       // Test with limited user
       mockReq.authUser!.id = limitedUser!.id;
-      
+
       const middleware = requirePermission('organization', 'manage_roles');
 
-      await middleware(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await middleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -335,25 +300,15 @@ describe('Permission Middleware', () => {
       );
 
       // Clean up
-      await supabase
-        .from('user_organizations')
-        .delete()
-        .eq('user_id', limitedUser!.id);
-      
-      await supabase
-        .from('users')
-        .delete()
-        .eq('id', limitedUser!.id);
+      await supabase.from('user_organizations').delete().eq('user_id', limitedUser!.id);
+
+      await supabase.from('users').delete().eq('id', limitedUser!.id);
     });
   });
 
   describe('loadUserPermissions middleware with real data', () => {
     it('should load all user permissions into request', async () => {
-      await loadUserPermissions(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await loadUserPermissions(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith();
       expect((mockReq as any).userPermissions).toBeDefined();
@@ -380,34 +335,26 @@ describe('Permission Middleware', () => {
 
     afterAll(async () => {
       if (otherOrgId) {
-        await supabase
-          .from('organizations')
-          .delete()
-          .eq('id', otherOrgId);
+        await supabase.from('organizations').delete().eq('id', otherOrgId);
       }
     });
 
     it('should not grant permissions across organizations', async () => {
       // User has admin in testOrgId but should have no permissions in otherOrgId
-      const result = await checkPermission(
-        testUserId,
-        otherOrgId,
-        'users',
-        'read'
-      );
+      const result = await checkPermission(testUserId, otherOrgId, 'users', 'read');
 
       expect(result).toBe(false);
     });
 
     it('should not return role for other organizations', async () => {
       const role = await getUserRole(testUserId, otherOrgId);
-      
+
       expect(role).toBeNull();
     });
 
     it('should return empty permissions for other organizations', async () => {
       const permissions = await getUserPermissions(testUserId, otherOrgId);
-      
+
       expect(permissions).toEqual([]);
     });
   });

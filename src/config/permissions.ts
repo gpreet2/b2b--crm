@@ -30,7 +30,7 @@ export const RESOURCES = {
   WORKOUTS: 'workouts',
 } as const;
 
-export type ResourceType = typeof RESOURCES[keyof typeof RESOURCES];
+export type ResourceType = (typeof RESOURCES)[keyof typeof RESOURCES];
 
 /**
  * Available actions per resource
@@ -42,7 +42,7 @@ export const ACTIONS = {
     VIEW_DETAILED: 'view_detailed',
     EXPORT: 'export',
   },
-  
+
   // Client actions
   CLIENTS: {
     VIEW: 'view',
@@ -51,14 +51,14 @@ export const ACTIONS = {
     DELETE: 'delete',
     EXPORT: 'export',
   },
-  
+
   // Document actions
   DOCUMENTS: {
     VIEW: 'view',
     UPLOAD: 'upload',
     DELETE: 'delete',
   },
-  
+
   // Event actions
   EVENTS: {
     VIEW: 'view',
@@ -68,7 +68,7 @@ export const ACTIONS = {
     BOOK: 'book',
     CANCEL_BOOKING: 'cancel_booking',
   },
-  
+
   // Membership actions
   MEMBERSHIPS: {
     VIEW: 'view',
@@ -77,13 +77,13 @@ export const ACTIONS = {
     DELETE: 'delete',
     SUSPEND: 'suspend',
   },
-  
+
   // Notification actions
   NOTIFICATIONS: {
     SEND: 'send',
     MANAGE_TEMPLATES: 'manage_templates',
   },
-  
+
   // Organization actions
   ORGANIZATION: {
     VIEW: 'view',
@@ -92,14 +92,14 @@ export const ACTIONS = {
     MANAGE_ROLES: 'manage_roles',
     MANAGE_STAFF: 'manage_staff',
   },
-  
+
   // System actions
   SYSTEM: {
     ACCESS_ADMIN_PANEL: 'access_admin_panel',
     MANAGE_INTEGRATIONS: 'manage_integrations',
     VIEW_AUDIT_LOGS: 'view_audit_logs',
   },
-  
+
   // Workout actions
   WORKOUTS: {
     VIEW: 'view',
@@ -120,7 +120,7 @@ export const PERMISSION_DEFINITIONS: Record<string, Record<string, string>> = {
     [ACTIONS.ANALYTICS.VIEW_DETAILED]: 'View detailed analytics',
     [ACTIONS.ANALYTICS.EXPORT]: 'Export analytics data',
   },
-  
+
   [RESOURCES.CLIENTS]: {
     [ACTIONS.CLIENTS.VIEW]: 'View client profiles and information',
     [ACTIONS.CLIENTS.CREATE]: 'Create new client accounts',
@@ -128,13 +128,13 @@ export const PERMISSION_DEFINITIONS: Record<string, Record<string, string>> = {
     [ACTIONS.CLIENTS.DELETE]: 'Delete client accounts',
     [ACTIONS.CLIENTS.EXPORT]: 'Export client data',
   },
-  
+
   [RESOURCES.DOCUMENTS]: {
     [ACTIONS.DOCUMENTS.VIEW]: 'View documents',
     [ACTIONS.DOCUMENTS.UPLOAD]: 'Upload new documents',
     [ACTIONS.DOCUMENTS.DELETE]: 'Delete documents',
   },
-  
+
   [RESOURCES.EVENTS]: {
     [ACTIONS.EVENTS.VIEW]: 'View events and classes',
     [ACTIONS.EVENTS.CREATE]: 'Create new events and classes',
@@ -143,7 +143,7 @@ export const PERMISSION_DEFINITIONS: Record<string, Record<string, string>> = {
     [ACTIONS.EVENTS.BOOK]: 'Book clients into events',
     [ACTIONS.EVENTS.CANCEL_BOOKING]: 'Cancel event bookings',
   },
-  
+
   [RESOURCES.MEMBERSHIPS]: {
     [ACTIONS.MEMBERSHIPS.VIEW]: 'View membership information',
     [ACTIONS.MEMBERSHIPS.CREATE]: 'Create new memberships',
@@ -151,12 +151,12 @@ export const PERMISSION_DEFINITIONS: Record<string, Record<string, string>> = {
     [ACTIONS.MEMBERSHIPS.DELETE]: 'Delete memberships',
     [ACTIONS.MEMBERSHIPS.SUSPEND]: 'Suspend or resume memberships',
   },
-  
+
   [RESOURCES.NOTIFICATIONS]: {
     [ACTIONS.NOTIFICATIONS.SEND]: 'Send notifications to users',
     [ACTIONS.NOTIFICATIONS.MANAGE_TEMPLATES]: 'Manage notification templates',
   },
-  
+
   [RESOURCES.ORGANIZATION]: {
     [ACTIONS.ORGANIZATION.VIEW]: 'View organization settings',
     [ACTIONS.ORGANIZATION.UPDATE]: 'Update organization settings',
@@ -164,13 +164,13 @@ export const PERMISSION_DEFINITIONS: Record<string, Record<string, string>> = {
     [ACTIONS.ORGANIZATION.MANAGE_ROLES]: 'Manage roles and permissions',
     [ACTIONS.ORGANIZATION.MANAGE_STAFF]: 'Manage staff members',
   },
-  
+
   [RESOURCES.SYSTEM]: {
     [ACTIONS.SYSTEM.ACCESS_ADMIN_PANEL]: 'Access admin panel',
     [ACTIONS.SYSTEM.MANAGE_INTEGRATIONS]: 'Manage third-party integrations',
     [ACTIONS.SYSTEM.VIEW_AUDIT_LOGS]: 'View audit logs',
   },
-  
+
   [RESOURCES.WORKOUTS]: {
     [ACTIONS.WORKOUTS.VIEW]: 'View workout plans and history',
     [ACTIONS.WORKOUTS.CREATE]: 'Create workout plans',
@@ -190,7 +190,9 @@ export function getPermissionString(resource: string, action: string): string {
 /**
  * Helper function to parse permission string
  */
-export function parsePermissionString(permission: string): { resource: string; action: string } | null {
+export function parsePermissionString(
+  permission: string
+): { resource: string; action: string } | null {
   const parts = permission.split('.');
   if (parts.length !== 2) {
     return null;
@@ -213,7 +215,7 @@ export function isValidPermission(resource: string, action: string): boolean {
  */
 export function getAllPermissions(): Permission[] {
   const permissions: Permission[] = [];
-  
+
   for (const [resource, actions] of Object.entries(PERMISSION_DEFINITIONS)) {
     for (const [action, description] of Object.entries(actions)) {
       permissions.push({
@@ -223,7 +225,7 @@ export function getAllPermissions(): Permission[] {
       });
     }
   }
-  
+
   return permissions;
 }
 
@@ -235,7 +237,7 @@ export function getPermissionsByResource(resource: string): Permission[] {
   if (!actions) {
     return [];
   }
-  
+
   return Object.entries(actions).map(([action, description]) => ({
     resource,
     action,

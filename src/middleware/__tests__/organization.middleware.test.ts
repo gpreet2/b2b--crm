@@ -1,5 +1,8 @@
-import { Response, NextFunction } from 'express';
 import { createClient } from '@supabase/supabase-js';
+import { Response, NextFunction } from 'express';
+
+import { AuthError, PermissionError } from '@/errors';
+
 import {
   loadOrganizationContext,
   verifyOrganizationAccess,
@@ -11,7 +14,7 @@ import {
   requireFeature,
 } from '../organization.middleware';
 import { AuthenticatedRequest } from '../permissions.middleware';
-import { AuthError, PermissionError } from '@/errors';
+
 
 describe('Organization Middleware', () => {
   let supabase: ReturnType<typeof createClient>;
@@ -79,14 +82,12 @@ describe('Organization Middleware', () => {
       .single();
 
     // Assign user to first organization
-    const { error: assignError } = await supabase
-      .from('user_organizations')
-      .insert({
-        user_id: testUserId,
-        organization_id: testOrgId,
-        role_id: adminRole!.id,
-        is_active: true,
-      });
+    const { error: assignError } = await supabase.from('user_organizations').insert({
+      user_id: testUserId,
+      organization_id: testOrgId,
+      role_id: adminRole!.id,
+      is_active: true,
+    });
 
     if (assignError) {
       console.error('Failed to assign user to organization:', assignError);
@@ -96,20 +97,11 @@ describe('Organization Middleware', () => {
 
   afterAll(async () => {
     // Clean up test data
-    await supabase
-      .from('user_organizations')
-      .delete()
-      .eq('user_id', testUserId);
+    await supabase.from('user_organizations').delete().eq('user_id', testUserId);
 
-    await supabase
-      .from('users')
-      .delete()
-      .eq('id', testUserId);
+    await supabase.from('users').delete().eq('id', testUserId);
 
-    await supabase
-      .from('organizations')
-      .delete()
-      .in('id', [testOrgId, secondOrgId]);
+    await supabase.from('organizations').delete().in('id', [testOrgId, secondOrgId]);
   });
 
   beforeEach(() => {
@@ -124,22 +116,18 @@ describe('Organization Middleware', () => {
       authOrganizationId: testOrgId,
       headers: {},
     };
-    
+
     mockRes = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
     };
-    
+
     mockNext = jest.fn();
   });
 
   describe('loadOrganizationContext', () => {
     it('should load organization context successfully', async () => {
-      await loadOrganizationContext(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await loadOrganizationContext(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith();
       expect(mockReq.organizationContext).toBeDefined();
@@ -153,11 +141,7 @@ describe('Organization Middleware', () => {
       mockReq.authOrganizationId = undefined;
       mockReq.headers = { 'x-organization-id': testOrgId };
 
-      await loadOrganizationContext(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await loadOrganizationContext(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith();
       expect(mockReq.organizationContext?.id).toBe(testOrgId);
@@ -166,11 +150,7 @@ describe('Organization Middleware', () => {
     it('should fail if user not authenticated', async () => {
       mockReq.authUser = undefined;
 
-      await loadOrganizationContext(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await loadOrganizationContext(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -183,11 +163,7 @@ describe('Organization Middleware', () => {
       mockReq.authOrganizationId = undefined;
       mockReq.headers = {};
 
-      await loadOrganizationContext(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await loadOrganizationContext(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -199,11 +175,7 @@ describe('Organization Middleware', () => {
     it('should fail if user not authorized for organization', async () => {
       mockReq.authOrganizationId = secondOrgId; // User not assigned to this org
 
-      await loadOrganizationContext(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await loadOrganizationContext(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -252,7 +224,7 @@ describe('Organization Middleware', () => {
   describe('getUserOrganizations', () => {
     it('should return all active organizations for user', async () => {
       const orgs = await getUserOrganizations(testUserId);
-      
+
       expect(orgs).toHaveLength(1);
       expect(orgs[0].id).toBe(testOrgId);
       expect(orgs[0].name).toBe('Test Organization 1');
@@ -273,18 +245,16 @@ describe('Organization Middleware', () => {
         .eq('slug', 'member')
         .single();
 
-      await supabase
-        .from('user_organizations')
-        .insert({
-          user_id: testUserId,
-          organization_id: secondOrgId,
-          role_id: memberRole!.id,
-          is_active: true,
-        });
+      await supabase.from('user_organizations').insert({
+        user_id: testUserId,
+        organization_id: secondOrgId,
+        role_id: memberRole!.id,
+        is_active: true,
+      });
 
       const orgs = await getUserOrganizations(testUserId);
       expect(orgs).toHaveLength(2);
-      
+
       const orgIds = orgs.map(o => o.id);
       expect(orgIds).toContain(testOrgId);
       expect(orgIds).toContain(secondOrgId);
@@ -300,11 +270,7 @@ describe('Organization Middleware', () => {
 
   describe('requireOrganization middleware', () => {
     it('should pass if organization context exists', () => {
-      requireOrganization(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      requireOrganization(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith();
     });
@@ -313,11 +279,7 @@ describe('Organization Middleware', () => {
       mockReq.authOrganizationId = undefined;
       mockReq.headers = {};
 
-      requireOrganization(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      requireOrganization(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -330,7 +292,7 @@ describe('Organization Middleware', () => {
   describe('Organization settings and features', () => {
     it('should get organization settings', async () => {
       const settings = await getOrganizationSettings(testOrgId);
-      
+
       expect(settings).toBeDefined();
       expect(settings?.features?.advancedAnalytics).toBe(true);
       expect(settings?.features?.customReports).toBe(false);
@@ -340,7 +302,7 @@ describe('Organization Middleware', () => {
       const analyticsEnabled = await isFeatureEnabled(testOrgId, 'advancedAnalytics');
       const reportsEnabled = await isFeatureEnabled(testOrgId, 'customReports');
       const unknownEnabled = await isFeatureEnabled(testOrgId, 'unknownFeature');
-      
+
       expect(analyticsEnabled).toBe(true);
       expect(reportsEnabled).toBe(false);
       expect(unknownEnabled).toBe(false);
@@ -349,11 +311,7 @@ describe('Organization Middleware', () => {
     it('should require feature middleware', async () => {
       const middleware = requireFeature('advancedAnalytics');
 
-      await middleware(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await middleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith();
     });
@@ -361,11 +319,7 @@ describe('Organization Middleware', () => {
     it('should block if feature not enabled', async () => {
       const middleware = requireFeature('customReports');
 
-      await middleware(
-        mockReq as AuthenticatedRequest,
-        mockRes as Response,
-        mockNext
-      );
+      await middleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalledWith(
         expect.objectContaining({

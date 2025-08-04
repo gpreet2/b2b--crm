@@ -22,7 +22,7 @@ export const DEFAULT_ROLES = {
   MEMBER: 'member',
 } as const;
 
-export type DefaultRoleType = typeof DEFAULT_ROLES[keyof typeof DEFAULT_ROLES];
+export type DefaultRoleType = (typeof DEFAULT_ROLES)[keyof typeof DEFAULT_ROLES];
 
 /**
  * Default role definitions
@@ -71,17 +71,9 @@ export const ROLE_HIERARCHY: Record<DefaultRoleType, DefaultRoleType[]> = {
     DEFAULT_ROLES.FRONT_DESK,
     DEFAULT_ROLES.MEMBER,
   ],
-  [DEFAULT_ROLES.ADMIN]: [
-    DEFAULT_ROLES.TRAINER,
-    DEFAULT_ROLES.FRONT_DESK,
-    DEFAULT_ROLES.MEMBER,
-  ],
-  [DEFAULT_ROLES.TRAINER]: [
-    DEFAULT_ROLES.MEMBER,
-  ],
-  [DEFAULT_ROLES.FRONT_DESK]: [
-    DEFAULT_ROLES.MEMBER,
-  ],
+  [DEFAULT_ROLES.ADMIN]: [DEFAULT_ROLES.TRAINER, DEFAULT_ROLES.FRONT_DESK, DEFAULT_ROLES.MEMBER],
+  [DEFAULT_ROLES.TRAINER]: [DEFAULT_ROLES.MEMBER],
+  [DEFAULT_ROLES.FRONT_DESK]: [DEFAULT_ROLES.MEMBER],
   [DEFAULT_ROLES.MEMBER]: [],
 };
 
@@ -123,7 +115,7 @@ export const ROLE_PERMISSIONS = {
     // All permissions - owner has access to everything
     '*.*',
   ],
-  
+
   [DEFAULT_ROLES.ADMIN]: [
     // All permissions except billing
     'analytics.*',
@@ -139,7 +131,7 @@ export const ROLE_PERMISSIONS = {
     'system.*',
     'workouts.*',
   ],
-  
+
   [DEFAULT_ROLES.TRAINER]: [
     // Client and event management
     'clients.view',
@@ -154,7 +146,7 @@ export const ROLE_PERMISSIONS = {
     'memberships.create',
     'memberships.update',
   ],
-  
+
   [DEFAULT_ROLES.FRONT_DESK]: [
     // Basic operations
     'clients.view',
@@ -165,7 +157,7 @@ export const ROLE_PERMISSIONS = {
     'memberships.view',
     'analytics.view_basic',
   ],
-  
+
   [DEFAULT_ROLES.MEMBER]: [
     // View-only access
     'events.view',

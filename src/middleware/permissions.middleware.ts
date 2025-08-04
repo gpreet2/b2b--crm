@@ -1,7 +1,8 @@
-import { Request, Response, NextFunction } from 'express';
 import { createClient } from '@supabase/supabase-js';
-import { logger } from '@/utils/logger';
+import { Request, Response, NextFunction } from 'express';
+
 import { AuthError, PermissionError } from '@/errors';
+import { logger } from '@/utils/logger';
 
 // Extend Express Request to include auth data
 export interface AuthenticatedRequest extends Request {
@@ -82,11 +83,7 @@ export async function checkPermission(
  * Middleware to require specific permission
  */
 export function requirePermission(resource: string, action: string) {
-  return async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
+  return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       // Check if user is authenticated
       if (!req.authUser) {
@@ -107,9 +104,7 @@ export function requirePermission(resource: string, action: string) {
       );
 
       if (!hasPermission) {
-        throw new PermissionError(
-          `Permission denied: requires ${resource}.${action}`
-        );
+        throw new PermissionError(`Permission denied: requires ${resource}.${action}`);
       }
 
       next();
@@ -153,19 +148,18 @@ export async function getUserPermissions(
 /**
  * Get user's role in organization
  */
-export async function getUserRole(
-  userId: string,
-  organizationId: string
-): Promise<string | null> {
+export async function getUserRole(userId: string, organizationId: string): Promise<string | null> {
   try {
     const { data, error } = await getSupabaseClient()
       .from('user_organizations')
-      .select(`
+      .select(
+        `
         role:roles(
           slug,
           name
         )
-      `)
+      `
+      )
       .eq('user_id', userId)
       .eq('organization_id', organizationId)
       .eq('is_active', true)
@@ -203,12 +197,8 @@ export async function hasRole(
  */
 export function requireRole(role: string | string[]) {
   const roles = Array.isArray(role) ? role : [role];
-  
-  return async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
+
+  return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.authUser) {
         throw new AuthError('Authentication required');
@@ -218,16 +208,10 @@ export function requireRole(role: string | string[]) {
         throw new PermissionError('Organization context required');
       }
 
-      const hasRequiredRole = await hasRole(
-        req.authUser.id,
-        req.authOrganizationId,
-        roles
-      );
+      const hasRequiredRole = await hasRole(req.authUser.id, req.authOrganizationId, roles);
 
       if (!hasRequiredRole) {
-        throw new PermissionError(
-          `Requires one of these roles: ${roles.join(', ')}`
-        );
+        throw new PermissionError(`Requires one of these roles: ${roles.join(', ')}`);
       }
 
       next();
@@ -247,10 +231,7 @@ export async function loadUserPermissions(
 ) {
   try {
     if (req.authUser && req.authOrganizationId) {
-      const permissions = await getUserPermissions(
-        req.authUser.id,
-        req.authOrganizationId
-      );
+      const permissions = await getUserPermissions(req.authUser.id, req.authOrganizationId);
 
       // Add permissions to request object for easy access
       interface ExtendedRequest extends AuthenticatedRequest {

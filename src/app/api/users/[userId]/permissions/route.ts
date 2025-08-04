@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@workos-inc/authkit-nextjs';
-import { getUserPermissions, getUserRole } from '@/middleware/permissions.middleware';
-import { checkPermission } from '@/middleware/permissions.middleware';
+import { NextRequest, NextResponse } from 'next/server';
+
+import { getUserPermissions, getUserRole , checkPermission } from '@/middleware/permissions.middleware';
 
 interface RouteParams {
   params: {
@@ -16,7 +16,7 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const auth = await withAuth({ ensureSignedIn: false });
-    
+
     if (!auth.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
@@ -42,12 +42,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // Get user's role
     const userRole = await getUserRole(userId, auth.organizationId);
-    
+
     if (!userRole) {
-      return NextResponse.json(
-        { error: 'User not found in organization' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found in organization' }, { status: 404 });
     }
 
     // Get user's permissions
@@ -55,7 +52,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     // Group permissions by resource
     const permissionsByResource: Record<string, { action: string; granted: boolean }[]> = {};
-    
+
     permissions.forEach(perm => {
       if (!permissionsByResource[perm.resource]) {
         permissionsByResource[perm.resource] = [];
@@ -75,9 +72,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     console.error('Get user permissions error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -1,13 +1,19 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@workos-inc/authkit-nextjs';
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
 import { getSupabaseClient } from '@/config/supabase';
 import { checkPermission } from '@/middleware/permissions.middleware';
-import { z } from 'zod';
+
 
 // Schema for creating a new role
 const createRoleSchema = z.object({
   name: z.string().min(1).max(100),
-  slug: z.string().min(1).max(50).regex(/^[a-z0-9_]+$/),
+  slug: z
+    .string()
+    .min(1)
+    .max(50)
+    .regex(/^[a-z0-9_]+$/),
   description: z.string().optional(),
 });
 
@@ -18,7 +24,7 @@ const createRoleSchema = z.object({
 export async function GET() {
   try {
     const auth = await withAuth({ ensureSignedIn: false });
-    
+
     if (!auth.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
@@ -30,18 +36,17 @@ export async function GET() {
     // Get all roles with their permission counts
     const { data: roles, error } = await getSupabaseClient()
       .from('roles')
-      .select(`
+      .select(
+        `
         *,
         role_permissions(count)
-      `)
+      `
+      )
       .order('name', { ascending: true });
 
     if (error) {
       console.error('Error fetching roles:', error);
-      return NextResponse.json(
-        { error: 'Failed to fetch roles' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch roles' }, { status: 500 });
     }
 
     // Transform the data to include permission count
@@ -57,10 +62,7 @@ export async function GET() {
     });
   } catch (error) {
     console.error('Roles endpoint error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -71,7 +73,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const auth = await withAuth({ ensureSignedIn: false });
-    
+
     if (!auth.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
@@ -104,10 +106,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existing) {
-      return NextResponse.json(
-        { error: 'Role with this slug already exists' },
-        { status: 409 }
-      );
+      return NextResponse.json({ error: 'Role with this slug already exists' }, { status: 409 });
     }
 
     // Create the role
@@ -122,10 +121,7 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error('Error creating role:', error);
-      return NextResponse.json(
-        { error: 'Failed to create role' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to create role' }, { status: 500 });
     }
 
     return NextResponse.json(newRole, { status: 201 });
@@ -136,11 +132,8 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    
+
     console.error('Create role error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Test script for organization switcher endpoint
  * Run with: npx tsx src/app/api/auth/switch-organization/test-switch-org.ts
@@ -5,16 +6,16 @@
 
 async function testOrgSwitcher() {
   const baseUrl = 'http://localhost:3000';
-  
+
   console.log('🧪 Testing Organization Switcher Endpoint\n');
-  
+
   // Test 1: GET without authentication
   console.log('1️⃣ Testing GET without authentication...');
   try {
     const response = await fetch(`${baseUrl}/api/auth/switch-organization`, {
       method: 'GET',
     });
-    
+
     console.log(`   Status: ${response.status}`);
     const data = await response.json();
     console.log(`   Response:`, data);
@@ -33,7 +34,7 @@ async function testOrgSwitcher() {
       },
       body: JSON.stringify({ organizationId: 'org_test123' }),
     });
-    
+
     console.log(`   Status: ${response.status}`);
     const data = await response.json();
     console.log(`   Response:`, data);
@@ -52,7 +53,7 @@ async function testOrgSwitcher() {
       },
       body: JSON.stringify({ invalid: 'data' }),
     });
-    
+
     console.log(`   Status: ${response.status}`);
     const data = await response.json();
     console.log(`   Response:`, data);

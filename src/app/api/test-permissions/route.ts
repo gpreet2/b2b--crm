@@ -1,12 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { withAuth } from '@workos-inc/authkit-nextjs';
-import { checkPermission, getUserPermissions, getUserRole } from '@/middleware/permissions.middleware';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+import {
+  checkPermission,
+  getUserPermissions,
+  getUserRole,
+} from '@/middleware/permissions.middleware';
+
+export async function GET(_request: NextRequest) {
   try {
     // Get authenticated user
     const auth = await withAuth({ ensureSignedIn: false });
-    
+
     if (!auth.user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
@@ -16,12 +21,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Test permission check
-    const canReadUsers = await checkPermission(
-      auth.user.id,
-      auth.organizationId,
-      'users',
-      'read'
-    );
+    const canReadUsers = await checkPermission(auth.user.id, auth.organizationId, 'users', 'read');
 
     const canWriteUsers = await checkPermission(
       auth.user.id,
@@ -38,16 +38,10 @@ export async function GET(request: NextRequest) {
     );
 
     // Get all user permissions
-    const permissions = await getUserPermissions(
-      auth.user.id,
-      auth.organizationId
-    );
+    const permissions = await getUserPermissions(auth.user.id, auth.organizationId);
 
     // Get user role
-    const role = await getUserRole(
-      auth.user.id,
-      auth.organizationId
-    );
+    const role = await getUserRole(auth.user.id, auth.organizationId);
 
     return NextResponse.json({
       user: {
@@ -65,9 +59,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Permission test error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

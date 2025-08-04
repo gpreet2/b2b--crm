@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodError, ZodSchema } from 'zod';
+
 import { ValidationError } from '../errors/validation.error';
 
 export interface ValidationOptions {
@@ -64,7 +65,7 @@ export function validate(options: ValidationOptions) {
           value: result.data,
           writable: true,
           enumerable: true,
-          configurable: true
+          configurable: true,
         });
       }
 
@@ -87,15 +88,15 @@ export function validate(options: ValidationOptions) {
 
 function formatZodError(error: ZodError): Record<string, string[]> {
   const errors: Record<string, string[]> = {};
-  
-  error.issues.forEach((issue) => {
+
+  error.issues.forEach(issue => {
     const path = issue.path.join('.');
     if (!errors[path]) {
       errors[path] = [];
     }
     errors[path].push(issue.message);
   });
-  
+
   return errors;
 }
 
@@ -103,18 +104,21 @@ function formatZodError(error: ZodError): Record<string, string[]> {
 export const schemas = {
   // UUID validation
   uuid: z.string().uuid({ message: 'Invalid UUID format' }),
-  
+
   // Email validation
-  email: z.string().email({ message: 'Invalid email address' }).transform(val => val.toLowerCase()),
-  
+  email: z
+    .string()
+    .email({ message: 'Invalid email address' })
+    .transform(val => val.toLowerCase()),
+
   // Phone validation (E.164 format)
-  phone: z.string().regex(/^\+[1-9]\d{1,14}$/, { 
-    message: 'Phone number must be in E.164 format (e.g., +1234567890)' 
+  phone: z.string().regex(/^\+[1-9]\d{1,14}$/, {
+    message: 'Phone number must be in E.164 format (e.g., +1234567890)',
   }),
-  
+
   // Organization ID from headers
   organizationId: z.string().uuid({ message: 'Invalid organization ID' }),
-  
+
   // Pagination
   pagination: z.object({
     page: z.coerce.number().int().min(1).default(1),
@@ -122,31 +126,37 @@ export const schemas = {
     sortBy: z.string().optional(),
     sortOrder: z.enum(['asc', 'desc']).default('asc'),
   }),
-  
+
   // Date range
-  dateRange: z.object({
-    startDate: z.string().datetime().optional(),
-    endDate: z.string().datetime().optional(),
-  }).refine((data) => {
-    if (data.startDate && data.endDate) {
-      return new Date(data.startDate) <= new Date(data.endDate);
-    }
-    return true;
-  }, {
-    message: 'Start date must be before or equal to end date',
-  }),
-  
+  dateRange: z
+    .object({
+      startDate: z.string().datetime().optional(),
+      endDate: z.string().datetime().optional(),
+    })
+    .refine(
+      data => {
+        if (data.startDate && data.endDate) {
+          return new Date(data.startDate) <= new Date(data.endDate);
+        }
+        return true;
+      },
+      {
+        message: 'Start date must be before or equal to end date',
+      }
+    ),
+
   // Money amount (in cents)
   money: z.number().int().min(0).max(999999999), // Max $9,999,999.99
-  
+
   // Percentage (0-100)
   percentage: z.number().min(0).max(100),
-  
+
   // URL validation
   url: z.string().url({ message: 'Invalid URL format' }),
-  
+
   // Strong password
-  password: z.string()
+  password: z
+    .string()
     .min(8, 'Password must be at least 8 characters')
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
     .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
@@ -177,18 +187,14 @@ export function array<T extends ZodSchema>(schema: T, options?: { min?: number; 
 }
 
 // Middleware to require organization context
-export function requireOrganizationContext(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function requireOrganizationContext(req: Request, res: Response, next: NextFunction) {
   const organizationId = req.headers['x-organization-id'] as string;
-  
+
   if (!organizationId) {
     const errors = { 'x-organization-id': ['Header is required'] };
     return next(new ValidationError('Organization context required', errors));
   }
-  
+
   try {
     schemas.organizationId.parse(organizationId);
     (req as any).organizationId = organizationId;

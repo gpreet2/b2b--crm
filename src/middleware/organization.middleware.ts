@@ -1,6 +1,8 @@
 import { Response, NextFunction } from 'express';
+
 import { getSupabaseClient } from '@/config/supabase';
 import { AuthError, PermissionError } from '@/errors';
+
 import { AuthenticatedRequest } from './permissions.middleware';
 
 export interface OrganizationContext {
@@ -25,8 +27,8 @@ export async function loadOrganizationContext(
       throw new AuthError('User not authenticated');
     }
 
-    const organizationId = req.authOrganizationId || req.headers['x-organization-id'] as string;
-    
+    const organizationId = req.authOrganizationId || (req.headers['x-organization-id'] as string);
+
     if (!organizationId) {
       throw new AuthError('No organization context provided');
     }
@@ -146,11 +148,11 @@ export async function getUserOrganizations(userId: string): Promise<Organization
 
     // Combine the data
     const contexts: OrganizationContext[] = [];
-    
+
     for (const membership of memberships) {
       const org = orgs.find(o => o.id === membership.organization_id);
       const role = roles.find(r => r.id === membership.role_id);
-      
+
       if (org && role) {
         contexts.push({
           id: org.id,
@@ -162,7 +164,7 @@ export async function getUserOrganizations(userId: string): Promise<Organization
         });
       }
     }
-    
+
     return contexts;
   } catch {
     return [];
@@ -181,7 +183,7 @@ export function requireOrganization(
     next(new AuthError('Organization context required'));
     return;
   }
-  
+
   next();
 }
 
@@ -192,11 +194,7 @@ export function requireOrganization(
 export function validateCrossOrgAccess(resourceType: string) {
   // Keep the parameter for future use when implementing cross-org permissions
   void resourceType;
-  return async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  return async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.authUser || !req.authOrganizationId) {
         throw new AuthError('Authentication required');
@@ -205,7 +203,7 @@ export function validateCrossOrgAccess(resourceType: string) {
       // For now, cross-org access is determined by having access to multiple organizations
       // In the future, this will check a cross_org_permissions table
       const userOrgs = await getUserOrganizations(req.authUser.id);
-      
+
       if (userOrgs.length <= 1) {
         throw new PermissionError('Cross-organization access not permitted');
       }
@@ -255,18 +253,14 @@ export async function isFeatureEnabled(
  * Middleware to check if a feature is enabled
  */
 export function requireFeature(featureKey: string) {
-  return async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> => {
+  return async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
     try {
       if (!req.authOrganizationId) {
         throw new AuthError('Organization context required');
       }
 
       const enabled = await isFeatureEnabled(req.authOrganizationId, featureKey);
-      
+
       if (!enabled) {
         throw new PermissionError(`Feature '${featureKey}' is not enabled for this organization`);
       }

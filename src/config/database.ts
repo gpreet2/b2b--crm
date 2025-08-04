@@ -1,5 +1,6 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Pool, PoolConfig } from 'pg';
+
 import { logger } from '../utils/logger';
 import { retry, isRetryableError, CircuitBreaker } from '../utils/retry';
 
@@ -24,7 +25,7 @@ export interface ConnectionPoolMetrics {
 class DatabaseConnectionPool {
   private supabaseClient: SupabaseClient | null = null;
   private pgPool: Pool | null = null;
-  private config: DatabaseConfig;
+  private readonly config: DatabaseConfig;
   private metrics: ConnectionPoolMetrics = {
     totalConnections: 0,
     idleConnections: 0,
@@ -36,8 +37,8 @@ class DatabaseConnectionPool {
     isHealthy: false,
   };
   private healthCheckInterval: NodeJS.Timeout | null = null;
-  private queryTimes: number[] = [];
-  private circuitBreaker: CircuitBreaker;
+  private readonly queryTimes: number[] = [];
+  private readonly circuitBreaker: CircuitBreaker;
 
   constructor(config: DatabaseConfig) {
     this.config = config;
@@ -85,7 +86,7 @@ class DatabaseConnectionPool {
 
             // Set up pool event listeners
             this.setupPoolEventListeners();
-            
+
             // Test the connection
             const client = await this.pgPool.connect();
             try {
@@ -111,7 +112,7 @@ class DatabaseConnectionPool {
         maxAttempts: 5,
         initialDelayMs: 2000,
         maxDelayMs: 30000,
-        shouldRetry: (error) => isRetryableError(error),
+        shouldRetry: error => isRetryableError(error),
         onRetry: (error, attempt) => {
           logger.warn('Retrying database initialization', {
             attempt,
@@ -140,7 +141,7 @@ class DatabaseConnectionPool {
       logger.debug('Connection released to pool');
     });
 
-    this.pgPool.on('error', (err) => {
+    this.pgPool.on('error', err => {
       logger.error('Database pool error', { error: err });
       this.metrics.isHealthy = false;
     });
@@ -167,11 +168,8 @@ class DatabaseConnectionPool {
     try {
       // Check Supabase client
       if (this.supabaseClient) {
-        const { error } = await this.supabaseClient
-          .from('_health_check')
-          .select('count')
-          .limit(1);
-        
+        const { error } = await this.supabaseClient.from('_health_check').select('count').limit(1);
+
         if (error && error.code !== 'PGRST116') {
           // PGRST116 means table doesn't exist, which is OK for health check
           isHealthy = false;
@@ -194,7 +192,7 @@ class DatabaseConnectionPool {
 
       this.metrics.isHealthy = isHealthy;
       this.metrics.lastHealthCheck = new Date();
-      
+
       const duration = Date.now() - startTime;
       logger.debug('Health check completed', {
         isHealthy,
@@ -237,7 +235,7 @@ class DatabaseConnectionPool {
             maxAttempts: 3,
             initialDelayMs: 500,
             maxDelayMs: 5000,
-            shouldRetry: (error) => isRetryableError(error),
+            shouldRetry: error => isRetryableError(error),
             onRetry: (error, attempt) => {
               logger.warn('Retrying database query', {
                 sql: sql.substring(0, 100),
@@ -248,14 +246,15 @@ class DatabaseConnectionPool {
           }
         )
       );
-      
+
       // Track query time
       const queryTime = Date.now() - startTime;
       this.queryTimes.push(queryTime);
       if (this.queryTimes.length > 100) {
         this.queryTimes.shift();
       }
-      this.metrics.avgQueryTime = this.queryTimes.reduce((a, b) => a + b, 0) / this.queryTimes.length;
+      this.metrics.avgQueryTime =
+        this.queryTimes.reduce((a, b) => a + b, 0) / this.queryTimes.length;
 
       logger.debug('Query executed', {
         sql: sql.substring(0, 100),
@@ -276,7 +275,7 @@ class DatabaseConnectionPool {
   }
 
   getMetrics(): ConnectionPoolMetrics {
-    return { 
+    return {
       ...this.metrics,
       circuitBreaker: this.circuitBreaker.getMetrics(),
     } as ConnectionPoolMetrics & { circuitBreaker: any };

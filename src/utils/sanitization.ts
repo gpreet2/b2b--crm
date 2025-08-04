@@ -16,19 +16,19 @@ export interface SanitizeOptions {
  * Sanitize HTML content to prevent XSS attacks
  */
 export function sanitizeHtml(input: string, options: SanitizeOptions = {}): string {
-  const config: any = {
-    ALLOWED_TAGS: options.allowedTags || ['b', 'i', 'em', 'strong', 'a', 'p', 'br'],
-    ALLOWED_ATTR: options.allowedAttributes || { 'a': ['href', 'target'] },
+  const config: Record<string, unknown> = {
+    ALLOWED_TAGS: options.allowedTags ?? ['b', 'i', 'em', 'strong', 'a', 'p', 'br'],
+    ALLOWED_ATTR: options.allowedAttributes ?? { a: ['href', 'target'] },
     KEEP_CONTENT: !options.stripTags,
-    RETURN_TRUSTED_TYPE: false // Ensure we get a string back, not TrustedHTML
+    RETURN_TRUSTED_TYPE: false, // Ensure we get a string back, not TrustedHTML
   };
 
   let sanitized = DOMPurify.sanitize(input, config) as unknown as string;
-  
+
   if (options.maxLength && sanitized.length > options.maxLength) {
     sanitized = sanitized.substring(0, options.maxLength);
   }
-  
+
   return sanitized;
 }
 
@@ -38,20 +38,20 @@ export function sanitizeHtml(input: string, options: SanitizeOptions = {}): stri
 export function sanitizeText(input: string, maxLength?: number): string {
   // Remove any HTML tags and their content for script tags
   let sanitized = input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-  
+
   // Remove other HTML tags
   sanitized = sanitized.replace(/<[^>]*>/g, '');
-  
+
   // Normalize whitespace
   sanitized = sanitized.replace(/\s+/g, ' ').trim();
-  
+
   // Remove control characters except newlines and tabs
   sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
-  
+
   if (maxLength && sanitized.length > maxLength) {
     sanitized = sanitized.substring(0, maxLength);
   }
-  
+
   return sanitized;
 }
 
@@ -59,19 +59,16 @@ export function sanitizeText(input: string, maxLength?: number): string {
  * Sanitize and normalize email addresses
  */
 export function sanitizeEmail(email: string): string {
-  return email
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, '');
+  return email.toLowerCase().trim().replace(/\s+/g, '');
 }
 
 /**
  * Sanitize and normalize phone numbers
  */
-export function sanitizePhone(phone: string, addCountryCode: boolean = true): string {
+export function sanitizePhone(phone: string, addCountryCode = true): string {
   // Remove all non-numeric characters except +
   const cleaned = phone.replace(/[^\d+]/g, '');
-  
+
   // Ensure it starts with + for international format
   if (cleaned.length > 0 && !cleaned.startsWith('+') && addCountryCode) {
     // Assume US number if no country code
@@ -79,7 +76,7 @@ export function sanitizePhone(phone: string, addCountryCode: boolean = true): st
       return `+1${cleaned}`;
     }
   }
-  
+
   return cleaned;
 }
 
@@ -89,17 +86,17 @@ export function sanitizePhone(phone: string, addCountryCode: boolean = true): st
 export function sanitizeUrl(url: string): string {
   try {
     const parsed = new URL(url);
-    
+
     // Only allow http and https protocols
     if (!['http:', 'https:'].includes(parsed.protocol)) {
       throw new Error('Invalid protocol');
     }
-    
+
     // Prevent javascript: and data: URLs
     if (url.toLowerCase().includes('javascript:') || url.toLowerCase().includes('data:')) {
       throw new Error('Unsafe URL');
     }
-    
+
     return parsed.toString();
   } catch {
     // If URL parsing fails, return empty string
@@ -113,20 +110,20 @@ export function sanitizeUrl(url: string): string {
 export function sanitizeFileName(fileName: string): string {
   // Remove any path separators
   let sanitized = fileName.replace(/[\/\\]/g, '');
-  
+
   // Remove special characters that could cause issues
   sanitized = sanitized.replace(/[<>:"|?*\x00-\x1F]/g, '');
-  
+
   // Remove leading dots to prevent hidden files
   sanitized = sanitized.replace(/^\.+/, '');
-  
+
   // Limit length
   if (sanitized.length > 255) {
-    const extension = sanitized.split('.').pop() || '';
+    const extension = sanitized.split('.').pop() ?? '';
     const nameWithoutExt = sanitized.substring(0, sanitized.lastIndexOf('.'));
-    sanitized = nameWithoutExt.substring(0, 250 - extension.length) + '.' + extension;
+    sanitized = `${nameWithoutExt.substring(0, 250 - extension.length)}.${extension}`;
   }
-  
+
   return sanitized || 'unnamed';
 }
 
@@ -135,11 +132,11 @@ export function sanitizeFileName(fileName: string): string {
  */
 export function sanitizeHexColor(color: string): string {
   const cleaned = color.replace(/[^0-9A-Fa-f#]/g, '');
-  
+
   if (cleaned.match(/^#?[0-9A-Fa-f]{6}$/)) {
     return cleaned.startsWith('#') ? cleaned : `#${cleaned}`;
   }
-  
+
   // Return default color if invalid
   return '#000000';
 }
@@ -147,9 +144,9 @@ export function sanitizeHexColor(color: string): string {
 /**
  * Sanitize object by removing null/undefined values and empty strings
  */
-export function sanitizeObject<T extends Record<string, any>>(obj: T): Partial<T> {
+export function sanitizeObject<T extends Record<string, unknown>>(obj: T): Partial<T> {
   const cleaned: Partial<T> = {};
-  
+
   for (const [key, value] of Object.entries(obj)) {
     if (value !== null && value !== undefined && value !== '') {
       if (typeof value === 'string') {
@@ -161,7 +158,7 @@ export function sanitizeObject<T extends Record<string, any>>(obj: T): Partial<T
       }
     }
   }
-  
+
   return cleaned;
 }
 
@@ -201,15 +198,15 @@ export function createSlug(text: string): string {
 export function sanitizeSearchQuery(query: string): string {
   // Remove special characters that could break search
   let sanitized = query.replace(/[<>\"'`;()\/]/g, '');
-  
+
   // Normalize whitespace
   sanitized = sanitized.replace(/\s+/g, ' ').trim();
-  
+
   // Limit length
   if (sanitized.length > 255) {
     sanitized = sanitized.substring(0, 255);
   }
-  
+
   return sanitized;
 }
 
@@ -237,11 +234,11 @@ export function createInitials(firstName: string, lastName: string): string {
 /**
  * Mask sensitive data (e.g., for logs)
  */
-export function maskSensitiveData(data: string, visibleChars: number = 4): string {
+export function maskSensitiveData(data: string, visibleChars = 4): string {
   if (data.length <= visibleChars) {
     return '*'.repeat(data.length);
   }
-  
+
   const visible = data.substring(0, visibleChars);
   const masked = '*'.repeat(Math.max(data.length - visibleChars, 4));
   return `${visible}${masked}`;
@@ -253,12 +250,12 @@ export function maskSensitiveData(data: string, visibleChars: number = 4): strin
 export function sanitizeCreditCard(cardNumber: string): string {
   // Remove all non-numeric characters
   const cleaned = cardNumber.replace(/\D/g, '');
-  
+
   // Basic validation (length between 13-19 digits)
   if (cleaned.length < 13 || cleaned.length > 19) {
     return '';
   }
-  
+
   return cleaned;
 }
 
@@ -281,5 +278,5 @@ export const sanitizers = {
   json: sanitizeJson,
   initials: createInitials,
   mask: maskSensitiveData,
-  creditCard: sanitizeCreditCard
+  creditCard: sanitizeCreditCard,
 };

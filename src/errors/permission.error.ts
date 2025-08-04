@@ -1,14 +1,10 @@
 import { BaseError } from './base.error';
 
 export class PermissionError extends BaseError {
-  constructor(
-    message: string,
-    requiredPermission?: string,
-    userPermissions?: string[]
-  ) {
+  constructor(message: string, requiredPermission?: string, userPermissions?: string[]) {
     super(message, 403, 'PERMISSION_ERROR', true, {
       requiredPermission,
-      userPermissions
+      userPermissions,
     });
     this.name = 'PermissionError';
   }
@@ -22,10 +18,7 @@ export class ForbiddenError extends PermissionError {
 }
 
 export class InsufficientPermissionsError extends PermissionError {
-  constructor(
-    requiredPermission: string,
-    userPermissions: string[] = []
-  ) {
+  constructor(requiredPermission: string, userPermissions: string[] = []) {
     super(
       `Insufficient permissions. Required: ${requiredPermission}`,
       requiredPermission,
@@ -42,11 +35,11 @@ export class OrganizationAccessError extends BaseError {
       403,
       'ORGANIZATION_ACCESS_ERROR',
       true,
-      { 
-        organizationId, 
+      {
+        organizationId,
         userId,
         requiredPermission: 'organization.access',
-        userPermissions: []
+        userPermissions: [],
       }
     );
     this.name = 'OrganizationAccessError';
@@ -55,18 +48,12 @@ export class OrganizationAccessError extends BaseError {
 
 export class ResourceOwnershipError extends BaseError {
   constructor(resourceType: string, resourceId: string) {
-    super(
-      `You do not own this ${resourceType}`,
-      403,
-      'RESOURCE_OWNERSHIP_ERROR',
-      true,
-      { 
-        resourceType, 
-        resourceId,
-        requiredPermission: `${resourceType}.owner`,
-        userPermissions: []
-      }
-    );
+    super(`You do not own this ${resourceType}`, 403, 'RESOURCE_OWNERSHIP_ERROR', true, {
+      resourceType,
+      resourceId,
+      requiredPermission: `${resourceType}.owner`,
+      userPermissions: [],
+    });
     this.name = 'ResourceOwnershipError';
   }
 }

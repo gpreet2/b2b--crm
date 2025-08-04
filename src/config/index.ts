@@ -7,7 +7,7 @@ export {
   setUser,
   setContext,
   addBreadcrumb,
-  startTransaction
+  startTransaction,
 } from './sentry';
 
 export type { SeverityLevel, Breadcrumb } from './sentry';

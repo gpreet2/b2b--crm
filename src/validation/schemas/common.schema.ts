@@ -5,17 +5,17 @@ export { schemas as commonSchemas } from '../../middleware/validation';
 
 // Additional common schemas
 export const idSchema = z.object({
-  id: z.string().uuid()
+  id: z.string().uuid(),
 });
 
 export const timestampsSchema = z.object({
   created_at: z.string().datetime(),
-  updated_at: z.string().datetime()
+  updated_at: z.string().datetime(),
 });
 
 export const softDeleteSchema = z.object({
   deleted_at: z.string().datetime().nullable(),
-  is_deleted: z.boolean().default(false)
+  is_deleted: z.boolean().default(false),
 });
 
 export const addressSchema = z.object({
@@ -29,22 +29,25 @@ export const addressSchema = z.object({
 
 export const coordinatesSchema = z.object({
   latitude: z.number().min(-90).max(90),
-  longitude: z.number().min(-180).max(180)
+  longitude: z.number().min(-180).max(180),
 });
 
 export const fileUploadSchema = z.object({
   filename: z.string().min(1).max(255),
   mimetype: z.string().min(1).max(100),
   size: z.number().int().positive().max(52428800), // 50MB max
-  url: z.string().url()
+  url: z.string().url(),
 });
 
 export const tagSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).max(50),
   type: z.enum(['user', 'event', 'workout', 'membership', 'generic']),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
-  organization_id: z.string().uuid()
+  color: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/)
+    .optional(),
+  organization_id: z.string().uuid(),
 });
 
 export const noteSchema = z.object({
@@ -52,7 +55,7 @@ export const noteSchema = z.object({
   content: z.string().min(1).max(5000),
   author_id: z.string().uuid(),
   created_at: z.string().datetime().optional(),
-  updated_at: z.string().datetime().optional()
+  updated_at: z.string().datetime().optional(),
 });
 
 // Status enums
@@ -69,22 +72,22 @@ export const sortOrderSchema = z.enum(['asc', 'desc']).default('asc');
 
 export const baseSortSchema = z.object({
   sortBy: z.string().optional(),
-  sortOrder: sortOrderSchema
+  sortOrder: sortOrderSchema,
 });
 
 // Search schemas
 export const searchSchema = z.object({
   q: z.string().min(1).max(255).optional(),
-  filters: z.object({}).passthrough().optional()
+  filters: z.object({}).passthrough().optional(),
 });
 
 // Batch operation schemas
 export const batchIdsSchema = z.object({
-  ids: z.array(z.string().uuid()).min(1).max(100)
+  ids: z.array(z.string().uuid()).min(1).max(100),
 });
 
 export const batchOperationSchema = z.object({
   operation: z.enum(['delete', 'archive', 'restore', 'update']),
   ids: z.array(z.string().uuid()).min(1).max(100),
-  data: z.object({}).passthrough().optional()
+  data: z.object({}).passthrough().optional(),
 });

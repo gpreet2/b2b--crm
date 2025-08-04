@@ -1,13 +1,14 @@
 // Import Sentry initialization first
 import './instrument';
 
-import express from 'express';
 import * as Sentry from '@sentry/node';
+import express from 'express';
+
+import { dashboardRouter } from './api/dashboard';
+import { monitoringRouter } from './api/monitoring';
 import { initializeDatabase, getDatabase } from './config/database';
 import { errorHandler } from './middleware/error.middleware';
 import { requestIdMiddleware } from './middleware/request-id.middleware';
-import { monitoringRouter } from './api/monitoring';
-import { dashboardRouter } from './api/dashboard';
 import { logger } from './utils/logger';
 
 const app = express();
@@ -29,7 +30,7 @@ app.get('/test-error', (req, res, next) => {
 
 // Health check
 app.get('/', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'TryZore B2B CRM API',
     version: '0.1.0',
     environment: process.env.NODE_ENV || 'development',
@@ -45,7 +46,7 @@ app.use(errorHandler);
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   logger.info('SIGTERM received, shutting down gracefully');
-  
+
   // Close database connections
   try {
     const db = getDatabase();
@@ -53,7 +54,7 @@ process.on('SIGTERM', async () => {
   } catch (error) {
     logger.error('Error shutting down database', { error });
   }
-  
+
   process.exit(0);
 });
 
@@ -71,10 +72,10 @@ async function startServer() {
         idleTimeoutMillis: parseInt(process.env.DB_POOL_IDLE_TIMEOUT || '30000'),
       },
     });
-    
+
     await db.initialize();
     logger.info('Database initialized');
-    
+
     // Start Express server
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`, {

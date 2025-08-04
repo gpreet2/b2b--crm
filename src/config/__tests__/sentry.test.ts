@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/node';
+
 import {
   initializeSentry,
   captureException,
@@ -6,7 +7,7 @@ import {
   setUser,
   setContext,
   addBreadcrumb,
-  startTransaction
+  startTransaction,
 } from '../sentry';
 
 // Mock Sentry
@@ -18,19 +19,20 @@ jest.mock('@sentry/node', () => ({
   setContext: jest.fn(),
   addBreadcrumb: jest.fn(),
   lastEventId: jest.fn().mockReturnValue('mock-event-id'),
-  withScope: jest.fn((callback) => {
+  withScope: jest.fn(callback => {
     const scope = {
-      setContext: jest.fn()
+      setContext: jest.fn(),
     };
     callback(scope);
   }),
   Handlers: {
-    errorHandler: jest.fn().mockReturnValue((err: unknown, req: unknown, res: unknown, next: unknown) => next),
-    requestHandler: jest.fn().mockReturnValue((req: unknown, res: unknown, next: unknown) => next)
+    errorHandler: jest
+      .fn()
+      .mockReturnValue((err: unknown, req: unknown, res: unknown, next: unknown) => next),
+    requestHandler: jest.fn().mockReturnValue((req: unknown, res: unknown, next: unknown) => next),
   },
-  startSpan: jest.fn().mockReturnValue({})
+  startSpan: jest.fn().mockReturnValue({}),
 }));
-
 
 describe('Sentry Configuration', () => {
   const originalEnv = process.env;
@@ -51,9 +53,7 @@ describe('Sentry Configuration', () => {
 
       initializeSentry();
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Sentry DSN not provided. Error tracking disabled.'
-      );
+      expect(consoleSpy).toHaveBeenCalledWith('Sentry DSN not provided. Error tracking disabled.');
       expect(Sentry.init).not.toHaveBeenCalled();
 
       consoleSpy.mockRestore();
@@ -70,7 +70,7 @@ describe('Sentry Configuration', () => {
         expect.objectContaining({
           dsn: 'https://test@sentry.io/123',
           environment: 'production',
-          tracesSampleRate: 0.1
+          tracesSampleRate: 0.1,
         })
       );
       expect(consoleSpy).toHaveBeenCalledWith('Sentry initialized successfully');
@@ -86,7 +86,7 @@ describe('Sentry Configuration', () => {
 
       expect(Sentry.init).toHaveBeenCalledWith(
         expect.objectContaining({
-          tracesSampleRate: 1.0
+          tracesSampleRate: 1.0,
         })
       );
     });
@@ -98,30 +98,32 @@ describe('Sentry Configuration', () => {
       initializeSentry();
 
       const beforeSend = (Sentry.init as jest.Mock).mock.calls[0][0].beforeSend;
-      
+
       const event: Sentry.Event = {
         request: {
           headers: {
             authorization: 'Bearer token123',
             cookie: 'session=abc123',
-            'x-api-key': 'secret-key'
+            'x-api-key': 'secret-key',
           },
           query_string: 'token=secret&name=test',
           data: {
             password: 'secret123',
-            username: 'testuser'
-          }
+            username: 'testuser',
+          },
         },
-        breadcrumbs: [{
-          data: {
-            apiKey: 'secret',
-            user: 'test'
-          }
-        }],
+        breadcrumbs: [
+          {
+            data: {
+              apiKey: 'secret',
+              user: 'test',
+            },
+          },
+        ],
         extra: {
           creditCard: '1234567890',
-          info: 'public'
-        }
+          info: 'public',
+        },
       };
 
       const filteredEvent = beforeSend(event, {});
@@ -164,9 +166,7 @@ describe('Sentry Configuration', () => {
     it('should capture string as exception', () => {
       captureException('String error');
 
-      expect(Sentry.captureException).toHaveBeenCalledWith(
-        expect.any(Error)
-      );
+      expect(Sentry.captureException).toHaveBeenCalledWith(expect.any(Error));
       const capturedError = (Sentry.captureException as jest.Mock).mock.calls[0][0];
       expect(capturedError.message).toBe('String error');
     });
@@ -210,7 +210,7 @@ describe('Sentry Configuration', () => {
       const user = {
         id: '123',
         email: 'test@example.com',
-        username: 'testuser'
+        username: 'testuser',
       };
 
       setUser(user);
@@ -229,10 +229,10 @@ describe('Sentry Configuration', () => {
     it('should set custom context', () => {
       setContext('organization', { id: 'org123', name: 'Test Org' });
 
-      expect(Sentry.setContext).toHaveBeenCalledWith(
-        'organization',
-        { id: 'org123', name: 'Test Org' }
-      );
+      expect(Sentry.setContext).toHaveBeenCalledWith('organization', {
+        id: 'org123',
+        name: 'Test Org',
+      });
     });
   });
 
@@ -241,7 +241,7 @@ describe('Sentry Configuration', () => {
       const breadcrumb = {
         message: 'User clicked button',
         category: 'ui',
-        level: 'info' as Sentry.SeverityLevel
+        level: 'info' as Sentry.SeverityLevel,
       };
 
       addBreadcrumb(breadcrumb);

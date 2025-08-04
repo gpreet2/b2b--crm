@@ -50,7 +50,7 @@ const schemaGroups = {
     'baseSortSchema',
     'searchSchema',
     'batchIdsSchema',
-    'batchOperationSchema'
+    'batchOperationSchema',
   ],
   user: [
     'userProfileSchema',
@@ -59,7 +59,7 @@ const schemaGroups = {
     'userPreferencesSchema',
     'userFilterSchema',
     'userStatsSchema',
-    'bulkUserImportSchema'
+    'bulkUserImportSchema',
   ],
   organization: [
     'businessHoursSchema',
@@ -69,7 +69,7 @@ const schemaGroups = {
     'amenitySchema',
     'staffAssignmentSchema',
     'locationSchema',
-    'organizationStatsSchema'
+    'organizationStatsSchema',
   ],
   membership: [
     'membershipTypeSchema',
@@ -80,7 +80,7 @@ const schemaGroups = {
     'transferMembershipSchema',
     'membershipAddonSchema',
     'membershipUsageSchema',
-    'membershipFilterSchema'
+    'membershipFilterSchema',
   ],
   event: [
     'recurrenceSchema',
@@ -91,7 +91,7 @@ const schemaGroups = {
     'updateBookingSchema',
     'attendanceSchema',
     'eventFilterSchema',
-    'waitlistSchema'
+    'waitlistSchema',
   ],
   workout: [
     'exerciseSchema',
@@ -103,7 +103,7 @@ const schemaGroups = {
     'performedExerciseSchema',
     'workoutProgressSchema',
     'workoutPlanSchema',
-    'userWorkoutPlanSchema'
+    'userWorkoutPlanSchema',
   ],
   notification: [
     'notificationSchema',
@@ -113,8 +113,8 @@ const schemaGroups = {
     'notificationStatusSchema',
     'inAppNotificationSchema',
     'markNotificationsReadSchema',
-    'notificationAnalyticsSchema'
-  ]
+    'notificationAnalyticsSchema',
+  ],
 };
 
 // Generate enum types
@@ -125,29 +125,17 @@ const enumTypes = {
     'eventStatusEnum',
     'bookingStatusEnum',
     'roleEnum',
-    'sortOrderSchema'
+    'sortOrderSchema',
   ],
-  organization: [
-    'organizationTypeEnum'
-  ],
-  event: [
-    'eventTypeEnum'
-  ],
-  workout: [
-    'muscleGroupEnum',
-    'exerciseCategoryEnum',
-    'equipmentEnum'
-  ],
-  notification: [
-    'notificationTypeEnum',
-    'notificationChannelEnum',
-    'notificationPriorityEnum'
-  ]
+  organization: ['organizationTypeEnum'],
+  event: ['eventTypeEnum'],
+  workout: ['muscleGroupEnum', 'exerciseCategoryEnum', 'equipmentEnum'],
+  notification: ['notificationTypeEnum', 'notificationChannelEnum', 'notificationPriorityEnum'],
 };
 
 async function generateTypes() {
   const outputDir = path.join(__dirname, '../src/types/generated');
-  
+
   // Ensure output directory exists
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
@@ -157,30 +145,32 @@ async function generateTypes() {
   for (const [groupName, schemaNames] of Object.entries(schemaGroups)) {
     const fileName = `${groupName}.types.ts`;
     const filePath = path.join(outputDir, fileName);
-    
+
     let content = generateFileHeader(fileName);
     content += generateImports();
-    
+
     // Add schema type exports
     for (const schemaName of schemaNames) {
-      const typeName = schemaName.charAt(0).toUpperCase() + schemaName.slice(1).replace(/Schema$/, '');
+      const typeName =
+        schemaName.charAt(0).toUpperCase() + schemaName.slice(1).replace(/Schema$/, '');
       content += `export type ${typeName} = z.infer<typeof schemas.${schemaName}>;\n`;
     }
-    
+
     // Add enum type exports
     if (enumTypes[groupName as keyof typeof enumTypes]) {
       content += '\n// Enum types\n';
       for (const enumName of enumTypes[groupName as keyof typeof enumTypes]) {
-        const typeName = enumName.charAt(0).toUpperCase() + enumName.slice(1).replace(/Enum$|Schema$/, '');
+        const typeName =
+          enumName.charAt(0).toUpperCase() + enumName.slice(1).replace(/Enum$|Schema$/, '');
         content += `export type ${typeName} = z.infer<typeof schemas.${enumName}>;\n`;
       }
     }
-    
+
     // Write file
     fs.writeFileSync(filePath, content);
     console.log(`✓ Generated ${fileName}`);
   }
-  
+
   // Generate a barrel export file
   const indexPath = path.join(outputDir, 'index.ts');
   let indexContent = generateFileHeader('index.ts');
@@ -191,10 +181,10 @@ async function generateTypes() {
   indexContent += `export * from './event.types';\n`;
   indexContent += `export * from './workout.types';\n`;
   indexContent += `export * from './notification.types';\n`;
-  
+
   fs.writeFileSync(indexPath, indexContent);
   console.log('✓ Generated index.ts');
-  
+
   console.log('\n✅ Type generation complete!');
 }
 

@@ -1,10 +1,10 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   --background: #ffffff;
   --foreground: #1c1c1c;
-  
+
   /* Updated Color Palette - Better Contrast on White Background */
   --color-primary: #f34a22; /* Red - Primary brand color */
   --color-primary-dark: #d93f1e; /* Darker red for hover */
@@ -22,7 +22,7 @@
   --color-warning: #f59e0b; /* Amber - warning color */
   --color-danger: #f34a22; /* Red - danger color */
   --color-info: #3b82f6; /* Blue - info color */
-  
+
   /* Program-specific colors for calendar */
   --color-program-crossfit: #f34a22; /* Red */
   --color-program-hiit: #ff5a3a; /* Light red */
@@ -30,13 +30,13 @@
   --color-program-strength: #8b5cf6; /* Purple */
   --color-program-cardio: #ec4899; /* Pink */
   --color-program-pilates: #10b981; /* Emerald */
-  
+
   /* Status colors for better visibility */
   --color-status-active: #c3fb67;
   --color-status-pending: #f59e0b;
   --color-status-inactive: #9ca3af;
   --color-status-high-demand: #f34a22;
-  
+
   /* Gradient backgrounds for premium feel */
   --gradient-primary: linear-gradient(135deg, #f34a22 0%, #d93f1e 100%);
   --gradient-surface: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
@@ -48,9 +48,12 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-  
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --font-mono:
+    'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+
   /* Custom colors */
   --color-primary: var(--color-primary);
   --color-primary-dark: var(--color-primary-dark);
@@ -85,7 +88,15 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   font-variation-settings: normal;
   -webkit-font-smoothing: antialiased;
@@ -116,7 +127,9 @@ body {
 
 .hover-lift:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.3),
+    0 4px 6px -2px rgba(0, 0, 0, 0.2);
 }
 
 /* Card animations */
@@ -126,7 +139,9 @@ body {
 
 .card-animate:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.4),
+    0 10px 10px -5px rgba(0, 0, 0, 0.3);
 }
 
 /* Button animations */
@@ -207,7 +222,8 @@ body {
 
 /* Loading animations */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -222,7 +238,8 @@ body {
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(-25%);
     animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
   }
@@ -237,7 +254,7 @@ body {
   html {
     font-size: 14px;
   }
-  
+
   body {
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
@@ -245,18 +262,22 @@ body {
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
   }
-  
+
   /* Touch-friendly input styling */
-  input, textarea, select {
+  input,
+  textarea,
+  select {
     font-size: 16px !important; /* Prevent zoom on iOS */
   }
-  
+
   /* Improve touch targets */
-  button, a, [role="button"] {
+  button,
+  a,
+  [role='button'] {
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   /* Optimize modal positioning */
   .modal-mobile {
     margin: 8px;
@@ -269,12 +290,12 @@ body {
   .calendar-week-header {
     padding: 1rem !important;
   }
-  
+
   .calendar-day-cell {
     min-height: 200px !important;
     padding: 0.75rem !important;
   }
-  
+
   .calendar-event-card {
     padding: 0.5rem !important;
     font-size: 0.75rem !important;
@@ -285,26 +306,26 @@ body {
   .calendar-week-header {
     padding: 0.75rem !important;
   }
-  
+
   .calendar-day-cell {
     min-height: 180px !important;
     padding: 0.5rem !important;
   }
-  
+
   .calendar-event-card {
     padding: 0.375rem !important;
     font-size: 0.6875rem !important;
   }
-  
+
   .calendar-day-number {
     font-size: 1.25rem !important;
   }
-  
+
   /* Mobile-specific workout calendar optimizations */
   .workout-calendar-mobile {
     border-radius: 12px !important;
   }
-  
+
   .workout-event-mobile {
     min-height: 40px !important;
     padding: 8px !important;
@@ -315,61 +336,61 @@ body {
   .calendar-week-header {
     padding: 0.5rem !important;
   }
-  
+
   .calendar-day-cell {
     min-height: 160px !important;
     padding: 0.375rem !important;
   }
-  
+
   .calendar-event-card {
     padding: 0.25rem !important;
     font-size: 0.625rem !important;
   }
-  
+
   .calendar-day-number {
     font-size: 1rem !important;
   }
-  
+
   .calendar-add-button {
     width: 1.5rem !important;
     height: 1.5rem !important;
   }
-  
+
   /* Mobile workout calendar specific styles */
   .workout-calendar-mobile {
     border-radius: 8px !important;
     margin: 4px !important;
   }
-  
+
   .workout-event-mobile {
     min-height: 44px !important;
     padding: 6px !important;
     font-size: 12px !important;
     border-radius: 6px !important;
   }
-  
+
   .workout-sidebar-mobile {
     width: 100vw !important;
     border-radius: 0 !important;
   }
-  
+
   .workout-modal-mobile {
     margin: 8px !important;
     border-radius: 12px !important;
     max-height: calc(100vh - 16px) !important;
   }
-  
+
   /* Touch-friendly drag and drop */
   .drag-handle-mobile {
     padding: 12px !important;
     min-height: 44px !important;
   }
-  
+
   /* Improved button spacing for mobile */
   .button-group-mobile {
     gap: 12px !important;
   }
-  
+
   .button-group-mobile button {
     min-height: 44px !important;
     padding: 12px 16px !important;
@@ -379,89 +400,197 @@ body {
 /* Professional Gym CRM Utility Classes */
 @layer utilities {
   /* Background Colors */
-  .bg-primary { background-color: var(--color-primary); }
-  .bg-primary-dark { background-color: var(--color-primary-dark); }
-  .bg-primary-light { background-color: var(--color-primary-light); }
-  .bg-secondary { background-color: var(--color-secondary); }
-  .bg-accent { background-color: var(--color-accent); }
-  .bg-surface { background-color: var(--color-surface); }
-  .bg-surface-light { background-color: var(--color-surface-light); }
-  .bg-success { background-color: var(--color-success); }
-  .bg-warning { background-color: var(--color-warning); }
-  .bg-danger { background-color: var(--color-danger); }
-  .bg-info { background-color: var(--color-info); }
-  
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  .bg-primary-dark {
+    background-color: var(--color-primary-dark);
+  }
+  .bg-primary-light {
+    background-color: var(--color-primary-light);
+  }
+  .bg-secondary {
+    background-color: var(--color-secondary);
+  }
+  .bg-accent {
+    background-color: var(--color-accent);
+  }
+  .bg-surface {
+    background-color: var(--color-surface);
+  }
+  .bg-surface-light {
+    background-color: var(--color-surface-light);
+  }
+  .bg-success {
+    background-color: var(--color-success);
+  }
+  .bg-warning {
+    background-color: var(--color-warning);
+  }
+  .bg-danger {
+    background-color: var(--color-danger);
+  }
+  .bg-info {
+    background-color: var(--color-info);
+  }
+
   /* Program Colors */
-  .bg-program-crossfit { background-color: var(--color-program-crossfit); }
-  .bg-program-hiit { background-color: var(--color-program-hiit); }
-  .bg-program-yoga { background-color: var(--color-program-yoga); }
-  .bg-program-strength { background-color: var(--color-program-strength); }
-  .bg-program-cardio { background-color: var(--color-program-cardio); }
-  .bg-program-pilates { background-color: var(--color-program-pilates); }
-  
+  .bg-program-crossfit {
+    background-color: var(--color-program-crossfit);
+  }
+  .bg-program-hiit {
+    background-color: var(--color-program-hiit);
+  }
+  .bg-program-yoga {
+    background-color: var(--color-program-yoga);
+  }
+  .bg-program-strength {
+    background-color: var(--color-program-strength);
+  }
+  .bg-program-cardio {
+    background-color: var(--color-program-cardio);
+  }
+  .bg-program-pilates {
+    background-color: var(--color-program-pilates);
+  }
+
   /* Gradient Backgrounds */
-  .bg-gradient-primary { background: var(--gradient-primary); }
-  .bg-gradient-surface { background: var(--gradient-surface); }
-  .bg-gradient-success { background: var(--gradient-success); }
-  .bg-gradient-warning { background: var(--gradient-warning); }
-  .bg-gradient-danger { background: var(--gradient-danger); }
-  
+  .bg-gradient-primary {
+    background: var(--gradient-primary);
+  }
+  .bg-gradient-surface {
+    background: var(--gradient-surface);
+  }
+  .bg-gradient-success {
+    background: var(--gradient-success);
+  }
+  .bg-gradient-warning {
+    background: var(--gradient-warning);
+  }
+  .bg-gradient-danger {
+    background: var(--gradient-danger);
+  }
+
   /* Text Colors with Better Contrast */
-  .text-primary { color: var(--color-primary); }
-  .text-primary-dark { color: var(--color-primary-dark); }
-  .text-primary-light { color: var(--color-primary-light); }
-  .text-secondary { color: var(--color-secondary); }
-  .text-accent { color: var(--color-accent); }
-  .text-success { color: var(--color-success); }
-  .text-warning { color: var(--color-warning); }
-  .text-danger { color: var(--color-danger); }
-  .text-info { color: var(--color-info); }
-  .text-primary-text { color: var(--color-text-primary); }
-  .text-secondary-text { color: var(--color-text-secondary); }
-  .text-muted { color: var(--color-text-muted); }
-  
+  .text-primary {
+    color: var(--color-primary);
+  }
+  .text-primary-dark {
+    color: var(--color-primary-dark);
+  }
+  .text-primary-light {
+    color: var(--color-primary-light);
+  }
+  .text-secondary {
+    color: var(--color-secondary);
+  }
+  .text-accent {
+    color: var(--color-accent);
+  }
+  .text-success {
+    color: var(--color-success);
+  }
+  .text-warning {
+    color: var(--color-warning);
+  }
+  .text-danger {
+    color: var(--color-danger);
+  }
+  .text-info {
+    color: var(--color-info);
+  }
+  .text-primary-text {
+    color: var(--color-text-primary);
+  }
+  .text-secondary-text {
+    color: var(--color-text-secondary);
+  }
+  .text-muted {
+    color: var(--color-text-muted);
+  }
+
   /* Program Text Colors */
-  .text-program-crossfit { color: var(--color-program-crossfit); }
-  .text-program-hiit { color: var(--color-program-hiit); }
-  .text-program-yoga { color: var(--color-program-yoga); }
-  .text-program-strength { color: var(--color-program-strength); }
-  .text-program-cardio { color: var(--color-program-cardio); }
-  .text-program-pilates { color: var(--color-program-pilates); }
-  
+  .text-program-crossfit {
+    color: var(--color-program-crossfit);
+  }
+  .text-program-hiit {
+    color: var(--color-program-hiit);
+  }
+  .text-program-yoga {
+    color: var(--color-program-yoga);
+  }
+  .text-program-strength {
+    color: var(--color-program-strength);
+  }
+  .text-program-cardio {
+    color: var(--color-program-cardio);
+  }
+  .text-program-pilates {
+    color: var(--color-program-pilates);
+  }
+
   /* Status Colors */
-  .text-status-active { color: var(--color-status-active); }
-  .text-status-pending { color: var(--color-status-pending); }
-  .text-status-inactive { color: var(--color-status-inactive); }
-  .text-status-high-demand { color: var(--color-status-high-demand); }
-  
-  .bg-status-active { background-color: var(--color-status-active); }
-  .bg-status-pending { background-color: var(--color-status-pending); }
-  .bg-status-inactive { background-color: var(--color-status-inactive); }
-  .bg-status-high-demand { background-color: var(--color-status-high-demand); }
-  
+  .text-status-active {
+    color: var(--color-status-active);
+  }
+  .text-status-pending {
+    color: var(--color-status-pending);
+  }
+  .text-status-inactive {
+    color: var(--color-status-inactive);
+  }
+  .text-status-high-demand {
+    color: var(--color-status-high-demand);
+  }
+
+  .bg-status-active {
+    background-color: var(--color-status-active);
+  }
+  .bg-status-pending {
+    background-color: var(--color-status-pending);
+  }
+  .bg-status-inactive {
+    background-color: var(--color-status-inactive);
+  }
+  .bg-status-high-demand {
+    background-color: var(--color-status-high-demand);
+  }
+
   /* Border Colors */
-  .border-primary { border-color: var(--color-primary); }
-  .border-secondary { border-color: var(--color-secondary); }
-  .border-accent { border-color: var(--color-accent); }
-  .border-surface { border-color: var(--color-border); }
-  
+  .border-primary {
+    border-color: var(--color-primary);
+  }
+  .border-secondary {
+    border-color: var(--color-secondary);
+  }
+  .border-accent {
+    border-color: var(--color-accent);
+  }
+  .border-surface {
+    border-color: var(--color-border);
+  }
+
   /* Professional Card Styles */
   .card-elevated {
     background: var(--gradient-surface);
     border: 1px solid var(--color-border);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.3),
+      0 2px 4px -1px rgba(0, 0, 0, 0.2);
   }
-  
+
   .card-interactive {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
+
   .card-interactive:hover {
     transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+    box-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.4),
+      0 10px 10px -5px rgba(0, 0, 0, 0.3);
     border-color: var(--color-primary);
   }
-  
+
   /* Status Indicators */
   .status-dot {
     width: 8px;
@@ -469,12 +598,20 @@ body {
     border-radius: 50%;
     display: inline-block;
   }
-  
-  .status-dot-active { background-color: var(--color-status-active); }
-  .status-dot-pending { background-color: var(--color-status-pending); }
-  .status-dot-inactive { background-color: var(--color-status-inactive); }
-  .status-dot-high-demand { background-color: var(--color-status-high-demand); }
-  
+
+  .status-dot-active {
+    background-color: var(--color-status-active);
+  }
+  .status-dot-pending {
+    background-color: var(--color-status-pending);
+  }
+  .status-dot-inactive {
+    background-color: var(--color-status-inactive);
+  }
+  .status-dot-high-demand {
+    background-color: var(--color-status-high-demand);
+  }
+
   /* Professional Buttons */
   .btn-gym-primary {
     background: var(--gradient-primary);
@@ -484,12 +621,12 @@ body {
     box-shadow: 0 2px 4px rgba(243, 74, 34, 0.3);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
+
   .btn-gym-primary:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 8px rgba(243, 74, 34, 0.4);
   }
-  
+
   /* Metric Cards */
   .metric-card {
     background: var(--gradient-surface);
@@ -499,7 +636,7 @@ body {
     position: relative;
     overflow: hidden;
   }
-  
+
   .metric-card::before {
     content: '';
     position: absolute;
@@ -509,44 +646,137 @@ body {
     height: 3px;
     background: var(--gradient-primary);
   }
-  
+
   /* Typography utilities */
-  .font-display { font-family: 'Inter', sans-serif; font-weight: 700; }
-  .font-heading { font-family: 'Inter', sans-serif; font-weight: 600; }
-  .font-body { font-family: 'Inter', sans-serif; font-weight: 400; }
-  .font-medium { font-family: 'Inter', sans-serif; font-weight: 500; }
-  .font-light { font-family: 'Inter', sans-serif; font-weight: 300; }
-  
+  .font-display {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+  }
+  .font-heading {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+  }
+  .font-body {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+  }
+  .font-medium {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+  }
+  .font-light {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+  }
+
   /* Text sizes with consistent line heights */
-  .text-display-1 { font-size: 3.5rem; line-height: 1.1; font-weight: 800; }
-  .text-display-2 { font-size: 3rem; line-height: 1.1; font-weight: 700; }
-  .text-display-3 { font-size: 2.5rem; line-height: 1.2; font-weight: 700; }
-  .text-h1 { font-size: 2.25rem; line-height: 1.2; font-weight: 600; }
-  .text-h2 { font-size: 1.875rem; line-height: 1.3; font-weight: 600; }
-  .text-h3 { font-size: 1.5rem; line-height: 1.4; font-weight: 600; }
-  .text-h4 { font-size: 1.25rem; line-height: 1.4; font-weight: 600; }
-  .text-h5 { font-size: 1.125rem; line-height: 1.5; font-weight: 600; }
-  .text-h6 { font-size: 1rem; line-height: 1.5; font-weight: 600; }
-  .text-body-lg { font-size: 1.125rem; line-height: 1.6; font-weight: 400; }
-  .text-body { font-size: 1rem; line-height: 1.6; font-weight: 400; }
-  .text-body-sm { font-size: 0.875rem; line-height: 1.5; font-weight: 400; }
-  .text-caption { font-size: 0.75rem; line-height: 1.4; font-weight: 400; }
-  
+  .text-display-1 {
+    font-size: 3.5rem;
+    line-height: 1.1;
+    font-weight: 800;
+  }
+  .text-display-2 {
+    font-size: 3rem;
+    line-height: 1.1;
+    font-weight: 700;
+  }
+  .text-display-3 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    font-weight: 700;
+  }
+  .text-h1 {
+    font-size: 2.25rem;
+    line-height: 1.2;
+    font-weight: 600;
+  }
+  .text-h2 {
+    font-size: 1.875rem;
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  .text-h3 {
+    font-size: 1.5rem;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+  .text-h4 {
+    font-size: 1.25rem;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+  .text-h5 {
+    font-size: 1.125rem;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+  .text-h6 {
+    font-size: 1rem;
+    line-height: 1.5;
+    font-weight: 600;
+  }
+  .text-body-lg {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  .text-body {
+    font-size: 1rem;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  .text-body-sm {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  .text-caption {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
   /* Mobile responsive text utilities */
   @media (max-width: 640px) {
-    .text-display-1 { font-size: 2.5rem; }
-    .text-display-2 { font-size: 2rem; }
-    .text-display-3 { font-size: 1.75rem; }
-    .text-h1 { font-size: 1.75rem; }
-    .text-h2 { font-size: 1.5rem; }
-    .text-h3 { font-size: 1.25rem; }
-    .text-h4 { font-size: 1.125rem; }
-    .text-h5 { font-size: 1rem; }
-    .text-h6 { font-size: 0.875rem; }
-    .text-body-lg { font-size: 1rem; }
-    .text-body { font-size: 0.875rem; }
-    .text-body-sm { font-size: 0.75rem; }
-    .text-caption { font-size: 0.625rem; }
+    .text-display-1 {
+      font-size: 2.5rem;
+    }
+    .text-display-2 {
+      font-size: 2rem;
+    }
+    .text-display-3 {
+      font-size: 1.75rem;
+    }
+    .text-h1 {
+      font-size: 1.75rem;
+    }
+    .text-h2 {
+      font-size: 1.5rem;
+    }
+    .text-h3 {
+      font-size: 1.25rem;
+    }
+    .text-h4 {
+      font-size: 1.125rem;
+    }
+    .text-h5 {
+      font-size: 1rem;
+    }
+    .text-h6 {
+      font-size: 0.875rem;
+    }
+    .text-body-lg {
+      font-size: 1rem;
+    }
+    .text-body {
+      font-size: 0.875rem;
+    }
+    .text-body-sm {
+      font-size: 0.75rem;
+    }
+    .text-caption {
+      font-size: 0.625rem;
+    }
   }
 }
 
@@ -555,7 +785,9 @@ body {
   font-family: 'Inter', sans-serif !important;
   background-color: var(--color-surface) !important;
   border-radius: 12px !important;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3) !important;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.5),
+    0 2px 4px -1px rgba(0, 0, 0, 0.3) !important;
   padding: 0 !important;
   margin: 0 !important;
 }
@@ -566,7 +798,8 @@ body {
   border-radius: 12px !important;
 }
 
-.fc-theme-standard td, .fc-theme-standard th {
+.fc-theme-standard td,
+.fc-theme-standard th {
   border-color: var(--color-border) !important;
   background-color: var(--color-surface) !important;
 }
@@ -759,25 +992,25 @@ body {
     gap: 16px !important;
     padding: 16px !important;
   }
-  
+
   .fc .fc-toolbar-chunk {
     justify-content: center !important;
   }
-  
+
   .fc .fc-toolbar-title {
     font-size: 1.25rem !important;
   }
-  
+
   .fc .fc-col-header-cell-cushion {
     font-size: 0.75rem !important;
     padding: 12px 4px !important;
   }
-  
+
   .fc .fc-daygrid-day-number {
     font-size: 0.75rem !important;
     padding: 6px !important;
   }
-  
+
   .fc .fc-event-main {
     font-size: 0.6rem !important;
     padding: 1px 4px !important;
@@ -789,15 +1022,15 @@ body {
   .fc {
     border-radius: 8px !important;
   }
-  
+
   .fc .fc-toolbar {
     border-radius: 8px 8px 0 0 !important;
   }
-  
+
   .fc .fc-daygrid-day {
     min-height: 100px !important;
   }
-  
+
   .fc .fc-daygrid-day-frame {
     min-height: 100px !important;
   }
@@ -831,12 +1064,12 @@ body {
     outline: 3px solid var(--color-primary) !important;
     outline-offset: 3px !important;
   }
-  
+
   /* Enhance text contrast in high contrast mode */
   .text-secondary-text {
     color: var(--color-text-primary) !important;
   }
-  
+
   .text-muted {
     color: var(--color-text-secondary) !important;
   }
@@ -852,7 +1085,7 @@ body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  
+
   /* Disable hover animations for reduced motion */
   .hover-lift:hover,
   .card-animate:hover,
@@ -890,7 +1123,7 @@ body {
 
 /* Enhanced button focus states */
 button:focus-visible,
-[role="button"]:focus-visible {
+[role='button']:focus-visible {
   outline: 2px solid var(--color-primary) !important;
   outline-offset: 2px !important;
   box-shadow: 0 0 0 4px rgba(243, 74, 34, 0.2) !important;
@@ -966,14 +1199,14 @@ button:focus-visible,
 /* Touch target improvements */
 @media (pointer: coarse) {
   button,
-  [role="button"],
-  input[type="button"],
-  input[type="submit"],
-  input[type="reset"] {
+  [role='button'],
+  input[type='button'],
+  input[type='submit'],
+  input[type='reset'] {
     min-height: 44px !important;
     min-width: 44px !important;
   }
-  
+
   /* Increase touch targets for small interactive elements */
   .touch-target {
     min-height: 44px !important;
@@ -1005,10 +1238,10 @@ button:focus-visible,
     clip: auto !important;
     white-space: normal !important;
   }
-  
+
   /* Hide interactive elements in print */
   button,
-  [role="button"],
+  [role='button'],
   .modal-accessible {
     display: none !important;
   }

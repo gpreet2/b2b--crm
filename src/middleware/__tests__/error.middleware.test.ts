@@ -1,21 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
-import { 
-  errorHandler, 
-  notFoundHandler, 
-  asyncHandler,
-  errorLogger 
-} from '../error.middleware';
-import {
-  AppError,
-  ValidationError,
-  NotFoundError
-} from '../../errors';
+
 import * as sentryModule from '../../config/sentry';
+import { AppError, ValidationError, NotFoundError } from '../../errors';
+import { errorHandler, notFoundHandler, asyncHandler, errorLogger } from '../error.middleware';
 
 // Mock Sentry
 jest.mock('../../config/sentry', () => ({
   captureException: jest.fn().mockReturnValue('mock-sentry-id'),
-  addBreadcrumb: jest.fn()
+  addBreadcrumb: jest.fn(),
 }));
 
 // Mock Express request/response
@@ -24,7 +16,7 @@ const mockRequest = (overrides = {}): Partial<Request> => ({
   method: 'GET',
   id: 'test-request-id',
   get: jest.fn().mockReturnValue(undefined),
-  ...overrides
+  ...overrides,
 });
 
 const mockResponse = (): Partial<Response> => {
@@ -44,7 +36,7 @@ describe('Error Middleware', () => {
     jest.clearAllMocks();
     // Mock console.error to avoid noise in tests
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    
+
     // Get mocked functions
     captureException = sentryModule.captureException as jest.Mock;
     addBreadcrumb = sentryModule.addBreadcrumb as jest.Mock;
@@ -71,13 +63,13 @@ describe('Error Middleware', () => {
           path: '/test',
           method: 'GET',
           requestId: 'test-request-id',
-          timestamp: expect.any(String)
-        })
+          timestamp: expect.any(String),
+        }),
       });
-      
+
       // Should add breadcrumb
       expect(addBreadcrumb).toHaveBeenCalled();
-      
+
       // Should not send to Sentry for 4xx errors
       expect(captureException).not.toHaveBeenCalled();
     });
@@ -86,7 +78,7 @@ describe('Error Middleware', () => {
       const req = mockRequest() as Request;
       const res = mockResponse() as Response;
       const error = new ValidationError('Validation failed', {
-        email: ['Invalid format']
+        email: ['Invalid format'],
       });
 
       errorHandler(error, req, res, mockNext);
@@ -96,8 +88,8 @@ describe('Error Middleware', () => {
         error: expect.objectContaining({
           code: 'VALIDATION_ERROR',
           message: 'Validation failed',
-          statusCode: 400
-        })
+          statusCode: 400,
+        }),
       });
     });
 
@@ -113,10 +105,10 @@ describe('Error Middleware', () => {
         error: expect.objectContaining({
           code: 'INTERNAL_ERROR',
           message: 'An unexpected error occurred',
-          statusCode: 500
-        })
+          statusCode: 500,
+        }),
       });
-      
+
       // Should send to Sentry for 5xx errors
       expect(captureException).toHaveBeenCalledWith(error, expect.any(Object));
     });
@@ -134,8 +126,8 @@ describe('Error Middleware', () => {
       expect(res.json).toHaveBeenCalledWith({
         error: expect.objectContaining({
           stack: expect.any(String),
-          sentryId: 'mock-sentry-id'
-        })
+          sentryId: 'mock-sentry-id',
+        }),
       });
 
       Object.defineProperty(process.env, 'NODE_ENV', { value: originalEnv, writable: true });
@@ -170,8 +162,8 @@ describe('Error Middleware', () => {
         error: expect.objectContaining({
           code: 'INVALID_TOKEN',
           message: 'Invalid authentication token',
-          statusCode: 401
-        })
+          statusCode: 401,
+        }),
       });
     });
 
@@ -183,10 +175,13 @@ describe('Error Middleware', () => {
       errorHandler(error, req, res, mockNext);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(captureException).toHaveBeenCalledWith(error, expect.objectContaining({
-        statusCode: 500,
-        code: 'SERVER_ERROR'
-      }));
+      expect(captureException).toHaveBeenCalledWith(
+        error,
+        expect.objectContaining({
+          statusCode: 500,
+          code: 'SERVER_ERROR',
+        })
+      );
     });
   });
 
@@ -256,8 +251,8 @@ describe('Error Middleware', () => {
           method: 'GET',
           statusCode: undefined,
           ip: undefined,
-          userAgent: undefined
-        })
+          userAgent: undefined,
+        }),
       });
       expect(next).toHaveBeenCalledWith(error);
     });
