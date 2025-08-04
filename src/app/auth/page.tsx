@@ -65,14 +65,14 @@ export default function AuthPage() {
       });
 
       const data = await response.json();
-      console.log('Sign in response:', data);
+      console.warn('Sign in response:', data);
 
       if (response.ok && data.url) {
-        console.log('Redirecting to WorkOS:', data.url);
+        console.warn('Redirecting to WorkOS:', data.url);
         window.location.href = data.url;
       } else {
         setIsLoading(false);
-        setErrors({ email: data.error || 'Authentication failed. Please try again.' });
+        setErrors({ email: data.error ?? 'Authentication failed. Please try again.' });
       }
     } catch (error) {
       console.error('Auth error:', error);
@@ -201,7 +201,7 @@ export default function AuthPage() {
             </div>
 
             <Card className='p-6 shadow-xl border-0 bg-white/80 backdrop-blur-sm'>
-              <form onSubmit={handleSubmit} className='space-y-4'>
+              <form onSubmit={(e) => { void handleSubmit(e); }} className='space-y-4'>
                 <Input
                   label='Email Address'
                   type='email'

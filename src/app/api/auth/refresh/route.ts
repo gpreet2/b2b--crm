@@ -31,10 +31,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Extract token expiry information from cookies for mobile app
-    const sessionCookie = request.cookies.get('wos-session');
-    const expiresAt = sessionCookie?.expires
-      ? new Date(sessionCookie.expires).toISOString()
-      : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // Default 24h
+    const _sessionCookie = request.cookies.get('wos-session');
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // Default 24h
 
     logger.info('Token refresh successful', {
       userId: result.user.id,
@@ -86,7 +84,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const expiresAt = sessionCookie.expires ? new Date(sessionCookie.expires).toISOString() : null;
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(); // Default 24h
 
     return NextResponse.json({
       authenticated: true,

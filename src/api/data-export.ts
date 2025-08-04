@@ -53,9 +53,9 @@ const verifyExportPermission = async (req: Request, res: Response, next: NextFun
       createdAt: new Date(user.created_at ?? Date.now()),
     };
     req.organizationId = orgId as string;
-    next();
+    return next();
   } catch (_error) {
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 
@@ -213,13 +213,13 @@ router.post('/backup/manual', (req: Request, res: Response) => {
 
     // This endpoint would trigger the backup script
     // In production, this would queue a job
-    res.json({
+    return res.json({
       message: 'Backup job queued',
       job_id: `backup-${Date.now()}`,
       estimated_time: '5-10 minutes',
     });
   } catch (_error) {
-    res.status(500).json({ error: 'Backup initiation failed' });
+    return res.status(500).json({ error: 'Backup initiation failed' });
   }
 });
 

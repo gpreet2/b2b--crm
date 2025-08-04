@@ -100,6 +100,7 @@ export default function AddWorkoutModal({
       const timer = setTimeout(() => setSuccessMessage(null), 3000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [successMessage]);
 
   useEffect(() => {
@@ -107,6 +108,7 @@ export default function AddWorkoutModal({
       const timer = setTimeout(() => setDragError(null), 5000);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [dragError]);
 
   // Enhanced segment management functions with better state management

@@ -6,7 +6,7 @@ export async function GET() {
     const config = {
       clientId: process.env.WORKOS_CLIENT_ID ? '✓ Configured' : '✗ Missing',
       apiKey: process.env.WORKOS_API_KEY ? '✓ Configured' : '✗ Missing',
-      redirectUri: process.env.WORKOS_REDIRECT_URI || 'Not configured',
+      redirectUri: process.env.WORKOS_REDIRECT_URI ?? 'Not configured',
       cookiePassword: process.env.WORKOS_COOKIE_PASSWORD ? '✓ Configured' : '✗ Missing',
       environment: process.env.NODE_ENV,
     };
@@ -14,9 +14,9 @@ export async function GET() {
     // Check if WorkOS SDK is available
     let sdkStatus = '✗ Not available';
     try {
-      const workos = await import('@workos-inc/authkit-nextjs');
+      const _workos = await import('@workos-inc/authkit-nextjs');
       sdkStatus = '✓ Available';
-    } catch (error) {
+    } catch (_error) {
       sdkStatus = '✗ Error loading SDK';
     }
 

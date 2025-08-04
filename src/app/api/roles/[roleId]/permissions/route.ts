@@ -16,17 +16,15 @@ const updatePermissionsSchema = z.object({
   ),
 });
 
-interface RouteParams {
-  params: {
-    roleId: string;
-  };
-}
-
 /**
  * GET /api/roles/[roleId]/permissions
  * Get all permissions for a specific role
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  _request: NextRequest,
+  context: { params: Promise<{ roleId: string }> }
+) {
+  const params = await context.params;
   try {
     const auth = await withAuth({ ensureSignedIn: false });
 
@@ -96,7 +94,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  * PUT /api/roles/[roleId]/permissions
  * Update permissions for a role
  */
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export async function PUT(
+  request: NextRequest,
+  context: { params: Promise<{ roleId: string }> }
+) {
+  const params = await context.params;
   try {
     const auth = await withAuth({ ensureSignedIn: false });
 
@@ -184,7 +186,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: 'Invalid request data', details: error.errors },
+        { error: 'Invalid request data', details: error.issues },
         { status: 400 }
       );
     }

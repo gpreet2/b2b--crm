@@ -58,7 +58,7 @@ monitoringRouter.get('/health', async (req: Request, res: Response) => {
       try {
         await db.query('SELECT 1');
         response.checks.database.latency = Date.now() - dbCheckStart;
-        response.checks.database.metrics = db.getMetrics();
+        response.checks.database.metrics = db.getMetrics() as unknown as Record<string, unknown>;
       } catch (_error) {
         // PostgreSQL might not be configured, check Supabase client
         const client = db.getSupabaseClient();
@@ -143,12 +143,12 @@ monitoringRouter.get('/ready', (req: Request, res: Response) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       status: 'ready',
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
-    res.status(503).json({
+    return res.status(503).json({
       status: 'not ready',
       reason: error instanceof Error ? error.message : 'Unknown error',
     });

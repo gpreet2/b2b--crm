@@ -42,11 +42,11 @@ function getSecurityConfig(): SecurityConfig {
  */
 function generateCSPDirectives(
   config: SecurityConfig
-): helmet.ContentSecurityPolicyOptions['directives'] {
+): Record<string, string[]> {
   const { isDevelopment, frontendDomains, apiDomain } = config;
 
   // Base directives for all environments
-  const baseDirectives: helmet.ContentSecurityPolicyOptions['directives'] = {
+  const baseDirectives: Record<string, string[]> = {
     defaultSrc: ["'self'"],
 
     // Scripts: Allow self, inline scripts in development, and trusted CDNs
@@ -147,9 +147,7 @@ export function getHelmetConfig(): Parameters<typeof helmet>[0] {
     noSniff: true,
 
     // X-XSS-Protection: Enable XSS filtering (legacy browsers)
-    xssFilter: {
-      setOnOldIE: true, // For older IE versions
-    },
+    xssFilter: true,
 
     // Referrer Policy: Control referrer information
     referrerPolicy: {
@@ -172,19 +170,8 @@ export function getHelmetConfig(): Parameters<typeof helmet>[0] {
     // Origin-Agent-Cluster: Request origin-keyed agent clusters
     originAgentCluster: true,
 
-    // Permissions Policy (Feature Policy): Control browser features
-    permissionsPolicy: {
-      camera: ['()'], // Block camera access
-      microphone: ['()'], // Block microphone access
-      geolocation: ['()'], // Block geolocation
-      payment: ['()'], // Block payment API
-      usb: ['()'], // Block USB API
-      magnetometer: ['()'], // Block magnetometer
-      gyroscope: ['()'], // Block gyroscope
-      accelerometer: ['()'], // Block accelerometer
-      // Allow fullscreen for modals/dialogs
-      fullscreen: ['self'],
-    },
+    // Note: Permissions Policy (Feature Policy) not supported by current helmet version
+    // TODO: Add permissions policy configuration when helmet adds support
 
     // Hide X-Powered-By header
     hidePoweredBy: true,
@@ -194,13 +181,7 @@ export function getHelmetConfig(): Parameters<typeof helmet>[0] {
       allow: false, // Disable DNS prefetching for privacy
     },
 
-    // Expect-CT: Certificate Transparency reporting
-    expectCt: isProduction
-      ? {
-          maxAge: 86400, // 1 day
-          enforce: true,
-        }
-      : false,
+    // Note: Expect-CT deprecated and not supported by current helmet version
   };
 }
 

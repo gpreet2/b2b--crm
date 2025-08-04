@@ -12,6 +12,13 @@
 
 # testing
 /coverage
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+src/unused-routes/
+test/
 
 # next.js
 /.next/

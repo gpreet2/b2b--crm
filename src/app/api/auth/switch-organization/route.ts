@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: 'Invalid request', details: validation.error.errors },
+        { error: 'Invalid request', details: validation.error.issues },
         { status: 400 }
       );
     }
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
     // Verify user has access to this organization
     const userOrganizations = await getUserOrganizations(user.id);
-    const hasAccess = userOrganizations.some(org => org.organization.id === organizationId);
+    const hasAccess = userOrganizations.some(org => org.id === organizationId);
 
     if (!hasAccess) {
       logger.warn('User attempted to switch to unauthorized organization', {
@@ -86,10 +86,10 @@ export async function GET(_request: NextRequest) {
     return NextResponse.json({
       currentOrganizationId: organizationId,
       organizations: organizations.map(org => ({
-        id: org.organization.id,
-        name: org.organization.name,
-        role: org.role?.slug ?? 'member',
-        isCurrent: org.organization.id === organizationId,
+        id: org.id,
+        name: org.name,
+        role: org.role,
+        isCurrent: org.id === organizationId,
       })),
     });
   } catch (error) {

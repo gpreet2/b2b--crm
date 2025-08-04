@@ -46,7 +46,7 @@ function shouldSkipRateLimit(req: Request): boolean {
   }
 
   // Skip for internal IPs
-  if (RATE_LIMIT_CONFIG.SKIP_IPS.includes(clientIp)) {
+  if (RATE_LIMIT_CONFIG.SKIP_IPS.includes(clientIp as any)) {
     return true;
   }
 

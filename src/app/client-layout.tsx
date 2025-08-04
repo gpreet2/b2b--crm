@@ -17,7 +17,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   };
 
   if (isAuthPage || isOnboardingPage || isTestPage) {
-    return <>{children}</>;
+    return children;
   }
 
   return (

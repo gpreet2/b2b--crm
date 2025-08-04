@@ -280,7 +280,7 @@ export default function CalendarClassListPage() {
     if (classData) {
       classData.isCompleted = true;
       // Trigger post-class flows
-      alert('Class completed! Post-class flows triggered.');
+      console.warn('Class completed! Post-class flows triggered.');
       setSelectedClass(null); // Close modal
     }
   };
