@@ -86,10 +86,10 @@ export default function WorkoutCalendar({
     endDate.setDate(endDate.getDate() + (6 - endDate.getDay()));
 
     const dates = [];
-    const current = new Date(startDate);
+    let current = new Date(startDate);
     while (current <= endDate) {
       dates.push(new Date(current));
-      current.setDate(current.getDate() + 1);
+      current = new Date(current.getTime() + 24 * 60 * 60 * 1000); // Add one day
     }
     return dates;
   };

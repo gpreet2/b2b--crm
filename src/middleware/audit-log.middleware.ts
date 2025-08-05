@@ -265,7 +265,7 @@ export function auditMiddleware(
     status?: 'success' | 'failure' | 'pending';
   } = {}
 ) {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     const startTime = Date.now();
 
     // Skip if shouldAudit returns false

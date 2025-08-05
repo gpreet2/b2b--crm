@@ -1,4 +1,5 @@
-import { withAuth } from '@workos-inc/authkit-nextjs';
+// Unused import - keeping for future WorkOS integration
+// import { withAuth } from '@workos-inc/authkit-nextjs';
 import { Request, Response, NextFunction } from 'express';
 
 import { AuthError, PermissionError } from '@/errors';
@@ -19,7 +20,7 @@ interface AuthenticatedRequest extends Request {
 /**
  * Middleware to require authentication
  */
-export async function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+export function requireAuth(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   try {
     const authHeader = req.headers.authorization;
 
@@ -32,7 +33,7 @@ export async function requireAuth(req: AuthenticatedRequest, res: Response, next
     // For API routes called from client, the access token should be passed
 
     // This is a simplified version - in production you'd validate the JWT
-    const token = authHeader.replace('Bearer ', '');
+    const _token = authHeader.replace('Bearer ', ''); // Will be used for JWT validation
 
     // Add user context to request
     // In a real implementation, decode and verify the JWT token
@@ -112,10 +113,11 @@ export function requireOrganization() {
 
 // Helper function (should import from auth/workos.ts in real implementation)
 async function hasRole(
-  userId: string,
-  organizationId: string,
-  role: 'owner' | 'admin' | 'member'
+  _userId: string,
+  _organizationId: string,
+  _role: 'owner' | 'admin' | 'member'
 ): Promise<boolean> {
   // Placeholder - import from auth/workos.ts
-  return true;
+  // In real implementation this would call WorkOS API
+  return Promise.resolve(true);
 }

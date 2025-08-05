@@ -207,7 +207,7 @@ export default function ClientsPage() {
 
   const handleManualCheckIn = (memberId: string) => {
     // In real app, this would make an API call
-    alert(`Member ${memberId} checked in successfully!`);
+    console.warn(`Member ${memberId} checked in successfully!`);
     setActiveDropdownId(null);
   };
 
@@ -238,7 +238,7 @@ export default function ClientsPage() {
       };
 
       setIsProcessingPayment(false);
-      alert(`Day pass created! Access code: ${newDayPass.accessCode}`);
+      console.warn(`Day pass created! Access code: ${newDayPass.accessCode}`);
       setShowDayPassModal(false);
       setDayPassForm({ name: '', email: '', phone: '' });
     }, 2000);

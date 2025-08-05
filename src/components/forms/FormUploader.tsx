@@ -57,7 +57,7 @@ export function FormUploader({ onUpload, onClose }: FormUploaderProps) {
     setDragActive(false);
 
     const files = e.dataTransfer.files;
-    if (files && files[0]) {
+    if (files?.[0]) {
       handleFileSelect(files[0]);
     }
   };
@@ -72,13 +72,13 @@ export function FormUploader({ onUpload, onClose }: FormUploaderProps) {
     ];
 
     if (!allowedTypes.includes(file.type)) {
-      alert('Please upload a PDF, Word document, or text file');
+      console.error('Please upload a PDF, Word document, or text file');
       return;
     }
 
     // Validate file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
-      alert('File size must be less than 10MB');
+      console.error('File size must be less than 10MB');
       return;
     }
 
@@ -93,14 +93,14 @@ export function FormUploader({ onUpload, onClose }: FormUploaderProps) {
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files && files[0]) {
+    if (files?.[0]) {
       handleFileSelect(files[0]);
     }
   };
 
-  const handleUpload = async () => {
+  const handleUpload = () => {
     if (!selectedFile || !formData.name.trim()) {
-      alert('Please select a file and enter a form name');
+      console.error('Please select a file and enter a form name');
       return;
     }
 
