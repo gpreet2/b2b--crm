@@ -23,7 +23,7 @@ export function initializeSentry(): void {
     autoSessionTracking: true,
 
     // Filter sensitive data before sending
-    beforeSend(event, hint) {
+    beforeSend(event, _hint) {
       // Don't send events in test environment
       if (process.env.NODE_ENV === 'test') {
         return null;

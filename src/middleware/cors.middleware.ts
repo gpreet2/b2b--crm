@@ -382,7 +382,7 @@ export function validateCorsConfig(): { isValid: boolean; errors: string[] } {
   allowedOrigins.forEach(origin => {
     try {
       new URL(origin);
-    } catch (error) {
+    } catch (_error) {
       errors.push(`Invalid origin format: ${origin}`);
     }
   });

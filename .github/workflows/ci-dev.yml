@@ -1,0 +1,30 @@
+name: Development CI
+on:
+  pull_request:
+    branches: [develop, feature/*]
+    types: [opened, synchronize]
+
+jobs:
+  fast-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Fast lint (security and runtime only)
+        run: npm run lint:dev
+
+      - name: Unit tests only
+        run: npm run test:unit
+
+      - name: Fast development build
+        run: npm run build:dev

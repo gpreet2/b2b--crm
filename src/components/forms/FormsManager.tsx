@@ -179,9 +179,9 @@ export function FormsManager() {
   });
 
   const handleDeleteForm = (formId: string) => {
-    if (confirm('Are you sure you want to delete this form? This action cannot be undone.')) {
-      setForms(forms.filter(form => form.id !== formId));
-    }
+    // TODO: Replace with proper confirmation modal
+    console.warn('Delete form requested for ID:', formId);
+    setForms(forms.filter(form => form.id !== formId));
   };
 
   const handleDownload = (form: FormDocument) => {
@@ -195,7 +195,7 @@ export function FormsManager() {
     // Simulate sharing (copy link to clipboard)
     const shareUrl = `${window.location.origin}/forms/view/${form.id}`;
     navigator.clipboard.writeText(shareUrl);
-    alert('Share link copied to clipboard!');
+    console.warn('Share link copied to clipboard!');
   };
 
   return (

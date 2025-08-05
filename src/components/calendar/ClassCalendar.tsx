@@ -15,12 +15,13 @@ import AddClassModal from '../classes/AddClassModal';
 import ClassEventModal from './ClassEventModal';
 
 
-// Dynamic import for FullCalendar to avoid SSR issues
-const FullCalendar = dynamic(() => import('@fullcalendar/react'), { ssr: false });
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import type { EventClickArg, EventContentArg, DateSelectArg } from '@fullcalendar/core';
+
+// Dynamic import for FullCalendar to avoid SSR issues
+const FullCalendar = dynamic(() => import('@fullcalendar/react'), { ssr: false });
 
 interface ClassCalendarProps {
   classes?: Class[];

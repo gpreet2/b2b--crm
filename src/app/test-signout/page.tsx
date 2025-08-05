@@ -24,19 +24,19 @@ export default function TestSignOutPage() {
         localStorage.clear();
         sessionStorage.clear();
 
-        alert('Signed out successfully! Redirecting to auth page...');
+        console.warn('Signed out successfully! Redirecting to auth page...');
 
         // Manually redirect to auth page after clearing session
         window.location.href = '/auth';
       } else if (response.ok) {
-        alert('Signed out successfully! You can now test sign up with a fresh session.');
+        console.warn('Signed out successfully! You can now test sign up with a fresh session.');
         router.push('/auth');
       } else {
-        alert('Failed to sign out');
+        console.error('Failed to sign out');
       }
     } catch (error) {
       console.error('Sign out error:', error);
-      alert('Failed to sign out');
+      console.error('Failed to sign out');
     } finally {
       setIsLoading(false);
     }

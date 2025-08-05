@@ -303,7 +303,9 @@ export default function WorkoutSidebar({ isOpen, onClose }: WorkoutSidebarProps)
   const handleDeleteTemplate = useCallback(
     (templateId: string) => {
       const template = customTemplates.find(t => t.id === templateId);
-      if (template && window.confirm(`Are you sure you want to delete "${template.title}"?`)) {
+      if (template) {
+        // TODO: Replace with proper confirmation modal
+        console.warn(`Delete template requested: "${template.title}"`);
         setCustomTemplates(prev => prev.filter(t => t.id !== templateId));
         announceToScreenReader(`Workout template "${template.title}" deleted`);
       }

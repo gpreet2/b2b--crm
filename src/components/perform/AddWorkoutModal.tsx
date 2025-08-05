@@ -304,7 +304,7 @@ export default function AddWorkoutModal({
         updatedAt: new Date(),
       };
 
-      await onSave(workoutData);
+      onSave(workoutData);
 
       // Show success message
       setSuccessMessage(`✅ Workout "${title}" saved successfully!`);
@@ -377,7 +377,7 @@ export default function AddWorkoutModal({
         updatedAt: new Date(),
       };
 
-      await onSave(workoutData);
+      onSave(workoutData);
       onClose();
     } catch (error) {
       setDragError('Failed to save workout. Please try again.');

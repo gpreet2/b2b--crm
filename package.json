@@ -2,14 +2,17 @@
   "name": "b2b-crm",
   "version": "0.1.0",
   "private": true,
+  "license": "UNLICENSED",
   "scripts": {
     "dev": "next dev",
     "dev:server": "tsx --watch src/server.ts",
     "build": "next build",
-    "build:temp": "ESLINT_CONFIG_FILE=.eslintrc.temp.js next build",
+    "build:dev": "ESLINT_CONFIG_FILE=eslint.config.dev.mjs next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:dev": "next lint --quiet --max-warnings 20",
     "lint:fix": "next lint --fix",
+    "lint:dev:fix": "next lint --fix --quiet",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "jest",
@@ -25,7 +28,10 @@
     "generate:types": "tsx scripts/generate-types.ts",
     "pre-commit": "npm run format && npm run lint:fix && npm run typecheck",
     "ci": "npm run format:check && npm run lint && npm run typecheck && npm run test:ci",
-    "validate": "npm run ci && npm run build"
+    "ci:fast": "npm run format:check && npm run lint:dev && npm run typecheck && npm run test:unit",
+    "validate": "npm run ci && npm run build",
+    "validate:dev": "npm run ci:fast && npm run build:dev",
+    "dev:check": "npm run lint:dev && npm run typecheck"
   },
   "dependencies": {
     "@fullcalendar/core": "^6.1.18",
