@@ -79,11 +79,11 @@ monitoringRouter.get('/health', async (req: Request, res: Response) => {
       const db = getDatabase();
       const client = db.getSupabaseClient();
 
-      // Try to query a non-existent table (should fail with specific error)
-      const { error } = await client.from('_health_check_test').select('count').limit(1);
-
-      // PGRST116 means table doesn't exist, which is expected
-      if (error && error.code !== 'PGRST116') {
+      // Simple connectivity test using auth endpoint
+      const { data, error } = await client.auth.getSession();
+      
+      // Connection is healthy if we can reach the auth service (regardless of session state)
+      if (error && (error.message.includes('network') || error?.status >= 500)) {
         throw error;
       }
 
