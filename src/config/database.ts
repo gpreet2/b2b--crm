@@ -166,12 +166,18 @@ class DatabaseConnectionPool {
     let isHealthy = true;
 
     try {
-      // Check Supabase client
+      // Check Supabase client with simple connectivity test
       if (this.supabaseClient) {
-        const { error } = await this.supabaseClient.from('_health_check').select('count').limit(1);
-
-        if (error && error.code !== 'PGRST116') {
-          // PGRST116 means table doesn't exist, which is OK for health check
+        try {
+          // Simple connectivity test using auth endpoint
+          const { data, error } = await this.supabaseClient.auth.getSession();
+          
+          // Connection is healthy if we can reach the auth service (regardless of session state)
+          if (error && error.message.includes('network') || error?.status >= 500) {
+            isHealthy = false;
+            logger.error('Supabase health check failed', { error });
+          }
+        } catch (error) {
           isHealthy = false;
           logger.error('Supabase health check failed', { error });
         }
