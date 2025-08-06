@@ -83,7 +83,7 @@ monitoringRouter.get('/health', async (req: Request, res: Response) => {
       const { error } = await client.auth.getSession();
       
       // Connection is healthy if we can reach the auth service (regardless of session state)
-      if (error && (error.message.includes('network') || error?.status >= 500)) {
+      if (error && (error.message.includes('network') || (error.status && error.status >= 500))) {
         throw error;
       }
 
