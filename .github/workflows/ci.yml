@@ -54,6 +54,11 @@ jobs:
           UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
+          # Sentry Configuration
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+
           # App Configuration
           NEXT_PUBLIC_APP_URL: http://localhost:3000
           SESSION_COOKIE_NAME: b2b_session_test
@@ -72,6 +77,22 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           NEXT_PUBLIC_WORKOS_CLIENT_ID: ${{ secrets.WORKOS_CLIENT_ID }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+      - name: Create Sentry release and upload sourcemaps
+        uses: getsentry/action-release@v1
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/backend'
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+        with:
+          environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'development' }}
+          sourcemaps: './.next'
+          url_prefix: '~'
 
   security:
     name: Security Scan
@@ -108,6 +129,7 @@ jobs:
           echo "📦 BUILD: Production build successful"
           echo "🧪 TESTS: All tests passing on Node.js 18.x and 20.x"
           echo "📝 TYPES: TypeScript strict mode compilation successful"
+          echo "📊 MONITORING: Sentry error tracking configured"
           echo "⚡ PERFORMANCE: Code quality focused on business impact"
           echo ""
           echo "ℹ️  Style warnings are informational and don't block deployment"

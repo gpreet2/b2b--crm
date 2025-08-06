@@ -1,5 +1,5 @@
 // Import Sentry initialization first
-import './instrument';
+// Sentry now auto-initializes via instrumentation.ts
 
 import * as Sentry from '@sentry/node';
 import express from 'express';

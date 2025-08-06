@@ -1,3 +1,4 @@
+import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
@@ -10,7 +11,7 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   // Performance optimizations
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config, { dev, isServer, webpack }) => {
     if (dev) {
       // Suppress the specific Prisma/OpenTelemetry warnings that spam the console
       config.ignoreWarnings = [
@@ -23,7 +24,7 @@ const nextConfig: NextConfig = {
         /Can't resolve 'tedious'/,
         /Can't resolve 'pg-query-stream'/,
       ];
-      
+
       // Basic development optimizations
       config.optimization = {
         ...config.optimization,
@@ -39,8 +40,33 @@ const nextConfig: NextConfig = {
         },
       };
     }
+
+    // Add DefinePlugin for proper Sentry tree-shaking and environment separation
+    config.plugins.push(
+      new webpack.DefinePlugin({
+        __SENTRY_DEBUG__: JSON.stringify(false),
+        __SENTRY_TRACING__: JSON.stringify(process.env.NODE_ENV === 'production'),
+        __RRWEB_EXCLUDE_IFRAME__: JSON.stringify(true),
+        __RRWEB_EXCLUDE_SHADOW_DOM__: JSON.stringify(true),
+        __SENTRY_EXCLUDE_REPLAY_WORKER__: JSON.stringify(true),
+        // Prevent browser globals from being used in server code
+        'process.browser': JSON.stringify(!isServer),
+      })
+    );
+
     return config;
   },
 };
 
-export default nextConfig;
+// Disable Sentry config wrapper in development to avoid conflicts
+export default process.env.NODE_ENV === 'production' 
+  ? withSentryConfig(nextConfig, {
+      org: 'tryzore',
+      project: 'javascript-nextjs',
+      silent: !process.env.CI,
+      widenClientFileUpload: true,
+      tunnelRoute: '/monitoring',
+      disableLogger: true,
+      automaticVercelMonitors: true,
+    })
+  : nextConfig;
