@@ -80,7 +80,7 @@ monitoringRouter.get('/health', async (req: Request, res: Response) => {
       const client = db.getSupabaseClient();
 
       // Simple connectivity test using auth endpoint
-      const { data, error } = await client.auth.getSession();
+      const { error } = await client.auth.getSession();
       
       // Connection is healthy if we can reach the auth service (regardless of session state)
       if (error && (error.message.includes('network') || error?.status >= 500)) {
