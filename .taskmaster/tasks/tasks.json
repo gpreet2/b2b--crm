@@ -647,7 +647,7 @@
         "status": "pending",
         "phase": "2-core-features",
         "details": "Create membership CRUD with full validation, implement access type management.",
-        "dependencies": ["14"],
+        "dependencies": ["14", "27"],
         "testStrategy": "Test membership state transitions, verify access calculations",
         "subtasks": [
           {
@@ -1154,11 +1154,131 @@
             "status": "pending"
           }
         ]
+      },
+      {
+        "id": 27,
+        "title": "PHASE 1: Implement Kisi Access Control Integration",
+        "description": "Create comprehensive Kisi API integration for physical door access management across all organizations",
+        "details": "Implement complete Kisi integration including API wrapper service, membership-to-group sync, door unlock endpoints, multi-location access management, nightly reconciliation jobs, and mobile app APIs. Critical foundation for the entire access control system.",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [1, 5, 6, 11],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Kisi database schema and configuration",
+            "description": "Add kisi_access_log table, organizations.kisi_api_key_encrypted field, kisi_group_mappings table for tracking Kisi groups per organization",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 2,
+            "title": "Build Kisi API wrapper service",
+            "description": "Create KisiService class with methods: grantAccess, revokeAccess, unlockDoor, createGroup, addToGroup, removeFromGroup, syncGroupMemberships",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 3,
+            "title": "Implement membership-to-Kisi sync service",
+            "description": "Create service to sync membership status changes to Kisi groups: active → grant access, expired/suspended → revoke access, multi-location → multiple groups",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 4,
+            "title": "Create door unlock API endpoints",
+            "description": "Build POST /api/door/unlock endpoint with geofence validation, membership verification, rate limiting, and mobile app integration",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 5,
+            "title": "Build multi-location access management",
+            "description": "Implement cross-location access logic, handle multi-org memberships, sync access across multiple Kisi installations per organization",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 6,
+            "title": "Implement nightly Kisi reconciliation jobs",
+            "description": "Create scheduled job to sync CRM membership data with Kisi groups, remove orphaned access, grant missing access, handle cross-location consistency",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 7,
+            "title": "Create access audit and logging system",
+            "description": "Implement comprehensive logging for all Kisi operations: door unlocks, access grants/revokes, failed attempts, with organization context and audit trails",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 8,
+            "title": "Integrate Kisi with membership lifecycle events",
+            "description": "Connect Kisi sync to membership creation, updates, cancellations, and Stripe webhook events. Ensure real-time access control updates when memberships change.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 9,
+            "title": "Implement queued Kisi sync system",
+            "description": "Create Redis-based event queue with timestamps/versions to ensure ordered, idempotent processing of membership changes. Single worker processes events sequentially to eliminate race conditions.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 10,
+            "title": "Implement comprehensive Kisi error handling and retry logic",
+            "description": "Add exponential backoff retry for transient errors (5xx), 3 retry maximum, dead-letter queue for failed operations, graceful degradation when Kisi unavailable, proper error propagation to prevent bad UX.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 11,
+            "title": "Build intelligent reconciliation with conflict detection",
+            "description": "Create reconciliation that generates reports for discrepancies. Auto-fix clear cases (expired memberships), flag ambiguous cases (manual Kisi grants) for admin review rather than destructive automated action.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          },
+          {
+            "id": 12,
+            "title": "Implement outbound Kisi API rate limiting",
+            "description": "Add token bucket or request queue to KisiService ensuring all calls respect Kisi's published rate limits (e.g., max 10 req/sec). Handle bulk operations like franchise onboarding gracefully without triggering API bans.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-07-31T01:49:15.746Z",
-      "updated": "2025-08-03T17:45:45.683Z",
+      "updated": "2025-08-05T23:04:07.311Z",
       "description": "Security-first task organization with comprehensive subtasks including mockup-revealed features"
     }
   }
