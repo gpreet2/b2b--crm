@@ -23,6 +23,9 @@ export const GET = handleAuth({
         db = dbInstance;
       }
 
+      // Note: Onboarding session handling moved to separate flow
+      // WorkOS callback doesn't provide state parameter in current version
+
       // Log successful authentication
       logger.info('User authenticated successfully', {
         userId: user.id,
@@ -41,7 +44,7 @@ export const GET = handleAuth({
 
       if (!existingUser) {
         // Create user in database
-        const { error } = await db
+        const { data: newUser, error } = await db
           .getSupabaseClient()
           .from('users')
           .insert({
@@ -57,12 +60,19 @@ export const GET = handleAuth({
             },
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-          });
+          })
+          .select()
+          .single();
 
         if (error) {
           logger.error('Failed to create user in database', {
             error,
             userId: user.id,
+          });
+        } else {
+          logger.info('New user created in database', {
+            userId: user.id,
+            email: user.email,
           });
         }
       }
