@@ -8,19 +8,31 @@ Sentry.init({
   dsn: process.env.SENTRY_DSN,
 
   // Reduced tracing in development for better performance
-  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 0.01,
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 0.005,
 
-  // Enable logs only in production
-  enableLogs: process.env.NODE_ENV === 'production',
+  // Minimal logging in development, full logging in production
+  enableLogs: true,
 
-  // Debug only in development when explicitly enabled
-  debug: process.env.NODE_ENV === 'development' && process.env.ENABLE_SENTRY_DEV === 'true',
+  // Never debug unless explicitly enabled to reduce noise
+  debug: process.env.ENABLE_SENTRY_DEBUG === 'true',
 
-  // Server-specific integrations only
+  // Server-specific integrations only - reduce noise from instrumentation
   integrations: [
-    // Remove browser-specific integrations that could cause "self is not defined"
+    // Exclude noisy integrations that spam console
+    Sentry.extraErrorDataIntegration({ depth: 3 }),
   ],
 
   // Environment detection
   environment: process.env.NODE_ENV || 'development',
+  
+  // Filter out common development noise
+  beforeSend(event) {
+    // In development, ignore certain errors that are just noise
+    if (process.env.NODE_ENV === 'development') {
+      if (event.exception?.values?.[0]?.value?.includes('instrumentation')) {
+        return null; // Don't send instrumentation errors in dev
+      }
+    }
+    return event;
+  },
 });
