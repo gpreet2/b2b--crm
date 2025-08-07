@@ -9,6 +9,10 @@ export interface DatabaseConfig {
   supabaseServiceKey: string;
   databaseUrl?: string;
   poolConfig?: PoolConfig;
+  healthCheck?: {
+    enabled?: boolean;
+    intervalMs?: number;
+  };
 }
 
 export interface ConnectionPoolMetrics {
@@ -153,9 +157,16 @@ class DatabaseConnectionPool {
   }
 
   private startHealthChecks(): void {
+    // Skip health checks if disabled (e.g., during tests)
+    if (this.config.healthCheck?.enabled === false) {
+      logger.debug('Health checks disabled');
+      return;
+    }
+
+    const intervalMs = this.config.healthCheck?.intervalMs ?? 30000;
     this.healthCheckInterval = setInterval(async () => {
       await this.performHealthCheck();
-    }, 30000); // Check every 30 seconds
+    }, intervalMs);
 
     // Perform initial health check
     this.performHealthCheck();
@@ -313,6 +324,11 @@ class DatabaseConnectionPool {
     };
 
     logger.info('Database connection pool shut down');
+  }
+
+  // Alias for shutdown for test compatibility
+  async close(): Promise<void> {
+    await this.shutdown();
   }
 }
 

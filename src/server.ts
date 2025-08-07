@@ -91,8 +91,8 @@ async function startServer() {
   }
 }
 
-// Only start if this file is run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Only start if this file is run directly (Node.js compatibility)
+if (require.main === module) {
   startServer();
 }
 

@@ -4,17 +4,16 @@ import {
   ChevronRight,
   Check,
   MapPin,
-  User,
+  Building2,
   Mail,
   Lock,
-  Building2,
   Sparkles,
   Trash2,
   Plus,
 } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import React, { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 
 interface Location {
   id: string;
@@ -23,25 +22,101 @@ interface Location {
 }
 
 export default function OnboardingPage() {
-  const _router = useRouter();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [sessionData, setSessionData] = useState({
+    sessionId: '',
+    sessionToken: '',
+    csrfToken: '',
+  });
   const [formData, setFormData] = useState({
     organizationName: '',
-    firstName: '',
-    lastName: '',
   });
   const [locations, setLocations] = useState<Location[]>([{ id: '1', name: '', address: '' }]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const totalSteps = 3;
 
+  // Initialize or recover onboarding session
+  useEffect(() => {
+    const initializeSession = async () => {
+      // Check URL parameters for existing session
+      const sessionId = searchParams.get('session');
+      const sessionToken = searchParams.get('token');
+      const csrfToken = searchParams.get('csrf');
+
+      if (sessionId && sessionToken && csrfToken) {
+        // Attempt session recovery
+        try {
+          const response = await fetch('/api/onboarding/recovery', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              sessionId,
+              sessionToken,
+              validateSteps: true,
+              repairMissingData: true,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (data.success && data.session) {
+            setSessionData({ sessionId, sessionToken, csrfToken });
+            setCurrentStep(data.nextStep || 1);
+            if (data.session.state.organizationName) {
+              setFormData({ organizationName: data.session.state.organizationName });
+            }
+            if (data.session.state.locations && data.session.state.locations.length > 0) {
+              setLocations(data.session.state.locations);
+            }
+            return;
+          }
+        } catch (error) {
+          console.warn('Failed to recover session, starting new session:', error);
+        }
+      }
+
+      // Start new session
+      try {
+        const response = await fetch('/api/onboarding/start', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({}),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setSessionData({
+            sessionId: data.sessionId,
+            sessionToken: data.sessionToken,
+            csrfToken: data.csrfToken,
+          });
+        } else {
+          setErrors({ general: 'Failed to start onboarding session. Please refresh the page.' });
+        }
+      } catch (error) {
+        console.error('Failed to start onboarding session:', error);
+        setErrors({ general: 'Failed to start onboarding session. Please refresh the page.' });
+      }
+    };
+
+    initializeSession();
+  }, [searchParams]);
+
   const steps = [
     {
       id: 1,
-      title: 'Your details',
+      title: 'Business details',
       description: 'Tell us about your business',
-      icon: User,
+      icon: Building2,
     },
     {
       id: 2,
@@ -96,8 +171,6 @@ export default function OnboardingPage() {
 
     if (currentStep === 1) {
       if (!formData.organizationName) newErrors.organizationName = 'Organization name is required';
-      if (!formData.firstName) newErrors.firstName = 'First name is required';
-      if (!formData.lastName) newErrors.lastName = 'Last name is required';
     } else if (currentStep === 2) {
       locations.forEach(location => {
         if (!location.name) newErrors[`location_${location.id}_name`] = 'Location name is required';
@@ -110,14 +183,56 @@ export default function OnboardingPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleNext = () => {
+  // Update session with current state
+  const updateSessionState = async () => {
+    if (!sessionData.sessionId || !sessionData.sessionToken) {
+      return false;
+    }
+
+    try {
+      const response = await fetch('/api/onboarding/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId: sessionData.sessionId,
+          sessionToken: sessionData.sessionToken,
+          csrfToken: sessionData.csrfToken,
+          currentStep,
+          state: {
+            organizationName: formData.organizationName,
+            locations: locations,
+            metadata: {
+              startedAt: new Date().toISOString(),
+              completedSteps: Array.from({ length: currentStep - 1 }, (_, i) => i + 1),
+              lastActiveStep: currentStep,
+            },
+          },
+        }),
+      });
+
+      return response.ok;
+    } catch (error) {
+      console.error('Failed to update session state:', error);
+      return false;
+    }
+  };
+
+  const handleNext = async () => {
     if (currentStep === 3) {
       handleSubmit();
       return;
     }
 
     if (validateCurrentStep()) {
-      setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+      // Update session state before proceeding
+      const updateSuccess = await updateSessionState();
+      if (updateSuccess) {
+        setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+      } else {
+        setErrors({ general: 'Failed to save progress. Please try again.' });
+      }
     }
   };
 
@@ -126,46 +241,40 @@ export default function OnboardingPage() {
   };
 
   const handleSubmit = async () => {
+    if (!validateCurrentStep()) {
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Store onboarding data in session storage to persist after auth
-      sessionStorage.setItem(
-        'onboardingData',
-        JSON.stringify({
-          organizationName: formData.organizationName,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          locations,
-        })
-      );
-
-      // Use AuthKit's user management authentication for sign up
-      const response = await fetch('/api/auth/signup', {
+      // Complete onboarding with session data
+      const response = await fetch('/api/onboarding/complete', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
+          sessionId: sessionData.sessionId,
+          sessionToken: sessionData.sessionToken,
+          csrfToken: sessionData.csrfToken,
         }),
       });
 
       const data = await response.json();
-      console.log('Sign up response:', data);
+      console.log('Onboarding completion response:', data);
 
       if (response.ok && data.url) {
         console.log('Redirecting to WorkOS:', data.url);
         window.location.href = data.url;
       } else {
         setIsLoading(false);
-        setErrors({ email: data.error || 'Failed to start authentication. Please try again.' });
+        setErrors({ general: data.error || 'Failed to complete onboarding. Please try again.' });
       }
     } catch (error) {
-      console.error('Auth error:', error);
+      console.error('Onboarding completion error:', error);
       setIsLoading(false);
-      setErrors({ email: 'Failed to start authentication. Please try again.' });
+      setErrors({ general: 'Failed to complete onboarding. Please try again.' });
     }
   };
 
@@ -173,10 +282,22 @@ export default function OnboardingPage() {
     switch (currentStep) {
       case 1:
         return (
-          <div className='space-y-6 animate-in fade-in duration-300'>
-            <div className='max-w-2xl mx-auto'>
+          <div className='space-y-8 animate-in fade-in duration-300'>
+            <div className='max-w-2xl mx-auto text-center'>
+              <div className='w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6'>
+                <Building2 className='w-8 h-8 text-primary' />
+              </div>
+              <h3 className='text-xl font-semibold text-primary-text mb-2'>
+                Welcome to B2B Gym CRM
+              </h3>
+              <p className='text-secondary-text text-sm'>
+                Let's start by setting up your fitness business. We'll collect your personal information during account creation.
+              </p>
+            </div>
+
+            <div className='max-w-lg mx-auto'>
               <label className='block text-xs font-medium text-secondary-text mb-2 uppercase tracking-wide'>
-                Organization Name
+                Business / Organization Name
               </label>
               <input
                 type='text'
@@ -192,40 +313,17 @@ export default function OnboardingPage() {
               {errors.organizationName ? <p className='mt-1 text-xs text-danger font-medium'>{errors.organizationName}</p> : null}
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto'>
-              <div>
-                <label className='block text-xs font-medium text-secondary-text mb-2 uppercase tracking-wide'>
-                  First Name
-                </label>
-                <input
-                  type='text'
-                  value={formData.firstName}
-                  onChange={e => handleInputChange('firstName', e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl border ${
-                    errors.firstName
-                      ? 'border-danger focus:border-danger'
-                      : 'border-border focus:border-primary'
-                  } focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all bg-surface shadow-sm hover:shadow-md`}
-                  placeholder='John'
-                />
-                {errors.firstName ? <p className='mt-1 text-xs text-danger font-medium'>{errors.firstName}</p> : null}
-              </div>
-              <div>
-                <label className='block text-xs font-medium text-secondary-text mb-2 uppercase tracking-wide'>
-                  Last Name
-                </label>
-                <input
-                  type='text'
-                  value={formData.lastName}
-                  onChange={e => handleInputChange('lastName', e.target.value)}
-                  className={`w-full px-4 py-3 rounded-xl border ${
-                    errors.lastName
-                      ? 'border-danger focus:border-danger'
-                      : 'border-border focus:border-primary'
-                  } focus:outline-none focus:ring-2 focus:ring-primary/10 transition-all bg-surface shadow-sm hover:shadow-md`}
-                  placeholder='Doe'
-                />
-                {errors.lastName ? <p className='mt-1 text-xs text-danger font-medium'>{errors.lastName}</p> : null}
+            <div className='max-w-lg mx-auto bg-gradient-to-r from-primary/5 to-primary-light/5 rounded-xl p-4 border border-primary/10'>
+              <div className='flex items-start space-x-3'>
+                <div className='w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5'>
+                  <Mail className='w-3 h-3 text-primary' />
+                </div>
+                <div className='text-xs text-secondary-text'>
+                  <p className='font-medium mb-1'>Personal Information</p>
+                  <p className='text-muted'>
+                    Your name and contact details will be collected securely during the account creation process through WorkOS.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -352,15 +450,15 @@ export default function OnboardingPage() {
                   </span>
                 </div>
                 <div className='flex justify-between'>
-                  <span className='text-xs text-secondary-text'>Owner:</span>
+                  <span className='text-xs text-secondary-text'>Locations:</span>
                   <span className='text-xs text-primary-text font-medium'>
-                    {formData.firstName} {formData.lastName}
+                    {locations.filter(loc => loc.name && loc.address).length} location{locations.filter(loc => loc.name && loc.address).length > 1 ? 's' : ''}
                   </span>
                 </div>
                 <div className='flex justify-between'>
-                  <span className='text-xs text-secondary-text'>Locations:</span>
-                  <span className='text-xs text-primary-text font-medium'>
-                    {locations.length} location{locations.length > 1 ? 's' : ''}
+                  <span className='text-xs text-secondary-text'>Owner:</span>
+                  <span className='text-xs text-muted italic'>
+                    (Will be set from your account)
                   </span>
                 </div>
               </div>
@@ -527,6 +625,18 @@ export default function OnboardingPage() {
               </h2>
               <p className='text-sm text-secondary-text'>{steps[currentStep - 1]?.description}</p>
             </div>
+
+            {/* Error Display */}
+            {errors.general && (
+              <div className='bg-danger/10 border border-danger/20 rounded-xl p-4 max-w-md mx-auto mb-6'>
+                <div className='flex items-center space-x-2'>
+                  <div className='w-4 h-4 bg-danger/20 rounded-full flex items-center justify-center'>
+                    <div className='w-2 h-2 bg-danger rounded-full'></div>
+                  </div>
+                  <p className='text-sm text-danger font-medium'>{errors.general}</p>
+                </div>
+              </div>
+            )}
 
             {/* Form Content */}
             <div className='bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border-0 p-12'>

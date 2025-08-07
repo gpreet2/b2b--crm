@@ -15,14 +15,22 @@ const nextConfig: NextConfig = {
     if (dev) {
       // Suppress the specific Prisma/OpenTelemetry warnings that spam the console
       config.ignoreWarnings = [
+        // OpenTelemetry and Sentry instrumentation warnings
         /Critical dependency: the request of a dependency is an expression.*@prisma\/instrumentation/,
         /Critical dependency: the request of a dependency is an expression.*@opentelemetry/,
         /Critical dependency: the request of a dependency is an expression.*@sentry/,
+        /Critical dependency: the request of a dependency is an expression.*instrumentation/,
+        // Database driver warnings that don't affect our app
         /Module not found: Can't resolve 'pg-native'/,
         /Can't resolve 'mysql'/,
         /Can't resolve 'sqlite3'/,
         /Can't resolve 'tedious'/,
         /Can't resolve 'pg-query-stream'/,
+        /Can't resolve 'oracledb'/,
+        /Can't resolve 'redis'/,
+        // Additional OpenTelemetry patterns
+        /Critical dependency.*instrumentation.*build.*platform.*node/,
+        /Critical dependency.*instrumentation.*esm.*platform.*node/,
       ];
 
       // Basic development optimizations

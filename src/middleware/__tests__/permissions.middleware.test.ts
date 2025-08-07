@@ -120,15 +120,15 @@ describe('Permission Middleware', () => {
 
   describe('checkPermission with real database', () => {
     it('should return true for admin permissions', async () => {
-      const result = await checkPermission(testUserId, testOrgId, 'users', 'read');
+      const result = await checkPermission(testUserId, testOrgId, 'clients', 'view');
 
       expect(result).toBe(true);
     });
 
     it('should return true for multiple admin permissions', async () => {
       const permissions = [
-        { resource: 'users', action: 'write' },
-        { resource: 'users', action: 'delete' },
+        { resource: 'clients', action: 'update' },
+        { resource: 'clients', action: 'delete' },
         { resource: 'events', action: 'create' },
         { resource: 'organization', action: 'manage_roles' },
       ];
@@ -140,13 +140,13 @@ describe('Permission Middleware', () => {
     });
 
     it('should return false for non-existent user', async () => {
-      const result = await checkPermission('non-existent-user-id', testOrgId, 'users', 'read');
+      const result = await checkPermission('non-existent-user-id', testOrgId, 'clients', 'view');
 
       expect(result).toBe(false);
     });
 
     it('should return false for non-existent organization', async () => {
-      const result = await checkPermission(testUserId, 'non-existent-org-id', 'users', 'read');
+      const result = await checkPermission(testUserId, 'non-existent-org-id', 'clients', 'view');
 
       expect(result).toBe(false);
     });
@@ -174,14 +174,14 @@ describe('Permission Middleware', () => {
       expect(permissions.length).toBeGreaterThan(20);
 
       // Check for specific expected permissions
-      const hasUsersRead = permissions.some(
-        p => p.resource === 'users' && p.action === 'read' && p.granted
+      const hasClientsView = permissions.some(
+        p => p.resource === 'clients' && p.action === 'view' && p.granted
       );
       const hasEventsCreate = permissions.some(
         p => p.resource === 'events' && p.action === 'create' && p.granted
       );
 
-      expect(hasUsersRead).toBe(true);
+      expect(hasClientsView).toBe(true);
       expect(hasEventsCreate).toBe(true);
     });
 
@@ -250,7 +250,7 @@ describe('Permission Middleware', () => {
 
   describe('requirePermission middleware with real checks', () => {
     it('should allow access when permission exists', async () => {
-      const middleware = requirePermission('users', 'read');
+      const middleware = requirePermission('clients', 'view');
 
       await middleware(mockReq as AuthenticatedRequest, mockRes as Response, mockNext);
 
@@ -341,7 +341,7 @@ describe('Permission Middleware', () => {
 
     it('should not grant permissions across organizations', async () => {
       // User has admin in testOrgId but should have no permissions in otherOrgId
-      const result = await checkPermission(testUserId, otherOrgId, 'users', 'read');
+      const result = await checkPermission(testUserId, otherOrgId, 'clients', 'view');
 
       expect(result).toBe(false);
     });
