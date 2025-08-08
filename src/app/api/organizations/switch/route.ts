@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if organization is active
-    if (!userOrg.organization.is_active) {
+    if (!(userOrg.organization as any).is_active) {
       return NextResponse.json(
         { error: 'Organization is inactive' },
         { status: 400 }
@@ -236,7 +236,7 @@ export async function GET(request: NextRequest) {
 
     // Filter only active organizations
     const availableOrganizations = userOrganizations?.filter(
-      uo => uo.organization && uo.organization.is_active
+      uo => uo.organization && (uo.organization as any).is_active
     ) || [];
 
     return NextResponse.json({

@@ -131,7 +131,7 @@ desktop.ini
 
 # Project specific
 UI_Plan.md
-status.md
+# status.md should be committed to track project progress
 
 # TaskMaster files (generated, not needed in production)
 .taskmaster/tasks/task_*.txt
@@ -144,3 +144,13 @@ src/app/api/sentry-example-api/
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Debug and test files created during development
+src/app/api/debug-users/
+src/app/test-auth-debug/
+src/app/test-auth-simple/
+src/app/dashboard/auth-test.tsx
+
+# Authentication debug endpoints (temporary)
+src/app/api/auth/user/
+src/app/api/debug-auth/
