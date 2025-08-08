@@ -154,3 +154,7 @@ src/app/dashboard/auth-test.tsx
 # Authentication debug endpoints (temporary)
 src/app/api/auth/user/
 src/app/api/debug-auth/
+
+# Task files
+# tasks.json
+# tasks/ 
