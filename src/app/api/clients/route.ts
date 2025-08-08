@@ -10,6 +10,123 @@
  * - Pagination support
  * - Proper permission checks
  * - Security-first approach with RLS
+ * 
+ * @swagger
+ * /api/clients:
+ *   get:
+ *     tags:
+ *       - Clients
+ *     summary: List clients with filtering and pagination
+ *     description: |
+ *       Retrieve a paginated list of clients for the authenticated user's active organization.
+ *       Supports advanced filtering, search, and sorting capabilities.
+ *       
+ *       **Security**: Requires WorkOS authentication. Users can only access clients
+ *       from their active organization due to Row-Level Security (RLS) policies.
+ *       
+ *       **Performance**: Optimized with database indexes and efficient pagination.
+ *       Search is performed in-memory for small result sets to reduce database load.
+ *     parameters:
+ *       - $ref: '#/components/parameters/PageParam'
+ *       - $ref: '#/components/parameters/LimitParam'
+ *       - $ref: '#/components/parameters/SearchParam'
+ *       - name: status
+ *         in: query
+ *         description: Filter clients by membership status
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [active, inactive, pending, suspended, expired]
+ *           example: active
+ *       - name: sort
+ *         in: query
+ *         description: Field to sort clients by
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [name, email, status, joined, last_visit, created]
+ *           default: name
+ *           example: name
+ *       - $ref: '#/components/parameters/OrderParam'
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved client list
+ *         content:
+ *           application/json:
+ *             schema:
+ *               allOf:
+ *                 - $ref: '#/components/schemas/SuccessResponse'
+ *                 - type: object
+ *                   properties:
+ *                     data:
+ *                       type: object
+ *                       required: [clients, pagination]
+ *                       properties:
+ *                         clients:
+ *                           type: array
+ *                           items:
+ *                             $ref: '#/components/schemas/Client'
+ *                         pagination:
+ *                           $ref: '#/components/schemas/Pagination'
+ *             examples:
+ *               successful_response:
+ *                 summary: Successful client list response
+ *                 value:
+ *                   success: true
+ *                   data:
+ *                     clients:
+ *                       - id: "123e4567-e89b-12d3-a456-426614174000"
+ *                         email: "john.doe@example.com"
+ *                         first_name: "John"
+ *                         last_name: "Doe"
+ *                         phone: "+1-555-123-4567"
+ *                         membership_status: "active"
+ *                         joined_date: "2023-01-15T10:30:00.000Z"
+ *                         last_visit: "2023-12-01T18:45:00.000Z"
+ *                         created_at: "2023-01-01T12:00:00.000Z"
+ *                         updated_at: "2023-01-01T12:00:00.000Z"
+ *                     pagination:
+ *                       page: 1
+ *                       limit: 20
+ *                       total: 150
+ *                       totalPages: 8
+ *                       hasNext: true
+ *                       hasPrev: false
+ *       400:
+ *         $ref: '#/components/responses/400'
+ *       401:
+ *         $ref: '#/components/responses/401'
+ *       403:
+ *         $ref: '#/components/responses/403'
+ *       500:
+ *         $ref: '#/components/responses/500'
+ *     security:
+ *       - WorkOSSession: []
+ *         CurrentUserId: []
+ *   post:
+ *     tags:
+ *       - Clients
+ *     summary: Method not allowed
+ *     description: POST method is not allowed for this endpoint. Use GET to retrieve clients.
+ *     responses:
+ *       405:
+ *         $ref: '#/components/responses/405'
+ *   put:
+ *     tags:
+ *       - Clients
+ *     summary: Method not allowed
+ *     description: PUT method is not allowed for this endpoint. Use GET to retrieve clients.
+ *     responses:
+ *       405:
+ *         $ref: '#/components/responses/405'
+ *   delete:
+ *     tags:
+ *       - Clients
+ *     summary: Method not allowed
+ *     description: DELETE method is not allowed for this endpoint. Use GET to retrieve clients.
+ *     responses:
+ *       405:
+ *         $ref: '#/components/responses/405'
  */
 
 import { NextRequest, NextResponse } from 'next/server';

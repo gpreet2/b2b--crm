@@ -55,6 +55,8 @@
     "@types/express": "^5.0.3",
     "@types/helmet": "^0.0.48",
     "@types/pg": "^8.15.5",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "@upstash/ratelimit": "^2.0.6",
     "@upstash/redis": "^1.35.3",
     "@workos-inc/authkit-nextjs": "^2.4.6",
@@ -72,6 +74,8 @@
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "recharts": "^3.1.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "zod": "^4.0.14"
   },
   "devDependencies": {
