@@ -10,6 +10,7 @@ import {
   Sparkles,
   Trash2,
   Plus,
+  User,
 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
