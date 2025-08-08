@@ -10,6 +10,7 @@
 export * from './common.types';
 export * from './user.types';
 export * from './organization.types';
+export * from './client.types';
 export * from './membership.types';
 export * from './event.types';
 export * from './workout.types';
