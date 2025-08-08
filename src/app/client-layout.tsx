@@ -2,6 +2,7 @@
 import { usePathname } from 'next/navigation';
 
 import { Layout } from '@/components/layout/Layout';
+import { LocationProvider } from '@/contexts/LocationContext';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
@@ -30,13 +31,15 @@ export default function ClientLayout({ children, user }: ClientLayoutProps) {
   };
 
   return (
-    <Layout
-      headerProps={{
-        user: layoutUser,
-        notifications: 5,
-      }}
-    >
-      {children}
-    </Layout>
+    <LocationProvider>
+      <Layout
+        headerProps={{
+          user: layoutUser,
+          notifications: 5,
+        }}
+      >
+        {children}
+      </Layout>
+    </LocationProvider>
   );
 }
