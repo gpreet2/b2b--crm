@@ -6,11 +6,11 @@ export const OrganizationSchema = z.object({
   name: z.string().min(1, 'Organization name is required').max(255, 'Name must be 255 characters or less'),
   domain: z.string().min(1).max(255).optional().nullable(),
   logo_url: z.string().url().optional().nullable(),
-  settings: z.record(z.any()).optional().default({}),
+  settings: z.record(z.string(), z.any()).optional().default({}),
   workos_id: z.string().max(255).optional().nullable(),
   slug: z.string().max(255).optional().nullable(),
   is_active: z.boolean().default(true),
-  metadata: z.record(z.any()).optional().default({}),
+  metadata: z.record(z.string(), z.any()).optional().default({}),
   
   // Hierarchy fields
   parent_id: z.string().uuid().optional().nullable(),
@@ -63,8 +63,8 @@ export const LocationSchema = z.object({
   email: z.string().email().optional().nullable(),
   organization_id: z.string().uuid(),
   is_active: z.boolean().default(true),
-  settings: z.record(z.any()).optional().default({}),
-  metadata: z.record(z.any()).optional().default({}),
+  settings: z.record(z.string(), z.any()).optional().default({}),
+  metadata: z.record(z.string(), z.any()).optional().default({}),
   created_at: z.string().datetime().optional(),
   updated_at: z.string().datetime().optional(),
 });
@@ -110,7 +110,7 @@ export const MoveOrganizationSchema = z.object({
 });
 
 // Organization settings update schema
-export const OrganizationSettingsSchema = z.record(z.any());
+export const OrganizationSettingsSchema = z.record(z.string(), z.any());
 
 // Export types
 export type Organization = z.infer<typeof OrganizationSchema>;
