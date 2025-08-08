@@ -5,7 +5,6 @@ export default authkitMiddleware({
   middlewareAuth: {
     enabled: true,
     unauthenticatedPaths: [
-      '/',
       '/auth',
       '/onboarding',
       '/create-account',
@@ -13,12 +12,14 @@ export default authkitMiddleware({
       '/test-auth',
       '/test-signout',
       '/test-refresh',
+      '/test-auth-simple',
       '/api/auth/callback',
       '/api/auth/signout',
       '/api/auth/force-logout',
       '/api/test-workos',
       '/api/health',
       '/api/monitoring/health',
+      '/api/debug-auth',
     ],
   },
   signUpPaths: ['/sign-up', '/register'],
@@ -35,5 +36,9 @@ export const config = {
      * - public folder
      */
     '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    // Explicitly include routes that need auth coverage
+    '/',
+    '/dashboard/:path*',
+    '/api/auth/user',
   ],
 };

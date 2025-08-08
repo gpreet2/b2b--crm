@@ -1,4 +1,5 @@
 import { handleAuth } from '@workos-inc/authkit-nextjs';
+import { cookies } from 'next/headers';
 
 import { initializeDatabase, getDatabase } from '@/config/database';
 import { logger } from '@/utils/logger';
@@ -34,16 +35,78 @@ export const GET = handleAuth({
         authenticationMethod,
       });
 
-      // Store user in database if not exists
-      const { data: existingUser } = await db
+      // Store current authenticated user ID in a simple cookie for fallback lookup
+      // This helps our server action identify the correct user when WorkOS withAuth() fails
+      const cookieStore = await cookies();
+      cookieStore.set('current-user-id', user.id, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+      });
+
+      // Check for existing user by WorkOS user ID first
+      const { data: existingUserByWorkosId } = await db
         .getSupabaseClient()
         .from('users')
-        .select('id')
+        .select('id, email, workos_user_id')
         .eq('workos_user_id', user.id)
         .single();
 
-      if (!existingUser) {
-        // Create user in database
+      // Check for existing user by email (in case WorkOS ID changed)
+      const { data: existingUserByEmail } = await db
+        .getSupabaseClient()
+        .from('users')
+        .select('id, email, workos_user_id, first_name, last_name')
+        .eq('email', user.email)
+        .single();
+
+      if (existingUserByWorkosId) {
+        // User exists with correct WorkOS ID - no action needed
+        logger.info('User found by WorkOS ID - already up to date', {
+          userId: user.id,
+          email: user.email,
+        });
+      } else if (existingUserByEmail && existingUserByEmail.workos_user_id !== user.id) {
+        // User exists by email but has different WorkOS ID - update it
+        logger.info('Updating existing user with new WorkOS ID', {
+          oldWorkosId: existingUserByEmail.workos_user_id,
+          newWorkosId: user.id,
+          email: user.email,
+        });
+
+        const { error: updateError } = await db
+          .getSupabaseClient()
+          .from('users')
+          .update({
+            workos_user_id: user.id,
+            first_name: user.firstName,
+            last_name: user.lastName,
+            avatar_url: user.profilePictureUrl,
+            metadata: {
+              email_verified: user.emailVerified,
+              authentication_method: authenticationMethod,
+              workos_id_updated_at: new Date().toISOString(),
+            },
+            updated_at: new Date().toISOString(),
+          })
+          .eq('email', user.email);
+
+        if (updateError) {
+          logger.error('Failed to update user WorkOS ID', {
+            error: updateError,
+            userId: user.id,
+            email: user.email,
+          });
+        } else {
+          logger.info('Successfully updated user WorkOS ID', {
+            userId: user.id,
+            email: user.email,
+          });
+        }
+      } else if (!existingUserByEmail) {
+        // No existing user - create new one
         const { data: newUser, error } = await db
           .getSupabaseClient()
           .from('users')
@@ -78,7 +141,7 @@ export const GET = handleAuth({
       }
 
       // Update organization association if provided
-      if (organizationId && existingUser) {
+      if (organizationId && (existingUserByWorkosId || existingUserByEmail)) {
         const { error: orgError } = await db.getSupabaseClient().from('user_organizations').upsert(
           {
             user_id: user.id,

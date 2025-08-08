@@ -13,6 +13,7 @@ import React, { useState, useEffect } from 'react';
 
 import { NavigationItem, navigationConfig } from '@/lib/navigation';
 import { cn } from '@/lib/utils';
+import { logoutAction } from '@/lib/actions/auth';
 
 export interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   onClose?: () => void;
@@ -69,6 +70,16 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
       // Close mobile menu when navigating
       if (onClose) {
         onClose();
+      }
+    };
+
+    const handleLogout = async () => {
+      try {
+        await logoutAction();
+      } catch (error) {
+        console.error('Logout failed:', error);
+        // Fallback: redirect manually
+        window.location.href = '/auth';
       }
     };
 
@@ -403,6 +414,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
             </Link>
 
             <button
+              onClick={handleLogout}
               className={cn(
                 'w-full flex items-center space-x-3 px-4 py-2.5 rounded-xl text-left transition-all duration-200 text-secondary-text hover:bg-accent hover:text-primary-text group'
               )}

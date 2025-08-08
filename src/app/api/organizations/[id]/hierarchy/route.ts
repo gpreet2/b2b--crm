@@ -3,22 +3,20 @@ import { withAuth } from '@workos-inc/authkit-nextjs';
 import { OrganizationService } from '@/lib/services/organization';
 import { logger } from '@/utils/logger';
 
-interface RouteParams {
-  params: {
-    id: string;
-  };
-}
-
 /**
  * GET /api/organizations/[id]/hierarchy - Get organization hierarchy
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export async function GET(
+  request: NextRequest, 
+  segmentData: { params: Promise<{ id: string }> }
+) {
   try {
     const { user } = await withAuth({ ensureSignedIn: true });
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const params = await segmentData.params;
     const { id } = params;
     const organizationService = new OrganizationService();
     const hierarchy = await organizationService.getOrganizationHierarchy(id);

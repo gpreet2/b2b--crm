@@ -257,6 +257,33 @@
             "title": "Implement refresh token flow",
             "description": "Secure refresh token rotation with blacklisting",
             "status": "pending"
+          },
+          {
+            "id": 7,
+            "title": "Update frontend UI to show real user info",
+            "description": "Replace hardcoded 'admin@fitnesspro.com' with actual authenticated user data in top right corner",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 5
+          },
+          {
+            "id": 8,
+            "title": "Implement working logout functionality",
+            "description": "Ensure logout button actually logs user out and redirects to authentication screen",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 5
+          },
+          {
+            "id": 9,
+            "title": "Connect frontend auth state to backend",
+            "description": "Ensure frontend reads actual authentication state from WorkOS and updates UI accordingly",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 5
           }
         ]
       },
