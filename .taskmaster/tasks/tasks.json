@@ -116,6 +116,12 @@
             "title": "Test complete restore process",
             "description": "Actually restore from backup and verify data integrity",
             "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "INTEGRATION: Connect 'Export My Data' Button",
+            "description": "Connect the user profile 'Export My Data' button in the frontend to the GET /api/v1/me/export endpoint.",
+            "status": "pending"
           }
         ]
       },
@@ -278,8 +284,8 @@
           },
           {
             "id": 9,
-            "title": "Connect frontend auth state to backend",
-            "description": "Ensure frontend reads actual authentication state from WorkOS and updates UI accordingly",
+            "title": "INTEGRATION: Connect organization switcher UI",
+            "description": "Connect the location dropdown in the UI header to the /auth/switch-organization endpoint and reload the UI with the new token/context.",
             "details": "",
             "status": "pending",
             "dependencies": [],
@@ -330,6 +336,12 @@
             "title": "Build permission management endpoints",
             "description": "APIs to manage roles and permissions",
             "status": "done"
+          },
+          {
+            "id": 6,
+            "title": "INTEGRATION: Connect Role Management UI",
+            "description": "Connect the 'Roles & Permissions' settings page in the CRM Admin frontend to the permission management API endpoints.",
+            "status": "pending"
           }
         ]
       },
@@ -520,6 +532,12 @@
             "title": "Integrate with owner/org creation",
             "description": "Connect to organization creation flow",
             "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "INTEGRATION: Connect Onboarding Wizard UI",
+            "description": "Connect the multi-step onboarding wizard in the CRM Admin frontend to the stateful /onboarding/... API endpoints.",
+            "status": "pending"
           }
         ]
       },
@@ -565,6 +583,12 @@
             "title": "Create org switching logic",
             "description": "Secure context switching between orgs",
             "status": "done"
+          },
+          {
+            "id": 6,
+            "title": "INTEGRATION: Connect Location/Organization Settings UI",
+            "description": "Connect the 'Location Settings' page in the CRM Admin frontend to the organization CRUD endpoints.",
+            "status": "pending"
           }
         ]
       },
@@ -609,6 +633,12 @@
             "id": 5,
             "title": "Add permission checks",
             "description": "Verify user can view clients",
+            "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "INTEGRATION: Populate Client & Employee List UIs from API",
+            "description": "Connect the 'Clients' and 'Employees' data tables in the CRM Admin frontend to their respective GET endpoints. Verify tables populate with real data, including pagination, search, and filtering.",
             "status": "pending"
           }
         ]
@@ -702,6 +732,12 @@
             "title": "Implement client segments",
             "description": "Dynamic client grouping",
             "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "INTEGRATION: Connect Client & Employee CRUD UIs",
+            "description": "Connect the 'Add/Edit/Delete' modals and 'Specialties' management UI for both Clients and Employees to their respective backend API endpoints.",
+            "status": "pending"
           }
         ]
       },
@@ -748,6 +784,12 @@
             "title": "Create access verification",
             "description": "Check member access rights",
             "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "INTEGRATION: Connect Membership & 'Sell Day Pass' UI",
+            "description": "Connect the client's membership management UI and the 'Sell Day Pass' flow in the CRM to the backend membership endpoints.",
+            "status": "pending"
           }
         ]
       },
@@ -792,6 +834,12 @@
             "id": 5,
             "title": "Add attendance tracking",
             "description": "Check-in and no-show handling",
+            "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "INTEGRATION: Connect Class Calendar & Tour Management UI",
+            "description": "Connect the 'Classes' calendar, 'Programs' list, and 'Tours' list views in both the CRM and Mobile App to the full suite of event booking APIs.",
             "status": "pending"
           }
         ]
@@ -840,6 +888,12 @@
             "title": "Create export functionality",
             "description": "CSV/PDF report exports",
             "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "INTEGRATION: Populate Dashboard & Analytics UI",
+            "description": "Connect all charts, graphs, KPIs, and reports on the Dashboard, Analytics, and Financial pages to the backend analytics endpoints.",
+            "status": "pending"
           }
         ]
       },
@@ -884,6 +938,12 @@
             "id": 5,
             "title": "Create unsubscribe flow",
             "description": "One-click unsubscribe",
+            "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "INTEGRATION: Connect In-App Notification Center UI",
+            "description": "Connect the notification bell icon and notification center UI in the CRM/App to the in-app notification endpoints.",
             "status": "pending"
           }
         ]
@@ -1070,6 +1130,12 @@
             "title": "Implement PR detection",
             "description": "Personal records",
             "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "INTEGRATION: Connect 'Perform' Section UI",
+            "description": "Connect the 'Workouts' calendar, 'Exercise Library', and 'Perform Settings' pages in the CRM/App to the workout builder API endpoints.",
+            "status": "pending"
           }
         ]
       },
@@ -1170,45 +1236,51 @@
       {
         "id": 25,
         "title": "PHASE 3: Implement Document Management",
-        "description": "Create document system with version control and access logging",
+        "description": "Create document system with version control, access logging, and download tracking",
         "priority": "low",
         "status": "pending",
         "phase": "3-additional-features",
-        "details": "Create document upload with virus scanning, implement waiver signing.",
+        "details": "Create a secure document upload system with virus scanning, implement waiver signing flows, and build tracked download endpoints to support the 'Forms & Documents' UI.",
         "dependencies": [
           "11",
           "14"
         ],
-        "testStrategy": "Test file upload security, verify signing audit trail",
+        "testStrategy": "Test file upload security (e.g., prevent executable uploads), verify download count is incremented atomically, test access permissions for document management, verify signing audit trail.",
         "subtasks": [
           {
             "id": 1,
-            "title": "Build upload system",
-            "description": "Secure file uploads",
+            "title": "Enrich 'documents' table schema",
+            "description": "Expand the schema to include all UI-required fields: file_type, file_size, uploader_user_id, download_count, description, and status_tag (e.g., 'REQUIRED').",
             "status": "pending"
           },
           {
             "id": 2,
-            "title": "Add virus scanning",
-            "description": "Malware protection",
+            "title": "Build Secure Upload System",
+            "description": "Create POST /documents endpoint with robust validation, file type restrictions, and integrated virus scanning before saving to storage.",
             "status": "pending"
           },
           {
             "id": 3,
-            "title": "Create signing flow",
-            "description": "Digital signatures",
+            "title": "Create Tracked Document Download Endpoint",
+            "description": "Build GET /documents/:id/download endpoint that verifies permissions, atomically increments the download_count, logs the access, and then serves the file.",
             "status": "pending"
           },
           {
             "id": 4,
-            "title": "Implement versioning",
-            "description": "Document history",
+            "title": "Build Document Management CRUD API",
+            "description": "Create GET, PUT, DELETE endpoints for managing document metadata, categories (tags), and status.",
             "status": "pending"
           },
           {
             "id": 5,
-            "title": "Add access controls",
-            "description": "Permission-based access",
+            "title": "Implement Versioning and Signing Flow",
+            "description": "Add logic for document version history and create endpoints to manage the digital signing process for waivers and agreements.",
+            "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "INTEGRATION: Connect Forms & Documents UI",
+            "description": "Connect the 'Forms & Documents' page in the CRM Admin frontend to all new document management APIs. Verify upload, list, filter, and download functionality.",
             "status": "pending"
           }
         ]
@@ -1382,6 +1454,63 @@
             "status": "pending",
             "dependencies": [],
             "parentTaskId": 27
+          },
+          {
+            "id": 13,
+            "title": "INTEGRATION: Connect Mobile App Door Unlock UI",
+            "description": "Connect the Mobile App's 'Door Access' tab to the POST /api/v1/door/unlock endpoint.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 27
+          }
+        ]
+      },
+      {
+        "id": 28,
+        "title": "PHASE 2: Build System & Integration Settings Module",
+        "description": "Create a comprehensive and extensible system for managing all organization-specific settings and integration configurations",
+        "priority": "medium",
+        "status": "pending",
+        "phase": "2-core-features",
+        "details": "Build the centralized backend APIs required to power all administrative settings pages, including 'Classes > Settings', 'People > Settings', and the critical 'Main Settings > Door Access' panel for Kisi configuration.",
+        "dependencies": [
+          "1",
+          "5",
+          "6",
+          "27"
+        ],
+        "testStrategy": "Verify settings are isolated per organization, test validation for all setting values (e.g., fees, API keys), test Kisi API proxy endpoints for correct error handling and data passthrough.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design and Create Extensible Settings Schema",
+            "description": "Create a centralized 'organization_settings' table, likely using a JSONB column for flexibility to store nested settings for classes, financials, and integrations.",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Build Core Settings API",
+            "description": "Create the primary GET /settings and PUT /settings endpoints with comprehensive validation and fine-grained permission checks.",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Build Kisi Configuration API Endpoints",
+            "description": "Create the specific endpoints to power the 'Door Access' settings UI: PUT (to save API key), GET /integrations/kisi/doors (to list available doors), POST /integrations/kisi/test-unlock.",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Build Kisi Access Rule Management API",
+            "description": "Create full CRUD endpoints (GET, POST, DELETE) for `/settings/kisi/access-rules` to manage the membership-to-door mappings stored in the `kisi_group_mappings` table.",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "INTEGRATION: Connect All Settings Pages to API",
+            "description": "Connect the 'Classes > Settings', 'People > Settings', and the 'Main Settings > Door Access' UIs in the CRM Admin to the new, centralized settings API endpoints. Verify full functionality.",
+            "status": "pending"
           }
         ]
       }
