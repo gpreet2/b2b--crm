@@ -121,7 +121,9 @@ export async function POST(request: NextRequest) {
       onboardingSessionToken: sessionToken,
     };
 
-    const signUpUrl = await getSignUpUrl();
+    // Use explicit redirect URI to avoid double-encoding issues
+    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
+    const signUpUrl = await getSignUpUrl({ redirectUri });
 
     logger.info('Onboarding completed, redirecting to WorkOS', {
       sessionId,

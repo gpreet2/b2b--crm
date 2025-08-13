@@ -41,8 +41,10 @@ export async function POST(request: NextRequest) {
                      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
-    // Generate WorkOS signup URL (simplified for current API version)
+    // Generate WorkOS signup URL with explicit redirect URI
+    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
     const signUpUrl = await getSignUpUrl({
+      redirectUri,
       ...(email && { loginHint: email }),
     });
 
@@ -89,8 +91,10 @@ export async function GET(request: NextRequest) {
     const organizationName = searchParams.get('organizationName');
     const email = searchParams.get('email');
     
-    // Generate WorkOS signup URL
+    // Generate WorkOS signup URL with explicit redirect URI
+    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
     const signUpUrl = await getSignUpUrl({
+      redirectUri,
       ...(email && { loginHint: email }),
     });
 

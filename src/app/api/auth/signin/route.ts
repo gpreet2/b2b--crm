@@ -8,9 +8,11 @@ export async function POST(request: NextRequest) {
     // eslint-disable-next-line no-console
     console.log('Sign in request received:', { email });
 
-    // Generate WorkOS sign-in URL with email hint
+    // Generate WorkOS sign-in URL with email hint and explicit redirect URI
+    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
     const signInUrl = await getSignInUrl({
       screenHint: 'sign-in',
+      redirectUri,
       ...(email && { loginHint: email }),
     });
 
