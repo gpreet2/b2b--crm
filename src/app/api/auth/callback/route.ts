@@ -6,7 +6,6 @@ import { initializeDatabase, getDatabase } from '@/config/database';
 import { logger } from '@/utils/logger';
 
 // Add immediate logging to verify callback is hit
-const originalHandleAuth = handleAuth;
 
 function logCallbackEntry(request: NextRequest) {
   const url = new URL(request.url);

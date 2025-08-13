@@ -23,7 +23,7 @@ export async function GET() {
     logger.info('Constructed redirect URI', { redirectUri });
 
     // Test WorkOS URL generation
-    let testResults: {
+    const testResults: {
       signInUrl: string;
       signUpUrl: string;
       error: string | null;
