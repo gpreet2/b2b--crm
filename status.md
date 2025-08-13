@@ -1,10 +1,33 @@
 # TryZore CRM Backend - Project Status
 
-## Last Updated: 2025-08-08 (Active Development)
+## Last Updated: 2025-08-12 (Active Development)
+
+## MAJOR FRONTEND INTEGRATION ENHANCEMENT COMPLETE ✅
+- **Complete End-to-End Planning**: Added explicit frontend integration subtasks to all major features
+- **27 New Integration Subtasks**: Every backend feature now has dedicated UI connection points
+- **Enhanced Task 25**: Document Management upgraded with comprehensive schema and download tracking
+- **New Task 28**: System & Integration Settings Module for centralized configuration management
+- **Total Project Scope**: Now 28 main tasks with 160+ total subtasks including full frontend integration
+
+### Frontend Integration Subtasks Added:
+- Task 2.6: Connect 'Export My Data' Button to backend endpoint
+- Task 5.9: Connect organization switcher UI to API
+- Task 6.6: Connect Role Management UI to permission APIs
+- Task 10.6: Connect Onboarding Wizard UI to stateful endpoints
+- Task 11.6: Connect Location/Organization Settings UI
+- Task 12.6: Populate Client & Employee List UIs from API
+- Task 14.6: Connect Client & Employee CRUD UIs
+- Task 15.6: Connect Membership & 'Sell Day Pass' UI
+- Task 16.6: Connect Class Calendar & Tour Management UI
+- Task 17.6: Populate Dashboard & Analytics UI
+- Task 18.6: Connect In-App Notification Center UI
+- Task 22.6: Connect 'Perform' Section UI
+- Task 25.6: Connect Forms & Documents UI
+- Task 27.13: Connect Mobile App Door Unlock UI
+- Task 28.5: Connect All Settings Pages to API
 
 ## CRITICAL REORGANIZATION COMPLETE ✅
 - Task list reorganized with security-first approach
-- All 26 tasks now have comprehensive subtasks (130 total subtasks)
 - Missing mockup features have been integrated:
   - ✅ Generic tagging system (Task 1.4)
   - ✅ Tour metadata fields (Task 16.2)
@@ -141,15 +164,16 @@ Successfully implemented all 5 subtasks with professional-grade interactive docu
 - Onboarding System (5 subtasks)
 - Organization Management (5 subtasks)
 
-## Phase 2 - Core Features (8 tasks, 40 subtasks)
+## Phase 2 - Core Features (9 tasks, 50+ subtasks)
 - Complete CRUD operations
 - Memberships, Events (with tour metadata)
 - Analytics, Notifications (with in-app)
 - Background jobs, Caching, Monitoring
+- **NEW**: System & Integration Settings Module (Task 28)
 
-## Phase 3 - Additional Features (5 tasks, 25 subtasks)
+## Phase 3 - Additional Features (5 tasks, 30+ subtasks)
 - Workout builder, Achievements
-- Admin tools, Documents, Feature flags
+- Admin tools, Enhanced Documents, Feature flags
 
 ## Key Implementation Details Added
 
@@ -268,7 +292,10 @@ Successfully merged enhanced UI components while preserving authentication secur
 - Kisi integration - Phase 2
 
 ## Notes
-- Total tasks: 26 main tasks, 130 subtasks
-- Each subtask is actionable and specific
-- Mockup analysis revealed 4 missing features - all now included
+- **Total Project Scope**: 28 main tasks, 160+ subtasks (including 27 new integration subtasks)
+- **Complete End-to-End Planning**: Every backend feature has explicit frontend integration points
+- **Enhanced Document Management**: Task 25 upgraded with comprehensive schema and download tracking
+- **New Settings Module**: Task 28 provides centralized configuration for all admin settings
+- **Integration-Ready**: Each feature includes dedicated UI connection subtasks
+- **Professional Quality**: Maintains security-first approach while ensuring complete feature delivery
 - DO NOT SKIP PHASE 0

@@ -284,8 +284,8 @@
           },
           {
             "id": 9,
-            "title": "INTEGRATION: Connect organization switcher UI",
-            "description": "Connect the location dropdown in the UI header to the /auth/switch-organization endpoint and reload the UI with the new token/context.",
+            "title": "Connect frontend auth state to backend",
+            "description": "Ensure frontend reads actual authentication state from WorkOS and updates UI accordingly",
             "details": "",
             "status": "pending",
             "dependencies": [],
@@ -341,7 +341,7 @@
             "id": 6,
             "title": "INTEGRATION: Connect Role Management UI",
             "description": "Connect the 'Roles & Permissions' settings page in the CRM Admin frontend to the permission management API endpoints.",
-            "status": "pending"
+            "status": "in-progress"
           }
         ]
       },
@@ -1459,10 +1459,7 @@
             "id": 13,
             "title": "INTEGRATION: Connect Mobile App Door Unlock UI",
             "description": "Connect the Mobile App's 'Door Access' tab to the POST /api/v1/door/unlock endpoint.",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
+            "status": "pending"
           }
         ]
       },
@@ -1517,7 +1514,7 @@
     ],
     "metadata": {
       "created": "2025-07-31T01:49:15.746Z",
-      "updated": "2025-08-08T01:41:55.992Z",
+      "updated": "2025-08-08T02:55:27.084Z",
       "description": "Security-first task organization with comprehensive subtasks including mockup-revealed features"
     }
   }

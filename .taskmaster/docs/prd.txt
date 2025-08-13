@@ -2549,7 +2549,7 @@ Compliant: Jurisdiction-aware features from day one
 
 User-Friendly: Streamlined flows for all user types
 
-Robust: Comprehensive error handling and edge cases
+Robust: Comprehensive error hanling and edge cases
 
 Enterprise-Grade: Full multi-tenancy from the ground up
 
