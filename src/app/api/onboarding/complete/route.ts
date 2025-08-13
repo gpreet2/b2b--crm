@@ -121,15 +121,20 @@ export async function POST(request: NextRequest) {
       onboardingSessionToken: sessionToken,
     };
 
-    // Let WorkOS use the default redirect URI configured in dashboard
+    // Use explicit redirect URI to ensure exact match with WorkOS dashboard
+    const redirectUri = process.env.NODE_ENV === 'production' 
+      ? 'https://b2b-crm-three.vercel.app/api/auth/callback'
+      : 'http://localhost:3000/api/auth/callback';
+
     // Debug logging for redirect URI
     logger.info('=== Onboarding Complete Redirect URI Debug ===', {
       NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-      message: 'Using WorkOS default redirect URI from dashboard',
+      NODE_ENV: process.env.NODE_ENV,
+      explicitRedirectUri: redirectUri,
       sessionId,
     });
     
-    const signUpUrl = await getSignUpUrl();
+    const signUpUrl = await getSignUpUrl({ redirectUri });
 
     logger.info('Full WorkOS sign-up URL generated', {
       signUpUrl: signUpUrl.replace(/&[^=]*token[^=]*=[^&]*/gi, '&token=***'),
