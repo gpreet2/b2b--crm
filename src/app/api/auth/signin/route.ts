@@ -10,6 +10,15 @@ export async function POST(request: NextRequest) {
 
     // Generate WorkOS sign-in URL with email hint and explicit redirect URI
     const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
+    
+    // Debug logging for redirect URI
+    // eslint-disable-next-line no-console
+    console.log("=== WorkOS Sign-In Redirect URI Debug ===");
+    // eslint-disable-next-line no-console
+    console.log("NEXT_PUBLIC_APP_URL:", process.env.NEXT_PUBLIC_APP_URL);
+    // eslint-disable-next-line no-console
+    console.log("Constructed redirectUri:", redirectUri);
+    
     const signInUrl = await getSignInUrl({
       screenHint: 'sign-in',
       redirectUri,
@@ -17,7 +26,9 @@ export async function POST(request: NextRequest) {
     });
 
     // eslint-disable-next-line no-console
-    console.log('Generated WorkOS sign-in URL:', signInUrl);
+    console.log("Full WorkOS sign-in URL:", signInUrl);
+    // eslint-disable-next-line no-console
+    console.log("==========================================");
 
     return NextResponse.json({ url: signInUrl });
   } catch (error) {
