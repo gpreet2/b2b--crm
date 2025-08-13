@@ -41,14 +41,20 @@ export async function POST(request: NextRequest) {
                      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
-    // Generate WorkOS signup URL using default redirect URI from dashboard
+    // Use explicit redirect URI to ensure exact match with WorkOS dashboard
+    const redirectUri = process.env.NODE_ENV === 'production' 
+      ? 'https://b2b-crm-three.vercel.app/api/auth/callback'
+      : 'http://localhost:3000/api/auth/callback';
+
     // Debug logging for redirect URI
     logger.info('=== WorkOS Sign-Up Redirect URI Debug (POST) ===', {
       NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-      message: 'Using WorkOS default redirect URI from dashboard',
+      NODE_ENV: process.env.NODE_ENV,
+      explicitRedirectUri: redirectUri,
     });
     
     const signUpUrl = await getSignUpUrl({
+      redirectUri,
       ...(email && { loginHint: email }),
     });
 
@@ -100,14 +106,20 @@ export async function GET(request: NextRequest) {
     const organizationName = searchParams.get('organizationName');
     const email = searchParams.get('email');
     
-    // Generate WorkOS signup URL using default redirect URI from dashboard
+    // Use explicit redirect URI to ensure exact match with WorkOS dashboard
+    const redirectUri = process.env.NODE_ENV === 'production' 
+      ? 'https://b2b-crm-three.vercel.app/api/auth/callback'
+      : 'http://localhost:3000/api/auth/callback';
+
     // Debug logging for redirect URI
     logger.info('=== WorkOS Sign-Up Redirect URI Debug (GET) ===', {
       NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-      message: 'Using WorkOS default redirect URI from dashboard',
+      NODE_ENV: process.env.NODE_ENV,
+      explicitRedirectUri: redirectUri,
     });
     
     const signUpUrl = await getSignUpUrl({
+      redirectUri,
       ...(email && { loginHint: email }),
     });
 

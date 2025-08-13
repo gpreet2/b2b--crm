@@ -8,14 +8,20 @@ export async function POST(request: NextRequest) {
 
     logger.info('Sign in request received', { email });
 
-    // Generate WorkOS sign-in URL with email hint, using default redirect URI from dashboard
+    // Use explicit redirect URI to ensure exact match with WorkOS dashboard
+    const redirectUri = process.env.NODE_ENV === 'production' 
+      ? 'https://b2b-crm-three.vercel.app/api/auth/callback'
+      : 'http://localhost:3000/api/auth/callback';
+
     // Debug logging for redirect URI
     logger.info('=== WorkOS Sign-In Redirect URI Debug ===', {
       NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-      message: 'Using WorkOS default redirect URI from dashboard',
+      NODE_ENV: process.env.NODE_ENV,
+      explicitRedirectUri: redirectUri,
     });
     
     const signInUrl = await getSignInUrl({
+      redirectUri,
       screenHint: 'sign-in',
       ...(email && { loginHint: email }),
     });
