@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOnboardingSessionManager, OnboardingState } from '@/lib/onboarding-session';
+import { getOnboardingSessionManager } from '@/lib/onboarding-session';
 import { logger } from '@/utils/logger';
 import { z } from 'zod';
 
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     let body;
     try {
       body = await request.json();
-    } catch (jsonError) {
+    } catch (_jsonError) {
       return NextResponse.json(
         { error: 'Invalid JSON in request body' },
         { status: 400 }

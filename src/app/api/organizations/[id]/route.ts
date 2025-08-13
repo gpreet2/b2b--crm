@@ -6,9 +6,9 @@ import { logger } from '@/utils/logger';
 import { z } from 'zod';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 /**
@@ -16,9 +16,10 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
+    const { user: _user } = await withAuth({ ensureSignedIn: true });
 
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     const { searchParams } = new URL(request.url);
     
     // Parse include options
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       data: organization,
     });
   } catch (error) {
-    logger.error('Error getting organization by ID', { error, id: params.id });
+    logger.error('Error getting organization by ID', { error });
 
     return NextResponse.json(
       {
@@ -63,7 +64,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
     const { user } = await withAuth({ ensureSignedIn: true });
 
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     const body = await request.json();
 
     const validatedData = UpdateOrganizationSchema.parse(body);
@@ -81,7 +83,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       data: organization,
     });
   } catch (error) {
-    logger.error('Error updating organization', { error, id: params.id });
+    logger.error('Error updating organization', { error });
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -116,7 +118,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { user } = await withAuth({ ensureSignedIn: true });
 
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
 
     const organizationService = new OrganizationService();
     await organizationService.deleteOrganization(id, user.id);
@@ -131,7 +134,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       message: 'Organization deleted successfully',
     });
   } catch (error) {
-    logger.error('Error deleting organization', { error, id: params.id });
+    logger.error('Error deleting organization', { error });
 
     if (error instanceof Error && error.message === 'Organization not found') {
       return NextResponse.json(

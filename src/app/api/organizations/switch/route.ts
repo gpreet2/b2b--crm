@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
 /**
  * GET /api/organizations/switch - Get user's available organizations for switching
  */
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     const { user } = await withAuth({ ensureSignedIn: true });
 

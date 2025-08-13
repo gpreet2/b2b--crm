@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate WorkOS signup URL with session information for callback processing
-    const state = {
+    const _state = {
       prompt: 'create',
       returnTo: '/dashboard',
       forceNewAccount: true,

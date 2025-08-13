@@ -107,7 +107,7 @@ export const GET = handleAuth({
         }
       } else if (!existingUserByEmail) {
         // No existing user - create new one
-        const { data: newUser, error } = await db
+        const { error } = await db
           .getSupabaseClient()
           .from('users')
           .insert({

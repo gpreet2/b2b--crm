@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 
 interface Location {
   id: string;
@@ -22,8 +22,8 @@ interface Location {
   address: string;
 }
 
-export default function OnboardingPage() {
-  const router = useRouter();
+function OnboardingContent() {
+  const _router = useRouter();
   const searchParams = useSearchParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -203,7 +203,7 @@ export default function OnboardingPage() {
           currentStep,
           state: {
             organizationName: formData.organizationName,
-            locations: locations,
+            locations,
             metadata: {
               startedAt: new Date().toISOString(),
               completedSteps: Array.from({ length: currentStep - 1 }, (_, i) => i + 1),
@@ -628,11 +628,11 @@ export default function OnboardingPage() {
             </div>
 
             {/* Error Display */}
-            {errors.general && (
+            {!!errors.general && (
               <div className='bg-danger/10 border border-danger/20 rounded-xl p-4 max-w-md mx-auto mb-6'>
                 <div className='flex items-center space-x-2'>
                   <div className='w-4 h-4 bg-danger/20 rounded-full flex items-center justify-center'>
-                    <div className='w-2 h-2 bg-danger rounded-full'></div>
+                    <div className='w-2 h-2 bg-danger rounded-full' />
                   </div>
                   <p className='text-sm text-danger font-medium'>{errors.general}</p>
                 </div>
@@ -710,5 +710,20 @@ export default function OnboardingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-surface flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-secondary-text">Loading onboarding...</p>
+        </div>
+      </div>
+    }>
+      <OnboardingContent />
+    </Suspense>
   );
 }

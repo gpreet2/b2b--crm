@@ -184,7 +184,7 @@ class DatabaseConnectionPool {
           const { data, error } = await this.supabaseClient.auth.getSession();
           
           // Connection is healthy if we can reach the auth service (regardless of session state)
-          if (error && error.message.includes('network') || error?.status >= 500) {
+          if (error && (error.message.includes('network') || (error.status && error.status >= 500))) {
             isHealthy = false;
             logger.error('Supabase health check failed', { error });
           }

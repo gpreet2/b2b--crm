@@ -6,9 +6,9 @@ import { logger } from '@/utils/logger';
 import { z } from 'zod';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 /**
@@ -18,7 +18,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { user } = await withAuth({ ensureSignedIn: true });
 
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     const body = await request.json();
 
     const validatedData = MoveOrganizationSchema.parse(body);
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       message: 'Organization moved successfully',
     });
   } catch (error) {
-    logger.error('Error moving organization', { error, id: params.id });
+    logger.error('Error moving organization', { error });
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(

@@ -12,7 +12,7 @@ export async function register() {
     // Gracefully handle instrumentation errors
     if (process.env.NODE_ENV === 'development') {
       // Only warn in development, don't crash
-      console.warn('Sentry instrumentation failed (non-critical):', error?.message || error);
+      console.warn('Sentry instrumentation failed (non-critical):', error instanceof Error ? error.message : error);
     } else {
       // In production, this is more critical
       console.error('Sentry instrumentation failed:', error);
@@ -21,6 +21,10 @@ export async function register() {
 }
 
 // Only export onRequestError in production to avoid dev conflicts
+// Using dynamic import to avoid TypeScript require() issues
 export const onRequestError = process.env.NODE_ENV === 'production' 
-  ? require('@sentry/nextjs').captureRequestError 
+  ? (async () => {
+      const sentry = await import('@sentry/nextjs');
+      return sentry.captureRequestError;
+    })()
   : undefined;
