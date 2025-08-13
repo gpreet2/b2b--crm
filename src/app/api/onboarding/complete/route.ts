@@ -125,19 +125,19 @@ export async function POST(request: NextRequest) {
     const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
     
     // Debug logging for redirect URI
-    // eslint-disable-next-line no-console
-    console.log("=== Onboarding Complete Redirect URI Debug ===");
-    // eslint-disable-next-line no-console
-    console.log("NEXT_PUBLIC_APP_URL:", process.env.NEXT_PUBLIC_APP_URL);
-    // eslint-disable-next-line no-console
-    console.log("Constructed redirectUri:", redirectUri);
+    logger.info('=== Onboarding Complete Redirect URI Debug ===', {
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+      constructedRedirectUri: redirectUri,
+      sessionId,
+    });
     
     const signUpUrl = await getSignUpUrl({ redirectUri });
 
-    // eslint-disable-next-line no-console
-    console.log("Full WorkOS sign-up URL:", signUpUrl);
-    // eslint-disable-next-line no-console
-    console.log("==============================================");
+    logger.info('Full WorkOS sign-up URL generated', {
+      signUpUrl: signUpUrl.replace(/&[^=]*token[^=]*=[^&]*/gi, '&token=***'),
+      redirectUriInUrl: signUpUrl.includes(encodeURIComponent(redirectUri)),
+      sessionId,
+    });
 
     logger.info('Onboarding completed, redirecting to WorkOS', {
       sessionId,
