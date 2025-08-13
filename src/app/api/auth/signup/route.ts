@@ -45,22 +45,20 @@ export async function POST(request: NextRequest) {
     const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
     
     // Debug logging for redirect URI
-    // eslint-disable-next-line no-console
-    console.log("=== WorkOS Sign-Up Redirect URI Debug (POST) ===");
-    // eslint-disable-next-line no-console
-    console.log("NEXT_PUBLIC_APP_URL:", process.env.NEXT_PUBLIC_APP_URL);
-    // eslint-disable-next-line no-console
-    console.log("Constructed redirectUri:", redirectUri);
+    logger.info('=== WorkOS Sign-Up Redirect URI Debug (POST) ===', {
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+      constructedRedirectUri: redirectUri,
+    });
     
     const signUpUrl = await getSignUpUrl({
       redirectUri,
       ...(email && { loginHint: email }),
     });
 
-    // eslint-disable-next-line no-console
-    console.log("Full WorkOS sign-up URL:", signUpUrl);
-    // eslint-disable-next-line no-console
-    console.log("===============================================");
+    logger.info('WorkOS sign-up URL generated (POST)', {
+      signUpUrl: signUpUrl.replace(/&[^=]*token[^=]*=[^&]*/gi, '&token=***'), // Mask tokens
+      redirectUriInUrl: signUpUrl.includes(encodeURIComponent(redirectUri)),
+    });
 
     logger.info('Signup URL generated for onboarding', {
       firstName,
@@ -109,22 +107,20 @@ export async function GET(request: NextRequest) {
     const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
     
     // Debug logging for redirect URI
-    // eslint-disable-next-line no-console
-    console.log("=== WorkOS Sign-Up Redirect URI Debug (GET) ===");
-    // eslint-disable-next-line no-console
-    console.log("NEXT_PUBLIC_APP_URL:", process.env.NEXT_PUBLIC_APP_URL);
-    // eslint-disable-next-line no-console
-    console.log("Constructed redirectUri:", redirectUri);
+    logger.info('=== WorkOS Sign-Up Redirect URI Debug (GET) ===', {
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+      constructedRedirectUri: redirectUri,
+    });
     
     const signUpUrl = await getSignUpUrl({
       redirectUri,
       ...(email && { loginHint: email }),
     });
 
-    // eslint-disable-next-line no-console
-    console.log("Full WorkOS sign-up URL:", signUpUrl);
-    // eslint-disable-next-line no-console
-    console.log("==============================================");
+    logger.info('WorkOS sign-up URL generated (GET)', {
+      signUpUrl: signUpUrl.replace(/&[^=]*token[^=]*=[^&]*/gi, '&token=***'), // Mask tokens
+      redirectUriInUrl: signUpUrl.includes(encodeURIComponent(redirectUri)),
+    });
 
     logger.info('Signup URL generated via GET', {
       organizationName,
