@@ -123,7 +123,21 @@ export async function POST(request: NextRequest) {
 
     // Use explicit redirect URI to avoid double-encoding issues
     const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
+    
+    // Debug logging for redirect URI
+    // eslint-disable-next-line no-console
+    console.log("=== Onboarding Complete Redirect URI Debug ===");
+    // eslint-disable-next-line no-console
+    console.log("NEXT_PUBLIC_APP_URL:", process.env.NEXT_PUBLIC_APP_URL);
+    // eslint-disable-next-line no-console
+    console.log("Constructed redirectUri:", redirectUri);
+    
     const signUpUrl = await getSignUpUrl({ redirectUri });
+
+    // eslint-disable-next-line no-console
+    console.log("Full WorkOS sign-up URL:", signUpUrl);
+    // eslint-disable-next-line no-console
+    console.log("==============================================");
 
     logger.info('Onboarding completed, redirecting to WorkOS', {
       sessionId,

@@ -9,6 +9,17 @@ export const GET = handleAuth({
   baseURL: process.env.NEXT_PUBLIC_APP_URL,
   // signUpReturnPathname: '/dashboard', // This property doesn't exist in HandleAuthOptions
   onSuccess: async ({ user, oauthTokens, authenticationMethod, organizationId }) => {
+    // Debug logging for callback
+    // eslint-disable-next-line no-console
+    console.log("=== Auth Callback Received ===");
+    // eslint-disable-next-line no-console
+    console.log("Base URL configured:", process.env.NEXT_PUBLIC_APP_URL);
+    // eslint-disable-next-line no-console
+    console.log("User ID:", user.id);
+    // eslint-disable-next-line no-console
+    console.log("Organization ID:", organizationId);
+    // eslint-disable-next-line no-console
+    console.log("============================");
     try {
       // Initialize database if not already done
       let db;
@@ -179,6 +190,16 @@ export const GET = handleAuth({
     }
   },
   onError: ({ error, request }) => {
+    // Debug logging for callback errors
+    // eslint-disable-next-line no-console
+    console.log("=== Auth Callback Error ===");
+    // eslint-disable-next-line no-console
+    console.log("Request URL:", request.url);
+    // eslint-disable-next-line no-console
+    console.log("Error:", error);
+    // eslint-disable-next-line no-console
+    console.log("===========================");
+    
     logger.error('Authentication error', {
       error: error instanceof Error ? error.message : String(error),
       url: request.url,
