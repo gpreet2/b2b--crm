@@ -41,23 +41,20 @@ export async function POST(request: NextRequest) {
                      'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
-    // Generate WorkOS signup URL with explicit redirect URI
-    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
-    
+    // Generate WorkOS signup URL using default redirect URI from dashboard
     // Debug logging for redirect URI
     logger.info('=== WorkOS Sign-Up Redirect URI Debug (POST) ===', {
       NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-      constructedRedirectUri: redirectUri,
+      message: 'Using WorkOS default redirect URI from dashboard',
     });
     
     const signUpUrl = await getSignUpUrl({
-      redirectUri,
       ...(email && { loginHint: email }),
     });
 
     logger.info('WorkOS sign-up URL generated (POST)', {
       signUpUrl: signUpUrl.replace(/&[^=]*token[^=]*=[^&]*/gi, '&token=***'), // Mask tokens
-      redirectUriInUrl: signUpUrl.includes(encodeURIComponent(redirectUri)),
+      hasRedirectUriParam: signUpUrl.includes('redirect_uri='),
     });
 
     logger.info('Signup URL generated for onboarding', {
@@ -103,23 +100,20 @@ export async function GET(request: NextRequest) {
     const organizationName = searchParams.get('organizationName');
     const email = searchParams.get('email');
     
-    // Generate WorkOS signup URL with explicit redirect URI
-    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
-    
+    // Generate WorkOS signup URL using default redirect URI from dashboard
     // Debug logging for redirect URI
     logger.info('=== WorkOS Sign-Up Redirect URI Debug (GET) ===', {
       NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-      constructedRedirectUri: redirectUri,
+      message: 'Using WorkOS default redirect URI from dashboard',
     });
     
     const signUpUrl = await getSignUpUrl({
-      redirectUri,
       ...(email && { loginHint: email }),
     });
 
     logger.info('WorkOS sign-up URL generated (GET)', {
       signUpUrl: signUpUrl.replace(/&[^=]*token[^=]*=[^&]*/gi, '&token=***'), // Mask tokens
-      redirectUriInUrl: signUpUrl.includes(encodeURIComponent(redirectUri)),
+      hasRedirectUriParam: signUpUrl.includes('redirect_uri='),
     });
 
     logger.info('Signup URL generated via GET', {
