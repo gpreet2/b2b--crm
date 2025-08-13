@@ -126,8 +126,14 @@ export class OnboardingCleanupManager {
     try {
       const cutoffTime = new Date(Date.now() - this.DEFAULT_CONFIG.ORPHANED_THRESHOLD_HOURS * 60 * 60 * 1000);
       
+      const db = this.sessionManager['db'];
+      if (!db) {
+        logger.error('Database not available for orphaned session cleanup');
+        return 0;
+      }
+      
       // Get sessions that haven't been updated recently and aren't completed
-      const { data: orphanedSessions, error } = await this.sessionManager['db'].getSupabaseClient()
+      const { data: orphanedSessions, error } = await db.getSupabaseClient()
         .from('onboarding_sessions')
         .select('id')
         .lt('updated_at', cutoffTime.toISOString())
@@ -140,13 +146,13 @@ export class OnboardingCleanupManager {
       }
 
       if (dryRun) {
-        logger.info('Dry run: Would clean orphaned sessions', { count: orphanedSessions.length });
+        logger.info('Dry run: Would clean orphaned sessions', { count: orphanedSessions?.length || 0 });
         return 0;
       }
 
       // Delete orphaned sessions
       let cleaned = 0;
-      for (const session of orphanedSessions) {
+      for (const session of orphanedSessions || []) {
         const success = await this.sessionManager.deleteSession(session.id);
         if (success) cleaned++;
       }
@@ -166,8 +172,14 @@ export class OnboardingCleanupManager {
     try {
       const cutoffTime = new Date(Date.now() - this.DEFAULT_CONFIG.STUCK_THRESHOLD_HOURS * 60 * 60 * 1000);
       
+      const db = this.sessionManager['db'];
+      if (!db) {
+        logger.error('Database not available for stuck session cleanup');
+        return 0;
+      }
+      
       // Get sessions that haven't progressed for too long
-      const { data: stuckSessions, error } = await this.sessionManager['db'].getSupabaseClient()
+      const { data: stuckSessions, error } = await db.getSupabaseClient()
         .from('onboarding_sessions')
         .select('id, current_step, created_at, updated_at')
         .lt('updated_at', cutoffTime.toISOString())
@@ -187,13 +199,13 @@ export class OnboardingCleanupManager {
       });
 
       if (dryRun) {
-        logger.info('Dry run: Would clean stuck sessions', { count: reallyStuckSessions.length });
+        logger.info('Dry run: Would clean stuck sessions', { count: reallyStuckSessions?.length || 0 });
         return 0;
       }
 
       // Delete stuck sessions
       let cleaned = 0;
-      for (const session of reallyStuckSessions) {
+      for (const session of reallyStuckSessions || []) {
         const success = await this.sessionManager.deleteSession(session.id);
         if (success) cleaned++;
       }
@@ -213,8 +225,14 @@ export class OnboardingCleanupManager {
     try {
       const cutoffTime = new Date(Date.now() - maxAgeHours * 60 * 60 * 1000);
       
+      const db = this.sessionManager['db'];
+      if (!db) {
+        logger.error('Database not available for old session cleanup');
+        return 0;
+      }
+      
       // Get sessions older than max age
-      const { data: oldSessions, error } = await this.sessionManager['db'].getSupabaseClient()
+      const { data: oldSessions, error } = await db.getSupabaseClient()
         .from('onboarding_sessions')
         .select('id')
         .lt('created_at', cutoffTime.toISOString())
@@ -227,7 +245,7 @@ export class OnboardingCleanupManager {
 
       if (dryRun) {
         logger.info('Dry run: Would clean old sessions', { 
-          count: oldSessions.length,
+          count: oldSessions?.length || 0,
           maxAgeHours 
         });
         return 0;
@@ -235,7 +253,7 @@ export class OnboardingCleanupManager {
 
       // Delete old sessions
       let cleaned = 0;
-      for (const session of oldSessions) {
+      for (const session of oldSessions || []) {
         const success = await this.sessionManager.deleteSession(session.id);
         if (success) cleaned++;
       }
@@ -253,6 +271,18 @@ export class OnboardingCleanupManager {
    */
   async getCleanupStats(): Promise<CleanupStats> {
     try {
+      const db = this.sessionManager['db'];
+      if (!db) {
+        logger.error('Database not available for cleanup stats');
+        return {
+          totalSessions: 0,
+          expiredSessions: 0,
+          orphanedSessions: 0,
+          stuckSessions: 0,
+          oldSessions: 0
+        };
+      }
+
       const now = new Date();
       const orphanedCutoff = new Date(now.getTime() - this.DEFAULT_CONFIG.ORPHANED_THRESHOLD_HOURS * 60 * 60 * 1000);
       const stuckCutoff = new Date(now.getTime() - this.DEFAULT_CONFIG.STUCK_THRESHOLD_HOURS * 60 * 60 * 1000);
@@ -261,21 +291,21 @@ export class OnboardingCleanupManager {
       const [basicStats, orphanedResult, stuckResult, oldResult] = await Promise.all([
         this.sessionManager.getSessionStats(),
         
-        this.sessionManager['db'].getSupabaseClient()
+        db.getSupabaseClient()
           .from('onboarding_sessions')
           .select('id', { count: 'exact', head: true })
           .lt('updated_at', orphanedCutoff.toISOString())
           .eq('is_completed', false)
           .gt('expires_at', now.toISOString()),
 
-        this.sessionManager['db'].getSupabaseClient()
+        db.getSupabaseClient()
           .from('onboarding_sessions')
           .select('id', { count: 'exact', head: true })
           .lt('updated_at', stuckCutoff.toISOString())
           .eq('is_completed', false)
           .eq('current_step', 1),
 
-        this.sessionManager['db'].getSupabaseClient()
+        db.getSupabaseClient()
           .from('onboarding_sessions')
           .select('id', { count: 'exact', head: true })
           .lt('created_at', oldCutoff.toISOString())

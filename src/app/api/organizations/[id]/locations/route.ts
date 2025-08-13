@@ -6,9 +6,9 @@ import { logger } from '@/utils/logger';
 import { z } from 'zod';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 /**
@@ -21,7 +21,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     const organizationService = new OrganizationService();
     const organization = await organizationService.getOrganizationById(id, {
       includeLocations: true,
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       data: organization.locations || [],
     });
   } catch (error) {
-    logger.error('Error getting organization locations', { error, id: params.id });
+    logger.error('Error getting organization locations', { error });
 
     return NextResponse.json(
       {
@@ -60,7 +61,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     const body = await request.json();
 
     // Set organization_id from URL parameter
@@ -91,7 +93,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       data: location,
     }, { status: 201 });
   } catch (error) {
-    logger.error('Error creating location', { error, organizationId: params.id });
+    logger.error('Error creating location', { error });
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(

@@ -36,7 +36,7 @@ const Layout = React.forwardRef<HTMLDivElement, LayoutProps>(
         {...props}
       >
         {/* Mobile Overlay */}
-        {isMobileMenuOpen && (
+        {!!isMobileMenuOpen && (
           <div 
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden animate-in fade-in duration-200"
             onClick={closeMobileMenu}

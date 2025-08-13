@@ -6,9 +6,9 @@ import { logger } from '@/utils/logger';
 import { z } from 'zod';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 /**
@@ -21,7 +21,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     const organizationService = new OrganizationService();
     const organization = await organizationService.getOrganizationById(id);
 
@@ -37,7 +38,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       data: organization.settings || {},
     });
   } catch (error) {
-    logger.error('Error getting organization settings', { error, id: params.id });
+    logger.error('Error getting organization settings', { error });
 
     return NextResponse.json(
       {
@@ -58,7 +59,8 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     const body = await request.json();
 
     const validatedSettings = OrganizationSettingsSchema.parse(body);
@@ -82,7 +84,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       message: 'Organization settings updated successfully',
     });
   } catch (error) {
-    logger.error('Error updating organization settings', { error, id: params.id });
+    logger.error('Error updating organization settings', { error });
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(
@@ -120,7 +122,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     const body = await request.json();
 
     // Get current settings
@@ -158,7 +161,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       message: 'Organization settings updated successfully',
     });
   } catch (error) {
-    logger.error('Error partially updating organization settings', { error, id: params.id });
+    logger.error('Error partially updating organization settings', { error });
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(

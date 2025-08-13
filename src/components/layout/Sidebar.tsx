@@ -165,7 +165,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
             </button>
 
             {/* Dropdown Portal */}
-            {isLocationDropdownOpen && !isLocationSwitching && (
+            {!!(isLocationDropdownOpen && !isLocationSwitching) && (
               <>
                 {/* Backdrop */}
                 <div
@@ -282,8 +282,8 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                           }
                         >
                           {/* Active indicator */}
-                          {isActive && (
-                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-primary-light rounded-r-full"></div>
+                          {!!isActive && (
+                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary to-primary-light rounded-r-full" />
                           )}
 
                           <div
@@ -299,7 +299,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                           <span className="font-medium text-xs">
                             {item.title}
                           </span>
-                          {item.badge && (
+                          {!!item.badge && (
                             <span className="px-1.5 py-0.5 text-xs bg-primary text-white rounded-full font-bold shadow-sm">
                               {item.badge}
                             </span>
@@ -344,7 +344,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                       </div>
 
                       {/* Sub Items */}
-                      {isExpanded && item.subItems && (
+                      {!!(isExpanded && item.subItems) && (
                         <div className="ml-6 mt-2 space-y-1.5 pl-4 border-l-2 border-border-light">
                           {item.subItems.map((subItem) => {
                             const SubIcon = subItem.icon;

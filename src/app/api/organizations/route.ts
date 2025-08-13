@@ -14,7 +14,7 @@ import { z } from 'zod';
  */
 export async function GET(request: NextRequest) {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
+    const { user: _user } = await withAuth({ ensureSignedIn: true });
 
     const { searchParams } = new URL(request.url);
     const queryParams = Object.fromEntries(searchParams.entries());

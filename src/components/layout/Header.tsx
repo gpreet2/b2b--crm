@@ -97,16 +97,16 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
                <span className="text-primary-text font-bold text-xl tracking-wide bg-gradient-to-r from-primary to-primary-dark bg-clip-text text-transparent group-hover:from-primary-dark group-hover:to-primary transition-all duration-200">
                  Back2Back
                </span>
-               <div className="w-16 h-0.5 bg-gradient-to-r from-primary to-primary-light rounded-full mt-1 group-hover:w-20 transition-all duration-200"></div>
+               <div className="w-16 h-0.5 bg-gradient-to-r from-primary to-primary-light rounded-full mt-1 group-hover:w-20 transition-all duration-200" />
              </div>
            </Link>
 
            {/* Separator */}
-           <div className="hidden sm:block w-px h-8 bg-gradient-to-b from-transparent via-border to-transparent"></div>
+           <div className="hidden sm:block w-px h-8 bg-gradient-to-b from-transparent via-border to-transparent" />
 
 
            {/* Breadcrumbs */}
-           {breadcrumbs && breadcrumbs.length > 0 && (
+           {!!(breadcrumbs && breadcrumbs.length > 0) && (
              <div className="hidden sm:block">
                <Breadcrumb items={breadcrumbs} />
              </div>
@@ -123,7 +123,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
          {/* Right Section */}
          <div className="flex items-center space-x-2 sm:space-x-3">
            {/* Separator */}
-           <div className="hidden sm:block w-px h-8 bg-gradient-to-b from-transparent via-border to-transparent"></div>
+           <div className="hidden sm:block w-px h-8 bg-gradient-to-b from-transparent via-border to-transparent" />
 
 
            {/* Notifications */}
@@ -160,13 +160,13 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
                          className="h-8 w-8 rounded-full ring-2 ring-border-light group-hover:ring-primary/30 transition-all duration-200"
                        />
                        {/* Online indicator */}
-                       <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-surface shadow-sm"></div>
+                       <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-surface shadow-sm" />
                      </div>
                    ) : (
                      <div className="relative">
                        <UserCircleIcon className="h-8 w-8 text-secondary-text group-hover:text-primary transition-colors duration-200" />
                        {/* Online indicator */}
-                       <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-surface shadow-sm"></div>
+                       <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-surface shadow-sm" />
                      </div>
                    )}
                  </button>
@@ -186,7 +186,7 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
 
 
        {/* Mobile Breadcrumbs */}
-       {breadcrumbs && breadcrumbs.length > 0 && (
+       {!!(breadcrumbs && breadcrumbs.length > 0) && (
          <div className="mt-3 sm:hidden border-t border-border-light pt-3">
            <Breadcrumb items={breadcrumbs} />
          </div>

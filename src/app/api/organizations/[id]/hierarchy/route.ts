@@ -11,13 +11,14 @@ export async function GET(
   segmentData: { params: Promise<{ id: string }> }
 ) {
   try {
+    const params = await segmentData.params;
+    const { id } = params;
+    
     const { user } = await withAuth({ ensureSignedIn: true });
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    const params = await segmentData.params;
-    const { id } = params;
+    
     const organizationService = new OrganizationService();
     const hierarchy = await organizationService.getOrganizationHierarchy(id);
 
@@ -26,7 +27,7 @@ export async function GET(
       data: hierarchy,
     });
   } catch (error) {
-    logger.error('Error getting organization hierarchy', { error, id: params.id });
+    logger.error('Error getting organization hierarchy', { error });
 
     if (error instanceof Error && error.message === 'Organization not found') {
       return NextResponse.json(
