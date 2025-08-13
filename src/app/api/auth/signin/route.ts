@@ -8,24 +8,21 @@ export async function POST(request: NextRequest) {
 
     logger.info('Sign in request received', { email });
 
-    // Generate WorkOS sign-in URL with email hint and explicit redirect URI
-    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/callback`;
-    
+    // Generate WorkOS sign-in URL with email hint, using default redirect URI from dashboard
     // Debug logging for redirect URI
     logger.info('=== WorkOS Sign-In Redirect URI Debug ===', {
       NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-      constructedRedirectUri: redirectUri,
+      message: 'Using WorkOS default redirect URI from dashboard',
     });
     
     const signInUrl = await getSignInUrl({
       screenHint: 'sign-in',
-      redirectUri,
       ...(email && { loginHint: email }),
     });
 
     logger.info('WorkOS sign-in URL generated', {
       signInUrl: signInUrl.replace(/&[^=]*token[^=]*=[^&]*/gi, '&token=***'), // Mask tokens
-      redirectUriInUrl: signInUrl.includes(encodeURIComponent(redirectUri)),
+      hasRedirectUriParam: signInUrl.includes('redirect_uri='),
     });
 
     return NextResponse.json({ url: signInUrl });
