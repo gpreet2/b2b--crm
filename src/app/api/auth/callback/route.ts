@@ -1,26 +1,45 @@
 import { handleAuth } from '@workos-inc/authkit-nextjs';
 import { cookies } from 'next/headers';
+import { NextRequest } from 'next/server';
 
 import { initializeDatabase, getDatabase } from '@/config/database';
 import { logger } from '@/utils/logger';
 
-export const GET = handleAuth({
-  returnPathname: '/dashboard',
-  baseURL: process.env.NEXT_PUBLIC_APP_URL,
-  // signUpReturnPathname: '/dashboard', // This property doesn't exist in HandleAuthOptions
-  onSuccess: async ({ user, oauthTokens, authenticationMethod, organizationId }) => {
-    // Debug logging for callback
-    // eslint-disable-next-line no-console
-    console.log("=== Auth Callback Received ===");
-    // eslint-disable-next-line no-console
-    console.log("Base URL configured:", process.env.NEXT_PUBLIC_APP_URL);
-    // eslint-disable-next-line no-console
-    console.log("User ID:", user.id);
-    // eslint-disable-next-line no-console
-    console.log("Organization ID:", organizationId);
-    // eslint-disable-next-line no-console
-    console.log("============================");
-    try {
+// Add immediate logging to verify callback is hit
+const originalHandleAuth = handleAuth;
+
+function logCallbackEntry(request: NextRequest) {
+  const url = new URL(request.url);
+  logger.info('=== Auth Callback Entry ===', {
+    method: request.method,
+    url: request.url,
+    searchParams: Object.fromEntries(url.searchParams.entries()),
+    headers: {
+      userAgent: request.headers.get('user-agent'),
+      referer: request.headers.get('referer'),
+    },
+    baseURL: process.env.NEXT_PUBLIC_APP_URL,
+  });
+}
+
+export const GET = async (request: NextRequest) => {
+  // Log immediately when callback is hit
+  logCallbackEntry(request);
+  
+  // Call the original handleAuth
+  const handler = handleAuth({
+    returnPathname: '/dashboard',
+    baseURL: process.env.NEXT_PUBLIC_APP_URL,
+    onSuccess: async ({ user, oauthTokens, authenticationMethod, organizationId }) => {
+      logger.info('=== Auth Callback Success ===', {
+        userId: user.id,
+        email: user.email,
+        organizationId,
+        authenticationMethod,
+        baseURL: process.env.NEXT_PUBLIC_APP_URL,
+      });
+
+      try {
       // Initialize database if not already done
       let db;
       try {
@@ -189,27 +208,24 @@ export const GET = handleAuth({
       // Don't throw - let the user continue
     }
   },
-  onError: ({ error, request }) => {
-    // Debug logging for callback errors
-    // eslint-disable-next-line no-console
-    console.log("=== Auth Callback Error ===");
-    // eslint-disable-next-line no-console
-    console.log("Request URL:", request.url);
-    // eslint-disable-next-line no-console
-    console.log("Error:", error);
-    // eslint-disable-next-line no-console
-    console.log("===========================");
-    
-    logger.error('Authentication error', {
-      error: error instanceof Error ? error.message : String(error),
-      url: request.url,
-    });
-    // Return a redirect response to the home page with error
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: '/?error=auth_failed',
-      },
-    });
-  },
-});
+    onError: ({ error, request }) => {
+      logger.error('=== Auth Callback Error ===', {
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+        url: request.url,
+        method: request.method,
+        baseURL: process.env.NEXT_PUBLIC_APP_URL,
+      });
+      
+      // Return a redirect response to the home page with error
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: '/?error=auth_failed',
+        },
+      });
+    },
+  });
+
+  return handler(request);
+};
