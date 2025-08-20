@@ -25,11 +25,11 @@ export async function ensureDatabaseInitialized(): Promise<void> {
     try {
       // Try to get existing database instance first
       try {
-        const existingDb = getDatabase();
+        getDatabase();
         // If we get here, database is already initialized
         isInitialized = true;
         return;
-      } catch (error) {
+      } catch (_error) {
         // Database not initialized, need to initialize it
       }
 

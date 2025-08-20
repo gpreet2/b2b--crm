@@ -111,7 +111,7 @@ export class OnboardingRecoveryManager {
     try {
       // Validate against schema
       OnboardingStateSchema.parse(session.state);
-    } catch (error) {
+    } catch (_error) {
       issues.push('Schema validation failed');
     }
 
@@ -232,7 +232,7 @@ export class OnboardingRecoveryManager {
   /**
    * Determine the next logical step for the user
    */
-  private determineNextStep(session: OnboardingSession, options: RecoveryOptions): number {
+  private determineNextStep(session: OnboardingSession, _options: RecoveryOptions): number {
     const { currentStep } = session;
     const { completedSteps } = session.state.metadata;
     

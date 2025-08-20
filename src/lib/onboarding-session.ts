@@ -1,10 +1,9 @@
 import { createHash, randomBytes } from 'crypto';
 import { getDatabase } from '@/config/database';
 import { logger } from '@/utils/logger';
-import { encryptState, decryptState, sanitizeOnboardingState, generateCSRFToken, validateCSRFToken } from './onboarding-encryption';
+import { encryptState, decryptState, sanitizeOnboardingState, generateCSRFToken } from './onboarding-encryption';
 import { OnboardingStateSchema, SessionUpdateSchema, SessionCreateSchema } from './onboarding-validation';
-import { ensureDatabaseInitialized, getDatabaseInstance } from './database-init';
-import { z } from 'zod';
+import { ensureDatabaseInitialized } from './database-init';
 
 // Onboarding session structure
 export interface OnboardingSession {

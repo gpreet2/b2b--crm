@@ -10,8 +10,7 @@ import { logger } from '@/utils/logger';
 import type { 
   ClientDTO, 
   ClientListResponse, 
-  ClientQueryFilters, 
-  RawClientData 
+  ClientQueryFilters
 } from '@/types/generated/client.types';
 
 export class ClientService {
@@ -187,23 +186,6 @@ export class ClientService {
    * Build the count query for pagination
    */
   private buildClientCountQuery(filters: ClientQueryFilters) {
-    let query = this.db
-      .getSupabaseClient()
-      .from('clients')
-      .select('id', { count: 'exact', head: true })
-      .eq('client_organizations.organization_id', filters.organizationId);
-
-    // Apply same filters as main query (except pagination)
-    if (filters.search) {
-      query = query.or(
-        `users.first_name.ilike.%${filters.search}%,users.last_name.ilike.%${filters.search}%,users.email.ilike.%${filters.search}%`
-      );
-    }
-
-    if (filters.status) {
-      query = query.eq('client_organizations.membership_status', filters.status);
-    }
-
     return this.db
       .getSupabaseClient()
       .rpc('count_clients_for_organization', {

@@ -158,3 +158,35 @@ src/app/api/debug-auth/
 # Task files
 # tasks.json
 # tasks/ 
+
+# Backup files
+*.bak
+*.backup
+
+# Build artifacts
+tsconfig.tsbuildinfo
+
+# Test pages and debug endpoints  
+src/app/test-*/
+src/app/debug-*/
+src/app/api/test-*/
+src/app/api/debug-*/
+
+# Temporary documentation files
+workos.txt
+status.md
+
+# Playwright test artifacts
+.playwright-mcp/
+
+# Temporary lint configs
+.eslintrc.temp.js
+
+# Editor directories
+.cursor/
+.claude/
+.kiro/
+
+# Instrumentation files (disabled)
+src/instrumentation.ts.disabled
+src/lib/opentelemetry-stub.js

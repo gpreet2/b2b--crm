@@ -7,7 +7,6 @@ import type {
   OrganizationQuery,
   Location,
   CreateLocation,
-  UpdateLocation,
   OrganizationWithLocations,
   MoveOrganization,
   OrganizationSettings,
