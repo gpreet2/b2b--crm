@@ -174,7 +174,7 @@ src/app/api/debug-*/
 
 # Temporary documentation files
 workos.txt
-status.md
+# status.md should be committed to track project progress
 
 # Playwright test artifacts
 .playwright-mcp/
