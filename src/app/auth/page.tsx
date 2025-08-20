@@ -44,6 +44,44 @@ export default function AuthPage() {
     return Object.keys(newErrors).length === 0;
   };
 
+  const handleGoogleSignIn = async () => {
+    if (!formData.email) {
+      setErrors({ email: 'Please enter your email address first' });
+      return;
+    }
+
+    // Clear any existing errors
+    setErrors({});
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+        }),
+      });
+
+      const data = await response.json();
+      console.log('Google sign in response:', data);
+
+      if (response.ok && data.url) {
+        console.log('Redirecting to WorkOS:', data.url);
+        window.location.href = data.url;
+      } else {
+        setIsLoading(false);
+        setErrors({ email: data.error ?? 'Authentication failed. Please try again.' });
+      }
+    } catch (error) {
+      console.error('Google auth error:', error);
+      setIsLoading(false);
+      setErrors({ email: 'Authentication failed. Please try again.' });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -269,7 +307,14 @@ export default function AuthPage() {
                   </div>
                 </div>
 
-                <Button type='button' variant='outline' className='w-full' size='md'>
+                <Button 
+                  type='button' 
+                  variant='outline' 
+                  className='w-full' 
+                  size='md'
+                  onClick={handleGoogleSignIn}
+                  loading={isLoading}
+                >
                   <svg className='w-4 h-4 mr-2' viewBox='0 0 24 24'>
                     <path
                       fill='currentColor'
@@ -319,17 +364,6 @@ export default function AuthPage() {
               </p>
             </div>
 
-            <div className='mt-3 text-center'>
-              <Button
-                type='button'
-                variant='outline'
-                size='sm'
-                onClick={() => router.push('/dashboard')}
-                className='text-xs'
-              >
-                Skip to Dashboard (Temporary)
-              </Button>
-            </div>
           </div>
         </div>
       </div>

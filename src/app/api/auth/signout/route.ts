@@ -33,9 +33,11 @@ export async function POST(request: NextRequest) {
       return response;
     }
 
-    // Normal sign out flow
-    const signOutResponse = await signOut();
-    return signOutResponse;
+    // Normal sign out flow - signOut may return void or Response
+    await signOut();
+    
+    // Always redirect to home after sign out
+    return NextResponse.redirect(new URL('/', request.url));
   } catch (error) {
     logger.error('Sign out error', { error });
     return new Response('Failed to sign out', { status: 500 });

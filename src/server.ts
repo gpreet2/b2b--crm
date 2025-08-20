@@ -7,8 +7,8 @@ import express from 'express';
 import { dashboardRouter } from './api/dashboard';
 import { monitoringRouter } from './api/monitoring';
 import { initializeDatabase, getDatabase } from './config/database';
-import { errorHandler } from './middleware/error.middleware';
-import { requestIdMiddleware } from './middleware/request-id.middleware';
+import { errorHandler } from './express-middleware/error.middleware';
+import { requestIdMiddleware } from './express-middleware/request-id.middleware';
 import { logger } from './utils/logger';
 
 const app = express();

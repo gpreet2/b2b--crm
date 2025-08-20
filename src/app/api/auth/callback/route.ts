@@ -1,194 +1,176 @@
-import { handleAuth } from '@workos-inc/authkit-nextjs';
-import { cookies } from 'next/headers';
+import { NextRequest, NextResponse } from 'next/server';
+import { WorkOS } from '@workos-inc/node';
 
 import { initializeDatabase, getDatabase } from '@/config/database';
 import { logger } from '@/utils/logger';
+import { createSessionCookie } from '@/lib/auth-server';
 
-export const GET = handleAuth({
-  returnPathname: '/dashboard',
-  baseURL: process.env.NEXT_PUBLIC_APP_URL,
-  // signUpReturnPathname: '/dashboard', // This property doesn't exist in HandleAuthOptions
-  onSuccess: async ({ user, oauthTokens, authenticationMethod, organizationId }) => {
+// Initialize WorkOS
+const workos = new WorkOS(process.env.WORKOS_API_KEY!);
+
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const code = searchParams.get('code');
+    const _state = searchParams.get('state');
+
+    if (!code) {
+      logger.error('No authorization code received in callback');
+      return NextResponse.redirect(new URL('/?error=auth_failed', request.url));
+    }
+
+    // Exchange the authorization code for user and tokens
+    const { user, accessToken, refreshToken: _refreshToken, organizationId } = await workos.userManagement.authenticateWithCode({
+      code,
+      clientId: process.env.WORKOS_CLIENT_ID!,
+    });
+
+    if (!user) {
+      logger.error('Failed to authenticate with WorkOS');
+      return NextResponse.redirect(new URL('/?error=auth_failed', request.url));
+    }
+
+    logger.info('User authenticated successfully', {
+      userId: user.id,
+      email: user.email,
+      organizationId,
+    });
+
+    // Initialize database if not already done
+    let db;
     try {
-      // Initialize database if not already done
-      let db;
-      try {
-        db = getDatabase();
-      } catch (_error) {
-        // Database not initialized, initialize it now
-        const dbInstance = initializeDatabase({
-          supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        });
-        await dbInstance.initialize();
-        db = dbInstance;
-      }
+      db = getDatabase();
+    } catch (_error) {
+      // Database not initialized, initialize it now
+      const dbInstance = initializeDatabase({
+        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      });
+      await dbInstance.initialize();
+      db = dbInstance;
+    }
 
-      // Note: Onboarding session handling moved to separate flow
-      // WorkOS callback doesn't provide state parameter in current version
+    // Check for existing user by WorkOS user ID first
+    const { data: existingUserByWorkosId } = await db
+      .getSupabaseClient()
+      .from('users')
+      .select('id, email, workos_user_id')
+      .eq('workos_user_id', user.id)
+      .single();
 
-      // Log successful authentication
-      logger.info('User authenticated successfully', {
+    // Check for existing user by email (in case WorkOS ID changed)
+    const { data: existingUserByEmail } = await db
+      .getSupabaseClient()
+      .from('users')
+      .select('id, email, workos_user_id, first_name, last_name')
+      .eq('email', user.email)
+      .single();
+
+    if (existingUserByWorkosId) {
+      // User exists with correct WorkOS ID - no action needed
+      logger.info('User found by WorkOS ID - already up to date', {
         userId: user.id,
         email: user.email,
-        organizationId,
-        authenticationMethod,
+      });
+    } else if (existingUserByEmail && existingUserByEmail.workos_user_id !== user.id) {
+      // User exists by email but has different WorkOS ID - update it
+      logger.info('Updating existing user with new WorkOS ID', {
+        oldWorkosId: existingUserByEmail.workos_user_id,
+        newWorkosId: user.id,
+        email: user.email,
       });
 
-      // Store current authenticated user ID in a simple cookie for fallback lookup
-      // This helps our server action identify the correct user when WorkOS withAuth() fails
-      const cookieStore = await cookies();
-      cookieStore.set('current-user-id', user.id, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-      });
-
-      // Check for existing user by WorkOS user ID first
-      const { data: existingUserByWorkosId } = await db
+      const { error: updateError } = await db
         .getSupabaseClient()
         .from('users')
-        .select('id, email, workos_user_id')
-        .eq('workos_user_id', user.id)
-        .single();
-
-      // Check for existing user by email (in case WorkOS ID changed)
-      const { data: existingUserByEmail } = await db
-        .getSupabaseClient()
-        .from('users')
-        .select('id, email, workos_user_id, first_name, last_name')
-        .eq('email', user.email)
-        .single();
-
-      if (existingUserByWorkosId) {
-        // User exists with correct WorkOS ID - no action needed
-        logger.info('User found by WorkOS ID - already up to date', {
-          userId: user.id,
-          email: user.email,
-        });
-      } else if (existingUserByEmail && existingUserByEmail.workos_user_id !== user.id) {
-        // User exists by email but has different WorkOS ID - update it
-        logger.info('Updating existing user with new WorkOS ID', {
-          oldWorkosId: existingUserByEmail.workos_user_id,
-          newWorkosId: user.id,
-          email: user.email,
-        });
-
-        const { error: updateError } = await db
-          .getSupabaseClient()
-          .from('users')
-          .update({
-            workos_user_id: user.id,
-            first_name: user.firstName,
-            last_name: user.lastName,
-            avatar_url: user.profilePictureUrl,
-            metadata: {
-              email_verified: user.emailVerified,
-              authentication_method: authenticationMethod,
-              workos_id_updated_at: new Date().toISOString(),
-            },
-            updated_at: new Date().toISOString(),
-          })
-          .eq('email', user.email);
-
-        if (updateError) {
-          logger.error('Failed to update user WorkOS ID', {
-            error: updateError,
-            userId: user.id,
-            email: user.email,
-          });
-        } else {
-          logger.info('Successfully updated user WorkOS ID', {
-            userId: user.id,
-            email: user.email,
-          });
-        }
-      } else if (!existingUserByEmail) {
-        // No existing user - create new one
-        const { error } = await db
-          .getSupabaseClient()
-          .from('users')
-          .insert({
-            workos_user_id: user.id,
-            email: user.email,
-            first_name: user.firstName,
-            last_name: user.lastName,
-            avatar_url: user.profilePictureUrl,
-            user_type: 'owner', // Default to owner for now
-            metadata: {
-              email_verified: user.emailVerified,
-              authentication_method: authenticationMethod,
-            },
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .select()
-          .single();
-
-        if (error) {
-          logger.error('Failed to create user in database', {
-            error,
-            userId: user.id,
-          });
-        } else {
-          logger.info('New user created in database', {
-            userId: user.id,
-            email: user.email,
-          });
-        }
-      }
-
-      // Update organization association if provided
-      if (organizationId && (existingUserByWorkosId || existingUserByEmail)) {
-        const { error: orgError } = await db.getSupabaseClient().from('user_organizations').upsert(
-          {
-            user_id: user.id,
-            organization_id: organizationId,
-            updated_at: new Date().toISOString(),
+        .update({
+          workos_user_id: user.id,
+          first_name: user.firstName,
+          last_name: user.lastName,
+          avatar_url: user.profilePictureUrl,
+          metadata: {
+            email_verified: user.emailVerified,
+            workos_id_updated_at: new Date().toISOString(),
           },
-          {
-            onConflict: 'user_id,organization_id',
-          }
-        );
+          updated_at: new Date().toISOString(),
+        })
+        .eq('email', user.email);
 
-        if (orgError) {
-          logger.error('Failed to update user organization', {
-            error: orgError,
-            userId: user.id,
-            organizationId,
-          });
-        }
-      }
-
-      // Store OAuth tokens if needed (optional)
-      if (oauthTokens) {
-        logger.debug('OAuth tokens received', {
+      if (updateError) {
+        logger.error('Failed to update user WorkOS ID', {
+          error: updateError,
           userId: user.id,
-          provider: authenticationMethod,
+          email: user.email,
         });
-        // You can store these securely if needed for API calls
+      } else {
+        logger.info('Successfully updated user WorkOS ID', {
+          userId: user.id,
+          email: user.email,
+        });
       }
-    } catch (error) {
-      logger.error('Error in auth success handler', {
-        error,
-        userId: user.id,
-      });
-      // Don't throw - let the user continue
+    } else if (!existingUserByEmail) {
+      // No existing user - create new one
+      const { error } = await db
+        .getSupabaseClient()
+        .from('users')
+        .insert({
+          workos_user_id: user.id,
+          email: user.email,
+          first_name: user.firstName,
+          last_name: user.lastName,
+          avatar_url: user.profilePictureUrl,
+          user_type: 'owner', // Default to owner for now
+          metadata: {
+            email_verified: user.emailVerified,
+          },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (error) {
+        logger.error('Failed to create user in database', {
+          error,
+          userId: user.id,
+        });
+      } else {
+        logger.info('New user created in database', {
+          userId: user.id,
+          email: user.email,
+        });
+      }
     }
-  },
-  onError: ({ error, request }) => {
-    logger.error('Authentication error', {
-      error: error instanceof Error ? error.message : String(error),
-      url: request.url,
-    });
-    // Return a redirect response to the home page with error
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: '/?error=auth_failed',
-      },
-    });
-  },
-});
+
+    // Update organization association if provided
+    if (organizationId && (existingUserByWorkosId || existingUserByEmail)) {
+      const { error: orgError } = await db.getSupabaseClient().from('user_organizations').upsert(
+        {
+          user_id: user.id,
+          organization_id: organizationId,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'user_id,organization_id',
+        }
+      );
+
+      if (orgError) {
+        logger.error('Failed to update user organization', {
+          error: orgError,
+          userId: user.id,
+          organizationId,
+        });
+      }
+    }
+
+    // Create session cookie using the access token and redirect to dashboard
+    const response = NextResponse.redirect(new URL('/dashboard', request.url));
+    response.headers.set('Set-Cookie', createSessionCookie(accessToken));
+
+    return response;
+  } catch (error) {
+    logger.error('Authentication callback failed', { error });
+    return NextResponse.redirect(new URL('/?error=auth_failed', request.url));
+  }
+}

@@ -1,43 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
-import { Request, Response, NextFunction } from 'express';
-
-import { AuthError, PermissionError } from '@/errors';
-import { logger } from '@/utils/logger';
-
-// Extend Express Request to include auth data
-export interface AuthenticatedRequest extends Request {
-  authUser?: {
-    id: string;
-    email: string;
-    firstName?: string;
-    lastName?: string;
-    emailVerified?: boolean;
-  };
-  authOrganizationId?: string;
-  authAccessToken?: string;
-}
-
-// Get Supabase client (lazy initialization for better testability)
-let supabase: ReturnType<typeof createClient> | null = null;
-
-function getSupabaseClient() {
-  if (!supabase) {
-    supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_KEY!,
-      {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false,
-        },
-      }
-    );
-  }
-  return supabase;
-}
+import { getSupabaseClient } from '@/config/supabase';
 
 /**
- * Check if user has a specific permission
+ * Check if a user has a specific permission for a resource within an organization
  */
 export async function checkPermission(
   userId: string,
@@ -46,204 +10,149 @@ export async function checkPermission(
   action: string
 ): Promise<boolean> {
   try {
-    const { data, error } = await getSupabaseClient().rpc('has_permission', {
-      p_user_id: userId,
-      p_organization_id: organizationId,
-      p_resource: resource,
-      p_action: action,
-    });
+    const supabase = getSupabaseClient();
 
-    if (error) {
-      logger.error('Permission check failed', {
-        error,
-        userId,
-        organizationId,
-        resource,
-        action,
-      });
+    // Get user roles in the organization
+    const { data: userRoles, error: rolesError } = await supabase
+      .from('user_roles')
+      .select(`
+        role_id,
+        roles!inner(
+          id,
+          name,
+          role_permissions!inner(
+            permission_id,
+            permissions!inner(
+              id,
+              resource,
+              action
+            )
+          )
+        )
+      `)
+      .eq('user_id', userId)
+      .eq('organization_id', organizationId);
+
+    if (rolesError) {
+      console.error('Error fetching user roles:', rolesError);
       return false;
     }
 
-    logger.info('Permission check', {
-      userId,
-      organizationId,
-      resource,
-      action,
-      granted: data || false,
-    });
+    if (!userRoles || userRoles.length === 0) {
+      return false;
+    }
 
-    return Boolean(data);
+    // Check if any role has the required permission
+    for (const userRole of userRoles) {
+      const role = userRole.roles as any;
+      if (role && Array.isArray(role.role_permissions)) {
+        for (const rolePermission of role.role_permissions) {
+          const permission = rolePermission.permissions;
+          if (permission && permission.resource === resource && permission.action === action) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   } catch (error) {
-    logger.error('Permission check error', { error, resource, action });
+    console.error('Permission check error:', error);
     return false;
   }
 }
 
 /**
- * Middleware to require specific permission
+ * Get user's role in an organization
  */
-export function requirePermission(resource: string, action: string) {
-  return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    try {
-      // Check if user is authenticated
-      if (!req.authUser) {
-        throw new AuthError('Authentication required');
-      }
+export async function getUserRole(
+  userId: string,
+  organizationId: string
+): Promise<string | null> {
+  try {
+    const supabase = getSupabaseClient();
 
-      // Check if organization context is available
-      if (!req.authOrganizationId) {
-        throw new PermissionError('Organization context required');
-      }
+    const { data: userRole, error } = await supabase
+      .from('user_roles')
+      .select(`
+        roles!inner(name)
+      `)
+      .eq('user_id', userId)
+      .eq('organization_id', organizationId)
+      .single();
 
-      // Check permission
-      const hasPermission = await checkPermission(
-        req.authUser.id,
-        req.authOrganizationId,
-        resource,
-        action
-      );
-
-      if (!hasPermission) {
-        throw new PermissionError(`Permission denied: requires ${resource}.${action}`);
-      }
-
-      next();
-    } catch (error) {
-      next(error);
+    if (error) {
+      console.error('Error fetching user role:', error);
+      return null;
     }
-  };
+
+    return (userRole?.roles as any)?.name || null;
+  } catch (error) {
+    console.error('Get user role error:', error);
+    return null;
+  }
 }
 
 /**
- * Get user's permissions for caching/display
+ * Get all permissions for a user in an organization
  */
 export async function getUserPermissions(
   userId: string,
   organizationId: string
 ): Promise<Array<{ resource: string; action: string; granted: boolean }>> {
   try {
-    const { data, error } = await getSupabaseClient()
-      .from('user_effective_permissions')
-      .select('resource, action, granted')
+    const supabase = getSupabaseClient();
+
+    const { data: userRoles, error } = await supabase
+      .from('user_roles')
+      .select(`
+        role_id,
+        roles!inner(
+          id,
+          name,
+          role_permissions!inner(
+            permission_id,
+            permissions!inner(
+              id,
+              resource,
+              action
+            )
+          )
+        )
+      `)
       .eq('user_id', userId)
-      .eq('organization_id', organizationId)
-      .eq('granted', true);
+      .eq('organization_id', organizationId);
 
     if (error) {
-      logger.error('Failed to fetch user permissions', {
-        error,
-        userId,
-        organizationId,
-      });
+      console.error('Error fetching user permissions:', error);
       return [];
     }
 
-    return (data || []) as Array<{ resource: string; action: string; granted: boolean }>;
+    if (!userRoles) {
+      return [];
+    }
+
+    const permissions: Array<{ resource: string; action: string; granted: boolean }> = [];
+
+    userRoles.forEach((userRole) => {
+      const role = userRole.roles as any;
+      if (role && Array.isArray(role.role_permissions)) {
+        role.role_permissions.forEach((rolePermission: any) => {
+          const permission = rolePermission.permissions;
+          if (permission) {
+            permissions.push({
+              resource: permission.resource,
+              action: permission.action,
+              granted: true
+            });
+          }
+        });
+      }
+    });
+
+    return permissions;
   } catch (error) {
-    logger.error('Error fetching user permissions', { error });
+    console.error('Get user permissions error:', error);
     return [];
-  }
-}
-
-/**
- * Get user's role in organization
- */
-export async function getUserRole(userId: string, organizationId: string): Promise<string | null> {
-  try {
-    const { data, error } = await getSupabaseClient()
-      .from('user_organizations')
-      .select(
-        `
-        role:roles(
-          slug,
-          name
-        )
-      `
-      )
-      .eq('user_id', userId)
-      .eq('organization_id', organizationId)
-      .eq('is_active', true)
-      .single();
-
-    if (error || !data?.role) {
-      return null;
-    }
-
-    interface RoleData {
-      slug: string;
-      name: string;
-    }
-    return (data.role as unknown as RoleData).slug;
-  } catch (error) {
-    logger.error('Error fetching user role', { error });
-    return null;
-  }
-}
-
-/**
- * Check if user has any of the specified roles
- */
-export async function hasRole(
-  userId: string,
-  organizationId: string,
-  roles: string[]
-): Promise<boolean> {
-  const userRole = await getUserRole(userId, organizationId);
-  return userRole ? roles.includes(userRole) : false;
-}
-
-/**
- * Middleware to require specific role
- */
-export function requireRole(role: string | string[]) {
-  const roles = Array.isArray(role) ? role : [role];
-
-  return async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
-    try {
-      if (!req.authUser) {
-        throw new AuthError('Authentication required');
-      }
-
-      if (!req.authOrganizationId) {
-        throw new PermissionError('Organization context required');
-      }
-
-      const hasRequiredRole = await hasRole(req.authUser.id, req.authOrganizationId, roles);
-
-      if (!hasRequiredRole) {
-        throw new PermissionError(`Requires one of these roles: ${roles.join(', ')}`);
-      }
-
-      next();
-    } catch (error) {
-      next(error);
-    }
-  };
-}
-
-/**
- * Middleware to load user permissions into request
- */
-export async function loadUserPermissions(
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-) {
-  try {
-    if (req.authUser && req.authOrganizationId) {
-      const permissions = await getUserPermissions(req.authUser.id, req.authOrganizationId);
-
-      // Add permissions to request object for easy access
-      interface ExtendedRequest extends AuthenticatedRequest {
-        userPermissions?: Array<{ resource: string; action: string; granted: boolean }>;
-      }
-      (req as ExtendedRequest).userPermissions = permissions;
-    }
-
-    next();
-  } catch (error) {
-    // Don't fail the request if permissions can't be loaded
-    logger.error('Failed to load user permissions', { error });
-    next();
   }
 }

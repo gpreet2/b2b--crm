@@ -9,6 +9,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Button } from "@/components/ui/Button";
 import { Breadcrumb, BreadcrumbItem } from "@/components/ui/Breadcrumb";
+import { LogoutButton } from "@/components/auth/logout-button";
 
 
 export interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -20,6 +21,10 @@ export interface HeaderProps extends React.HTMLAttributes<HTMLDivElement> {
    name: string;
    email: string;
    avatar?: string;
+   initials?: string;
+   role?: string;
+   organizationId?: string;
+   isImpersonating?: boolean;
  };
  notifications?: number;
 }
@@ -149,27 +154,35 @@ const Header = React.forwardRef<HTMLDivElement, HeaderProps>(
                      {user.email}
                    </p>
                  </div>
-                 <button className="flex items-center space-x-2 p-2 rounded-xl hover:bg-accent transition-all duration-200 hover-lift shadow-sm group">
-                   {user.avatar ? (
-                     <div className="relative">
-                       <Image
-                         src={user.avatar}
-                         alt={user.name}
-                         width={32}
-                         height={32}
-                         className="h-8 w-8 rounded-full ring-2 ring-border-light group-hover:ring-primary/30 transition-all duration-200"
-                       />
-                       {/* Online indicator */}
-                       <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-surface shadow-sm" />
+                 <div className="relative group">
+                   <button className="flex items-center space-x-2 p-2 rounded-xl hover:bg-accent transition-all duration-200 hover-lift shadow-sm group">
+                     {user.avatar ? (
+                       <div className="relative">
+                         <Image
+                           src={user.avatar}
+                           alt={user.name}
+                           width={32}
+                           height={32}
+                           className="h-8 w-8 rounded-full ring-2 ring-border-light group-hover:ring-primary/30 transition-all duration-200"
+                         />
+                         {/* Online indicator */}
+                         <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-surface shadow-sm" />
+                       </div>
+                     ) : (
+                       <div className="relative">
+                         <UserCircleIcon className="h-8 w-8 text-secondary-text group-hover:text-primary transition-colors duration-200" />
+                         {/* Online indicator */}
+                         <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-surface shadow-sm" />
+                       </div>
+                     )}
+                   </button>
+                   {/* Dropdown menu */}
+                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-border-light opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                     <div className="p-2">
+                       <LogoutButton />
                      </div>
-                   ) : (
-                     <div className="relative">
-                       <UserCircleIcon className="h-8 w-8 text-secondary-text group-hover:text-primary transition-colors duration-200" />
-                       {/* Online indicator */}
-                       <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-success rounded-full border-2 border-surface shadow-sm" />
-                     </div>
-                   )}
-                 </button>
+                   </div>
+                 </div>
                </div>
              ) : (
                <Button
