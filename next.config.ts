@@ -82,13 +82,7 @@ const nextConfig: NextConfig = {
         });
       }
 
-      // Stub OpenTelemetry for edge runtime compatibility
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@opentelemetry/api': require.resolve('./src/lib/opentelemetry-stub.js'),
-        '@opentelemetry/core': require.resolve('./src/lib/opentelemetry-stub.js'),
-        '@opentelemetry/instrumentation': require.resolve('./src/lib/opentelemetry-stub.js'),
-      };
+      // OpenTelemetry packages are externalized above, no need for stubs
 
       // Suppress the specific Prisma/OpenTelemetry warnings that spam the console
       config.ignoreWarnings = [
