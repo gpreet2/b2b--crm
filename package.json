@@ -59,7 +59,7 @@
     "@types/swagger-ui-express": "^4.1.8",
     "@upstash/ratelimit": "^2.0.6",
     "@upstash/redis": "^1.35.3",
-    "@workos-inc/authkit-nextjs": "^2.4.6",
+    "@workos-inc/authkit-nextjs": "^2.5.0",
     "@workos-inc/node": "^7.67.0",
     "archiver": "^7.0.1",
     "clsx": "^2.1.1",

@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from 'next/font/google';
+import { AuthKitProvider } from '@workos-inc/authkit-nextjs/components';
 
 import './globals.css';
 import ClientLayout from './client-layout';
@@ -22,9 +23,11 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
-          <ClientLayout>{children}</ClientLayout>
-        </AuthProvider>
+        <AuthKitProvider>
+          <AuthProvider>
+            <ClientLayout>{children}</ClientLayout>
+          </AuthProvider>
+        </AuthKitProvider>
       </body>
     </html>
   );

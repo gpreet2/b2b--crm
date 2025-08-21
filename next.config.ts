@@ -82,7 +82,8 @@ const nextConfig: NextConfig = {
         });
       }
 
-      // Stub OpenTelemetry for edge runtime compatibility
+      // Keep OpenTelemetry stub aliases for Edge Runtime compatibility
+      // Even with AuthKit 2.5.0+, Next.js 15.5.0 still has Edge Runtime conflicts
       config.resolve.alias = {
         ...config.resolve.alias,
         '@opentelemetry/api': require.resolve('./src/lib/opentelemetry-stub.js'),

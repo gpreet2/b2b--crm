@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useCallback, useEffect, useState } from 'react';
 
 export interface AuthUser {
   id: string;
@@ -61,23 +61,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<AuthSession | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const refreshAuth = useCallback(async () => {
+  // Fetch session data from our custom API
+  const fetchSession = useCallback(async () => {
     try {
+      setLoading(true);
       const response = await fetch('/api/auth/session', {
+        method: 'GET',
         credentials: 'include',
       });
-      
-      const data = await response.json();
-      
-      if (data.success && data.user && data.session) {
-        setUser(data.user);
-        setSession(data.session);
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.user && data.session) {
+          setUser(data.user);
+          setSession(data.session);
+        } else {
+          setUser(null);
+          setSession(null);
+        }
       } else {
         setUser(null);
         setSession(null);
       }
     } catch (error) {
-      console.error('Failed to refresh auth', { error });
+      console.error('Failed to fetch session:', error);
       setUser(null);
       setSession(null);
     } finally {
@@ -85,100 +92,88 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Initial session fetch
+  useEffect(() => {
+    fetchSession();
+  }, [fetchSession]);
+
   const signOut = useCallback(async () => {
     try {
-      setLoading(true);
-      
-      const response = await fetch('/api/auth/session', {
+      await fetch('/api/auth/session', {
         method: 'DELETE',
         credentials: 'include',
       });
       
-      if (response.ok) {
-        setUser(null);
-        setSession(null);
-        // Redirect to home page
-        window.location.href = '/';
-      } else {
-        console.error('Failed to sign out');
-      }
+      setUser(null);
+      setSession(null);
+      
+      // Redirect to auth page
+      window.location.href = '/auth';
     } catch (error) {
-      console.error('Sign out error', { error });
-    } finally {
-      setLoading(false);
+      console.error('Sign out failed:', error);
     }
   }, []);
 
+  const refreshAuth = useCallback(async () => {
+    await fetchSession();
+  }, [fetchSession]);
+
+  // Computed values
+  const isAuthenticated = !!user && !!session;
+  const hasOrganization = !!session?.organizationId;
+  const hasPermissions = !!session?.permissions && session.permissions.length > 0;
+  const hasRoles = !!session?.role;
+
   // Enhanced utility functions
-  const hasPermission = useCallback((permission: string): boolean => {
+  const hasPermission = useCallback((permission: string) => {
     return session?.permissions?.includes(permission) ?? false;
   }, [session?.permissions]);
 
-  const hasAnyPermission = useCallback((permissionList: string[]): boolean => {
-    if (!session?.permissions) return false;
-    return permissionList.some(permission => session.permissions.includes(permission));
-  }, [session?.permissions]);
+  const hasAnyPermission = useCallback((permissionList: string[]) => {
+    return permissionList.some(permission => hasPermission(permission));
+  }, [hasPermission]);
 
-  const hasAllPermissions = useCallback((permissionList: string[]): boolean => {
-    if (!session?.permissions) return false;
-    return permissionList.every(permission => session.permissions.includes(permission));
-  }, [session?.permissions]);
+  const hasAllPermissions = useCallback((permissionList: string[]) => {
+    return permissionList.every(permission => hasPermission(permission));
+  }, [hasPermission]);
 
-  const hasRole = useCallback((requiredRole: string): boolean => {
+  const hasRole = useCallback((requiredRole: string) => {
     return session?.role === requiredRole;
   }, [session?.role]);
 
-  const hasAnyRole = useCallback((roleList: string[]): boolean => {
-    if (!session?.role) return false;
-    return roleList.includes(session.role);
+  const hasAnyRole = useCallback((roleList: string[]) => {
+    return roleList.includes(session?.role || '');
   }, [session?.role]);
 
-  const isImpersonating = useCallback((): boolean => {
+  const isImpersonating = useCallback(() => {
     return !!session?.impersonator;
   }, [session?.impersonator]);
 
-  const getDisplayName = useCallback((): string => {
+  const getDisplayName = useCallback(() => {
     if (!user) return '';
-    if (user.firstName && user.lastName) {
-      return `${user.firstName} ${user.lastName}`;
+    if (user.firstName || user.lastName) {
+      return `${user.firstName || ''} ${user.lastName || ''}`.trim();
     }
-    if (user.firstName) return user.firstName;
-    if (user.lastName) return user.lastName;
-    return user.email?.split('@')[0] || 'User';
+    return user.email;
   }, [user]);
 
-  const getInitials = useCallback((): string => {
+  const getInitials = useCallback(() => {
     if (!user) return '';
-    const firstName = user.firstName || '';
-    const lastName = user.lastName || '';
-    if (firstName && lastName) {
-      return `${firstName[0]}${lastName[0]}`.toUpperCase();
+    if (user.firstName || user.lastName) {
+      const first = user.firstName?.[0]?.toUpperCase() || '';
+      const last = user.lastName?.[0]?.toUpperCase() || '';
+      return `${first}${last}`;
     }
-    if (firstName) return firstName[0].toUpperCase();
-    if (lastName) return lastName[0].toUpperCase();
-    return (user.email?.[0] || 'U').toUpperCase();
+    return user.email.substring(0, 2).toUpperCase();
   }, [user]);
 
-  // Load auth state on mount
-  useEffect(() => {
-    refreshAuth();
-  }, [refreshAuth]);
-
-  // Computed properties
-  const isAuthenticated = !!user;
-  const hasOrganization = !!session?.organizationId;
-  const hasPermissions = !!(session?.permissions && session.permissions.length > 0);
-  const hasRoles = !!session?.role;
-
-  const contextValue: AuthContextType = {
+  const value: AuthContextType = {
     user,
     session,
     loading,
     isAuthenticated,
     signOut,
     refreshAuth,
-    
-    // Enhanced utility functions
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
@@ -187,13 +182,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isImpersonating,
     getDisplayName,
     getInitials,
-    
-    // Computed properties
     hasOrganization,
     hasPermissions,
     hasRoles,
-    
-    // Legacy compatibility (direct access to session properties)
+    // Legacy compatibility
     role: session?.role || null,
     organizationId: session?.organizationId || null,
     permissions: session?.permissions || [],
@@ -202,13 +194,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth(): AuthContextType {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
