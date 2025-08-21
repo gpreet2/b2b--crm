@@ -1,19 +1,43 @@
 'use client';
 import { usePathname } from 'next/navigation';
+import { useEnhancedAuth } from '@/hooks/use-enhanced-auth';
 
 import { Layout } from '@/components/layout/Layout';
 import { LocationProvider } from '@/contexts/LocationContext';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
-  user?: {
-    name: string;
-    email: string;
-  };
 }
 
-export default function ClientLayout({ children, user }: ClientLayoutProps) {
+export default function ClientLayout({ children }: ClientLayoutProps) {
   const pathname = usePathname();
+  const authData = useEnhancedAuth();
+  const { 
+    user, 
+    role, 
+    organizationId, 
+    permissions, 
+    isImpersonating, 
+    getDisplayName,
+    getInitials 
+  } = authData;
+  
+  // Enhanced debug logging
+  console.log('ClientLayout Enhanced Debug:', {
+    pathname,
+    user: user ? {
+      id: user.id,
+      email: user.email,
+      displayName: getDisplayName(),
+      initials: getInitials(),
+    } : null,
+    role,
+    organizationId,
+    permissionsCount: permissions?.length || 0,
+    isImpersonating: isImpersonating(),
+    timestamp: new Date().toISOString()
+  });
+  
   const isAuthPage = pathname?.startsWith('/auth');
   const isOnboardingPage = pathname?.startsWith('/onboarding');
   const isTestPage = pathname?.startsWith('/test-auth');
@@ -24,11 +48,16 @@ export default function ClientLayout({ children, user }: ClientLayoutProps) {
     return children;
   }
 
-  // Use provided user data or fallback
-  const layoutUser = user || {
-    name: 'Anonymous User',
-    email: 'unknown@example.com',
-  };
+  // Enhanced user data for layout
+  const layoutUser = user ? {
+    name: getDisplayName(),
+    email: user.email || '',
+    avatar: user.profilePictureUrl || undefined,
+    initials: getInitials(),
+    role: role || undefined,
+    organizationId: organizationId || undefined,
+    isImpersonating: isImpersonating(),
+  } : undefined;
 
   return (
     <LocationProvider>

@@ -1,44 +1,36 @@
-import { handleAuth } from '@workos-inc/authkit-nextjs';
-import { cookies } from 'next/headers';
-import { NextRequest } from 'next/server';
-
+import { NextRequest, NextResponse } from 'next/server';
+import { getWorkOS } from '@workos-inc/authkit-nextjs';
 import { initializeDatabase, getDatabase } from '@/config/database';
+import { createSessionToken, setSessionCookie } from '@/lib/session-manager';
 import { logger } from '@/utils/logger';
 
-// Add immediate logging to verify callback is hit
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const code = searchParams.get('code');
+    
+    if (!code) {
+      logger.error('No authorization code provided in callback');
+      return NextResponse.redirect(new URL('/auth?error=no_code', request.url));
+    }
 
-function logCallbackEntry(request: NextRequest) {
-  const url = new URL(request.url);
-  logger.info('=== Auth Callback Entry ===', {
-    method: request.method,
-    url: request.url,
-    searchParams: Object.fromEntries(url.searchParams.entries()),
-    headers: {
-      userAgent: request.headers.get('user-agent'),
-      referer: request.headers.get('referer'),
-    },
-    baseURL: process.env.NEXT_PUBLIC_APP_URL,
-  });
-}
+    const workos = getWorkOS();
+    
+    // Exchange code for token
+    const { user, organizationId } = await workos.userManagement.authenticateWithCode({
+      code,
+      clientId: process.env.WORKOS_CLIENT_ID!,
+    });
 
-export const GET = async (request: NextRequest) => {
-  // Log immediately when callback is hit
-  logCallbackEntry(request);
-  
-  // Call the original handleAuth
-  const handler = handleAuth({
-    returnPathname: '/dashboard',
-    baseURL: process.env.NEXT_PUBLIC_APP_URL,
-    onSuccess: async ({ user, oauthTokens, authenticationMethod, organizationId }) => {
-      logger.info('=== Auth Callback Success ===', {
-        userId: user.id,
-        email: user.email,
-        organizationId,
-        authenticationMethod,
-        baseURL: process.env.NEXT_PUBLIC_APP_URL,
-      });
+    logger.info('User authenticated successfully', {
+      userId: user.id,
+      email: user.email,
+      organizationId,
+    });
 
-      try {
+    // Database sync logic
+    let dbUserId: string = user.id; // Default to WorkOS user ID
+    try {
       // Initialize database if not already done
       let db;
       try {
@@ -52,28 +44,6 @@ export const GET = async (request: NextRequest) => {
         await dbInstance.initialize();
         db = dbInstance;
       }
-
-      // Note: Onboarding session handling moved to separate flow
-      // WorkOS callback doesn't provide state parameter in current version
-
-      // Log successful authentication
-      logger.info('User authenticated successfully', {
-        userId: user.id,
-        email: user.email,
-        organizationId,
-        authenticationMethod,
-      });
-
-      // Store current authenticated user ID in a simple cookie for fallback lookup
-      // This helps our server action identify the correct user when WorkOS withAuth() fails
-      const cookieStore = await cookies();
-      cookieStore.set('current-user-id', user.id, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-      });
 
       // Check for existing user by WorkOS user ID first
       const { data: existingUserByWorkosId } = await db
@@ -92,16 +62,20 @@ export const GET = async (request: NextRequest) => {
         .single();
 
       if (existingUserByWorkosId) {
-        // User exists with correct WorkOS ID - no action needed
+        // User exists with correct WorkOS ID - use database user ID
+        dbUserId = existingUserByWorkosId.id;
         logger.info('User found by WorkOS ID - already up to date', {
           userId: user.id,
+          dbUserId,
           email: user.email,
         });
       } else if (existingUserByEmail && existingUserByEmail.workos_user_id !== user.id) {
         // User exists by email but has different WorkOS ID - update it
+        dbUserId = existingUserByEmail.id;
         logger.info('Updating existing user with new WorkOS ID', {
           oldWorkosId: existingUserByEmail.workos_user_id,
           newWorkosId: user.id,
+          dbUserId,
           email: user.email,
         });
 
@@ -115,7 +89,6 @@ export const GET = async (request: NextRequest) => {
             avatar_url: user.profilePictureUrl,
             metadata: {
               email_verified: user.emailVerified,
-              authentication_method: authenticationMethod,
               workos_id_updated_at: new Date().toISOString(),
             },
             updated_at: new Date().toISOString(),
@@ -126,17 +99,19 @@ export const GET = async (request: NextRequest) => {
           logger.error('Failed to update user WorkOS ID', {
             error: updateError,
             userId: user.id,
+            dbUserId,
             email: user.email,
           });
         } else {
           logger.info('Successfully updated user WorkOS ID', {
             userId: user.id,
+            dbUserId,
             email: user.email,
           });
         }
       } else if (!existingUserByEmail) {
         // No existing user - create new one
-        const { error } = await db
+        const { data: newUser, error } = await db
           .getSupabaseClient()
           .from('users')
           .insert({
@@ -148,12 +123,11 @@ export const GET = async (request: NextRequest) => {
             user_type: 'owner', // Default to owner for now
             metadata: {
               email_verified: user.emailVerified,
-              authentication_method: authenticationMethod,
             },
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           })
-          .select()
+          .select('id')
           .single();
 
         if (error) {
@@ -162,18 +136,20 @@ export const GET = async (request: NextRequest) => {
             userId: user.id,
           });
         } else {
+          dbUserId = newUser.id;
           logger.info('New user created in database', {
             userId: user.id,
+            dbUserId,
             email: user.email,
           });
         }
       }
 
       // Update organization association if provided
-      if (organizationId && (existingUserByWorkosId || existingUserByEmail)) {
+      if (organizationId && dbUserId) {
         const { error: orgError } = await db.getSupabaseClient().from('user_organizations').upsert(
           {
-            user_id: user.id,
+            user_id: dbUserId,
             organization_id: organizationId,
             updated_at: new Date().toISOString(),
           },
@@ -186,45 +162,42 @@ export const GET = async (request: NextRequest) => {
           logger.error('Failed to update user organization', {
             error: orgError,
             userId: user.id,
+            dbUserId,
             organizationId,
           });
         }
       }
-
-      // Store OAuth tokens if needed (optional)
-      if (oauthTokens) {
-        logger.debug('OAuth tokens received', {
-          userId: user.id,
-          provider: authenticationMethod,
-        });
-        // You can store these securely if needed for API calls
-      }
     } catch (error) {
-      logger.error('Error in auth success handler', {
-        error,
-        userId: user.id,
-      });
-      // Don't throw - let the user continue
+      logger.error('Database sync failed in auth callback', { error });
     }
-  },
-    onError: ({ error, request }) => {
-      logger.error('=== Auth Callback Error ===', {
-        error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined,
-        url: request.url,
-        method: request.method,
-        baseURL: process.env.NEXT_PUBLIC_APP_URL,
-      });
-      
-      // Return a redirect response to the home page with error
-      return new Response(null, {
-        status: 302,
-        headers: {
-          Location: '/?error=auth_failed',
-        },
-      });
-    },
-  });
 
-  return handler(request);
-};
+    // Create our own session token
+    const sessionToken = await createSessionToken({
+      userId: dbUserId,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      organizationId,
+      workosUserId: user.id,
+    });
+
+    // Create response and set session cookie
+    const dashboardUrl = new URL('/dashboard', request.url);
+    const response = NextResponse.redirect(dashboardUrl);
+    setSessionCookie(response, sessionToken);
+
+    logger.info('Session created successfully', {
+      userId: user.id,
+      dbUserId,
+      email: user.email,
+    });
+
+    return response;
+  } catch (error) {
+    logger.error('Authentication callback failed', { error });
+    
+    // Return a redirect response to auth page with error
+    const authUrl = new URL('/auth?error=auth_failed', request.url);
+    return NextResponse.redirect(authUrl);
+  }
+}

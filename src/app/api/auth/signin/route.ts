@@ -8,28 +8,10 @@ export async function POST(request: NextRequest) {
 
     logger.info('Sign in request received', { email });
 
-    // Use explicit redirect URI to ensure exact match with WorkOS dashboard
-    const redirectUri = process.env.NODE_ENV === 'production' 
-      ? 'https://b2b-crm-three.vercel.app/api/auth/callback'
-      : 'http://localhost:3000/api/auth/callback';
+    // Generate AuthKit sign-in URL
+    const signInUrl = await getSignInUrl();
 
-    // Debug logging for redirect URI
-    logger.info('=== WorkOS Sign-In Redirect URI Debug ===', {
-      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-      NODE_ENV: process.env.NODE_ENV,
-      explicitRedirectUri: redirectUri,
-    });
-    
-    const signInUrl = await getSignInUrl({
-      redirectUri,
-      screenHint: 'sign-in',
-      ...(email && { loginHint: email }),
-    });
-
-    logger.info('WorkOS sign-in URL generated', {
-      signInUrl: signInUrl.replace(/&[^=]*token[^=]*=[^&]*/gi, '&token=***'), // Mask tokens
-      hasRedirectUriParam: signInUrl.includes('redirect_uri='),
-    });
+    logger.info('Generated AuthKit sign-in URL', { signInUrl });
 
     return NextResponse.json({ url: signInUrl });
   } catch (error) {

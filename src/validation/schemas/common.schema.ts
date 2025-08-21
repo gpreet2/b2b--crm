@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 // Re-export common schemas from validation middleware
-export { schemas as commonSchemas } from '../../middleware/validation';
+export { commonValidationRules as commonSchemas } from '../../middleware/validation';
 
 // Additional common schemas
 export const idSchema = z.object({
