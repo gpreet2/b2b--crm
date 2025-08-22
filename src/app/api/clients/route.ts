@@ -130,7 +130,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@workos-inc/authkit-nextjs';
+import { withAuth, AuthData } from '@/lib/auth-server';
 import { ClientService } from '@/lib/services/client';
 import { getDatabase } from '@/config/database';
 import { logger } from '@/utils/logger';
@@ -148,7 +148,7 @@ import type { ClientQueryParams, ClientQueryFilters } from '@/types/generated/cl
  * - sort: Sort field (name, email, status, joined, last_visit, created)
  * - order: Sort order (asc, desc, default: asc)
  */
-export async function GET(req: NextRequest) {
+export const GET = withAuth(async (req: NextRequest, authData: AuthData) => {
   const startTime = Date.now();
   const requestId = req.headers.get('x-request-id') || 'unknown';
 
@@ -157,17 +157,6 @@ export async function GET(req: NextRequest) {
       requestId,
       url: req.url 
     });
-
-    // Get authentication context from WorkOS
-    const { user } = await withAuth({ ensureSignedIn: true });
-
-    if (!user?.id) {
-      logger.warn('Unauthenticated client list request', { requestId });
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      );
-    }
 
     // Get user's active organization from database
     // For now, we'll get the first active organization for the user
@@ -178,7 +167,7 @@ export async function GET(req: NextRequest) {
       .getSupabaseClient()
       .from('user_organizations')
       .select('organization_id, role')
-      .eq('user_id', user.id)
+      .eq('user_id', authData.user.id)
       .eq('is_active', true)
       .limit(1)
       .single();
@@ -186,7 +175,7 @@ export async function GET(req: NextRequest) {
     if (userOrgError || !userOrg) {
       logger.warn('No active organization for client list request', { 
         requestId, 
-        userId: user.id,
+        userId: authData.user.id,
         error: userOrgError
       });
       return NextResponse.json(
@@ -213,7 +202,7 @@ export async function GET(req: NextRequest) {
 
     logger.info('Processing client list request', {
       requestId,
-      userId: user.id,
+      userId: authData.user.id,
       organizationId: activeOrganizationId,
       filters: {
         ...filters,
@@ -233,7 +222,7 @@ export async function GET(req: NextRequest) {
 
     logger.info('Client list request completed successfully', {
       requestId,
-      userId: user.id,
+      userId: authData.user.id,
       organizationId: activeOrganizationId,
       resultCount: result.clients.length,
       total: result.pagination.total,
@@ -266,7 +255,7 @@ export async function GET(req: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * Parse and validate query parameters with defaults

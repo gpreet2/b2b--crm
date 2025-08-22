@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@workos-inc/authkit-nextjs';
+import { withAuth, AuthData } from '@/lib/auth-server';
+import { withPermission } from '@/lib/auth-with-permission';
 import { OrganizationService } from '@/lib/services/organization';
 import { CreateLocationSchema } from '@/lib/validations/organization';
 import { logger } from '@/utils/logger';
@@ -14,12 +15,8 @@ interface RouteParams {
 /**
  * GET /api/organizations/[id]/locations - Get locations for organization
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export const GET = withAuth(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const resolvedParams = await params;
     const { id } = resolvedParams;
@@ -49,17 +46,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * POST /api/organizations/[id]/locations - Create location for organization
  */
-export async function POST(request: NextRequest, { params }: RouteParams) {
+export const POST = withPermission('organization', 'update')(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const resolvedParams = await params;
     const { id } = resolvedParams;
@@ -80,12 +73,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    const location = await organizationService.createLocation(validatedData, user.id);
+    const location = await organizationService.createLocation(validatedData, authData.user.id);
 
     logger.info('Location created via API', {
       locationId: location.id,
       organizationId: id,
-      userId: user.id,
+      userId: authData.user.id,
     });
 
     return NextResponse.json({
@@ -112,4 +105,4 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
-}
+});

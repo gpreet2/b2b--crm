@@ -1,9 +1,9 @@
-import { withAuth } from '@workos-inc/authkit-nextjs';
+import { withAuth, AuthData } from '@/lib/auth-server';
+import { withPermission } from '@/lib/auth-with-permission';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getSupabaseClient } from '@/config/supabase';
-import { checkPermission } from '@/middleware/permissions.middleware';
 
 
 // Schema for updating role permissions
@@ -20,19 +20,14 @@ const updatePermissionsSchema = z.object({
  * GET /api/roles/[roleId]/permissions
  * Get all permissions for a specific role
  */
-export async function GET(
+export const GET = withAuth(async (
   _request: NextRequest,
+  authData: AuthData,
   context: { params: Promise<{ roleId: string }> }
-) {
+) => {
   const params = await context.params;
   try {
-    const auth = await withAuth({ ensureSignedIn: false });
-
-    if (!auth.user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    }
-
-    if (!auth.organizationId) {
+    if (!authData.session.organizationId) {
       return NextResponse.json({ error: 'No organization context' }, { status: 400 });
     }
 
@@ -88,39 +83,19 @@ export async function GET(
     console.error('Get role permissions error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 
 /**
  * PUT /api/roles/[roleId]/permissions
  * Update permissions for a role
  */
-export async function PUT(
+export const PUT = withPermission('organization', 'manage_roles')(async (
   request: NextRequest,
+  authData: AuthData,
   context: { params: Promise<{ roleId: string }> }
-) {
+) => {
   const params = await context.params;
   try {
-    const auth = await withAuth({ ensureSignedIn: false });
-
-    if (!auth.user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    }
-
-    if (!auth.organizationId) {
-      return NextResponse.json({ error: 'No organization context' }, { status: 400 });
-    }
-
-    // Check if user can manage roles
-    const canManage = await checkPermission(
-      auth.user.id,
-      auth.organizationId,
-      'organization',
-      'manage_roles'
-    );
-
-    if (!canManage) {
-      return NextResponse.json({ error: 'Permission denied' }, { status: 403 });
-    }
 
     const { roleId } = params;
 
@@ -194,4 +169,4 @@ export async function PUT(
     console.error('Update role permissions error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

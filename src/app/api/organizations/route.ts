@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@workos-inc/authkit-nextjs';
+import { withAuth, AuthData } from '@/lib/auth-server';
+import { withPermission } from '@/lib/auth-with-permission';
 import { OrganizationService } from '@/lib/services/organization';
 import {
   CreateOrganizationSchema,
@@ -12,9 +13,8 @@ import { z } from 'zod';
 /**
  * GET /api/organizations - Get organizations with filtering and pagination
  */
-export async function GET(request: NextRequest) {
+export const GET = withAuth(async (request: NextRequest, _authData: AuthData) => {
   try {
-    const { user: _user } = await withAuth({ ensureSignedIn: true });
 
     const { searchParams } = new URL(request.url);
     const queryParams = Object.fromEntries(searchParams.entries());
@@ -49,31 +49,30 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * POST /api/organizations - Create a new organization
  */
-export async function POST(request: NextRequest) {
+export const POST = withPermission('organization', 'create')(async (request: NextRequest, authData: AuthData) => {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
 
     const body = await request.json();
 
     // Check if it's a bulk create request
     if (body.organizations && Array.isArray(body.organizations)) {
-      return handleBulkCreate(body, user.id);
+      return handleBulkCreate(body, authData.user.id);
     }
 
     // Single organization creation
     const validatedData = CreateOrganizationSchema.parse(body);
 
     const organizationService = new OrganizationService();
-    const organization = await organizationService.createOrganization(validatedData, user.id);
+    const organization = await organizationService.createOrganization(validatedData, authData.user.id);
 
     logger.info('Organization created via API', {
       organizationId: organization.id,
-      userId: user.id,
+      userId: authData.user.id,
     });
 
     return NextResponse.json({
@@ -100,7 +99,7 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
   }
-}
+});
 
 /**
  * Handle bulk organization creation

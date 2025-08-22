@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@workos-inc/authkit-nextjs';
+import { withAuth, AuthData } from '@/lib/auth-server';
+import { withPermission } from '@/lib/auth-with-permission';
 import { OrganizationService } from '@/lib/services/organization';
 import { UpdateOrganizationSchema } from '@/lib/validations/organization';
 import { logger } from '@/utils/logger';
@@ -14,9 +15,8 @@ interface RouteParams {
 /**
  * GET /api/organizations/[id] - Get organization by ID
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export const GET = withAuth(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
   try {
-    const { user: _user } = await withAuth({ ensureSignedIn: true });
 
     const resolvedParams = await params;
     const { id } = resolvedParams;
@@ -55,14 +55,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * PUT /api/organizations/[id] - Update organization
  */
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export const PUT = withPermission('organization', 'update')(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
 
     const resolvedParams = await params;
     const { id } = resolvedParams;
@@ -71,11 +70,11 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const validatedData = UpdateOrganizationSchema.parse(body);
 
     const organizationService = new OrganizationService();
-    const organization = await organizationService.updateOrganization(id, validatedData, user.id);
+    const organization = await organizationService.updateOrganization(id, validatedData, authData.user.id);
 
     logger.info('Organization updated via API', {
       organizationId: id,
-      userId: user.id,
+      userId: authData.user.id,
     });
 
     return NextResponse.json({
@@ -109,24 +108,23 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * DELETE /api/organizations/[id] - Delete organization (soft delete)
  */
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
+export const DELETE = withPermission('organization', 'delete')(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
 
     const resolvedParams = await params;
     const { id } = resolvedParams;
 
     const organizationService = new OrganizationService();
-    await organizationService.deleteOrganization(id, user.id);
+    await organizationService.deleteOrganization(id, authData.user.id);
 
     logger.info('Organization deleted via API', {
       organizationId: id,
-      userId: user.id,
+      userId: authData.user.id,
     });
 
     return NextResponse.json({
@@ -157,4 +155,4 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
-}
+});

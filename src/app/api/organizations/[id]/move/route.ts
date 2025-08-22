@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@workos-inc/authkit-nextjs';
+import { AuthData } from '@/lib/auth-server';
+import { withPermission } from '@/lib/auth-with-permission';
 import { OrganizationService } from '@/lib/services/organization';
 import { MoveOrganizationSchema } from '@/lib/validations/organization';
 import { logger } from '@/utils/logger';
@@ -14,9 +15,8 @@ interface RouteParams {
 /**
  * POST /api/organizations/[id]/move - Move organization to new parent
  */
-export async function POST(request: NextRequest, { params }: RouteParams) {
+export const POST = withPermission('organization', 'update')(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
 
     const resolvedParams = await params;
     const { id } = resolvedParams;
@@ -25,12 +25,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const validatedData = MoveOrganizationSchema.parse(body);
 
     const organizationService = new OrganizationService();
-    const organization = await organizationService.moveOrganization(id, validatedData, user.id);
+    const organization = await organizationService.moveOrganization(id, validatedData, authData.user.id);
 
     logger.info('Organization moved via API', {
       organizationId: id,
       newParentId: validatedData.new_parent_id,
-      userId: user.id,
+      userId: authData.user.id,
     });
 
     return NextResponse.json({
@@ -79,4 +79,4 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
-}
+});

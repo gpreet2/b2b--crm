@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@workos-inc/authkit-nextjs';
+import { withAuth, AuthData } from '@/lib/auth-server';
+import { withPermission } from '@/lib/auth-with-permission';
 import { OrganizationService } from '@/lib/services/organization';
 import { OrganizationSettingsSchema } from '@/lib/validations/organization';
 import { logger } from '@/utils/logger';
@@ -14,12 +15,8 @@ interface RouteParams {
 /**
  * GET /api/organizations/[id]/settings - Get organization settings
  */
-export async function GET(request: NextRequest, { params }: RouteParams) {
+export const GET = withAuth(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const resolvedParams = await params;
     const { id } = resolvedParams;
@@ -47,17 +44,13 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * PUT /api/organizations/[id]/settings - Update organization settings
  */
-export async function PUT(request: NextRequest, { params }: RouteParams) {
+export const PUT = withPermission('organization', 'update')(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const resolvedParams = await params;
     const { id } = resolvedParams;
@@ -69,13 +62,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const organization = await organizationService.updateOrganizationSettings(
       id,
       validatedSettings,
-      user.id
+      authData.user.id
     );
 
     logger.info('Organization settings updated via API', {
       organizationId: id,
       settingsKeys: Object.keys(validatedSettings),
-      userId: user.id,
+      userId: authData.user.id,
     });
 
     return NextResponse.json({
@@ -110,17 +103,13 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * PATCH /api/organizations/[id]/settings - Partially update organization settings
  */
-export async function PATCH(request: NextRequest, { params }: RouteParams) {
+export const PATCH = withPermission('organization', 'update')(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const resolvedParams = await params;
     const { id } = resolvedParams;
@@ -146,13 +135,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const updatedOrganization = await organizationService.updateOrganizationSettings(
       id,
       validatedSettings,
-      user.id
+      authData.user.id
     );
 
     logger.info('Organization settings partially updated via API', {
       organizationId: id,
       updatedKeys: Object.keys(body),
-      userId: user.id,
+      userId: authData.user.id,
     });
 
     return NextResponse.json({
@@ -180,4 +169,4 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       { status: 500 }
     );
   }
-}
+});

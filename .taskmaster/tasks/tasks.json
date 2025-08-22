@@ -341,7 +341,7 @@
             "id": 6,
             "title": "INTEGRATION: Connect Role Management UI",
             "description": "Connect the 'Roles & Permissions' settings page in the CRM Admin frontend to the permission management API endpoints.",
-            "status": "in-progress"
+            "status": "done"
           }
         ]
       },
@@ -1514,7 +1514,7 @@
     ],
     "metadata": {
       "created": "2025-07-31T01:49:15.746Z",
-      "updated": "2025-08-18T21:53:49.458Z",
+      "updated": "2025-08-22T22:07:08.638Z",
       "description": "Security-first task organization with comprehensive subtasks including mockup-revealed features"
     }
   }

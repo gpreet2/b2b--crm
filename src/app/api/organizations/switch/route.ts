@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth } from '@workos-inc/authkit-nextjs';
+import { withAuth, AuthData } from '@/lib/auth-server';
 import { getDatabase } from '@/config/database';
 import { logger } from '@/utils/logger';
 import { z } from 'zod';
@@ -11,9 +11,8 @@ const SwitchOrganizationSchema = z.object({
 /**
  * POST /api/organizations/switch - Switch user's current organization context
  */
-export async function POST(request: NextRequest) {
+export const POST = withAuth(async (request: NextRequest, authData: AuthData) => {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
 
     const body = await request.json();
     const validatedData = SwitchOrganizationSchema.parse(body);
@@ -37,14 +36,14 @@ export async function POST(request: NextRequest) {
           parent_id
         )
       `)
-      .eq('user_id', user.id)
+      .eq('user_id', authData.user.id)
       .eq('organization_id', organization_id)
       .eq('is_active', true)
       .single();
 
     if (userOrgError || !userOrg) {
       logger.warn('User attempted to switch to unauthorized organization', {
-        userId: user.id,
+        userId: authData.user.id,
         organizationId: organization_id,
         error: userOrgError,
       });
@@ -65,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     // Update user's primary organization flag
     await db.getSupabaseClient().rpc('switch_user_primary_organization', {
-      p_user_id: user.id,
+      p_user_id: authData.user.id,
       p_organization_id: organization_id,
     });
 
@@ -115,13 +114,13 @@ export async function POST(request: NextRequest) {
       .getSupabaseClient()
       .from('user_effective_permissions')
       .select('permission_name')
-      .eq('user_id', user.id)
+      .eq('user_id', authData.user.id)
       .eq('organization_id', organization_id);
 
     if (permError) {
       logger.error('Failed to get user permissions for organization', {
         error: permError,
-        userId: user.id,
+        userId: authData.user.id,
         organizationId: organization_id,
       });
     }
@@ -131,7 +130,7 @@ export async function POST(request: NextRequest) {
       action: 'organization_switch',
       entity_type: 'organization',
       entity_id: organization_id,
-      user_id: user.id,
+      user_id: authData.user.id,
       metadata: {
         organization_name: organizationDetails.name,
         organization_type: organizationDetails.organization_type,
@@ -141,7 +140,7 @@ export async function POST(request: NextRequest) {
     });
 
     logger.info('User switched organization context', {
-      userId: user.id,
+      userId: authData.user.id,
       organizationId: organization_id,
       organizationName: organizationDetails.name,
       role: userOrg.role,
@@ -184,14 +183,13 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});
 
 /**
  * GET /api/organizations/switch - Get user's available organizations for switching
  */
-export async function GET(_request: NextRequest) {
+export const GET = withAuth(async (_request: NextRequest, authData: AuthData) => {
   try {
-    const { user } = await withAuth({ ensureSignedIn: true });
 
     const db = getDatabase();
 
@@ -217,7 +215,7 @@ export async function GET(_request: NextRequest) {
           metadata
         )
       `)
-      .eq('user_id', user.id)
+      .eq('user_id', authData.user.id)
       .eq('is_active', true)
       .order('is_primary', { ascending: false })
       .order('joined_at', { ascending: true });
@@ -225,7 +223,7 @@ export async function GET(_request: NextRequest) {
     if (error) {
       logger.error('Failed to get user organizations for switching', {
         error,
-        userId: user.id,
+        userId: authData.user.id,
       });
 
       return NextResponse.json(
@@ -258,4 +256,4 @@ export async function GET(_request: NextRequest) {
       { status: 500 }
     );
   }
-}
+});

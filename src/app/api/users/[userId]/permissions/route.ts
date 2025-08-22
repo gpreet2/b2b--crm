@@ -1,4 +1,4 @@
-import { withAuth } from '@workos-inc/authkit-nextjs';
+import { withAuth, AuthData } from '@/lib/auth-server';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { getUserPermissions, getUserRole , checkPermission } from '@/middleware/permissions.middleware';
@@ -7,19 +7,14 @@ import { getUserPermissions, getUserRole , checkPermission } from '@/middleware/
  * GET /api/users/[userId]/permissions
  * Get all permissions for a specific user in the current organization
  */
-export async function GET(
+export const GET = withAuth(async (
   _request: NextRequest,
+  authData: AuthData,
   context: { params: Promise<{ userId: string }> }
-) {
+) => {
   const params = await context.params;
   try {
-    const auth = await withAuth({ ensureSignedIn: false });
-
-    if (!auth.user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    }
-
-    if (!auth.organizationId) {
+    if (!authData.session.organizationId) {
       return NextResponse.json({ error: 'No organization context' }, { status: 400 });
     }
 
@@ -27,26 +22,26 @@ export async function GET(
 
     // Check if user can view other users' permissions
     const canView = await checkPermission(
-      auth.user.id,
-      auth.organizationId,
+      authData.user.id,
+      authData.session.organizationId,
       'organization',
       'manage_roles'
     );
 
     // Users can always view their own permissions
-    if (!canView && userId !== auth.user.id) {
+    if (!canView && userId !== authData.user.id) {
       return NextResponse.json({ error: 'Permission denied' }, { status: 403 });
     }
 
     // Get user's role
-    const userRole = await getUserRole(userId, auth.organizationId);
+    const userRole = await getUserRole(userId, authData.session.organizationId);
 
     if (!userRole) {
       return NextResponse.json({ error: 'User not found in organization' }, { status: 404 });
     }
 
     // Get user's permissions
-    const permissions = await getUserPermissions(userId, auth.organizationId);
+    const permissions = await getUserPermissions(userId, authData.session.organizationId);
 
     // Group permissions by resource
     const permissionsByResource: Record<string, { action: string; granted: boolean }[]> = {};
@@ -63,7 +58,7 @@ export async function GET(
 
     return NextResponse.json({
       userId,
-      organizationId: auth.organizationId,
+      organizationId: authData.session.organizationId,
       role: userRole,
       permissions: permissionsByResource,
       totalPermissions: permissions.filter(p => p.granted).length,
@@ -72,4 +67,4 @@ export async function GET(
     console.error('Get user permissions error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

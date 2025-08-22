@@ -1,9 +1,10 @@
-import { withAuth } from '@workos-inc/authkit-nextjs';
+import { withAuth, AuthData } from '@/lib/auth-server';
+import { withPermission } from '@/lib/auth-with-permission';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { getSupabaseClient } from '@/config/supabase';
-import { checkPermission, getUserRole } from '@/middleware/permissions.middleware';
+import { getUserRole } from '@/middleware/permissions.middleware';
 
 
 // Schema for updating user role
@@ -15,26 +16,21 @@ const updateRoleSchema = z.object({
  * GET /api/users/[userId]/role
  * Get the user's role in the current organization
  */
-export async function GET(
+export const GET = withAuth(async (
   _request: NextRequest,
+  authData: AuthData,
   context: { params: Promise<{ userId: string }> }
-) {
+) => {
   const params = await context.params;
   try {
-    const auth = await withAuth({ ensureSignedIn: false });
-
-    if (!auth.user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    }
-
-    if (!auth.organizationId) {
+    if (!authData.session.organizationId) {
       return NextResponse.json({ error: 'No organization context' }, { status: 400 });
     }
 
     const { userId } = params;
 
     // Get user's current role
-    const roleSlug = await getUserRole(userId, auth.organizationId);
+    const roleSlug = await getUserRole(userId, authData.session.organizationId);
 
     if (!roleSlug) {
       return NextResponse.json({ error: 'User not found in organization' }, { status: 404 });
@@ -61,44 +57,27 @@ export async function GET(
     return NextResponse.json({
       user,
       role,
-      organizationId: auth.organizationId,
+      organizationId: authData.session.organizationId,
     });
   } catch (error) {
     console.error('Get user role error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});
 
 /**
  * PUT /api/users/[userId]/role
  * Update the user's role in the organization
  */
-export async function PUT(
+export const PUT = withPermission('organization', 'manage_staff')(async (
   request: NextRequest,
+  authData: AuthData,
   context: { params: Promise<{ userId: string }> }
-) {
+) => {
   const params = await context.params;
   try {
-    const auth = await withAuth({ ensureSignedIn: false });
-
-    if (!auth.user) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
-    }
-
-    if (!auth.organizationId) {
+    if (!authData.session.organizationId) {
       return NextResponse.json({ error: 'No organization context' }, { status: 400 });
-    }
-
-    // Check if user can manage staff
-    const canManage = await checkPermission(
-      auth.user.id,
-      auth.organizationId,
-      'organization',
-      'manage_staff'
-    );
-
-    if (!canManage) {
-      return NextResponse.json({ error: 'Permission denied' }, { status: 403 });
     }
 
     const { userId } = params;
@@ -123,7 +102,7 @@ export async function PUT(
       .from('user_organizations')
       .update({ role_id: validatedData.roleId })
       .eq('user_id', userId)
-      .eq('organization_id', auth.organizationId);
+      .eq('organization_id', authData.session.organizationId);
 
     if (updateError) {
       console.error('Error updating user role:', updateError);
@@ -146,4 +125,4 @@ export async function PUT(
     console.error('Update user role error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-}
+});

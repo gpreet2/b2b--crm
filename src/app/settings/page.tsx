@@ -32,6 +32,13 @@ import { Input } from '@/components/ui/Input';
 import { Separator } from '@/components/ui/Separator';
 import { Switch } from '@/components/ui/Switch';
 
+// Role Management Components
+import RolesList from '@/components/admin/RolesList';
+import RoleEditor from '@/components/admin/RoleEditor';
+import PermissionsMatrix from '@/components/admin/PermissionsMatrix';
+import UserRoleAssignment from '@/components/admin/UserRoleAssignment';
+import type { Role } from '@/lib/api/roles';
+
 type TabType = 'door-access' | 'business-rules' | 'people';
 
 const tabs = [
@@ -636,6 +643,11 @@ function BusinessRulesSettings() {
 }
 
 function PeopleSettings() {
+  const [activeSection, setActiveSection] = useState<'users' | 'roles'>('users');
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedRole, setSelectedRole] = useState<any>(null);
+  const [showRoleEditor, setShowRoleEditor] = useState(false);
+  const [showPermissionsMatrix, setShowPermissionsMatrix] = useState(false);
   const [staff, setStaff] = useState([
     {
       id: '1',
@@ -683,150 +695,417 @@ function PeopleSettings() {
     }
   };
 
+  const handleAssignRole = (userId: string) => {
+    setSelectedUserId(userId);
+  };
+
+  const handleEditRole = (role: any) => {
+    setSelectedRole(role);
+    setShowRoleEditor(true);
+  };
+
+  const handleManagePermissions = (role: any) => {
+    setSelectedRole(role);
+    setShowPermissionsMatrix(true);
+  };
+
+  const sections = [
+    {
+      id: 'users' as const,
+      name: 'Team Members',
+      icon: Users,
+      description: 'Manage staff and user assignments',
+    },
+    {
+      id: 'roles' as const,
+      name: 'Roles & Permissions',
+      icon: Shield,
+      description: 'Configure roles and permission matrix',
+    },
+  ];
+
   return (
     <div className='space-y-8'>
-      {/* Add New Staff */}
+      {/* Section Navigation */}
       <Card className='bg-white shadow-sm border-slate-200'>
-        <CardHeader className='pb-4'>
-          <div className='flex items-center gap-4'>
-            <div className='p-3 bg-red-100 rounded-xl'>
-              <UserPlus className='h-6 w-6 text-red-600' />
-            </div>
-            <div>
-              <CardTitle className='text-2xl text-slate-900'>Add Staff Member</CardTitle>
-              <p className='text-slate-600 mt-1'>Invite new team members to your gym</p>
-            </div>
+        <CardContent className='p-4'>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            {sections.map(section => {
+              const Icon = section.icon;
+              const isActive = activeSection === section.id;
+              return (
+                <button
+                  key={section.id}
+                  onClick={() => setActiveSection(section.id)}
+                  className={`
+                    relative p-4 rounded-xl text-left transition-all duration-200
+                    ${
+                      isActive
+                        ? 'bg-red-50 border-2 border-red-200 shadow-sm'
+                        : 'hover:bg-slate-50 border-2 border-transparent'
+                    }
+                  `}
+                >
+                  <div className='flex items-center gap-3'>
+                    <div
+                      className={`
+                        p-2 rounded-lg transition-colors
+                        ${isActive ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-600'}
+                      `}
+                    >
+                      <Icon className='h-5 w-5' />
+                    </div>
+                    <div className='flex-1 min-w-0'>
+                      <h3
+                        className={`
+                          font-medium mb-1
+                          ${isActive ? 'text-red-900' : 'text-slate-900'}
+                        `}
+                      >
+                        {section.name}
+                      </h3>
+                      <p
+                        className={`
+                          text-sm
+                          ${isActive ? 'text-red-700' : 'text-slate-600'}
+                        `}
+                      >
+                        {section.description}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
           </div>
-        </CardHeader>
-        <CardContent className='space-y-6'>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-            <div className='space-y-3'>
-              <label className='text-sm font-medium text-slate-700'>Full Name *</label>
-              <Input
-                value={newStaff.name}
-                onChange={e => setNewStaff({ ...newStaff, name: e.target.value })}
-                placeholder='Enter full name'
-                className='bg-slate-50 border-slate-200 focus:border-red-300 focus:ring-red-200'
-              />
-            </div>
-            <div className='space-y-3'>
-              <label className='text-sm font-medium text-slate-700'>Email Address *</label>
-              <Input
-                type='email'
-                value={newStaff.email}
-                onChange={e => setNewStaff({ ...newStaff, email: e.target.value })}
-                placeholder='Enter email address'
-                className='bg-slate-50 border-slate-200 focus:border-red-300 focus:ring-red-200'
-              />
-            </div>
-            <div className='space-y-3'>
-              <label className='text-sm font-medium text-slate-700'>Phone Number</label>
-              <Input
-                type='tel'
-                value={newStaff.phone}
-                onChange={e => setNewStaff({ ...newStaff, phone: e.target.value })}
-                placeholder='Enter phone number'
-                className='bg-slate-50 border-slate-200 focus:border-red-300 focus:ring-red-200'
-              />
-            </div>
-            <div className='space-y-3'>
-              <label className='text-sm font-medium text-slate-700'>Role</label>
-              <select
-                value={newStaff.role}
-                onChange={e => setNewStaff({ ...newStaff, role: e.target.value })}
-                className='w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-red-300 focus:ring-red-200 text-slate-900'
-              >
-                {roles.map(role => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <Button
-            onClick={addStaff}
-            disabled={!newStaff.name || !newStaff.email}
-            className='bg-red-600 hover:bg-red-700 text-white gap-2'
-          >
-            <Plus className='h-4 w-4' />
-            Add Staff Member
-          </Button>
         </CardContent>
       </Card>
 
-      {/* Current Staff */}
-      <Card className='bg-white shadow-sm border-slate-200'>
-        <CardHeader className='pb-4'>
-          <div className='flex items-center gap-4'>
-            <div className='p-3 bg-green-100 rounded-xl'>
-              <Users className='h-6 w-6 text-green-600' />
-            </div>
-            <div>
-              <CardTitle className='text-2xl text-slate-900'>Current Staff</CardTitle>
-              <p className='text-slate-600 mt-1'>Manage your team members and their permissions</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className='space-y-4'>
-          {staff.map(member => (
-            <div key={member.id} className='p-6 bg-slate-50 rounded-xl border border-slate-200'>
-              <div className='flex flex-col lg:flex-row lg:items-center gap-6'>
-                <div className='flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
-                  <div>
-                    <h4 className='font-semibold text-slate-900 text-lg mb-1'>{member.name}</h4>
-                    <Badge variant='outline' className='text-xs'>
-                      {member.role}
-                    </Badge>
-                  </div>
-                  <div className='space-y-1'>
-                    <div className='flex items-center gap-2 text-sm text-slate-600'>
-                      <Mail className='h-4 w-4' />
-                      {member.email}
-                    </div>
-                    <div className='flex items-center gap-2 text-sm text-slate-600'>
-                      <Phone className='h-4 w-4' />
-                      {member.phone}
-                    </div>
-                  </div>
-                  <div className='flex items-center gap-3'>
-                    <Badge
-                      variant={member.status === 'accepted' ? 'default' : 'secondary'}
-                      className={
-                        member.status === 'accepted'
-                          ? 'bg-green-100 text-green-800 hover:bg-green-100'
-                          : 'bg-amber-100 text-amber-800 hover:bg-amber-100'
-                      }
-                    >
-                      {member.status}
-                    </Badge>
-                    {member.status === 'pending' && (
-                      <Button variant='outline' size='sm' className='text-xs bg-transparent'>
-                        Resend Invite
-                      </Button>
-                    )}
-                  </div>
+      {/* Section Content */}
+      {activeSection === 'users' && (
+        <div className='space-y-8'>
+          {/* Add New Staff */}
+          <Card className='bg-white shadow-sm border-slate-200'>
+            <CardHeader className='pb-4'>
+              <div className='flex items-center gap-4'>
+                <div className='p-3 bg-red-100 rounded-xl'>
+                  <UserPlus className='h-6 w-6 text-red-600' />
                 </div>
-                <div className='flex items-center gap-2'>
-                  <Button variant='ghost' size='sm' className='gap-2'>
-                    <Edit3 className='h-4 w-4' />
-                    Edit
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='sm'
-                    className='gap-2 text-red-600 hover:text-red-700'
-                  >
-                    <Trash2 className='h-4 w-4' />
-                    Remove
-                  </Button>
+                <div>
+                  <CardTitle className='text-2xl text-slate-900'>Add Staff Member</CardTitle>
+                  <p className='text-slate-600 mt-1'>Invite new team members to your gym</p>
                 </div>
               </div>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+            </CardHeader>
+            <CardContent className='space-y-6'>
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                <div className='space-y-3'>
+                  <label className='text-sm font-medium text-slate-700'>Full Name *</label>
+                  <Input
+                    value={newStaff.name}
+                    onChange={e => setNewStaff({ ...newStaff, name: e.target.value })}
+                    placeholder='Enter full name'
+                    className='bg-slate-50 border-slate-200 focus:border-red-300 focus:ring-red-200'
+                  />
+                </div>
+                <div className='space-y-3'>
+                  <label className='text-sm font-medium text-slate-700'>Email Address *</label>
+                  <Input
+                    type='email'
+                    value={newStaff.email}
+                    onChange={e => setNewStaff({ ...newStaff, email: e.target.value })}
+                    placeholder='Enter email address'
+                    className='bg-slate-50 border-slate-200 focus:border-red-300 focus:ring-red-200'
+                  />
+                </div>
+                <div className='space-y-3'>
+                  <label className='text-sm font-medium text-slate-700'>Phone Number</label>
+                  <Input
+                    type='tel'
+                    value={newStaff.phone}
+                    onChange={e => setNewStaff({ ...newStaff, phone: e.target.value })}
+                    placeholder='Enter phone number'
+                    className='bg-slate-50 border-slate-200 focus:border-red-300 focus:ring-red-200'
+                  />
+                </div>
+                <div className='space-y-3'>
+                  <label className='text-sm font-medium text-slate-700'>Role</label>
+                  <select
+                    value={newStaff.role}
+                    onChange={e => setNewStaff({ ...newStaff, role: e.target.value })}
+                    className='w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-red-300 focus:ring-red-200 text-slate-900'
+                  >
+                    {roles.map(role => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <Button
+                onClick={addStaff}
+                disabled={!newStaff.name || !newStaff.email}
+                className='bg-red-600 hover:bg-red-700 text-white gap-2'
+              >
+                <Plus className='h-4 w-4' />
+                Add Staff Member
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Current Staff */}
+          <Card className='bg-white shadow-sm border-slate-200'>
+            <CardHeader className='pb-4'>
+              <div className='flex items-center gap-4'>
+                <div className='p-3 bg-green-100 rounded-xl'>
+                  <Users className='h-6 w-6 text-green-600' />
+                </div>
+                <div>
+                  <CardTitle className='text-2xl text-slate-900'>Current Staff</CardTitle>
+                  <p className='text-slate-600 mt-1'>Manage your team members and their permissions</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className='space-y-4'>
+              {staff.map(member => (
+                <div key={member.id} className='p-6 bg-slate-50 rounded-xl border border-slate-200'>
+                  <div className='flex flex-col lg:flex-row lg:items-center gap-6'>
+                    <div className='flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
+                      <div>
+                        <h4 className='font-semibold text-slate-900 text-lg mb-1'>{member.name}</h4>
+                        <Badge variant='outline' className='text-xs'>
+                          {member.role}
+                        </Badge>
+                      </div>
+                      <div className='space-y-1'>
+                        <div className='flex items-center gap-2 text-sm text-slate-600'>
+                          <Mail className='h-4 w-4' />
+                          {member.email}
+                        </div>
+                        <div className='flex items-center gap-2 text-sm text-slate-600'>
+                          <Phone className='h-4 w-4' />
+                          {member.phone}
+                        </div>
+                      </div>
+                      <div className='flex items-center gap-3'>
+                        <Badge
+                          variant={member.status === 'accepted' ? 'default' : 'secondary'}
+                          className={
+                            member.status === 'accepted'
+                              ? 'bg-green-100 text-green-800 hover:bg-green-100'
+                              : 'bg-amber-100 text-amber-800 hover:bg-amber-100'
+                          }
+                        >
+                          {member.status}
+                        </Badge>
+                        {member.status === 'pending' && (
+                          <Button variant='outline' size='sm' className='text-xs bg-transparent'>
+                            Resend Invite
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <Button 
+                        variant='outline' 
+                        size='sm' 
+                        className='gap-2'
+                        onClick={() => handleAssignRole(member.id)}
+                      >
+                        <Shield className='h-4 w-4' />
+                        Assign Role
+                      </Button>
+                      <Button variant='ghost' size='sm' className='gap-2'>
+                        <Edit3 className='h-4 w-4' />
+                        Edit
+                      </Button>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        className='gap-2 text-red-600 hover:text-red-700'
+                      >
+                        <Trash2 className='h-4 w-4' />
+                        Remove
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* User Role Assignment Modal */}
+          {selectedUserId && (
+            <Card className='bg-white shadow-sm border-slate-200'>
+              <CardHeader className='pb-4'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-4'>
+                    <div className='p-3 bg-blue-100 rounded-xl'>
+                      <Shield className='h-6 w-6 text-blue-600' />
+                    </div>
+                    <div>
+                      <CardTitle className='text-2xl text-slate-900'>Assign User Role</CardTitle>
+                      <p className='text-slate-600 mt-1'>Manage role assignment for staff member</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant='ghost' 
+                    size='sm' 
+                    onClick={() => setSelectedUserId(null)}
+                  >
+                    ✕
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {selectedUserId && (
+                  <UserRoleAssignment
+                    userId={selectedUserId}
+                    onRoleChanged={() => {
+                      console.log('User role changed');
+                      setSelectedUserId(null);
+                    }}
+                    onCancel={() => setSelectedUserId(null)}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
+
+      {activeSection === 'roles' && (
+        <div className='space-y-8'>
+          {/* Role Management Actions */}
+          <Card className='bg-white shadow-sm border-slate-200'>
+            <CardHeader className='pb-4'>
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center gap-4'>
+                  <div className='p-3 bg-purple-100 rounded-xl'>
+                    <Shield className='h-6 w-6 text-purple-600' />
+                  </div>
+                  <div>
+                    <CardTitle className='text-2xl text-slate-900'>Role Management</CardTitle>
+                    <p className='text-slate-600 mt-1'>Create and configure organizational roles</p>
+                  </div>
+                </div>
+                <Button
+                  onClick={() => setShowRoleEditor(true)}
+                  className='bg-red-600 hover:bg-red-700 text-white gap-2'
+                >
+                  <Plus className='h-4 w-4' />
+                  Create Role
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <RolesList
+                onCreateRole={() => setShowRoleEditor(true)}
+                onEditRole={(role: Role) => {
+                  setSelectedRole(role);
+                  setShowRoleEditor(true);
+                }}
+                onManagePermissions={(role: Role) => {
+                  setSelectedRole(role);
+                  setShowPermissionsMatrix(true);
+                }}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Role Editor Modal */}
+          {showRoleEditor && (
+            <Card className='bg-white shadow-sm border-slate-200'>
+              <CardHeader className='pb-4'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-4'>
+                    <div className='p-3 bg-blue-100 rounded-xl'>
+                      <Edit3 className='h-6 w-6 text-blue-600' />
+                    </div>
+                    <div>
+                      <CardTitle className='text-2xl text-slate-900'>
+                        {selectedRole ? 'Edit Role' : 'Create New Role'}
+                      </CardTitle>
+                      <p className='text-slate-600 mt-1'>Configure role details and properties</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant='ghost' 
+                    size='sm' 
+                    onClick={() => {
+                      setShowRoleEditor(false);
+                      setSelectedRole(null);
+                    }}
+                  >
+                    ✕
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <RoleEditor
+                  role={selectedRole}
+                  onSave={(role: Role) => {
+                    console.log('Role saved:', role);
+                    setShowRoleEditor(false);
+                    setSelectedRole(null);
+                  }}
+                  onCancel={() => {
+                    setShowRoleEditor(false);
+                    setSelectedRole(null);
+                  }}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Permissions Matrix Modal */}
+          {showPermissionsMatrix && selectedRole && (
+            <Card className='bg-white shadow-sm border-slate-200'>
+              <CardHeader className='pb-4'>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center gap-4'>
+                    <div className='p-3 bg-green-100 rounded-xl'>
+                      <Settings className='h-6 w-6 text-green-600' />
+                    </div>
+                    <div>
+                      <CardTitle className='text-2xl text-slate-900'>Manage Permissions</CardTitle>
+                      <p className='text-slate-600 mt-1'>Configure role permissions matrix</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant='ghost' 
+                    size='sm' 
+                    onClick={() => {
+                      setShowPermissionsMatrix(false);
+                      setSelectedRole(null);
+                    }}
+                  >
+                    ✕
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {selectedRole && (
+                  <PermissionsMatrix
+                    role={selectedRole}
+                    onSave={() => {
+                      console.log('Permissions saved');
+                      setShowPermissionsMatrix(false);
+                      setSelectedRole(null);
+                    }}
+                    onCancel={() => {
+                      setShowPermissionsMatrix(false);
+                      setSelectedRole(null);
+                    }}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      )}
 
       {/* System Status */}
       <Card className='bg-white shadow-sm border-slate-200'>
@@ -836,8 +1115,8 @@ function PeopleSettings() {
               <Shield className='h-6 w-6 text-blue-600' />
             </div>
             <div>
-              <CardTitle className='text-2xl text-slate-900'>Staff System Status</CardTitle>
-              <p className='text-slate-600 mt-1'>Current staff management system health</p>
+              <CardTitle className='text-2xl text-slate-900'>Permission System Status</CardTitle>
+              <p className='text-slate-600 mt-1'>Current role and permission system health</p>
             </div>
           </div>
         </CardHeader>
@@ -853,14 +1132,14 @@ function PeopleSettings() {
             <div className='flex items-center gap-4 p-6 bg-green-50 rounded-xl border border-green-200'>
               <CheckCircle className='h-8 w-8 text-green-600 flex-shrink-0' />
               <div>
-                <h4 className='font-semibold text-slate-900'>Permissions System</h4>
+                <h4 className='font-semibold text-slate-900'>Role Management</h4>
                 <p className='text-sm text-green-600'>Operational</p>
               </div>
             </div>
             <div className='flex items-center gap-4 p-6 bg-green-50 rounded-xl border border-green-200'>
               <CheckCircle className='h-8 w-8 text-green-600 flex-shrink-0' />
               <div>
-                <h4 className='font-semibold text-slate-900'>Invite System</h4>
+                <h4 className='font-semibold text-slate-900'>Permissions System</h4>
                 <p className='text-sm text-green-600'>Online</p>
               </div>
             </div>
