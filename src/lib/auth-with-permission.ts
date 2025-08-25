@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { withAuth, AuthData } from './auth-server';
 import { checkPermission } from '@/middleware/permissions.middleware';
 import { logger } from '@/utils/logger';
+import { getSupabaseClient } from '@/config/supabase';
 
 export function withPermission(
   resource: string,
@@ -12,10 +13,46 @@ export function withPermission(
   ) {
     return withAuth(async (request: NextRequest, authData: AuthData, ...args: T) => {
       try {
+        // Task 6.6 Fix: Get organization from database if not in session
+        let organizationId = authData.session.organizationId;
+        
+        if (!organizationId) {
+          // Get database user ID from WorkOS user ID
+          const { data: dbUser, error: dbUserError } = await getSupabaseClient()
+            .from('users')
+            .select('id')
+            .eq('workos_user_id', authData.user.id)
+            .single();
+
+          if (dbUserError || !dbUser) {
+            return NextResponse.json({
+              success: false,
+              error: 'User not found in database',
+            }, { status: 404 });
+          }
+
+          // Get user's active organization from database
+          const { data: userOrg, error: userOrgError } = await getSupabaseClient()
+            .from('user_organizations')
+            .select('organization_id')
+            .eq('user_id', dbUser.id)
+            .eq('is_active', true)
+            .single();
+
+          if (userOrgError || !userOrg) {
+            return NextResponse.json({
+              success: false,
+              error: 'No organization context',
+            }, { status: 400 });
+          }
+
+          organizationId = userOrg.organization_id;
+        }
+
         // Check if user has required permission
         const hasPermission = await checkPermission(
           authData.user.id,
-          authData.session.organizationId || '',
+          organizationId!,
           resource,
           action
         );
@@ -23,7 +60,7 @@ export function withPermission(
         if (!hasPermission) {
           logger.warn('Permission denied', {
             userId: authData.user.id,
-            organizationId: authData.session.organizationId,
+            organizationId: organizationId,
             resource,
             action,
           });

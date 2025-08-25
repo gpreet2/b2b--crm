@@ -14,7 +14,7 @@ export async function checkPermission(
 
     // Get user roles in the organization
     const { data: userRoles, error: rolesError } = await supabase
-      .from('user_roles')
+      .from('user_organizations')
       .select(`
         role_id,
         roles!inner(
@@ -73,7 +73,7 @@ export async function getUserRole(
     const supabase = getSupabaseClient();
 
     const { data: userRole, error } = await supabase
-      .from('user_roles')
+      .from('user_organizations')
       .select(`
         roles!inner(name)
       `)
@@ -104,7 +104,7 @@ export async function getUserPermissions(
     const supabase = getSupabaseClient();
 
     const { data: userRoles, error } = await supabase
-      .from('user_roles')
+      .from('user_organizations')
       .select(`
         role_id,
         roles!inner(

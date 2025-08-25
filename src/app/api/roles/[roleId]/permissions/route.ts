@@ -27,8 +27,34 @@ export const GET = withAuth(async (
 ) => {
   const params = await context.params;
   try {
-    if (!authData.session.organizationId) {
-      return NextResponse.json({ error: 'No organization context' }, { status: 400 });
+    // Task 6.6 Fix: Get organization from database if not in JWT (same as main roles endpoint)
+    let organizationId = authData.session.organizationId;
+    
+    if (!organizationId) {
+      // Get database user ID from WorkOS user ID
+      const { data: dbUser, error: dbUserError } = await getSupabaseClient()
+        .from('users')
+        .select('id')
+        .eq('workos_user_id', authData.user.id)
+        .single();
+
+      if (dbUserError || !dbUser) {
+        return NextResponse.json({ error: 'User not found in database' }, { status: 404 });
+      }
+
+      // Get user's active organization from database
+      const { data: userOrg, error: userOrgError } = await getSupabaseClient()
+        .from('user_organizations')
+        .select('organization_id')
+        .eq('user_id', dbUser.id)
+        .eq('is_active', true)
+        .single();
+
+      if (userOrgError || !userOrg) {
+        return NextResponse.json({ error: 'No organization context' }, { status: 400 });
+      }
+
+      organizationId = userOrg.organization_id;
     }
 
     const { roleId } = params;

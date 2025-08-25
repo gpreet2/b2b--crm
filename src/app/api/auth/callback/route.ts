@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
       }
     } else if (!existingUserByEmail) {
       // No existing user - create new one
-      const { error } = await db
+      const { data: newUser, error } = await db
         .getSupabaseClient()
         .from('users')
         .insert({
@@ -139,6 +139,54 @@ export async function GET(request: NextRequest) {
           userId: user.id,
           email: user.email,
         });
+
+        // Task 6.6 Bug Fix: Ensure new users can access role management
+        // This assigns them to Default Gym so role management works immediately
+        // Will be replaced by proper onboarding in Task 10
+        try {
+          const { data: defaultOrg } = await db
+            .getSupabaseClient()
+            .from('organizations')
+            .select('id')
+            .eq('name', 'Default Gym')
+            .single();
+
+          if (defaultOrg && newUser) {
+            // Get appropriate role based on user_type
+            const { data: roleData } = await db
+              .getSupabaseClient()
+              .from('roles')
+              .select('id')
+              .eq('slug', newUser.user_type === 'owner' ? 'owner' : 'admin')
+              .single();
+
+            if (roleData) {
+              await db
+                .getSupabaseClient()
+                .from('user_organizations')
+                .insert({
+                  user_id: newUser.id,
+                  organization_id: defaultOrg.id,
+                  role_id: roleData.id,
+                  role: newUser.user_type === 'owner' ? 'owner' : 'admin',
+                  is_active: true,
+                  is_primary: true,
+                  joined_at: new Date().toISOString(),
+                });
+
+              logger.info('New user assigned to Default Gym for Task 6.6', {
+                userId: newUser.id,
+                organizationId: defaultOrg.id,
+                role: newUser.user_type,
+              });
+            }
+          }
+        } catch (orgAssignError) {
+          logger.error('Failed to assign new user to Default Gym', {
+            error: orgAssignError,
+            userId: user.id,
+          });
+        }
       }
     }
 
