@@ -14,7 +14,7 @@ import { z } from 'zod';
 /**
  * GET /api/organizations - Get organizations with filtering and pagination
  */
-export const GET = withAuth(async (request: NextRequest, _authData: AuthData) => {
+export const GET = withAuth(async (request: NextRequest, authData: AuthData) => {
   try {
     // Ensure database is initialized before proceeding
     await ensureDatabaseInitialized();
@@ -25,7 +25,19 @@ export const GET = withAuth(async (request: NextRequest, _authData: AuthData) =>
     // Validate query parameters
     const validatedQuery = OrganizationQuerySchema.parse(queryParams);
 
+    // Get the current user's internal UUID from WorkOS ID
     const organizationService = new OrganizationService();
+    const userUuid = await organizationService.getUserUuidFromWorkOSId(authData.user.id);
+    
+    if (!userUuid) {
+      return NextResponse.json({
+        error: 'User not found in database',
+      }, { status: 404 });
+    }
+
+    // Filter organizations by owner_id to ensure users only see their own organizations
+    validatedQuery.owner_id = userUuid;
+
     const result = await organizationService.getOrganizations(validatedQuery);
 
     return NextResponse.json({

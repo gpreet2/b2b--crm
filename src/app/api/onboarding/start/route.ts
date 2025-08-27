@@ -1,110 +1,162 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getOnboardingSessionManager } from '@/lib/onboarding-session';
-import { logger } from '@/utils/logger';
-import { z } from 'zod';
-
-// Validation schema for starting onboarding
-const StartOnboardingSchema = z.object({
-  userAgent: z.string().optional(),
-  returnTo: z.string().optional(),
-});
-
 /**
+ * Onboarding Start API Endpoint
+ * 
  * POST /api/onboarding/start
- * Start a new onboarding session
+ * 
+ * Starts a new onboarding session for a user without an organization
  */
-export async function POST(request: NextRequest) {
+
+import { NextRequest, NextResponse } from 'next/server';
+import { withAuth, AuthData } from '@/lib/auth-server';
+import { OnboardingService } from '@/lib/services/onboarding';
+import { initializeDatabase, getDatabase } from '@/config/database';
+import { logger } from '@/utils/logger';
+import { AppError, AuthError, ValidationError } from '@/errors';
+import type { OnboardingStartRequest, OnboardingStartResponse } from '@/types/generated/onboarding.types';
+
+export const POST = withAuth(async (req: NextRequest, authData: AuthData) => {
+  const startTime = Date.now();
+  const requestId = req.headers.get('x-request-id') || 'unknown';
+
   try {
-    let body = {};
+    logger.info('Onboarding start request', { 
+      requestId,
+      userId: authData.user.id 
+    });
+
+    // Initialize database if not already initialized
+    let db;
     try {
-      body = await request.json();
-    } catch (_jsonError) {
-      // Empty body is fine for starting onboarding
+      db = getDatabase();
+    } catch (error) {
+      const dbInstance = initializeDatabase({
+        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      });
+      await dbInstance.initialize();
+      db = dbInstance;
     }
 
-    const validation = StartOnboardingSchema.safeParse(body);
-    if (!validation.success) {
+    // Get the user's UUID from their WorkOS ID
+    const { data: userData, error: userError } = await db
+      .getSupabaseClient()
+      .from('users')
+      .select('id')
+      .eq('workos_user_id', authData.user.id)
+      .single();
+
+    if (userError || !userData) {
+      logger.warn('User not found in database for onboarding', { 
+        requestId, 
+        workosUserId: authData.user.id,
+        error: userError
+      });
       return NextResponse.json(
-        { error: 'Invalid request data', details: validation.error.issues },
+        { error: 'User not found. Please contact support.' },
+        { status: 404 }
+      );
+    }
+
+    // Check if user already has an organization
+    const { data: userOrg, error: userOrgError } = await db
+      .getSupabaseClient()
+      .from('user_organizations')
+      .select('organization_id')
+      .eq('user_id', userData.id)
+      .eq('is_active', true)
+      .limit(1);
+
+    if (userOrg && userOrg.length > 0) {
+      logger.info('User already has organization, redirecting to dashboard', {
+        requestId,
+        userId: authData.user.id,
+        organizationId: userOrg[0].organization_id
+      });
+      return NextResponse.json(
+        { error: 'User already has an organization. Redirecting to dashboard.' },
         { status: 400 }
       );
     }
 
-    // Get client information
-    const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-                     request.headers.get('x-real-ip') || 
-                     'unknown';
-    const userAgent = request.headers.get('user-agent') || validation.data.userAgent || 'unknown';
+    // Parse request body
+    let body: OnboardingStartRequest = {};
+    try {
+      body = await req.json();
+    } catch (error) {
+      // Empty body is fine
+    }
 
-    const sessionManager = getOnboardingSessionManager();
-    
-    // Create new onboarding session
-    const session = await sessionManager.createSession({
+    const userAgent = req.headers.get('user-agent') || body.userAgent;
+    const ipAddress = req.headers.get('x-forwarded-for') || 
+                     req.headers.get('x-real-ip') || 
+                     body.ipAddress;
+
+    // Start onboarding session
+    const onboardingService = new OnboardingService();
+    const { sessionToken, csrfToken, expiresAt } = await onboardingService.startSession(
+      userData.id,
       userAgent,
-      ipAddress: clientIp !== 'unknown' ? clientIp : undefined,
+      ipAddress
+    );
+
+    logger.info('Onboarding session started successfully', {
+      requestId,
+      userId: authData.user.id,
+      sessionToken: sessionToken.substring(0, 8) + '...', // Log partial token for debugging
+      duration: Date.now() - startTime
     });
 
-    logger.info('New onboarding session started', {
-      sessionId: session.sessionId,
-      clientIp,
-      userAgent,
-    });
-
-    return NextResponse.json({
+    const response: OnboardingStartResponse = {
       success: true,
-      sessionId: session.sessionId,
-      sessionToken: session.sessionToken,
-      csrfToken: session.csrfToken,
-      message: 'Onboarding session started successfully',
-    });
+      sessionToken,
+      currentStep: 'welcome',
+      expiresAt,
+      csrfToken
+    };
+
+    return NextResponse.json(response, { status: 200 });
 
   } catch (error) {
-    logger.error('Failed to start onboarding session', { error });
+    logger.error('Onboarding start request failed', {
+      requestId,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      duration: Date.now() - startTime
+    });
+
+    if (error instanceof AppError) {
+      const statusCode = error instanceof AuthError ? 401 : 400;
+      return NextResponse.json(
+        { error: error.message },
+        { status: statusCode }
+      );
+    }
+
     return NextResponse.json(
-      { error: 'Failed to start onboarding session' },
+      { error: 'Internal server error occurred while starting onboarding' },
       { status: 500 }
     );
   }
+});
+
+// Other methods not allowed
+export function GET() {
+  return NextResponse.json(
+    { error: 'Method not allowed. Use POST to start onboarding.' },
+    { status: 405 }
+  );
 }
 
-/**
- * GET /api/onboarding/start
- * Alternative method for starting onboarding (redirect-based)
- */
-export async function GET(request: NextRequest) {
-  try {
-    const sessionManager = getOnboardingSessionManager();
-    
-    // Get client information
-    const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-                     request.headers.get('x-real-ip') || 
-                     'unknown';
-    const userAgent = request.headers.get('user-agent') || 'unknown';
+export function PUT() {
+  return NextResponse.json(
+    { error: 'Method not allowed. Use POST to start onboarding.' },
+    { status: 405 }
+  );
+}
 
-    // Create new onboarding session
-    const session = await sessionManager.createSession({
-      userAgent,
-      ipAddress: clientIp !== 'unknown' ? clientIp : undefined,
-    });
-
-    // Redirect to onboarding page with session parameters
-    const onboardingUrl = new URL('/onboarding', request.url);
-    onboardingUrl.searchParams.set('session', session.sessionId);
-    onboardingUrl.searchParams.set('token', session.sessionToken);
-    onboardingUrl.searchParams.set('csrf', session.csrfToken);
-
-    logger.info('Onboarding session created via redirect', {
-      sessionId: session.sessionId,
-      clientIp,
-      userAgent,
-    });
-
-    return NextResponse.redirect(onboardingUrl);
-
-  } catch (error) {
-    logger.error('Failed to start onboarding session via redirect', { error });
-    
-    const errorUrl = new URL('/onboarding?error=session_failed', request.url);
-    return NextResponse.redirect(errorUrl);
-  }
+export function DELETE() {
+  return NextResponse.json(
+    { error: 'Method not allowed. Use POST to start onboarding.' },
+    { status: 405 }
+  );
 }

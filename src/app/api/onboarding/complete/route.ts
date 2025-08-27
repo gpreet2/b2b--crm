@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOnboardingSessionManager } from '@/lib/onboarding-session';
-import { validateCSRFToken } from '@/lib/onboarding-encryption';
+import { OnboardingService } from '@/lib/services/onboarding';
 import { WorkOS } from '@workos-inc/node';
 import { logger } from '@/utils/logger';
 import { z } from 'zod';
@@ -10,8 +9,7 @@ const workos = new WorkOS(process.env.WORKOS_API_KEY!);
 
 // Validation schema for completing onboarding
 const CompleteOnboardingSchema = z.object({
-  sessionId: z.string().min(1),
-  sessionToken: z.string().length(64),
+  sessionToken: z.string().min(1),
   csrfToken: z.string().min(1),
 });
 
@@ -34,33 +32,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { sessionId, sessionToken, csrfToken } = validation.data;
+    const { sessionToken, csrfToken } = validation.data;
 
-    // Validate CSRF token
-    const csrfParts = csrfToken.split(':');
-    if (csrfParts.length !== 2) {
-      logger.warn('Invalid CSRF token format in onboarding completion', { sessionId });
-      return NextResponse.json(
-        { error: 'Invalid CSRF token' },
-        { status: 403 }
-      );
-    }
-
-    const [token, timestampStr] = csrfParts;
-    const timestamp = parseInt(timestampStr, 10);
-    const csrfValid = validateCSRFToken(token, timestamp);
-    if (!csrfValid) {
-      logger.warn('Invalid CSRF token in onboarding completion', { sessionId });
-      return NextResponse.json(
-        { error: 'Invalid CSRF token' },
-        { status: 403 }
-      );
-    }
-
-    const sessionManager = getOnboardingSessionManager();
+    const onboardingService = new OnboardingService();
 
     // Get session data to validate completeness
-    const session = await sessionManager.getSession(sessionId, sessionToken);
+    const session = await onboardingService.getSession(sessionToken);
     if (!session) {
       return NextResponse.json(
         { error: 'Session not found or expired' },
@@ -68,58 +45,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate CSRF token
+    if (!session.csrfToken || session.csrfToken !== csrfToken) {
+      logger.warn('Invalid CSRF token in onboarding completion', { sessionToken: sessionToken.substring(0, 8) + '...' });
+      return NextResponse.json(
+        { error: 'Invalid CSRF token' },
+        { status: 403 }
+      );
+    }
+
     // Validate that required data is present for completion
-    if (!session.state.organizationName) {
+    const orgData = session.stepData.organization;
+    const locationData = session.stepData.location;
+
+    if (!orgData || !orgData.name) {
       return NextResponse.json(
         { error: 'Organization name is required for completion' },
         { status: 422 }
       );
     }
 
-    if (!session.state.locations || session.state.locations.length === 0) {
+    if (!locationData || !locationData.name || !locationData.address) {
       return NextResponse.json(
-        { error: 'At least one location is required for completion' },
+        { error: 'Location information is required for completion' },
         { status: 422 }
       );
     }
 
-    // Check if locations have required data
-    const invalidLocations = session.state.locations.filter(
-      loc => !loc.name || !loc.address
-    );
-    if (invalidLocations.length > 0) {
-      return NextResponse.json(
-        { error: 'All locations must have name and address' },
-        { status: 422 }
-      );
-    }
+    // Complete onboarding and create organization/location
+    const organizationId = await onboardingService.completeOnboarding(sessionToken, csrfToken);
 
-    // Mark session as completed (step 4)
-    const updateSuccess = await sessionManager.updateSession(sessionId, sessionToken, {
-      currentStep: 4,
-      state: {
-        ...session.state,
-        metadata: {
-          ...session.state.metadata,
-          completedSteps: [1, 2, 3, 4],
-          lastActiveStep: 4,
-        },
-      },
-    });
-
-    if (!updateSuccess) {
-      return NextResponse.json(
-        { error: 'Failed to mark session as completed' },
-        { status: 500 }
-      );
-    }
-
-    // Generate WorkOS signup URL with session information for callback processing
+    // Generate WorkOS signup URL with organization information for callback processing
     const state = {
       returnTo: '/dashboard',
       timestamp: Date.now(),
-      onboardingSessionId: sessionId,
-      onboardingSessionToken: sessionToken,
+      organizationId: organizationId,
     };
 
     // Get the base URL for redirect URI (dynamic port support)
@@ -136,9 +96,9 @@ export async function POST(request: NextRequest) {
     });
 
     logger.info('Onboarding completed, redirecting to WorkOS', {
-      sessionId,
-      organizationName: session.state.organizationName,
-      locationCount: session.state.locations.length,
+      sessionToken: sessionToken.substring(0, 8) + '...',
+      organizationId: organizationId,
+      organizationName: orgData.name,
       url: signUpUrl.replace(/&[^=]*token[^=]*=[^&]*/gi, '&token=***'), // Mask tokens in logs
     });
 
@@ -148,8 +108,8 @@ export async function POST(request: NextRequest) {
       message: 'Onboarding completed successfully, redirecting to WorkOS',
       session: {
         id: session.id,
-        organizationName: session.state.organizationName,
-        locationCount: session.state.locations.length,
+        organizationId: organizationId,
+        organizationName: orgData.name,
       },
     });
 

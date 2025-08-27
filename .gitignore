@@ -190,3 +190,18 @@ workos.txt
 # Instrumentation files (disabled)
 src/instrumentation.ts.disabled
 src/lib/opentelemetry-stub.js
+
+# MCP server logs and temp files
+.mcp-logs/
+mcp-temp/
+
+# TypeScript generated files
+*.d.ts.map
+
+# Package manager files
+package-lock.json
+bun.lockb
+
+# Development utilities
+.vscode/settings.json
+.idea/workspace.xml

@@ -20,6 +20,30 @@ export class OrganizationService {
   }
 
   /**
+   * Get user's internal UUID from their WorkOS ID
+   */
+  async getUserUuidFromWorkOSId(workosUserId: string): Promise<string | null> {
+    try {
+      const { data: user, error } = await this.db
+        .getSupabaseClient()
+        .from('users')
+        .select('id')
+        .eq('workos_user_id', workosUserId)
+        .single();
+
+      if (error || !user) {
+        logger.warn('User not found in database', { workosUserId });
+        return null;
+      }
+
+      return user.id;
+    } catch (error) {
+      logger.error('Error getting user UUID from WorkOS ID', { error, workosUserId });
+      return null;
+    }
+  }
+
+  /**
    * Create a new organization with audit logging
    */
   async createOrganization(data: CreateOrganization, createdBy: string): Promise<Organization> {

@@ -14,130 +14,102 @@ import {
   BarChart3,
   Target,
   CheckCircle,
+  Loader,
+  AlertCircle,
+  ChevronLeft,
+  Filter,
+  UserPlus,
+  Mail,
+  X,
 } from 'lucide-react';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useEmployees } from '@/hooks/useEmployees';
+import type { EmployeeDTO, EmployeeWithStats } from '@/types/generated/employee.types';
 
-import { mockCoaches, mockClasses, mockReservations } from '@/lib/mock-data';
-import { Coach } from '@/lib/types';
-
-interface TrainerStats {
-  id: string;
-  totalClassesTaught: number;
-  totalStudents: number;
-  averageAttendance: number;
-  attendanceRate: number;
-  rating: number;
-  totalRevenue: number;
-  upcomingClasses: number;
-  completedClassesThisMonth: number;
-  specialtyPrograms: string[];
-  recentClasses: ClassWithAttendance[];
-}
-
-interface ClassWithAttendance {
-  id: string;
-  name: string;
-  date: Date;
-  startTime: string;
-  endTime: string;
-  capacity: number;
-  enrolled: number;
-  attended: number;
-  attendanceRate: number;
-  program: string;
-  location: string;
+// Invitation form data interface
+interface InvitationFormData {
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: 'trainer' | 'coach' | 'front_desk' | 'manager' | 'admin';
+  location_ids: string[];
 }
 
 export default function EmployeesPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTrainer, setSelectedTrainer] = useState<Coach | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeWithStats | EmployeeDTO | null>(null);
   const [activeDropdownId, setActiveDropdownId] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'list' | 'performance'>('list');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState<boolean | undefined>(true); // Default to active employees
+  
+  // Invitation modal state
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [inviteFormData, setInviteFormData] = useState<InvitationFormData>({
+    email: '',
+    first_name: '',
+    last_name: '',
+    role: 'trainer',
+    location_ids: []
+  });
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
 
-  // Calculate trainer statistics
-  const getTrainerStats = (trainerId: string): TrainerStats => {
-    const trainerClasses = mockClasses.filter(cls => cls.coachId === trainerId);
-    const completedClasses = trainerClasses.filter(cls => cls.status === 'completed');
-    const upcomingClasses = trainerClasses.filter(
-      cls => cls.status === 'scheduled' || cls.status === 'confirmed'
-    );
+  // Use the custom hook for employee data
+  const {
+    employees,
+    loading,
+    error,
+    pagination,
+    setPage,
+    setSearch,
+    setRole,
+    setActiveStatus,
+    setIncludeStats,
+    refetch
+  } = useEmployees({
+    page: 1,
+    limit: 20,
+    search: searchQuery,
+    role: roleFilter,
+    is_active: statusFilter,
+    includeStats: viewMode === 'list' || viewMode === 'performance'
+  });
 
-    // Calculate attendance data
-    const classesWithAttendance: ClassWithAttendance[] = completedClasses.map(cls => {
-      const reservations = mockReservations.filter(res => res.classId === cls.id);
-      const attended = reservations.filter(res => res.status === 'confirmed').length;
+  // Debounced search effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSearch(searchQuery);
+    }, 300);
 
-      return {
-        id: cls.id,
-        name: cls.name,
-        date: cls.date,
-        startTime: cls.startTime,
-        endTime: cls.endTime,
-        capacity: cls.capacity,
-        enrolled: cls.enrolled,
-        attended,
-        attendanceRate: cls.enrolled > 0 ? (attended / cls.enrolled) * 100 : 0,
-        program: cls.name.includes('Burn40')
-          ? 'Burn40'
-          : cls.name.includes('CrossFit')
-            ? 'CrossFit'
-            : 'BurnDumbells',
-        location: cls.location,
-      };
-    });
+    return () => clearTimeout(timer);
+  }, [searchQuery, setSearch]);
 
-    const totalAttended = classesWithAttendance.reduce((sum, cls) => sum + cls.attended, 0);
-    const totalEnrolled = classesWithAttendance.reduce((sum, cls) => sum + cls.enrolled, 0);
-    const averageAttendance =
-      classesWithAttendance.length > 0
-        ? classesWithAttendance.reduce((sum, cls) => sum + cls.attendanceRate, 0) /
-          classesWithAttendance.length
-        : 0;
+  // Update include stats when view mode changes
+  useEffect(() => {
+    setIncludeStats(true); // Always include stats for employee data
+  }, [viewMode, setIncludeStats]);
 
-    const thisMonth = new Date();
-    const completedThisMonth = completedClasses.filter(
-      cls =>
-        cls.date.getMonth() === thisMonth.getMonth() &&
-        cls.date.getFullYear() === thisMonth.getFullYear()
-    ).length;
-
-    const trainer = mockCoaches.find(c => c.id === trainerId);
-
-    return {
-      id: trainerId,
-      totalClassesTaught: completedClasses.length,
-      totalStudents: totalEnrolled,
-      averageAttendance: Math.round(averageAttendance),
-      attendanceRate: totalEnrolled > 0 ? Math.round((totalAttended / totalEnrolled) * 100) : 0,
-      rating: 4.2 + Math.random() * 0.6, // Mock rating between 4.2-4.8
-      totalRevenue: completedClasses.length * 45, // Mock revenue calculation
-      upcomingClasses: upcomingClasses.length,
-      completedClassesThisMonth: completedThisMonth,
-      specialtyPrograms: trainer?.specialties || [],
-      recentClasses: classesWithAttendance.slice(-5).reverse(),
-    };
+  // Helper functions
+  const getEmployeeFullName = (employee: EmployeeDTO | EmployeeWithStats) => {
+    return `${employee.first_name || ''} ${employee.last_name || ''}`.trim() || 'Unknown';
   };
 
-  const trainersWithStats = useMemo(() => {
-    return mockCoaches.map(coach => ({
-      ...coach,
-      stats: getTrainerStats(coach.id),
-    }));
-  }, []);
+  const handleRoleFilterChange = (newRole: string) => {
+    setRoleFilter(newRole);
+    setRole(newRole);
+  };
 
-  const filteredTrainers = useMemo(() => {
-    if (!searchQuery) return trainersWithStats;
+  const handleStatusFilterChange = (newStatus: string) => {
+    const statusValue = newStatus === 'active' ? true : newStatus === 'inactive' ? false : undefined;
+    setStatusFilter(statusValue);
+    setActiveStatus(statusValue);
+  };
 
-    const query = searchQuery.toLowerCase();
-    return trainersWithStats.filter(
-      trainer =>
-        trainer.name.toLowerCase().includes(query) ||
-        trainer.email.toLowerCase().includes(query) ||
-        trainer.specialties.some(specialty => specialty.toLowerCase().includes(query))
-    );
-  }, [searchQuery, trainersWithStats]);
-
-  const formatDate = (date: Date) => {
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
@@ -152,19 +124,84 @@ export default function EmployeesPage() {
     return 'text-red-600 bg-red-100';
   };
 
-  const handleViewPerformance = (trainer: Coach) => {
-    setSelectedTrainer(trainer);
+  const handleViewPerformance = (employee: EmployeeWithStats | EmployeeDTO) => {
+    setSelectedEmployee(employee);
     setViewMode('performance');
     setActiveDropdownId(null);
   };
 
   const handleBackToList = () => {
-    setSelectedTrainer(null);
+    setSelectedEmployee(null);
     setViewMode('list');
   };
 
-  if (viewMode === 'performance' && selectedTrainer) {
-    const trainerStats = getTrainerStats(selectedTrainer.id);
+  const isEmployeeWithStats = (employee: EmployeeDTO | EmployeeWithStats): employee is EmployeeWithStats => {
+    return 'stats' in employee;
+  };
+
+  // Invitation form handlers
+  const handleOpenInviteModal = () => {
+    setShowInviteModal(true);
+    setInviteError(null);
+    setInviteSuccess(null);
+    // Reset form
+    setInviteFormData({
+      email: '',
+      first_name: '',
+      last_name: '',
+      role: 'trainer',
+      location_ids: []
+    });
+  };
+
+  const handleCloseInviteModal = () => {
+    setShowInviteModal(false);
+    setInviteError(null);
+    setInviteSuccess(null);
+  };
+
+  const handleInviteSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setInviteLoading(true);
+    setInviteError(null);
+    setInviteSuccess(null);
+
+    try {
+      const response = await fetch('/api/employees/invite', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(inviteFormData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send invitation');
+      }
+
+      setInviteSuccess(
+        `Invitation sent successfully to ${inviteFormData.email}! They can accept the invitation using this link: ${result.data.invitation_url}`
+      );
+      
+      // Refresh employees list
+      refetch();
+
+      // Reset form after success
+      setTimeout(() => {
+        handleCloseInviteModal();
+      }, 3000);
+
+    } catch (error) {
+      setInviteError(error instanceof Error ? error.message : 'Failed to send invitation');
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  if (viewMode === 'performance' && selectedEmployee) {
+    const employeeWithStats = isEmployeeWithStats(selectedEmployee) ? selectedEmployee : null;
 
     return (
       <div className='min-h-screen bg-white'>
@@ -180,27 +217,31 @@ export default function EmployeesPage() {
                   <User className='h-6 w-6 text-gray-600' />
                 </div>
                 <div>
-                  <h1 className='text-2xl font-semibold text-gray-900'>{selectedTrainer.name}</h1>
-                  <p className='text-sm text-gray-500'>Trainer Performance Dashboard</p>
+                  <h1 className='text-2xl font-semibold text-gray-900'>
+                    {getEmployeeFullName(selectedEmployee)}
+                  </h1>
+                  <p className='text-sm text-gray-500'>{selectedEmployee.role} Performance Dashboard</p>
                 </div>
               </div>
             </div>
 
             <div className='flex items-center space-x-2'>
-              <div className='flex items-center space-x-1'>
-                <Star className='h-4 w-4 text-yellow-400 fill-current' />
-                <span className='text-sm font-medium text-gray-900'>
-                  {trainerStats.rating.toFixed(1)}
-                </span>
-              </div>
+              {employeeWithStats?.stats && (
+                <div className='flex items-center space-x-1'>
+                  <Star className='h-4 w-4 text-yellow-400 fill-current' />
+                  <span className='text-sm font-medium text-gray-900'>
+                    {employeeWithStats.stats.rating.toFixed(1)}
+                  </span>
+                </div>
+              )}
               <span
                 className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  selectedTrainer.isActive
+                  selectedEmployee.is_active
                     ? 'bg-green-100 text-green-800'
                     : 'bg-gray-100 text-gray-800'
                 }`}
               >
-                {selectedTrainer.isActive ? 'Active' : 'Inactive'}
+                {selectedEmployee.is_active ? 'Active' : 'Inactive'}
               </span>
             </div>
           </div>
@@ -208,115 +249,121 @@ export default function EmployeesPage() {
 
         {/* Stats Overview */}
         <div className='px-6 py-6'>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
-            <div className='bg-white rounded-lg border border-gray-200 p-6'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-sm font-medium text-gray-600'>Classes Taught</p>
-                  <p className='text-2xl font-bold text-gray-900'>
-                    {trainerStats.totalClassesTaught}
-                  </p>
-                  <p className='text-sm text-gray-500'>
-                    {trainerStats.completedClassesThisMonth} this month
-                  </p>
+          {employeeWithStats?.stats ? (
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8'>
+              <div className='bg-white rounded-lg border border-gray-200 p-6'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <p className='text-sm font-medium text-gray-600'>Classes Taught</p>
+                    <p className='text-2xl font-bold text-gray-900'>
+                      {employeeWithStats.stats.totalClassesTaught}
+                    </p>
+                    <p className='text-sm text-gray-500'>
+                      {employeeWithStats.stats.completedClassesThisMonth} this month
+                    </p>
+                  </div>
+                  <Calendar className='h-8 w-8 text-blue-600' />
                 </div>
-                <Calendar className='h-8 w-8 text-blue-600' />
               </div>
-            </div>
 
-            <div className='bg-white rounded-lg border border-gray-200 p-6'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-sm font-medium text-gray-600'>Total Students</p>
-                  <p className='text-2xl font-bold text-gray-900'>{trainerStats.totalStudents}</p>
-                  <p className='text-sm text-gray-500'>Across all classes</p>
+              <div className='bg-white rounded-lg border border-gray-200 p-6'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <p className='text-sm font-medium text-gray-600'>Total Students</p>
+                    <p className='text-2xl font-bold text-gray-900'>
+                      {employeeWithStats.stats.totalStudents}
+                    </p>
+                    <p className='text-sm text-gray-500'>Across all classes</p>
+                  </div>
+                  <Users className='h-8 w-8 text-green-600' />
                 </div>
-                <Users className='h-8 w-8 text-green-600' />
               </div>
-            </div>
 
-            <div className='bg-white rounded-lg border border-gray-200 p-6'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-sm font-medium text-gray-600'>Attendance Rate</p>
-                  <p className='text-2xl font-bold text-gray-900'>{trainerStats.attendanceRate}%</p>
-                  <p
-                    className={`text-sm ${
-                      getPerformanceColor(trainerStats.attendanceRate).split(' ')[0]
-                    }`}
-                  >
-                    {trainerStats.attendanceRate >= 85
-                      ? 'Excellent'
-                      : trainerStats.attendanceRate >= 70
-                        ? 'Good'
-                        : 'Needs Improvement'}
-                  </p>
+              <div className='bg-white rounded-lg border border-gray-200 p-6'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <p className='text-sm font-medium text-gray-600'>Average Rating</p>
+                    <p className='text-2xl font-bold text-gray-900'>
+                      {employeeWithStats.stats.rating.toFixed(1)}
+                    </p>
+                    <p className='text-sm text-gray-500'>
+                      Performance rating
+                    </p>
+                  </div>
+                  <Star className='h-8 w-8 text-purple-600' />
                 </div>
-                <TrendingUp className='h-8 w-8 text-purple-600' />
               </div>
-            </div>
 
-            <div className='bg-white rounded-lg border border-gray-200 p-6'>
-              <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-sm font-medium text-gray-600'>Revenue Generated</p>
-                  <p className='text-2xl font-bold text-gray-900'>
-                    ${trainerStats.totalRevenue.toLocaleString()}
-                  </p>
-                  <p className='text-sm text-gray-500'>Estimated total</p>
+              <div className='bg-white rounded-lg border border-gray-200 p-6'>
+                <div className='flex items-center justify-between'>
+                  <div>
+                    <p className='text-sm font-medium text-gray-600'>Revenue Generated</p>
+                    <p className='text-2xl font-bold text-gray-900'>
+                      ${employeeWithStats.stats.totalRevenue.toLocaleString()}
+                    </p>
+                    <p className='text-sm text-gray-500'>Total generated</p>
+                  </div>
+                  <Award className='h-8 w-8 text-yellow-600' />
                 </div>
-                <Award className='h-8 w-8 text-yellow-600' />
               </div>
             </div>
-          </div>
+          ) : (
+            <div className='text-center py-8'>
+              <p className='text-gray-500'>Performance statistics not available. Enable stats to view detailed metrics.</p>
+            </div>
+          )}
 
           {/* Specialties */}
           <div className='bg-white rounded-lg border border-gray-200 p-6 mb-8'>
             <h3 className='text-lg font-medium text-gray-900 mb-4'>Specialties & Programs</h3>
             <div className='flex flex-wrap gap-2'>
-              {trainerStats.specialtyPrograms.map((specialty, index) => (
-                <span
-                  key={index}
-                  className='inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-full border'
-                  style={{
-                    backgroundColor: specialty.includes('Burn40')
-                      ? '#fef2f2'
-                      : specialty.includes('CrossFit')
-                        ? '#ecfeff'
-                        : specialty.includes('BurnDumbells')
-                          ? '#f0fdf4'
-                          : '#f9fafb',
-                    color: specialty.includes('Burn40')
-                      ? '#dc2626'
-                      : specialty.includes('CrossFit')
-                        ? '#0891b2'
-                        : specialty.includes('BurnDumbells')
-                          ? '#16a34a'
-                          : '#6b7280',
-                    borderColor: specialty.includes('Burn40')
-                      ? '#fecaca'
-                      : specialty.includes('CrossFit')
-                        ? '#a5f3fc'
-                        : specialty.includes('BurnDumbells')
-                          ? '#bbf7d0'
-                          : '#e5e7eb',
-                  }}
-                >
-                  <div
-                    className='w-2 h-2 rounded-full mr-2'
+              {selectedEmployee.specialties && selectedEmployee.specialties.length > 0 ? (
+                selectedEmployee.specialties.map((specialty, index) => (
+                  <span
+                    key={index}
+                    className='inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-full border'
                     style={{
                       backgroundColor: specialty.includes('Burn40')
-                        ? '#ef4444'
+                        ? '#fef2f2'
                         : specialty.includes('CrossFit')
-                          ? '#06b6d4'
+                          ? '#ecfeff'
                           : specialty.includes('BurnDumbells')
-                            ? '#10b981'
+                            ? '#f0fdf4'
+                            : '#f9fafb',
+                      color: specialty.includes('Burn40')
+                        ? '#dc2626'
+                        : specialty.includes('CrossFit')
+                          ? '#0891b2'
+                          : specialty.includes('BurnDumbells')
+                            ? '#16a34a'
                             : '#6b7280',
+                      borderColor: specialty.includes('Burn40')
+                        ? '#fecaca'
+                        : specialty.includes('CrossFit')
+                          ? '#a5f3fc'
+                          : specialty.includes('BurnDumbells')
+                            ? '#bbf7d0'
+                            : '#e5e7eb',
                     }}
-                  />
-                  {specialty}
-                </span>
-              ))}
+                  >
+                    <div
+                      className='w-2 h-2 rounded-full mr-2'
+                      style={{
+                        backgroundColor: specialty.includes('Burn40')
+                          ? '#ef4444'
+                          : specialty.includes('CrossFit')
+                            ? '#06b6d4'
+                            : specialty.includes('BurnDumbells')
+                              ? '#10b981'
+                              : '#6b7280',
+                      }}
+                    />
+                    {specialty}
+                  </span>
+                ))
+              ) : (
+                <span className='text-gray-500 text-sm'>No specialties listed</span>
+              )}
             </div>
           </div>
 
@@ -327,99 +374,10 @@ export default function EmployeesPage() {
               <BarChart3 className='h-5 w-5 text-gray-400' />
             </div>
 
-            <div className='space-y-4'>
-              {trainerStats.recentClasses.map(cls => (
-                <div key={cls.id} className='border border-gray-200 rounded-lg p-4'>
-                  <div className='flex items-center justify-between mb-3'>
-                    <div>
-                      <h4 className='font-medium text-gray-900'>{cls.name}</h4>
-                      <p className='text-sm text-gray-500'>
-                        {formatDate(cls.date)} • {cls.startTime} - {cls.endTime} • {cls.location}
-                      </p>
-                    </div>
-                    <span
-                      className='inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full border'
-                      style={{
-                        backgroundColor:
-                          cls.program === 'Burn40'
-                            ? '#fef2f2'
-                            : cls.program === 'CrossFit'
-                              ? '#ecfeff'
-                              : '#f0fdf4',
-                        color:
-                          cls.program === 'Burn40'
-                            ? '#dc2626'
-                            : cls.program === 'CrossFit'
-                              ? '#0891b2'
-                              : '#16a34a',
-                        borderColor:
-                          cls.program === 'Burn40'
-                            ? '#fecaca'
-                            : cls.program === 'CrossFit'
-                              ? '#a5f3fc'
-                              : '#bbf7d0',
-                      }}
-                    >
-                      <div
-                        className='w-1.5 h-1.5 rounded-full mr-1.5'
-                        style={{
-                          backgroundColor:
-                            cls.program === 'Burn40'
-                              ? '#ef4444'
-                              : cls.program === 'CrossFit'
-                                ? '#06b6d4'
-                                : '#10b981',
-                        }}
-                      />
-                      {cls.program}
-                    </span>
-                  </div>
-
-                  <div className='grid grid-cols-3 gap-4'>
-                    <div className='text-center'>
-                      <p className='text-sm text-gray-500'>Capacity</p>
-                      <p className='text-lg font-semibold text-gray-900'>{cls.capacity}</p>
-                    </div>
-                    <div className='text-center'>
-                      <p className='text-sm text-gray-500'>Enrolled</p>
-                      <p className='text-lg font-semibold text-gray-900'>{cls.enrolled}</p>
-                    </div>
-                    <div className='text-center'>
-                      <p className='text-sm text-gray-500'>Attended</p>
-                      <p className='text-lg font-semibold text-gray-900'>{cls.attended}</p>
-                    </div>
-                  </div>
-
-                  <div className='mt-4'>
-                    <div className='flex items-center justify-between mb-2'>
-                      <span className='text-sm text-gray-600'>Attendance Rate</span>
-                      <span
-                        className={`text-sm font-medium ${
-                          getPerformanceColor(cls.attendanceRate).split(' ')[0]
-                        }`}
-                      >
-                        {Math.round(cls.attendanceRate)}%
-                      </span>
-                    </div>
-                    <div className='w-full bg-gray-200 rounded-full h-2'>
-                      <div
-                        className='h-2 rounded-full transition-all duration-300'
-                        style={{
-                          width: `${cls.attendanceRate}%`,
-                          backgroundColor:
-                            cls.attendanceRate >= 90
-                              ? '#10b981'
-                              : cls.attendanceRate >= 75
-                                ? '#3b82f6'
-                                : cls.attendanceRate >= 60
-                                  ? '#f59e0b'
-                                  : '#ef4444',
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className='text-center py-8'>
+              <BarChart3 className='h-12 w-12 text-gray-300 mx-auto mb-4' />
+              <p className='text-gray-500'>Class performance data not available</p>
+              <p className='text-sm text-gray-400'>This feature will be implemented with the class management system</p>
             </div>
           </div>
         </div>
@@ -437,205 +395,423 @@ export default function EmployeesPage() {
             <p className='text-sm text-gray-500 mt-1'>Manage trainers and staff performance</p>
           </div>
 
-          <button className='px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2'>
-            <User className='h-4 w-4' />
-            <span>Add Employee</span>
+          <button 
+            onClick={handleOpenInviteModal}
+            className='px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2'
+          >
+            <UserPlus className='h-4 w-4' />
+            <span>Invite Employee</span>
           </button>
         </div>
       </div>
 
-      {/* Search Bar */}
+      {/* Search and Filters */}
       <div className='px-6 py-4 bg-white border-b border-gray-200'>
-        <div className='relative max-w-md'>
-          <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400' />
-          <input
-            type='text'
-            placeholder='Search trainers...'
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-          />
+        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 sm:space-x-4'>
+          <div className='relative max-w-md flex-1'>
+            <Search className='absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400' />
+            <input
+              type='text'
+              placeholder='Search employees...'
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className='w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+            />
+          </div>
+          
+          <div className='flex items-center space-x-3'>
+            {/* Role Filter */}
+            <select
+              value={roleFilter}
+              onChange={e => {
+                setRoleFilter(e.target.value);
+                setRole(e.target.value);
+              }}
+              className='px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
+            >
+              <option value=''>All Roles</option>
+              <option value='trainer'>Trainer</option>
+              <option value='coach'>Coach</option>
+              <option value='front_desk'>Front Desk</option>
+              <option value='manager'>Manager</option>
+              <option value='admin'>Admin</option>
+              <option value='owner'>Owner</option>
+            </select>
+            
+            {/* Status Filter */}
+            <select
+              value={statusFilter === undefined ? 'all' : statusFilter ? 'active' : 'inactive'}
+              onChange={e => {
+                const value = e.target.value === 'all' ? undefined : e.target.value === 'active';
+                setStatusFilter(value);
+                setActiveStatus(value);
+              }}
+              className='px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm'
+            >
+              <option value='all'>All Status</option>
+              <option value='active'>Active</option>
+              <option value='inactive'>Inactive</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      {/* Trainers Table */}
+      {/* Employees Table */}
       <div className='px-6 py-4'>
-        <div className='bg-white rounded-lg shadow overflow-hidden'>
-          <table className='min-w-full divide-y divide-gray-200'>
-            <thead className='bg-gray-50'>
-              <tr>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Trainer
-                </th>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Specialties
-                </th>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Classes Taught
-                </th>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Attendance Rate
-                </th>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Rating
-                </th>
-                <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                  Status
-                </th>
-                <th className='relative px-6 py-3'>
-                  <span className='sr-only'>Actions</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody className='bg-white divide-y divide-gray-200'>
-              {filteredTrainers.map(trainer => (
-                <tr key={trainer.id} className='hover:bg-gray-50'>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <div className='flex items-center'>
-                      <div className='h-10 w-10 flex-shrink-0'>
-                        <div className='h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center'>
-                          <User className='h-5 w-5 text-gray-600' />
-                        </div>
-                      </div>
-                      <div className='ml-4'>
-                        <div className='text-sm font-medium text-gray-900'>{trainer.name}</div>
-                        <div className='text-sm text-gray-500'>{trainer.email}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className='px-6 py-4'>
-                    <div className='flex flex-wrap gap-1'>
-                      {trainer.specialties.slice(0, 2).map((specialty, index) => (
-                        <span
-                          key={index}
-                          className='inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full border'
-                          style={{
-                            backgroundColor: specialty.includes('Burn40')
-                              ? '#fef2f2'
-                              : specialty.includes('CrossFit')
-                                ? '#ecfeff'
-                                : specialty.includes('BurnDumbells')
-                                  ? '#f0fdf4'
-                                  : '#f9fafb',
-                            color: specialty.includes('Burn40')
-                              ? '#dc2626'
-                              : specialty.includes('CrossFit')
-                                ? '#0891b2'
-                                : specialty.includes('BurnDumbells')
-                                  ? '#16a34a'
-                                  : '#6b7280',
-                            borderColor: specialty.includes('Burn40')
-                              ? '#fecaca'
-                              : specialty.includes('CrossFit')
-                                ? '#a5f3fc'
-                                : specialty.includes('BurnDumbells')
-                                  ? '#bbf7d0'
-                                  : '#e5e7eb',
-                          }}
-                        >
-                          <div
-                            className='w-1.5 h-1.5 rounded-full mr-1.5'
-                            style={{
-                              backgroundColor: specialty.includes('Burn40')
-                                ? '#ef4444'
-                                : specialty.includes('CrossFit')
-                                  ? '#06b6d4'
-                                  : specialty.includes('BurnDumbells')
-                                    ? '#10b981'
-                                    : '#6b7280',
-                            }}
-                          />
-                          {specialty}
-                        </span>
-                      ))}
-                      {trainer.specialties.length > 2 && (
-                        <span className='px-2.5 py-0.5 text-xs font-medium rounded-full bg-gray-50 text-gray-500 border border-gray-200'>
-                          +{trainer.specialties.length - 2}
-                        </span>
-                      )}
-                    </div>
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <div className='text-sm text-gray-900'>{trainer.stats.totalClassesTaught}</div>
-                    <div className='text-sm text-gray-500'>
-                      {trainer.stats.completedClassesThisMonth} this month
-                    </div>
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <div className='flex items-center'>
-                      <div className='text-sm font-medium text-gray-900'>
-                        {trainer.stats.attendanceRate}%
-                      </div>
-                      <div className='ml-2'>
-                        {trainer.stats.attendanceRate >= 85 ? (
-                          <CheckCircle className='h-4 w-4 text-green-500' />
-                        ) : trainer.stats.attendanceRate >= 70 ? (
-                          <Target className='h-4 w-4 text-yellow-500' />
-                        ) : (
-                          <Clock className='h-4 w-4 text-red-500' />
-                        )}
-                      </div>
-                    </div>
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <div className='flex items-center'>
-                      <Star className='h-4 w-4 text-yellow-400 fill-current mr-1' />
-                      <span className='text-sm text-gray-900'>
-                        {trainer.stats.rating.toFixed(1)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        trainer.isActive
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}
-                    >
-                      {trainer.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
-                    <div className='relative'>
-                      <button
-                        onClick={() =>
-                          setActiveDropdownId(activeDropdownId === trainer.id ? null : trainer.id)
-                        }
-                        className='text-gray-400 hover:text-gray-600'
-                      >
-                        <MoreVertical className='h-5 w-5' />
-                      </button>
-
-                      {activeDropdownId === trainer.id && (
-                        <div className='absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10'>
-                          <div className='py-1'>
-                            <button
-                              onClick={() => handleViewPerformance(trainer)}
-                              className='w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2'
-                            >
-                              <BarChart3 className='h-4 w-4' />
-                              <span>View Performance</span>
-                            </button>
-                            <button className='w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2'>
-                              <Calendar className='h-4 w-4' />
-                              <span>View Schedule</span>
-                            </button>
-                            <button className='w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2'>
-                              <User className='h-4 w-4' />
-                              <span>Edit Profile</span>
-                            </button>
+        {loading ? (
+          <div className='flex items-center justify-center py-8'>
+            <div className='text-gray-500'>Loading employees...</div>
+          </div>
+        ) : error ? (
+          <div className='bg-red-50 border border-red-200 rounded-lg p-4'>
+            <p className='text-red-600'>{error}</p>
+            <button
+              onClick={refetch}
+              className='mt-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors'
+            >
+              Retry
+            </button>
+          </div>
+        ) : employees.length === 0 ? (
+          <div className='text-center py-8'>
+            <User className='h-12 w-12 text-gray-300 mx-auto mb-4' />
+            <p className='text-gray-500'>No employees found</p>
+          </div>
+        ) : (
+          <div className='bg-white rounded-lg shadow overflow-hidden'>
+            <table className='min-w-full divide-y divide-gray-200'>
+              <thead className='bg-gray-50'>
+                <tr>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    Employee
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    Role
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    Specialties
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    Hire Date
+                  </th>
+                  <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                    Status
+                  </th>
+                  <th className='relative px-6 py-3'>
+                    <span className='sr-only'>Actions</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody className='bg-white divide-y divide-gray-200'>
+                {employees.map(employee => {
+                  const employeeWithStats = isEmployeeWithStats(employee) ? employee : null;
+                  return (
+                    <tr key={employee.id} className='hover:bg-gray-50'>
+                      <td className='px-6 py-4 whitespace-nowrap'>
+                        <div className='flex items-center'>
+                          <div className='h-10 w-10 flex-shrink-0'>
+                            <div className='h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center'>
+                              <User className='h-5 w-5 text-gray-600' />
+                            </div>
+                          </div>
+                          <div className='ml-4'>
+                            <div className='text-sm font-medium text-gray-900'>
+                              {getEmployeeFullName(employee)}
+                            </div>
+                            <div className='text-sm text-gray-500'>{employee.email}</div>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap'>
+                        <div className='text-sm text-gray-900 capitalize'>{employee.role}</div>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <div className='flex flex-wrap gap-1'>
+                          {employee.specialties && employee.specialties.length > 0 ? (
+                            employee.specialties.slice(0, 2).map((specialty, index) => (
+                              <span
+                                key={index}
+                                className='inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded-full border'
+                                style={{
+                                  backgroundColor: specialty.includes('Burn40')
+                                    ? '#fef2f2'
+                                    : specialty.includes('CrossFit')
+                                      ? '#ecfeff'
+                                      : specialty.includes('BurnDumbells')
+                                        ? '#f0fdf4'
+                                        : '#f9fafb',
+                                  color: specialty.includes('Burn40')
+                                    ? '#dc2626'
+                                    : specialty.includes('CrossFit')
+                                      ? '#0891b2'
+                                      : specialty.includes('BurnDumbells')
+                                        ? '#16a34a'
+                                        : '#6b7280',
+                                  borderColor: specialty.includes('Burn40')
+                                    ? '#fecaca'
+                                    : specialty.includes('CrossFit')
+                                      ? '#a5f3fc'
+                                      : specialty.includes('BurnDumbells')
+                                        ? '#bbf7d0'
+                                        : '#e5e7eb',
+                                }}
+                              >
+                                <div
+                                  className='w-1.5 h-1.5 rounded-full mr-1.5'
+                                  style={{
+                                    backgroundColor: specialty.includes('Burn40')
+                                      ? '#ef4444'
+                                      : specialty.includes('CrossFit')
+                                        ? '#06b6d4'
+                                        : specialty.includes('BurnDumbells')
+                                          ? '#10b981'
+                                          : '#6b7280',
+                                  }}
+                                />
+                                {specialty}
+                              </span>
+                            ))
+                          ) : (
+                            <span className='text-sm text-gray-400'>No specialties</span>
+                          )}
+                          {employee.specialties && employee.specialties.length > 2 && (
+                            <span className='px-2.5 py-0.5 text-xs font-medium rounded-full bg-gray-50 text-gray-500 border border-gray-200'>
+                              +{employee.specialties.length - 2}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap'>
+                        <div className='text-sm text-gray-900'>
+                          {employee.hire_date ? formatDate(employee.hire_date) : 'N/A'}
+                        </div>
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap'>
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            employee.is_active
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
+                          {employee.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
+                        <div className='relative'>
+                          <button
+                            onClick={() =>
+                              setActiveDropdownId(activeDropdownId === employee.id ? null : employee.id)
+                            }
+                            className='text-gray-400 hover:text-gray-600'
+                          >
+                            <MoreVertical className='h-5 w-5' />
+                          </button>
+
+                          {activeDropdownId === employee.id && (
+                            <div className='absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10'>
+                              <div className='py-1'>
+                                <button
+                                  onClick={() => handleViewPerformance(employee)}
+                                  className='w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2'
+                                >
+                                  <BarChart3 className='h-4 w-4' />
+                                  <span>View Performance</span>
+                                </button>
+                                <button className='w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2'>
+                                  <Calendar className='h-4 w-4' />
+                                  <span>View Schedule</span>
+                                </button>
+                                <button className='w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center space-x-2'>
+                                  <User className='h-4 w-4' />
+                                  <span>Edit Profile</span>
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {pagination && pagination.totalPages > 1 && (
+          <div className='flex items-center justify-between mt-6 px-4 py-3 bg-white border border-gray-200 rounded-lg'>
+            <div className='flex items-center text-sm text-gray-700'>
+              <span>
+                Showing {(pagination.page - 1) * pagination.limit + 1} to{' '}
+                {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
+                {pagination.total} results
+              </span>
+            </div>
+            <div className='flex items-center space-x-2'>
+              <button
+                onClick={() => setPage(pagination.page - 1)}
+                disabled={!pagination.hasPreviousPage}
+                className='px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+              >
+                Previous
+              </button>
+              <span className='px-3 py-1 text-sm font-medium text-gray-900'>
+                Page {pagination.page} of {pagination.totalPages}
+              </span>
+              <button
+                onClick={() => setPage(pagination.page + 1)}
+                disabled={!pagination.hasNextPage}
+                className='px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed'
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Invitation Modal */}
+      {showInviteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center space-x-3">
+                <div className="h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Mail className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-900">Invite Employee</h2>
+                  <p className="text-sm text-gray-500">Send an invitation to join your team</p>
+                </div>
+              </div>
+              <button
+                onClick={handleCloseInviteModal}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleInviteSubmit} className="p-6 space-y-4">
+              {inviteError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                  <p className="text-sm text-red-600">{inviteError}</p>
+                </div>
+              )}
+
+              {inviteSuccess && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <p className="text-sm text-green-600">{inviteSuccess}</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    First Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={inviteFormData.first_name}
+                    onChange={(e) => setInviteFormData(prev => ({ ...prev, first_name: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter first name"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Last Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={inviteFormData.last_name}
+                    onChange={(e) => setInviteFormData(prev => ({ ...prev, last_name: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="Enter last name"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={inviteFormData.email}
+                  onChange={(e) => setInviteFormData(prev => ({ ...prev, email: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter email address"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Role
+                </label>
+                <select
+                  value={inviteFormData.role}
+                  onChange={(e) => setInviteFormData(prev => ({ ...prev, role: e.target.value as InvitationFormData['role'] }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="trainer">Trainer</option>
+                  <option value="coach">Coach</option>
+                  <option value="front_desk">Front Desk</option>
+                  <option value="manager">Manager</option>
+                  <option value="admin">Admin</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  This determines their permissions and access level
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Location Access
+                </label>
+                <p className="text-xs text-gray-500 mb-3">
+                  Leave empty to grant access to all locations, or select specific locations
+                </p>
+                <div className="text-sm text-gray-500">
+                  Location selection will be implemented when location management is available
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={handleCloseInviteModal}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={inviteLoading}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-2"
+                >
+                  {inviteLoading ? (
+                    <>
+                      <Loader className="h-4 w-4 animate-spin" />
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="h-4 w-4" />
+                      <span>Send Invitation</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

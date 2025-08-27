@@ -28,7 +28,6 @@ function OnboardingContent() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [sessionData, setSessionData] = useState({
-    sessionId: '',
     sessionToken: '',
     csrfToken: '',
   });
@@ -43,43 +42,14 @@ function OnboardingContent() {
   // Initialize or recover onboarding session
   useEffect(() => {
     const initializeSession = async () => {
-      // Check URL parameters for existing session
-      const sessionId = searchParams.get('session');
+      // Check URL parameters for existing session  
       const sessionToken = searchParams.get('token');
       const csrfToken = searchParams.get('csrf');
 
-      if (sessionId && sessionToken && csrfToken) {
-        // Attempt session recovery
-        try {
-          const response = await fetch('/api/onboarding/recovery', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              sessionId,
-              sessionToken,
-              validateSteps: true,
-              repairMissingData: true,
-            }),
-          });
-
-          const data = await response.json();
-
-          if (data.success && data.session) {
-            setSessionData({ sessionId, sessionToken, csrfToken });
-            setCurrentStep(data.nextStep || 1);
-            if (data.session.state.organizationName) {
-              setFormData({ organizationName: data.session.state.organizationName });
-            }
-            if (data.session.state.locations && data.session.state.locations.length > 0) {
-              setLocations(data.session.state.locations);
-            }
-            return;
-          }
-        } catch (error) {
-          console.warn('Failed to recover session, starting new session:', error);
-        }
+      if (sessionToken && csrfToken) {
+        // Attempt session recovery - for now just set the tokens, later we can add recovery endpoint
+        setSessionData({ sessionToken, csrfToken });
+        return;
       }
 
       // Start new session
@@ -96,7 +66,6 @@ function OnboardingContent() {
 
         if (data.success) {
           setSessionData({
-            sessionId: data.sessionId,
             sessionToken: data.sessionToken,
             csrfToken: data.csrfToken,
           });
@@ -186,30 +155,33 @@ function OnboardingContent() {
 
   // Update session with current state
   const updateSessionState = async () => {
-    if (!sessionData.sessionId || !sessionData.sessionToken) {
+    if (!sessionData.sessionToken) {
       return false;
     }
 
     try {
-      const response = await fetch('/api/onboarding/update', {
-        method: 'PUT',
+      // Determine next step
+      const nextStep = currentStep === 1 ? 'organization' : currentStep === 2 ? 'location' : 'payment';
+      
+      // Prepare step data based on current step
+      let stepData = {};
+      if (currentStep === 1) {
+        stepData = { name: formData.organizationName };
+      } else if (currentStep === 2) {
+        stepData = locations.map(loc => ({
+          name: loc.name,
+          address: loc.address
+        })).filter(loc => loc.name && loc.address)[0]; // Take first valid location for now
+      }
+
+      const response = await fetch(`/api/onboarding/session/${sessionData.sessionToken}/step/${currentStep}`, {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionId: sessionData.sessionId,
-          sessionToken: sessionData.sessionToken,
+          stepData,
           csrfToken: sessionData.csrfToken,
-          currentStep,
-          state: {
-            organizationName: formData.organizationName,
-            locations,
-            metadata: {
-              startedAt: new Date().toISOString(),
-              completedSteps: Array.from({ length: currentStep - 1 }, (_, i) => i + 1),
-              lastActiveStep: currentStep,
-            },
-          },
         }),
       });
 
@@ -256,7 +228,6 @@ function OnboardingContent() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          sessionId: sessionData.sessionId,
           sessionToken: sessionData.sessionToken,
           csrfToken: sessionData.csrfToken,
         }),

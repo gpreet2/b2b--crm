@@ -13,6 +13,7 @@ import {
   ClipboardDocumentIcon,
 } from "@heroicons/react/24/outline";
 import { NavigationItem, navigationConfig } from "@/lib/navigation";
+import { fetchOrganizations, fetchOrganizationLocations, type Location } from "@/lib/api/organizations";
 
 export interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
   onClose?: () => void;
@@ -26,13 +27,28 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
       useLocation();
     const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
     const [isLocationDropdownOpen, setIsLocationDropdownOpen] = useState(false);
+    const [locations, setLocations] = useState<Location[]>([]);
+    const [loadingLocations, setLoadingLocations] = useState(true);
 
-    const locations = [
-      "Bakersfield, CA",
-      "Los Angeles, CA",
-      "San Francisco, CA",
-      "Sacramento, CA",
-    ];
+    // Load organization locations on mount
+    useEffect(() => {
+      const loadLocations = async () => {
+        try {
+          setLoadingLocations(true);
+          const orgsResponse = await fetchOrganizations();
+          if (orgsResponse.organizations.length > 0) {
+            const locationsResponse = await fetchOrganizationLocations(orgsResponse.organizations[0].id);
+            setLocations(locationsResponse.locations);
+          }
+        } catch (error) {
+          console.error('Failed to load locations:', error);
+        } finally {
+          setLoadingLocations(false);
+        }
+      };
+
+      loadLocations();
+    }, []);
 
     // Auto-expand parent menu when on a sub-page
     useEffect(() => {
@@ -179,65 +195,75 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
                     className="rounded-lg shadow-lg border border-gray-200 overflow-hidden"
                     style={{ backgroundColor: "#ffffff" }}
                   >
-                    {locations.map((location, index) => (
-                      <button
-                        key={location}
-                        onClick={async () => {
-                          setIsLocationDropdownOpen(false);
-                          await switchLocation(location);
-                        }}
-                        className={`w-full px-4 py-3 text-left flex items-center space-x-3 transition-colors duration-150 ${
-                          index !== locations.length - 1
-                            ? "border-b border-gray-100"
-                            : ""
-                        }`}
-                        style={{
-                          backgroundColor:
-                            selectedLocation === location
-                              ? "#fef2f2"
-                              : "#ffffff",
-                        }}
-                        onMouseEnter={(e) => {
-                          if (selectedLocation !== location) {
-                            e.currentTarget.style.backgroundColor = "#f9fafb";
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.backgroundColor =
-                            selectedLocation === location
-                              ? "#fef2f2"
-                              : "#ffffff";
-                        }}
+                    {loadingLocations ? (
+                      <div className="px-4 py-3 text-gray-500 text-sm">
+                        Loading locations...
+                      </div>
+                    ) : locations.length === 0 ? (
+                      <div className="px-4 py-3 text-gray-500 text-sm">
+                        No locations found
+                      </div>
+                    ) : (
+                      locations.map((location, index) => (
+                        <button
+                          key={location.id}
+                          onClick={async () => {
+                            setIsLocationDropdownOpen(false);
+                            await switchLocation(location.name);
+                          }}
+                          className={`w-full px-4 py-3 text-left flex items-center space-x-3 transition-colors duration-150 ${
+                            index !== locations.length - 1
+                              ? "border-b border-gray-100"
+                              : ""
+                          }`}
+                          style={{
+                            backgroundColor:
+                              selectedLocation === location.name
+                                ? "#fef2f2"
+                                : "#ffffff",
+                          }}
+                          onMouseEnter={(e) => {
+                            if (selectedLocation !== location.name) {
+                              e.currentTarget.style.backgroundColor = "#f9fafb";
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor =
+                              selectedLocation === location.name
+                                ? "#fef2f2"
+                                : "#ffffff";
+                          }}
                       >
-                        <div
-                          className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                            selectedLocation === location
-                              ? "bg-primary/20"
-                              : "bg-gray-100"
-                          }`}
-                        >
-                          <MapPinIcon
-                            className={`h-3 w-3 ${
-                              selectedLocation === location
-                                ? "text-primary"
-                                : "text-gray-400"
+                          <div
+                            className={`w-6 h-6 rounded-full flex items-center justify-center ${
+                              selectedLocation === location.name
+                                ? "bg-primary/20"
+                                : "bg-gray-100"
                             }`}
-                          />
-                        </div>
-                        <span
-                          className={`text-sm ${
-                            selectedLocation === location
-                              ? "text-gray-900 font-semibold"
-                              : "text-gray-700"
-                          }`}
-                        >
-                          {location}
-                        </span>
-                        {selectedLocation === location && (
-                          <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
-                        )}
-                      </button>
-                    ))}
+                          >
+                            <MapPinIcon
+                              className={`h-3 w-3 ${
+                                selectedLocation === location.name
+                                  ? "text-primary"
+                                  : "text-gray-400"
+                              }`}
+                            />
+                          </div>
+                          <span
+                            className={`text-sm ${
+                              selectedLocation === location.name
+                                ? "text-gray-900 font-semibold"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            {location.name}
+                          </span>
+                          {selectedLocation === location.name && (
+                            <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
+                          )}
+                        </button>
+                      ))
+                    )}
                   </div>
                 </div>
               </>
