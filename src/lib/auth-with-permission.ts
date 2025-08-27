@@ -13,24 +13,24 @@ export function withPermission(
   ) {
     return withAuth(async (request: NextRequest, authData: AuthData, ...args: T) => {
       try {
+        // Get database user ID from WorkOS user ID first
+        const { data: dbUser, error: dbUserError } = await getSupabaseClient()
+          .from('users')
+          .select('id')
+          .eq('workos_user_id', authData.user.id)
+          .single();
+
+        if (dbUserError || !dbUser) {
+          return NextResponse.json({
+            success: false,
+            error: 'User not found in database',
+          }, { status: 404 });
+        }
+
         // Task 6.6 Fix: Get organization from database if not in session
         let organizationId = authData.session.organizationId;
         
         if (!organizationId) {
-          // Get database user ID from WorkOS user ID
-          const { data: dbUser, error: dbUserError } = await getSupabaseClient()
-            .from('users')
-            .select('id')
-            .eq('workos_user_id', authData.user.id)
-            .single();
-
-          if (dbUserError || !dbUser) {
-            return NextResponse.json({
-              success: false,
-              error: 'User not found in database',
-            }, { status: 404 });
-          }
-
           // Get user's active organization from database
           const { data: userOrg, error: userOrgError } = await getSupabaseClient()
             .from('user_organizations')
@@ -49,9 +49,9 @@ export function withPermission(
           organizationId = userOrg.organization_id;
         }
 
-        // Check if user has required permission
+        // Check if user has required permission using database user ID
         const hasPermission = await checkPermission(
-          authData.user.id,
+          dbUser.id,
           organizationId!,
           resource,
           action

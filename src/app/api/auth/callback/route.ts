@@ -4,6 +4,7 @@ import { WorkOS } from '@workos-inc/node';
 import { initializeDatabase, getDatabase } from '@/config/database';
 import { logger } from '@/utils/logger';
 import { createSessionCookie } from '@/lib/auth-server';
+import { getOnboardingSessionManager } from '@/lib/onboarding-session';
 
 // Initialize WorkOS
 const workos = new WorkOS(process.env.WORKOS_API_KEY!);
@@ -12,7 +13,23 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get('code');
-    const _state = searchParams.get('state');
+    const state = searchParams.get('state');
+
+    // Parse state to check for onboarding session data
+    let onboardingSessionId: string | null = null;
+    let onboardingSessionToken: string | null = null;
+    let returnTo = '/dashboard';
+    
+    if (state) {
+      try {
+        const parsedState = JSON.parse(state);
+        onboardingSessionId = parsedState.onboardingSessionId || null;
+        onboardingSessionToken = parsedState.onboardingSessionToken || null;
+        returnTo = parsedState.returnTo || '/dashboard';
+      } catch (error) {
+        logger.warn('Failed to parse state parameter', { state, error });
+      }
+    }
 
     if (!code) {
       logger.error('No authorization code received in callback');
@@ -140,52 +157,187 @@ export async function GET(request: NextRequest) {
           email: user.email,
         });
 
-        // Task 6.6 Bug Fix: Ensure new users can access role management
-        // This assigns them to Default Gym so role management works immediately
-        // Will be replaced by proper onboarding in Task 10
-        try {
-          const { data: defaultOrg } = await db
-            .getSupabaseClient()
-            .from('organizations')
-            .select('id')
-            .eq('name', 'Default Gym')
-            .single();
+        // Handle onboarding session data if present
+        if (onboardingSessionId && onboardingSessionToken && newUser) {
+          try {
+            const sessionManager = getOnboardingSessionManager();
+            const onboardingSession = await sessionManager.getSession(onboardingSessionId, onboardingSessionToken);
+            
+            if (onboardingSession?.state.organizationName) {
+              logger.info('Processing onboarding session for new user', {
+                sessionId: onboardingSessionId,
+                organizationName: onboardingSession.state.organizationName,
+                locationCount: onboardingSession.state.locations?.length || 0,
+              });
 
-          if (defaultOrg && newUser) {
-            // Get appropriate role based on user_type
-            const { data: roleData } = await db
-              .getSupabaseClient()
-              .from('roles')
-              .select('id')
-              .eq('slug', newUser.user_type === 'owner' ? 'owner' : 'admin')
-              .single();
-
-            if (roleData) {
-              await db
+              // Create the organization from onboarding data
+              const { data: newOrg, error: orgError } = await db
                 .getSupabaseClient()
-                .from('user_organizations')
+                .from('organizations')
                 .insert({
-                  user_id: newUser.id,
-                  organization_id: defaultOrg.id,
-                  role_id: roleData.id,
-                  role: newUser.user_type === 'owner' ? 'owner' : 'admin',
-                  is_active: true,
-                  is_primary: true,
-                  joined_at: new Date().toISOString(),
+                  name: onboardingSession.state.organizationName,
+                  owner_id: newUser.id,
+                  metadata: {
+                    created_from_onboarding: true,
+                    onboarding_session_id: onboardingSessionId,
+                  },
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                })
+                .select()
+                .single();
+
+              if (orgError) {
+                logger.error('Failed to create organization from onboarding', {
+                  error: orgError,
+                  organizationName: onboardingSession.state.organizationName,
+                });
+              } else if (newOrg) {
+                logger.info('Organization created from onboarding', {
+                  organizationId: newOrg.id,
+                  organizationName: newOrg.name,
                 });
 
-              logger.info('New user assigned to Default Gym for Task 6.6', {
-                userId: newUser.id,
-                organizationId: defaultOrg.id,
-                role: newUser.user_type,
+                // Get owner role
+                const { data: ownerRole } = await db
+                  .getSupabaseClient()
+                  .from('roles')
+                  .select('id')
+                  .eq('slug', 'owner')
+                  .single();
+
+                if (ownerRole) {
+                  // Assign user as owner of the new organization
+                  await db
+                    .getSupabaseClient()
+                    .from('user_organizations')
+                    .insert({
+                      user_id: newUser.id,
+                      organization_id: newOrg.id,
+                      role_id: ownerRole.id,
+                      role: 'owner',
+                      is_active: true,
+                      is_primary: true,
+                      joined_at: new Date().toISOString(),
+                    });
+
+                  logger.info('User assigned as owner of new organization', {
+                    userId: newUser.id,
+                    organizationId: newOrg.id,
+                  });
+                }
+
+                // Create locations if provided
+                if (onboardingSession.state.locations && onboardingSession.state.locations.length > 0) {
+                  const validLocations = onboardingSession.state.locations.filter(loc => loc.name && loc.address);
+                  
+                  if (validLocations.length > 0) {
+                    const locationsToInsert = validLocations.map(location => ({
+                      name: location.name,
+                      address: location.address,
+                      organization_id: newOrg.id,
+                      metadata: {
+                        created_from_onboarding: true,
+                        onboarding_location_id: location.id,
+                      },
+                      created_at: new Date().toISOString(),
+                      updated_at: new Date().toISOString(),
+                    }));
+
+                    const { error: locationsError } = await db
+                      .getSupabaseClient()
+                      .from('locations')
+                      .insert(locationsToInsert);
+
+                    if (locationsError) {
+                      logger.error('Failed to create locations from onboarding', {
+                        error: locationsError,
+                        locationCount: validLocations.length,
+                      });
+                    } else {
+                      logger.info('Locations created from onboarding', {
+                        organizationId: newOrg.id,
+                        locationCount: validLocations.length,
+                      });
+                    }
+                  }
+                }
+
+                // Mark onboarding session as processed and clean it up
+                try {
+                  await sessionManager.deleteSession(onboardingSessionId);
+                  logger.info('Onboarding session cleaned up after successful processing', {
+                    sessionId: onboardingSessionId,
+                  });
+                } catch (cleanupError) {
+                  logger.warn('Failed to cleanup onboarding session', {
+                    error: cleanupError,
+                    sessionId: onboardingSessionId,
+                  });
+                }
+              }
+            } else {
+              logger.warn('Onboarding session found but missing required data', {
+                sessionId: onboardingSessionId,
+                hasOrganizationName: !!onboardingSession?.state.organizationName,
               });
             }
+          } catch (onboardingError) {
+            logger.error('Failed to process onboarding session', {
+              error: onboardingError,
+              sessionId: onboardingSessionId,
+            });
+            // Fall back to default behavior
           }
-        } catch (orgAssignError) {
-          logger.error('Failed to assign new user to Default Gym', {
-            error: orgAssignError,
-            userId: user.id,
-          });
+        }
+
+        // Task 6.6 Bug Fix: Ensure new users can access role management if no onboarding
+        // This assigns them to Default Gym so role management works immediately
+        if (!onboardingSessionId) {
+          try {
+            const { data: defaultOrg } = await db
+              .getSupabaseClient()
+              .from('organizations')
+              .select('id')
+              .eq('name', 'Default Gym')
+              .single();
+
+            if (defaultOrg && newUser) {
+              // Get appropriate role based on user_type
+              const { data: roleData } = await db
+                .getSupabaseClient()
+                .from('roles')
+                .select('id')
+                .eq('slug', newUser.user_type === 'owner' ? 'owner' : 'admin')
+                .single();
+
+              if (roleData) {
+                await db
+                  .getSupabaseClient()
+                  .from('user_organizations')
+                  .insert({
+                    user_id: newUser.id,
+                    organization_id: defaultOrg.id,
+                    role_id: roleData.id,
+                    role: newUser.user_type === 'owner' ? 'owner' : 'admin',
+                    is_active: true,
+                    is_primary: true,
+                    joined_at: new Date().toISOString(),
+                  });
+
+                logger.info('New user assigned to Default Gym (no onboarding)', {
+                  userId: newUser.id,
+                  organizationId: defaultOrg.id,
+                  role: newUser.user_type,
+                });
+              }
+            }
+          } catch (orgAssignError) {
+            logger.error('Failed to assign new user to Default Gym', {
+              error: orgAssignError,
+              userId: user.id,
+            });
+          }
         }
       }
     }
@@ -212,8 +364,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Create session cookie using the access token and redirect to dashboard
-    const response = NextResponse.redirect(new URL('/dashboard', request.url));
+    // Create session cookie using the access token and redirect to returnTo URL
+    const response = NextResponse.redirect(new URL(returnTo, request.url));
     response.headers.set('Set-Cookie', createSessionCookie(accessToken));
 
     return response;

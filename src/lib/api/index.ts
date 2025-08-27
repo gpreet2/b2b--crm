@@ -33,3 +33,27 @@ export {
   fetchPermissionsByResource,
   type Permission as PermissionDetails,
 } from './permissions';
+
+// Organizations API
+export {
+  default as organizationsApi,
+  OrganizationsApi,
+  fetchOrganizations,
+  fetchOrganization,
+  createOrganization,
+  updateOrganization,
+  deleteOrganization,
+  fetchOrganizationSettings,
+  updateOrganizationSettings,
+  fetchOrganizationLocations,
+  createLocation,
+  updateLocation,
+  deleteLocation,
+  type Organization,
+  type Location,
+  type OrganizationWithLocations,
+  type CreateOrganizationRequest,
+  type UpdateOrganizationRequest,
+  type CreateLocationRequest,
+  type UpdateLocationRequest,
+} from './organizations';

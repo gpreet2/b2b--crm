@@ -7,6 +7,7 @@ import {
   OrganizationQuerySchema,
   BulkCreateOrganizationsSchema,
 } from '@/lib/validations/organization';
+import { ensureDatabaseInitialized } from '@/lib/database-init';
 import { logger } from '@/utils/logger';
 import { z } from 'zod';
 
@@ -15,6 +16,8 @@ import { z } from 'zod';
  */
 export const GET = withAuth(async (request: NextRequest, _authData: AuthData) => {
   try {
+    // Ensure database is initialized before proceeding
+    await ensureDatabaseInitialized();
 
     const { searchParams } = new URL(request.url);
     const queryParams = Object.fromEntries(searchParams.entries());
@@ -56,6 +59,8 @@ export const GET = withAuth(async (request: NextRequest, _authData: AuthData) =>
  */
 export const POST = withPermission('organization', 'create')(async (request: NextRequest, authData: AuthData) => {
   try {
+    // Ensure database is initialized before proceeding
+    await ensureDatabaseInitialized();
 
     const body = await request.json();
 
@@ -106,6 +111,9 @@ export const POST = withPermission('organization', 'create')(async (request: Nex
  */
 async function handleBulkCreate(body: any, userId: string) {
   try {
+    // Ensure database is initialized for bulk operations
+    await ensureDatabaseInitialized();
+    
     const validatedData = BulkCreateOrganizationsSchema.parse(body);
     const organizationService = new OrganizationService();
     const results = [];

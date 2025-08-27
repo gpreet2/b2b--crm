@@ -3,6 +3,7 @@ import { withAuth, AuthData } from '@/lib/auth-server';
 import { withPermission } from '@/lib/auth-with-permission';
 import { OrganizationService } from '@/lib/services/organization';
 import { OrganizationSettingsSchema } from '@/lib/validations/organization';
+import { ensureDatabaseInitialized } from '@/lib/database-init';
 import { logger } from '@/utils/logger';
 import { z } from 'zod';
 
@@ -17,6 +18,8 @@ interface RouteParams {
  */
 export const GET = withAuth(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
   try {
+    // Ensure database is initialized before proceeding
+    await ensureDatabaseInitialized();
 
     const resolvedParams = await params;
     const { id } = resolvedParams;
@@ -51,6 +54,8 @@ export const GET = withAuth(async (request: NextRequest, authData: AuthData, { p
  */
 export const PUT = withPermission('organization', 'update')(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
   try {
+    // Ensure database is initialized before proceeding
+    await ensureDatabaseInitialized();
 
     const resolvedParams = await params;
     const { id } = resolvedParams;
@@ -110,6 +115,8 @@ export const PUT = withPermission('organization', 'update')(async (request: Next
  */
 export const PATCH = withPermission('organization', 'update')(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
   try {
+    // Ensure database is initialized before proceeding
+    await ensureDatabaseInitialized();
 
     const resolvedParams = await params;
     const { id } = resolvedParams;

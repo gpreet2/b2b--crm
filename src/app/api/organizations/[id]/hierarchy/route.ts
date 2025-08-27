@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withAuth, AuthData } from '@/lib/auth-server';
 import { OrganizationService } from '@/lib/services/organization';
+import { ensureDatabaseInitialized } from '@/lib/database-init';
 import { logger } from '@/utils/logger';
 
 /**
@@ -12,6 +13,9 @@ export const GET = withAuth(async (
   segmentData: { params: Promise<{ id: string }> }
 ) => {
   try {
+    // Ensure database is initialized before proceeding
+    await ensureDatabaseInitialized();
+    
     const params = await segmentData.params;
     const { id } = params;
     

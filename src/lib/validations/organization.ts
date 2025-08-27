@@ -4,8 +4,14 @@ import { z } from 'zod';
 export const OrganizationSchema = z.object({
   id: z.string().uuid().optional(),
   name: z.string().min(1, 'Organization name is required').max(255, 'Name must be 255 characters or less'),
-  domain: z.string().min(1).max(255).optional().nullable(),
-  logo_url: z.string().url().optional().nullable(),
+  domain: z.preprocess(
+    (val) => (val === '' ? null : val),
+    z.string().min(1).max(255).optional().nullable()
+  ),
+  logo_url: z.preprocess(
+    (val) => (val === '' ? null : val),
+    z.string().url().optional().nullable()
+  ),
   settings: z.record(z.string(), z.any()).optional().default({}),
   workos_id: z.string().max(255).optional().nullable(),
   slug: z.string().max(255).optional().nullable(),
@@ -59,8 +65,14 @@ export const LocationSchema = z.object({
   state: z.string().max(50).optional().nullable(),
   postal_code: z.string().max(20).optional().nullable(),
   country: z.string().max(50).default('US'),
-  phone: z.string().max(20).optional().nullable(),
-  email: z.string().email().optional().nullable(),
+  phone: z.preprocess(
+    (val) => (val === '' ? null : val),
+    z.string().max(20).optional().nullable()
+  ),
+  email: z.preprocess(
+    (val) => (val === '' ? null : val),
+    z.string().email().optional().nullable()
+  ),
   organization_id: z.string().uuid(),
   is_active: z.boolean().default(true),
   settings: z.record(z.string(), z.any()).optional().default({}),

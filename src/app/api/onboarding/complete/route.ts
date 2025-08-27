@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getOnboardingSessionManager } from '@/lib/onboarding-session';
 import { validateCSRFToken } from '@/lib/onboarding-encryption';
-import { getSignUpUrl } from '@workos-inc/authkit-nextjs';
+import { WorkOS } from '@workos-inc/node';
 import { logger } from '@/utils/logger';
 import { z } from 'zod';
+
+// Initialize WorkOS
+const workos = new WorkOS(process.env.WORKOS_API_KEY!);
 
 // Validation schema for completing onboarding
 const CompleteOnboardingSchema = z.object({
@@ -112,16 +115,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate WorkOS signup URL with session information for callback processing
-    const _state = {
-      prompt: 'create',
+    const state = {
       returnTo: '/dashboard',
-      forceNewAccount: true,
       timestamp: Date.now(),
       onboardingSessionId: sessionId,
       onboardingSessionToken: sessionToken,
     };
 
-    const signUpUrl = await getSignUpUrl();
+    // Get the base URL for redirect URI (dynamic port support)
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const host = request.headers.get('host') || 'localhost:3000';
+    const redirectUri = `${protocol}://${host}/api/auth/callback`;
+
+    const signUpUrl = workos.userManagement.getAuthorizationUrl({
+      provider: 'authkit',
+      clientId: process.env.WORKOS_CLIENT_ID!,
+      redirectUri: redirectUri,
+      screenHint: 'sign-up',
+      state: JSON.stringify(state),
+    });
 
     logger.info('Onboarding completed, redirecting to WorkOS', {
       sessionId,

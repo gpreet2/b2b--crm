@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { withAuth, AuthData } from '@/lib/auth-server';
 import { getDatabase } from '@/config/database';
+import { ensureDatabaseInitialized } from '@/lib/database-init';
 import { logger } from '@/utils/logger';
 import { z } from 'zod';
 
@@ -13,6 +14,8 @@ const SwitchOrganizationSchema = z.object({
  */
 export const POST = withAuth(async (request: NextRequest, authData: AuthData) => {
   try {
+    // Ensure database is initialized before proceeding
+    await ensureDatabaseInitialized();
 
     const body = await request.json();
     const validatedData = SwitchOrganizationSchema.parse(body);
