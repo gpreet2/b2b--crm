@@ -1041,3 +1041,57 @@ export const mockTours: Tour[] = [
     updatedAt: new Date('2025-01-29'),
   },
 ];
+
+// Mock Employees
+export const mockEmployees = [
+  {
+    id: '1',
+    first_name: 'John',
+    last_name: 'Smith',
+    email: 'john.smith@company.com',
+    role: 'admin',
+    is_active: true,
+    created_at: '2024-01-15T10:00:00Z',
+    permissions: ['read:all', 'write:all', 'delete:all']
+  },
+  {
+    id: '2',
+    first_name: 'Sarah',
+    last_name: 'Johnson',
+    email: 'sarah.johnson@company.com',
+    role: 'manager',
+    is_active: true,
+    created_at: '2024-02-20T09:30:00Z',
+    permissions: ['read:all', 'write:employees']
+  },
+  {
+    id: '3',
+    first_name: 'Mike',
+    last_name: 'Davis',
+    email: 'mike.davis@company.com',
+    role: 'staff',
+    is_active: true,
+    created_at: '2024-03-10T14:15:00Z',
+    permissions: ['read:basic']
+  },
+  {
+    id: '4',
+    first_name: 'Emily',
+    last_name: 'Brown',
+    email: 'emily.brown@company.com',
+    role: 'trainer',
+    is_active: false,
+    created_at: '2024-04-05T11:20:00Z',
+    permissions: ['read:classes', 'write:classes']
+  },
+  {
+    id: '5',
+    first_name: 'David',
+    last_name: 'Wilson',
+    email: 'david.wilson@company.com',
+    role: 'staff',
+    is_active: true,
+    created_at: '2024-05-12T16:45:00Z',
+    permissions: ['read:basic']
+  }
+];

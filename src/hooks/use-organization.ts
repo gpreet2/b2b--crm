@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '@workos-inc/authkit-nextjs/components';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function useOrganization() {
   const { user, organizationId, role, permissions } = useAuth();

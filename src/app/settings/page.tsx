@@ -27,7 +27,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useAuth } from '@workos-inc/authkit-nextjs/components';
+import { useAuth } from '@/contexts/AuthContext';
 
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';

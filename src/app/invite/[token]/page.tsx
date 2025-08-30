@@ -89,9 +89,9 @@ export default function InviteAcceptancePage({ params }: InviteAcceptancePagePro
   const handleAcceptInvitation = async () => {
     if (!invitation) return;
 
-    // For demo purposes, we'll simulate the WorkOS authentication step
-    // In a real implementation, this would redirect to WorkOS auth first
-    const mockWorkOSUserId = `user_demo_${Date.now()}`;
+    // For demo purposes, we'll simulate the authentication step
+    // In a real implementation, this would redirect to auth provider first
+    const mockUserId = `user_demo_${Date.now()}`;
 
     setAccepting(true);
     setAcceptanceError(null);
@@ -104,7 +104,7 @@ export default function InviteAcceptancePage({ params }: InviteAcceptancePagePro
         },
         body: JSON.stringify({
           token: token,
-          workos_user_id: mockWorkOSUserId,
+          user_id: mockUserId,
         }),
       });
 

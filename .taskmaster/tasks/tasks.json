@@ -3,149 +3,204 @@
     "tasks": [
       {
         "id": 1,
-        "title": "PHASE 0: Set up Database Schema with RLS from Day One",
-        "description": "Initialize Supabase database with complete schema including multi-tenancy support AND row-level security policies as core principle",
+        "title": "PHASE 0: Initialize Convex Schema with Production Resilience Patterns",
+        "description": "Set up Convex TypeScript schema with complete business entities and production-grade resilience tables for circuit breakers, queue processing, and intelligent reconciliation",
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Create all database tables with RLS policies enforced from the start. Every table MUST have RLS policies before any data insertion.",
+        "details": "Define comprehensive Convex schema with business entities (organizations, users, memberships, events) and resilience infrastructure (apiCallQueue, circuitBreakers, reconciliationLog, auditLog) using TypeScript. No SQL or RLS - Convex handles security at the application level.",
         "dependencies": [],
-        "testStrategy": "Verify RLS policies block unauthorized access, test that no table allows public access, validate foreign keys and constraints",
+        "testStrategy": "Verify schema compiles and validates correctly, test multi-tenancy isolation, validate all table relationships and indexes work as expected",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create Supabase project and configure environment",
-            "description": "Set up Supabase project, configure environment variables, establish connection",
+            "title": "Set up Convex project and configure environments",
+            "description": "Initialize Convex project, configure development/staging/production environments, set up TypeScript",
             "status": "pending"
           },
           {
             "id": 2,
-            "title": "Create core multi-tenancy tables with RLS",
-            "description": "owner_accounts, owner_organizations, organizations with strict RLS policies",
+            "title": "Define core business schema in convex/schema.ts",
+            "description": "ownerAccounts, organizations, users with proper relationships and indexes using defineTable",
             "status": "pending"
           },
           {
             "id": 3,
-            "title": "Create user and permission tables with RLS",
-            "description": "users, roles, permissions, role_permissions, cross_org_staff_assignments",
+            "title": "Add resilience infrastructure tables",
+            "description": "apiCallQueue, circuitBreakers, reconciliationLog for production-grade error handling",
             "status": "pending"
           },
           {
             "id": 4,
-            "title": "Create generic tagging system tables",
-            "description": "tags (id, name, type, org_id), taggables (tag_id, taggable_id, taggable_type) for flexible tagging of employees, tours, classes",
+            "title": "Implement comprehensive audit trail schema",
+            "description": "auditLog table for tracking all state changes with actor, action, target, timestamp",
             "status": "pending"
           },
           {
             "id": 5,
-            "title": "Create event tables with tour metadata support",
-            "description": "events, event_templates, event_bookings with tour_type and lead_source fields",
+            "title": "Add onboarding session management with recovery states",
+            "description": "onboardingSessions table with step tracking, recovery state, and cleanup logic",
             "status": "pending"
           },
           {
             "id": 6,
-            "title": "Create membership and subscription tables",
-            "description": "subscriptions, memberships with multi-location support and RLS",
+            "title": "Create business entity tables",
+            "description": "events, memberships, subscriptions, notifications with multi-tenancy support",
             "status": "pending"
           },
           {
             "id": 7,
-            "title": "Create notification tables for in-app notifications",
-            "description": "notifications table with read_at timestamp, user_id, type, payload",
+            "title": "Create performance indexes and relationships",
+            "description": "Add all necessary indexes for query performance and establish foreign key relationships",
             "status": "pending"
           },
           {
             "id": 8,
-            "title": "Create supporting tables",
-            "description": "workouts, transactions, client_segments, audit_log, waivers, onboarding_sessions",
+            "title": "Add supporting business tables",
+            "description": "workouts, transactions, client_segments, waivers, documents with proper validation",
             "status": "pending"
           },
           {
             "id": 9,
-            "title": "Create indexes and constraints",
-            "description": "Add all foreign keys, unique constraints, and performance indexes",
+            "title": "Implement schema validation and types",
+            "description": "Add comprehensive validation using v from convex/values, generate TypeScript types",
             "status": "pending"
           },
           {
             "id": 10,
-            "title": "Document RLS policies",
-            "description": "Create comprehensive documentation of all RLS policies per table",
+            "title": "Document Convex schema patterns and multi-tenancy approach",
+            "description": "Create documentation of schema design, multi-tenancy patterns, and security model",
+            "status": "pending"
+          },
+          {
+            "id": 11,
+            "title": "Add consent management schema fields",
+            "description": "Add users.consent_preferences JSONB field and related tables to support GDPR compliance",
             "status": "pending"
           }
         ]
       },
       {
         "id": 2,
-        "title": "PHASE 0: Create Database Backup Strategy",
-        "description": "Implement automated database backup and recovery procedures BEFORE any data goes in",
+        "title": "PHASE 0: Implement Enterprise Secret Management System",
+        "description": "Set up secure system for managing all application secrets using dedicated KMS service",
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Set up automated Supabase backups, create point-in-time recovery procedures, implement data export functionality, document and TEST recovery procedures.",
+        "details": "Integrate with secrets manager like Doppler, AWS Secrets Manager, or HashiCorp Vault. Implement automated secret rotation policies. No secrets stored in environment variables in production. All API keys, database credentials, and sensitive configuration must be retrieved from secure storage.",
         "dependencies": [
           "1"
         ],
-        "testStrategy": "Actually perform a backup and restore to verify it works, test data integrity after restore",
+        "testStrategy": "Test secret retrieval from KMS, verify secret rotation works, test fallback mechanisms, ensure no secrets in logs or error messages",
         "subtasks": [
           {
             "id": 1,
-            "title": "Configure Supabase automatic backups",
-            "description": "Enable daily automated backups in Supabase dashboard",
+            "title": "Choose and configure secrets management service",
+            "description": "Set up Doppler, AWS Secrets Manager, or HashiCorp Vault for production secret storage",
             "status": "pending"
           },
           {
             "id": 2,
-            "title": "Create manual backup scripts",
-            "description": "Scripts for on-demand full database exports using pg_dump",
+            "title": "Implement secret retrieval client",
+            "description": "Create secure client for retrieving secrets from KMS with proper error handling and caching",
             "status": "pending"
           },
           {
             "id": 3,
-            "title": "Implement point-in-time recovery procedures",
-            "description": "Document and test PITR recovery process",
+            "title": "Migrate all secrets from environment variables",
+            "description": "Move WorkOS keys, Convex secrets, database credentials to secure storage",
             "status": "pending"
           },
           {
             "id": 4,
-            "title": "Create data export API endpoints",
-            "description": "Endpoints for GDPR compliance - export user data on request",
+            "title": "Implement automated secret rotation",
+            "description": "Set up automatic rotation policies for API keys and database credentials",
             "status": "pending"
           },
           {
             "id": 5,
-            "title": "Test complete restore process",
-            "description": "Actually restore from backup and verify data integrity",
-            "status": "pending"
-          },
-          {
-            "id": 6,
-            "title": "INTEGRATION: Connect 'Export My Data' Button",
-            "description": "Connect the user profile 'Export My Data' button in the frontend to the GET /api/v1/me/export endpoint.",
+            "title": "Add secret audit logging",
+            "description": "Log all secret access attempts with proper user attribution for compliance",
             "status": "pending"
           }
         ]
       },
       {
         "id": 3,
-        "title": "PHASE 0: Implement Error Handling Framework",
-        "description": "Create consistent error handling and logging - you can't debug what you can't see",
+        "title": "PHASE 0: Create Database Backup Strategy",
+        "description": "Implement comprehensive backup and disaster recovery strategy with specific RTO/RPO targets",
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Create custom error classes, implement error middleware, add error logging with Sentry, ensure consistent error response format, add request ID tracking.",
-        "dependencies": [],
-        "testStrategy": "Test error responses for various scenarios, verify error logging captures all details, validate error format consistency",
+        "details": "The strategy must define and test for specific Recovery Time Objectives (RTO) and Recovery Point Objectives (RPO). Backups must be stored encrypted and tested quarterly. Implement cross-region backup replication.",
+        "dependencies": [
+          "1",
+          "2"
+        ],
+        "testStrategy": "Test backup restoration procedures, verify RTO/RPO targets are met, test cross-region failover scenarios",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create custom error classes",
-            "description": "AppError, ValidationError, AuthError, PermissionError, NotFoundError",
+            "title": "Define RTO and RPO requirements",
+            "description": "Establish Recovery Time Objective (4 hours) and Recovery Point Objective (15 minutes) targets",
             "status": "pending"
           },
           {
             "id": 2,
-            "title": "Implement error middleware",
-            "description": "Global error handler that catches all errors and formats responses",
+            "title": "Implement automated Convex backup strategy",
+            "description": "Set up automated daily backups of Convex database with proper retention policies",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Configure cross-region backup replication",
+            "description": "Replicate backups to secondary region for disaster recovery protection",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Implement backup encryption",
+            "description": "Ensure all backups are encrypted both in transit and at rest",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Create backup restoration procedures",
+            "description": "Document and test procedures for restoring from backup in various failure scenarios",
+            "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "Schedule quarterly backup testing",
+            "description": "Implement regular testing schedule to verify backup integrity and restoration procedures",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "PHASE 0: Implement Error Handling Framework",
+        "description": "Create consistent error handling for Convex functions with circuit breaker integration and resilience patterns",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Create custom error patterns for Convex functions, implement circuit breaker error handling, add Sentry integration, ensure consistent error responses across mutations/queries.",
+        "dependencies": [
+          "1",
+          "2"
+        ],
+        "testStrategy": "Test error responses for various Convex function scenarios, verify circuit breaker triggers, validate error format consistency across functions",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Convex error patterns",
+            "description": "Standard error throwing patterns for mutations/queries, custom error types for different scenarios",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement circuit breaker error integration",
+            "description": "Connect error handling to circuit breaker system for external API failures",
             "status": "pending"
           },
           {
@@ -156,352 +211,466 @@
           },
           {
             "id": 4,
-            "title": "Implement request ID tracking",
-            "description": "Add unique request IDs to all requests for tracing",
+            "title": "Implement function call tracking",
+            "description": "Add unique identifiers to Convex function calls for tracing and debugging",
             "status": "pending"
           },
           {
             "id": 5,
-            "title": "Create error response standards",
-            "description": "Consistent JSON error format with code, message, details",
-            "status": "pending"
-          }
-        ]
-      },
-      {
-        "id": 4,
-        "title": "PHASE 0: Implement Data Validation Framework",
-        "description": "Create comprehensive input validation - prevent injection and bad data at entry point",
-        "priority": "critical",
-        "status": "pending",
-        "phase": "0-secure-bedrock",
-        "details": "Implement validation middleware using Zod, create reusable validation schemas, add request sanitization, implement type checking.",
-        "dependencies": [
-          "3"
-        ],
-        "testStrategy": "Test SQL injection attempts, test XSS attempts, verify all invalid inputs are rejected with proper errors",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Set up Zod validation library",
-            "description": "Install and configure Zod for TypeScript runtime validation",
-            "status": "pending"
-          },
-          {
-            "id": 2,
-            "title": "Create validation middleware",
-            "description": "Middleware that validates request body, params, and query",
-            "status": "pending"
-          },
-          {
-            "id": 3,
-            "title": "Build reusable validation schemas",
-            "description": "Common schemas for email, phone, UUID, organization context",
-            "status": "pending"
-          },
-          {
-            "id": 4,
-            "title": "Implement sanitization helpers",
-            "description": "HTML stripping, SQL escape, trim whitespace",
-            "status": "pending"
-          },
-          {
-            "id": 5,
-            "title": "Create type generation from schemas",
-            "description": "Auto-generate TypeScript types from Zod schemas",
+            "title": "Create consistent error response patterns",
+            "description": "Standardized error throwing across all Convex functions with code, message, details",
             "status": "pending"
           }
         ]
       },
       {
         "id": 5,
-        "title": "PHASE 0: Implement WorkOS Authentication Integration",
-        "description": "Set up WorkOS for enterprise SSO - the gateway to the entire system",
+        "title": "PHASE 0: Implement Data Validation Framework",
+        "description": "Create comprehensive input validation using Convex validators - prevent bad data at function entry",
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Configure WorkOS SDK, implement authentication endpoints with proper error handling, set up JWT token management with organization context.",
+        "details": "Implement validation patterns using Convex 'v' validators, create reusable validation schemas, add input sanitization helpers, implement type-safe validation across mutations/queries.",
         "dependencies": [
-          "1",
-          "3",
           "4"
         ],
-        "testStrategy": "Test login/logout flows, test invalid credentials, verify JWT contains org context, test token expiration and refresh",
+        "testStrategy": "Test XSS attempts on user inputs, verify all invalid inputs are rejected by Convex validators, test type safety enforcement across functions",
         "subtasks": [
           {
             "id": 1,
-            "title": "Configure WorkOS SDK",
-            "description": "Install SDK, set up API keys, configure webhooks",
+            "title": "Set up Convex validation patterns",
+            "description": "Create helper functions using Convex 'v' validators for common input validation patterns",
             "status": "pending"
           },
           {
             "id": 2,
-            "title": "Create authentication endpoints",
-            "description": "POST /auth/login, POST /auth/logout, POST /auth/refresh",
+            "title": "Create Convex function validators",
+            "description": "Validation patterns for mutation/query arguments using Convex validator system",
             "status": "pending"
           },
           {
             "id": 3,
-            "title": "Implement JWT token management",
-            "description": "Token generation with org context, secure storage, rotation",
+            "title": "Build reusable Convex validators",
+            "description": "Common validators for email, phone, UUID, organization context using v.object patterns",
             "status": "pending"
           },
           {
             "id": 4,
-            "title": "Create organization switcher endpoint",
-            "description": "POST /auth/switch-organization - validates permission and returns new JWT",
+            "title": "Implement sanitization helpers",
+            "description": "HTML stripping, XSS prevention, input normalization for Convex functions",
             "status": "pending"
           },
           {
             "id": 5,
-            "title": "Integrate with Supabase sessions",
-            "description": "Store sessions in Supabase for persistence",
+            "title": "Create type inference from Convex validators",
+            "description": "Leverage Convex validator type inference for function argument typing",
             "status": "pending"
-          },
-          {
-            "id": 6,
-            "title": "Implement refresh token flow",
-            "description": "Secure refresh token rotation with blacklisting",
-            "status": "pending"
-          },
-          {
-            "id": 7,
-            "title": "Update frontend UI to show real user info",
-            "description": "Replace hardcoded 'admin@fitnesspro.com' with actual authenticated user data in top right corner",
-            "details": "",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 5
-          },
-          {
-            "id": 8,
-            "title": "Implement working logout functionality",
-            "description": "Ensure logout button actually logs user out and redirects to authentication screen",
-            "details": "",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 5
-          },
-          {
-            "id": 9,
-            "title": "Connect frontend auth state to backend",
-            "description": "Ensure frontend reads actual authentication state from WorkOS and updates UI accordingly",
-            "details": "",
-            "status": "done",
-            "dependencies": [],
-            "parentTaskId": 5
           }
         ]
       },
       {
         "id": 6,
-        "title": "PHASE 0: Implement Permission System",
-        "description": "Create role-based permission system - no endpoint should exist without permission checks",
+        "title": "PHASE 0: Implement WorkOS AuthKit with Convex Integration",
+        "description": "Set up WorkOS AuthKit for enterprise authentication integrated with Convex using official AuthKit connector",
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Implement permission middleware that runs on EVERY request, create default roles, implement permission checking at API level.",
+        "details": "Configure WorkOS AuthKit with @convex-dev/workos connector, set up AuthKitProvider, implement client/server authentication flows, manage organization context through WorkOS.",
         "dependencies": [
           "1",
+          "2",
+          "4",
           "5"
+        ],
+        "testStrategy": "Test WorkOS AuthKit login/logout flows, test organization switching, verify token validation between WorkOS and Convex, test session persistence",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up WorkOS AuthKit and Convex connector",
+            "description": "Install @workos-inc/authkit-react and @convex-dev/workos, configure WorkOS dashboard with redirect URIs",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Configure auth.config.ts with WorkOS provider",
+            "description": "Set up Convex auth configuration to use WorkOS AuthKit as authentication provider",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Implement AuthKit client-side providers",
+            "description": "Wrap app with AuthKitProvider and ConvexProviderWithAuthKit for authentication flow",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Set up authentication routes and callbacks",
+            "description": "Create authentication routes, handle WorkOS callbacks, implement sign-in/sign-out flows",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Implement server-side authentication",
+            "description": "Access user information in Convex functions, validate tokens, manage user sessions",
+            "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "Configure organization and user management",
+            "description": "Set up organization context switching, user profile management through WorkOS AuthKit",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "PHASE 0: Implement Convex Permission System",
+        "description": "Create role-based permission system - no Convex function should exist without permission checks",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Implement permission helpers that run in EVERY Convex function, create default roles, implement permission checking at function level with organization context.",
+        "dependencies": [
+          "1",
+          "6"
         ],
         "testStrategy": "Test unauthorized access is blocked, test each role's permissions, verify cross-org isolation",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create permission middleware",
-            "description": "Middleware that checks permissions on every request",
+            "title": "Create permission helpers for Convex functions",
+            "description": "Helper functions that check permissions within mutations/queries based on session context",
             "status": "pending"
           },
           {
             "id": 2,
             "title": "Define permission structure",
             "description": "Resource-based permissions (events.create, clients.view, etc.)",
-            "status": "done"
+            "status": "pending"
           },
           {
             "id": 3,
             "title": "Create default roles",
             "description": "Owner, Admin, Trainer, Front Desk with predefined permissions",
-            "status": "done"
+            "status": "pending"
           },
           {
             "id": 4,
             "title": "Implement organization context checks",
-            "description": "Ensure users can only access their organization's data",
-            "status": "done"
+            "description": "Ensure Convex functions filter data by organization context from session",
+            "status": "pending"
           },
           {
             "id": 5,
-            "title": "Build permission management endpoints",
-            "description": "APIs to manage roles and permissions",
-            "status": "done"
+            "title": "Build permission management mutations",
+            "description": "Convex mutations to manage roles and permissions with proper validation",
+            "status": "pending"
           },
           {
             "id": 6,
-            "title": "INTEGRATION: Connect Role Management UI",
-            "description": "Connect the 'Roles & Permissions' settings page in the CRM Admin frontend to the permission management API endpoints.",
-            "status": "done"
-          }
-        ]
-      },
-      {
-        "id": 7,
-        "title": "PHASE 0: Implement Security and Compliance Framework",
-        "description": "Layer security headers, rate limiting, CORS, audit logging on top of secure auth/permission base",
-        "priority": "critical",
-        "status": "pending",
-        "phase": "0-secure-bedrock",
-        "details": "Implement helmet.js for security headers, set up rate limiting with Redis, configure CORS, implement audit logging.",
-        "dependencies": [
-          "1",
-          "5",
-          "6"
-        ],
-        "testStrategy": "Run OWASP security scan, test rate limiting blocks abuse, verify audit logs capture all admin actions",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Configure helmet.js security headers",
-            "description": "CSP, HSTS, X-Frame-Options, etc.",
-            "status": "pending"
-          },
-          {
-            "id": 2,
-            "title": "Implement rate limiting with Redis",
-            "description": "Per-user and per-IP rate limiting",
-            "status": "pending"
-          },
-          {
-            "id": 3,
-            "title": "Set up CORS configuration",
-            "description": "Whitelist specific frontend domains only",
-            "status": "pending"
-          },
-          {
-            "id": 4,
-            "title": "Create audit logging system",
-            "description": "Log all state changes with actor, action, target",
-            "status": "pending"
-          },
-          {
-            "id": 5,
-            "title": "Implement GDPR/CCPA endpoints",
-            "description": "Data export and deletion endpoints",
+            "title": "Define and document comprehensive Permission Matrix",
+            "description": "Create detailed permission matrix documentation for all default roles (Owner, Admin, Trainer, Front Desk) with specific permission examples for each resource type",
             "status": "pending"
           }
         ]
       },
       {
         "id": 8,
-        "title": "PHASE 0: Create CI/CD Pipeline",
-        "description": "Set up automated testing and deployment - nothing gets deployed without passing tests",
+        "title": "PHASE 0: Implement Convex Security and Compliance Framework",
+        "description": "Layer security patterns, rate limiting, audit logging on top of secure Convex auth/permission base",
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Configure GitHub Actions for CI/CD, set up linting, testing, and deployment workflows.",
-        "dependencies": [],
-        "testStrategy": "Verify pipeline blocks PRs with failing tests, ensure security scans run",
+        "details": "Implement security patterns for Convex functions, set up rate limiting for mutations, implement comprehensive audit logging in Convex tables.",
+        "dependencies": [
+          "1",
+          "6",
+          "7"
+        ],
+        "testStrategy": "Test rate limiting blocks function abuse, verify audit logs capture all admin mutations, test input sanitization across functions",
         "subtasks": [
           {
             "id": 1,
-            "title": "Set up GitHub Actions workflow",
-            "description": "Create .github/workflows for CI/CD",
+            "title": "Configure Convex security patterns",
+            "description": "Input validation, XSS prevention, function-level security checks",
             "status": "pending"
           },
           {
             "id": 2,
-            "title": "Configure ESLint and Prettier",
-            "description": "Linting and formatting rules",
+            "title": "Implement rate limiting for Convex functions",
+            "description": "Per-user function call limiting using Convex rate limiting patterns",
             "status": "pending"
           },
           {
             "id": 3,
-            "title": "Set up TypeScript strict mode",
-            "description": "Enable all strict checks",
+            "title": "Configure Convex CORS settings",
+            "description": "Configure Convex dashboard CORS settings for production domains",
             "status": "pending"
           },
           {
             "id": 4,
-            "title": "Create test automation",
-            "description": "Run tests on every PR",
+            "title": "Create Convex audit logging system",
+            "description": "Log all mutation calls to auditLog table with actor, action, target, timestamp",
             "status": "pending"
           },
           {
             "id": 5,
-            "title": "Implement deployment workflows",
-            "description": "Staging auto-deploy, production manual approval",
+            "title": "Implement GDPR/CCPA mutations",
+            "description": "Data export and deletion mutations with proper authorization checks",
             "status": "pending"
           }
         ]
       },
       {
         "id": 9,
-        "title": "PHASE 0: Implement Testing Framework",
-        "description": "Set up comprehensive testing infrastructure - now that we have something secure to test",
+        "title": "PHASE 0: Implement Convex Circuit Breaker System",
+        "description": "Build production-grade circuit breaker system for external API calls with state management and recovery patterns",
         "priority": "critical",
         "status": "pending",
         "phase": "0-secure-bedrock",
-        "details": "Configure Jest for unit tests, set up Supertest for integration tests, create test utilities.",
+        "details": "Implement circuit breaker pattern using Convex tables to track failure states, implement automatic recovery, integrate with all external API calls (WorkOS, Kisi, Stripe).",
         "dependencies": [
           "1",
-          "5",
-          "6"
+          "4"
         ],
-        "testStrategy": "Ensure tests cover all security scenarios, verify mocks don't bypass real security",
+        "testStrategy": "Test circuit breaker triggers on API failures, verify automatic recovery, test fallback mechanisms, ensure state persistence across Convex deployments",
         "subtasks": [
           {
             "id": 1,
-            "title": "Configure Jest and test environment",
-            "description": "Set up Jest with TypeScript support",
+            "title": "Create circuit breaker Convex schema",
+            "description": "Define circuitBreakers table with state tracking, failure counters, timestamps",
             "status": "pending"
           },
           {
             "id": 2,
-            "title": "Set up Supertest for API testing",
-            "description": "Integration test setup",
+            "title": "Implement circuit breaker logic in Convex functions",
+            "description": "Core circuit breaker patterns with OPEN/HALF_OPEN/CLOSED states and failure thresholds",
             "status": "pending"
           },
           {
             "id": 3,
-            "title": "Create test database strategy",
-            "description": "Isolated test database with migrations",
+            "title": "Integrate with WorkOS API calls",
+            "description": "Wrap all WorkOS authentication calls with circuit breaker protection",
             "status": "pending"
           },
           {
             "id": 4,
-            "title": "Build auth test utilities",
-            "description": "Helpers for mocking authenticated requests",
+            "title": "Integrate with Kisi API calls",
+            "description": "Wrap all Kisi door access calls with circuit breaker protection and fallback modes",
             "status": "pending"
           },
           {
             "id": 5,
-            "title": "Set up coverage reporting",
-            "description": "80% minimum coverage enforcement",
+            "title": "Add monitoring and alerting",
+            "description": "Track circuit breaker state changes, alert on sustained failures",
             "status": "pending"
           }
         ]
       },
       {
         "id": 10,
+        "title": "PHASE 0: Implement Convex Durable Task & Dead-Letter Queue System",
+        "description": "Build dead-letter queue for operations that fail Convex's built-in retry mechanism, leveraging ctx.scheduler for standard async work",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Use ctx.scheduler.runAfter(0, ...) for most async operations and let Convex handle automatic retries. The apiCallQueue table serves as a dead-letter queue for operations that fail Convex's final automatic retry. Only use custom queue for long-term, auditable, or complex retry scenarios.",
+        "dependencies": [
+          "1",
+          "9"
+        ],
+        "testStrategy": "Test job queuing, retry mechanisms, dead letter queue functionality, verify no data loss during failures",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design apiCallQueue dead-letter schema",
+            "description": "Dead-letter queue table for jobs that failed Convex's automatic retry: job type, payload, failure_reason, original_attempt_count, dead_letter_timestamp",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement ctx.scheduler patterns for standard operations",
+            "description": "Create helper functions using ctx.scheduler.runAfter(0, ...) for email sends, notifications, and routine async work",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Build dead-letter queue processor",
+            "description": "Manual review interface and retry logic for operations that failed Convex's automatic attempts",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Connect circuit breakers to write dead-letter entries",
+            "description": "When actions fail final Convex retry, write to dead-letter queue with circuit breaker context",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Build dead-letter monitoring dashboard",
+            "description": "Monitor failed operations requiring manual intervention, track resolution rates",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "PHASE 0: Implement GDPR/CCPA Core Privacy Compliance",
+        "description": "Build foundational privacy compliance infrastructure for GDPR and CCPA requirements",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Implement consent management, right to be forgotten, data portability, and privacy-by-design patterns. This is critical legal infrastructure that must be in place before user data collection begins.",
+        "dependencies": [
+          "1",
+          "6",
+          "7"
+        ],
+        "testStrategy": "Test consent tracking, verify data anonymization (not deletion), test data export functionality, verify cross-border data handling compliance",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Build consent management logic",
+            "description": "Implement granular consent tracking for marketing, analytics, data processing with audit trail",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement Right to be Forgotten",
+            "description": "Create data anonymization mutations (not hard delete) that preserve business integrity while removing PII",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Build data portability system",
+            "description": "Create secure data export functionality allowing users to download all their personal data in machine-readable format",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Implement privacy policy enforcement",
+            "description": "Add automated enforcement of data retention policies and cross-border transfer restrictions",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Create privacy compliance reporting",
+            "description": "Build automated reports for privacy compliance officers showing consent rates, deletion requests, data flows",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "PHASE 0: Create Production-Grade CI/CD Pipeline & Testing Framework",
+        "description": "Set up automated testing, linting, type-checking, and Convex deployment with comprehensive testing infrastructure",
+        "priority": "critical",
+        "status": "pending",
+        "phase": "0-secure-bedrock",
+        "details": "Configure GitHub Actions for CI/CD with Convex deployment, set up comprehensive linting, TypeScript checking, testing, security scanning, and automated Convex schema migrations. Configure Jest for Convex function testing.",
+        "dependencies": [
+          "1",
+          "6",
+          "7"
+        ],
+        "testStrategy": "Verify pipeline blocks PRs with failing tests/lint/typecheck, ensure Convex schema validation runs, test deployment rollback capabilities, ensure tests cover all security scenarios",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up GitHub Actions workflow for Convex",
+            "description": "Create .github/workflows for CI/CD with Convex deployment integration",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Configure ESLint and Prettier for Convex",
+            "description": "Linting and formatting rules optimized for Convex TypeScript patterns",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Set up TypeScript strict mode for Convex",
+            "description": "Enable all strict checks with Convex type safety optimizations",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Configure Jest for Convex functions",
+            "description": "Set up Jest with TypeScript support and Convex test client",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Set up Convex function testing",
+            "description": "Integration test setup for mutations and queries using Convex test framework",
+            "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "Create test Convex environment",
+            "description": "Isolated test Convex deployment with clean data for each test run",
+            "status": "pending"
+          },
+          {
+            "id": 7,
+            "title": "Build Convex auth test utilities",
+            "description": "Helpers for mocking authenticated Convex sessions and organization context",
+            "status": "pending"
+          },
+          {
+            "id": 8,
+            "title": "Set up Convex function coverage reporting",
+            "description": "80% minimum coverage enforcement for mutations and queries",
+            "status": "pending"
+          },
+          {
+            "id": 9,
+            "title": "Create comprehensive test automation",
+            "description": "Run unit tests, integration tests, Convex schema validation, and type checking on every PR",
+            "status": "pending"
+          },
+          {
+            "id": 10,
+            "title": "Integrate dependency scanning",
+            "description": "Add Snyk, Dependabot, or similar dependency vulnerability scanning to CI/CD pipeline",
+            "status": "pending"
+          },
+          {
+            "id": 11,
+            "title": "Integrate Static Application Security Testing (SAST)",
+            "description": "Add CodeQL, SonarQube, or similar SAST tools to CI/CD pipeline for code security scanning",
+            "status": "pending"
+          },
+          {
+            "id": 12,
+            "title": "Implement Convex deployment workflows",
+            "description": "Staging auto-deploy with schema migrations, production manual approval with rollback capability",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 13,
         "title": "PHASE 1: Create Multi-Step Onboarding System",
-        "description": "First complex feature - implement stateful onboarding with all security measures",
+        "description": "First complex feature - implement stateful onboarding with Convex session management and security",
         "priority": "high",
         "status": "pending",
         "phase": "1-vertical-slice",
-        "details": "Create onboarding session management with encryption, implement state persistence with proper validation.",
+        "details": "Create onboarding session management in Convex tables, implement state persistence with proper validation using Convex reactivity.",
         "dependencies": [
           "1",
           "2",
-          "3",
           "4",
           "5",
           "6",
           "7",
           "8",
-          "9"
+          "9",
+          "10",
+          "11",
+          "12"
         ],
-        "testStrategy": "Test complete flow with security checks at each step, verify session hijacking is prevented",
+        "testStrategy": "Test complete flow with Convex security checks at each step, verify session validation works across functions",
         "subtasks": [
           {
             "id": 1,
@@ -523,8 +692,8 @@
           },
           {
             "id": 4,
-            "title": "Create cleanup jobs",
-            "description": "Remove orphaned sessions after 24 hours",
+            "title": "Create cleanup cronJob for sessions",
+            "description": "Define cronJob in convex/crons.ts to remove orphaned onboarding sessions after 24 hours",
             "status": "pending"
           },
           {
@@ -542,15 +711,15 @@
         ]
       },
       {
-        "id": 11,
+        "id": 14,
         "title": "PHASE 1: Create Organization Management Module",
         "description": "Implement organization creation for onboarding - with full security and audit trail",
         "priority": "high",
-        "status": "done",
+        "status": "pending",
         "phase": "1-vertical-slice",
         "details": "Create organization creation endpoint with full validation, implement parent-child relationships.",
         "dependencies": [
-          "10"
+          "13"
         ],
         "testStrategy": "Test organization creation with invalid data, verify data isolation between orgs",
         "subtasks": [
@@ -558,31 +727,31 @@
             "id": 1,
             "title": "Create organization CRUD endpoints",
             "description": "POST, GET, PUT, DELETE /organizations",
-            "status": "done"
+            "status": "pending"
           },
           {
             "id": 2,
             "title": "Implement franchise hierarchy",
             "description": "Parent-child org relationships",
-            "status": "done"
+            "status": "pending"
           },
           {
             "id": 3,
             "title": "Build settings management",
             "description": "Organization-specific configurations",
-            "status": "done"
+            "status": "pending"
           },
           {
             "id": 4,
             "title": "Add audit trail",
             "description": "Log all organization changes",
-            "status": "done"
+            "status": "pending"
           },
           {
             "id": 5,
             "title": "Create org switching logic",
             "description": "Secure context switching between orgs",
-            "status": "done"
+            "status": "pending"
           },
           {
             "id": 6,
@@ -593,7 +762,118 @@
         ]
       },
       {
-        "id": 12,
+        "id": 15,
+        "title": "PHASE 1: [TEAMMATE] Implement Stripe Integration",
+        "description": "Your teammate's task: Implement complete Stripe payment processing integration",
+        "priority": "high",
+        "status": "pending",
+        "phase": "1-vertical-slice",
+        "details": "Complete Stripe integration including payment processing, webhook handling, subscription management, and financial transaction recording. This task is assigned to your teammate.",
+        "dependencies": [
+          "14"
+        ],
+        "testStrategy": "Test payment flows, webhook handling, subscription lifecycle management",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Stripe API integration",
+            "description": "Configure Stripe SDK and API keys securely",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement payment processing endpoints",
+            "description": "Handle one-time payments, subscriptions, refunds",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Build webhook handling system",
+            "description": "Process Stripe webhooks for payment status updates",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Create financial transaction logging",
+            "description": "Record all financial transactions for reconciliation",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Implement subscription management",
+            "description": "Handle subscription lifecycle, upgrades, downgrades",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "title": "PHASE 1: [TEAMMATE] Implement Kisi Access Control Integration",
+        "description": "Your teammate's task: Create comprehensive Kisi API integration for physical door access management",
+        "priority": "high",
+        "status": "pending",
+        "phase": "1-vertical-slice",
+        "details": "Implement complete Kisi integration including API wrapper service, membership-to-group sync, door unlock endpoints, multi-location access management, nightly reconciliation jobs, and mobile app APIs. This task is assigned to your teammate.",
+        "dependencies": [
+          "1",
+          "6",
+          "7",
+          "14"
+        ],
+        "testStrategy": "Test door access scenarios, membership sync, reconciliation accuracy",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Kisi database schema and configuration",
+            "description": "Add kisi_access_log table, organizations.kisi_api_key_encrypted field, kisi_group_mappings table",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Build Kisi API wrapper service",
+            "description": "Create KisiService class with all necessary methods",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Implement membership-to-Kisi sync service",
+            "description": "Sync membership status changes to Kisi groups automatically",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Create door unlock API endpoints",
+            "description": "Build mobile app door unlock endpoints with proper security",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Build multi-location access management",
+            "description": "Handle cross-location access and multi-org memberships",
+            "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "Implement nightly reconciliation using Convex cronJobs",
+            "description": "Define nightly Kisi sync job in convex/crons.ts to sync CRM data with Kisi groups",
+            "status": "pending"
+          },
+          {
+            "id": 7,
+            "title": "Create comprehensive error handling and retry logic",
+            "description": "Handle Kisi API failures gracefully with retry logic",
+            "status": "pending"
+          },
+          {
+            "id": 8,
+            "title": "INTEGRATION: Connect Mobile App Door Unlock UI",
+            "description": "Connect the Mobile App's 'Door Access' tab to the door unlock endpoints.",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 17,
         "title": "PHASE 1: Implement User/Client Management (Read Only)",
         "description": "Create secure endpoint to list clients - proves API contract for frontend",
         "priority": "high",
@@ -601,7 +881,7 @@
         "phase": "1-vertical-slice",
         "details": "Implement GET endpoint for clients with full permission checks, ensure organization isolation.",
         "dependencies": [
-          "11"
+          "14"
         ],
         "testStrategy": "Test unauthorized access is blocked, verify org isolation",
         "subtasks": [
@@ -638,60 +918,152 @@
           {
             "id": 6,
             "title": "INTEGRATION: Populate Client & Employee List UIs from API",
-            "description": "Connect the 'Clients' and 'Employees' data tables in the CRM Admin frontend to their respective GET endpoints. Verify tables populate with real data, including pagination, search, and filtering.",
+            "description": "Connect the 'Clients' and 'Employees' data tables in the CRM Admin frontend to their respective GET endpoints.",
             "status": "pending"
           }
         ]
       },
       {
-        "id": 13,
-        "title": "PHASE 1: Create API Documentation",
-        "description": "Document the secure endpoints so frontend can start integration",
+        "id": 18,
+        "title": "PHASE 1: Implement Production Observability Suite",
+        "description": "Build comprehensive monitoring, logging, and alerting system for production operations",
         "priority": "high",
-        "status": "done",
+        "status": "pending",
         "phase": "1-vertical-slice",
-        "details": "Set up OpenAPI/Swagger specification, document authentication flow thoroughly.",
+        "details": "Implement structured logging, performance monitoring, error tracking, and business metrics tracking with proper alerting thresholds.",
         "dependencies": [
+          "9",
           "10",
-          "11",
-          "12"
+          "17"
         ],
-        "testStrategy": "Validate OpenAPI spec, ensure security requirements are clear",
+        "testStrategy": "Test alert thresholds trigger properly, verify metrics accuracy, test log aggregation and search capabilities",
         "subtasks": [
           {
             "id": 1,
-            "title": "Set up Swagger/OpenAPI",
-            "description": "Configure swagger-ui-express",
-            "status": "done"
+            "title": "Implement structured logging across all functions",
+            "description": "Consistent log formatting with correlation IDs, proper severity levels, and contextual information",
+            "status": "pending"
           },
           {
             "id": 2,
-            "title": "Document auth flow",
-            "description": "Complete auth documentation",
-            "status": "done"
+            "title": "Add performance monitoring and profiling",
+            "description": "Function execution time tracking, database query performance, resource usage monitoring",
+            "status": "pending"
           },
           {
             "id": 3,
-            "title": "Add security schemas",
-            "description": "Document security requirements",
-            "status": "done"
+            "title": "Implement business metrics tracking",
+            "description": "User engagement, system utilization, feature usage analytics with privacy compliance",
+            "status": "pending"
           },
           {
             "id": 4,
-            "title": "Create example requests",
-            "description": "Provide working examples",
-            "status": "done"
+            "title": "Set up alerting and notification system",
+            "description": "Configurable alerts for system health, performance degradation, and business anomalies",
+            "status": "pending"
           },
           {
             "id": 5,
-            "title": "Build integration guide",
-            "description": "Frontend integration guide",
-            "status": "done"
+            "title": "Build operational dashboard",
+            "description": "Real-time system health overview with drill-down capabilities for troubleshooting",
+            "status": "pending"
           }
         ]
       },
       {
-        "id": 14,
+        "id": 19,
+        "title": "PHASE 1: Implement Production Security Hardening",
+        "description": "Additional security measures for production deployment including advanced threat detection",
+        "priority": "high",
+        "status": "pending",
+        "phase": "1-vertical-slice",
+        "details": "Implement advanced security patterns including anomaly detection, suspicious activity monitoring, and automated threat response.",
+        "dependencies": [
+          "8",
+          "18"
+        ],
+        "testStrategy": "Test security monitoring detects threats, verify automated responses work correctly, test incident response workflows",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement user behavior anomaly detection",
+            "description": "Track unusual login patterns, access patterns, and flag suspicious activities",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Add automated threat response",
+            "description": "Automatic account lockdown, rate limiting escalation, and incident escalation workflows",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Implement security incident logging",
+            "description": "Comprehensive security event logging with tamper-proof storage and retention policies",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Add compliance reporting automation",
+            "description": "Automated GDPR, CCPA compliance reports with audit trail generation",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Build security operations dashboard",
+            "description": "Real-time security monitoring with threat intelligence integration",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 20,
+        "title": "PHASE 1: Define API Contracts and Incident Response Procedures",
+        "description": "Formalize operational and development procedures for enterprise readiness",
+        "priority": "high",
+        "status": "pending",
+        "phase": "1-vertical-slice",
+        "details": "Create OpenAPI specifications for all Phase 1 endpoints and establish incident response procedures. This ensures consistent API design and proper operational procedures.",
+        "dependencies": [
+          "12",
+          "18"
+        ],
+        "testStrategy": "Verify API contract compliance across all endpoints, test incident response procedures with simulated incidents",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create OpenAPI v3 specifications",
+            "description": "Document all Phase 1 API endpoints with complete request/response schemas before implementation",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Write incident response runbook",
+            "description": "Define P1 security and availability incident procedures, escalation paths, and communication protocols",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Implement API contract testing",
+            "description": "Add automated tests to verify API responses match OpenAPI specifications",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Create SLA definitions",
+            "description": "Define uptime targets (99.9%), response time SLAs, and error budgets for production",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Establish change management procedures",
+            "description": "Create procedures for API versioning, deprecation, and breaking change communications",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 21,
         "title": "PHASE 2: Complete User/Client Management CRUD",
         "description": "Implement full client management with all security measures",
         "priority": "medium",
@@ -699,7 +1071,7 @@
         "phase": "2-core-features",
         "details": "Implement CREATE, UPDATE, DELETE with validation and audit logging.",
         "dependencies": [
-          "12"
+          "17"
         ],
         "testStrategy": "Test all CRUD operations with invalid data, verify audit trail",
         "subtasks": [
@@ -742,7 +1114,7 @@
         ]
       },
       {
-        "id": 15,
+        "id": 22,
         "title": "PHASE 2: Implement Membership Management",
         "description": "Create membership system with subscription management and access control",
         "priority": "medium",
@@ -750,8 +1122,8 @@
         "phase": "2-core-features",
         "details": "Create membership CRUD with full validation, implement access type management.",
         "dependencies": [
-          "14",
-          "27"
+          "21",
+          "16"
         ],
         "testStrategy": "Test membership state transitions, verify access calculations",
         "subtasks": [
@@ -794,7 +1166,7 @@
         ]
       },
       {
-        "id": 16,
+        "id": 23,
         "title": "PHASE 2: Create Event Booking System",
         "description": "Implement unified event system with booking management and capacity controls",
         "priority": "medium",
@@ -802,7 +1174,7 @@
         "phase": "2-core-features",
         "details": "Create event CRUD with validation, implement booking logic with tour metadata support.",
         "dependencies": [
-          "14"
+          "21"
         ],
         "testStrategy": "Test race conditions in booking, verify capacity limits enforced",
         "subtasks": [
@@ -845,7 +1217,119 @@
         ]
       },
       {
-        "id": 17,
+        "id": 24,
+        "title": "PHASE 2: Build System & Integration Settings Module",
+        "description": "Create comprehensive system for managing all organization-specific settings and integration configurations",
+        "priority": "medium",
+        "status": "pending",
+        "phase": "2-core-features",
+        "details": "Build the centralized backend APIs required to power all administrative settings pages, including 'Classes > Settings', 'People > Settings', and the critical 'Main Settings > Door Access' panel for Kisi configuration.",
+        "dependencies": [
+          "1",
+          "6",
+          "7",
+          "16"
+        ],
+        "testStrategy": "Verify settings are isolated per organization, test validation for all setting values (e.g., fees, API keys), test Kisi API proxy endpoints for correct error handling and data passthrough.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design and Create Extensible Settings Schema",
+            "description": "Create a centralized 'organization_settings' table, likely using a JSONB column for flexibility to store nested settings for classes, financials, and integrations.",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Build Core Settings API",
+            "description": "Create the primary GET /settings and PUT /settings endpoints with comprehensive validation and fine-grained permission checks.",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Build Kisi Configuration API Endpoints",
+            "description": "Create the specific endpoints to power the 'Door Access' settings UI: PUT (to save API key), GET /integrations/kisi/doors (to list available doors), POST /integrations/kisi/test-unlock.",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Build Kisi Access Rule Management API",
+            "description": "Create full CRUD endpoints (GET, POST, DELETE) for `/settings/kisi/access-rules` to manage the membership-to-door mappings stored in the `kisi_group_mappings` table.",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "INTEGRATION: Connect All Settings Pages to API",
+            "description": "Connect the 'Classes > Settings', 'People > Settings', and the 'Main Settings > Door Access' UIs in the CRM Admin to the new, centralized settings API endpoints. Verify full functionality.",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 25,
+        "title": "PHASE 2: Implement Document Management",
+        "description": "Create document system with version control, access logging, and download tracking",
+        "priority": "medium",
+        "status": "pending",
+        "phase": "2-core-features",
+        "details": "Create a secure document upload system with virus scanning, implement waiver signing flows, and build tracked download endpoints to support the 'Forms & Documents' UI.",
+        "dependencies": [
+          "14",
+          "21"
+        ],
+        "testStrategy": "Test file upload security (e.g., prevent executable uploads), verify download count is incremented atomically, test access permissions for document management, verify signing audit trail.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Enrich 'documents' table schema",
+            "description": "Expand the schema to include all UI-required fields: file_type, file_size, uploader_user_id, download_count, description, and status_tag (e.g., 'REQUIRED').",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Build Secure Upload System",
+            "description": "Create POST /documents endpoint with robust validation, file type restrictions, and integrated virus scanning before saving to storage.",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Create Tracked Document Download Endpoint",
+            "description": "Build GET /documents/:id/download endpoint that verifies permissions, atomically increments the download_count, logs the access, and then serves the file.",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Build Document Management CRUD API",
+            "description": "Create GET, PUT, DELETE endpoints for managing document metadata, categories (tags), and status.",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Implement Versioning and Signing Flow",
+            "description": "Add logic for document version history and create endpoints to manage the digital signing process for waivers and agreements.",
+            "status": "pending"
+          },
+          {
+            "id": 6,
+            "title": "Add legal waiver validation logic",
+            "description": "Implement validation to ensure all required fields are signed, track completion status",
+            "status": "pending"
+          },
+          {
+            "id": 7,
+            "title": "Implement jurisdiction-specific compliance logic",
+            "description": "Add jurisdiction-specific waiver requirements, minor consent handling, guardian signatures",
+            "status": "pending"
+          },
+          {
+            "id": 8,
+            "title": "INTEGRATION: Connect Forms & Documents UI",
+            "description": "Connect the 'Forms & Documents' page in the CRM Admin frontend to all new document management APIs. Verify upload, list, filter, and download functionality.",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 26,
         "title": "PHASE 2: Implement Analytics Module",
         "description": "Create analytics endpoints with proper data access controls",
         "priority": "medium",
@@ -853,9 +1337,9 @@
         "phase": "2-core-features",
         "details": "Implement revenue analytics with permission checks, create attendance reports.",
         "dependencies": [
-          "14",
-          "15",
-          "16"
+          "21",
+          "22",
+          "23"
         ],
         "testStrategy": "Verify data isolation in reports, test performance with large datasets",
         "subtasks": [
@@ -898,7 +1382,7 @@
         ]
       },
       {
-        "id": 18,
+        "id": 27,
         "title": "PHASE 2: Create Notification Engine",
         "description": "Implement notification system with user consent and preferences",
         "priority": "medium",
@@ -906,7 +1390,7 @@
         "phase": "2-core-features",
         "details": "Set up notification templates with sanitization, implement in-app notifications with read/unread status.",
         "dependencies": [
-          "14"
+          "21"
         ],
         "testStrategy": "Test opt-out is respected, verify template injection is prevented",
         "subtasks": [
@@ -949,155 +1433,62 @@
         ]
       },
       {
-        "id": 19,
-        "title": "PHASE 2: Create Background Job System",
-        "description": "Implement async job processing for scheduled tasks with monitoring",
+        "id": 28,
+        "title": "PHASE 2: Create Convex Scheduled Functions System",
+        "description": "Implement scheduled tasks using Convex cronJobs and ctx.scheduler with monitoring",
         "priority": "medium",
         "status": "pending",
         "phase": "2-core-features",
-        "details": "Set up Bull queue with Redis, implement job authentication and permissions.",
+        "details": "Define all recurring tasks in convex/crons.ts using Convex's native cron functionality. Use ctx.scheduler for one-off delayed tasks. Implement monitoring for scheduled function execution.",
         "dependencies": [
           "1",
-          "5",
-          "6"
+          "6",
+          "7"
         ],
         "testStrategy": "Test job failures don't compromise security, verify retry logic",
         "subtasks": [
           {
             "id": 1,
-            "title": "Set up Bull queue",
-            "description": "Configure job queue with Redis",
+            "title": "Set up convex/crons.ts structure",
+            "description": "Create centralized cron job definitions using Convex cronJobs feature",
             "status": "pending"
           },
           {
             "id": 2,
-            "title": "Create job authentication",
-            "description": "Secure job execution context",
+            "title": "Implement scheduled function security",
+            "description": "Ensure cronJobs and scheduled functions run with proper authentication context",
             "status": "pending"
           },
           {
             "id": 3,
-            "title": "Build reconciliation jobs",
-            "description": "Nightly data consistency checks",
+            "title": "Build recurring maintenance cronJobs",
+            "description": "Define nightly data consistency checks as Convex cronJobs",
             "status": "pending"
           },
           {
             "id": 4,
-            "title": "Implement cleanup jobs",
-            "description": "Remove orphaned data",
+            "title": "Implement cleanup cronJobs",
+            "description": "Define regular cleanup tasks as Convex cronJobs to remove orphaned data",
             "status": "pending"
           },
           {
             "id": 5,
-            "title": "Add job monitoring",
-            "description": "Job status and alerting",
+            "title": "Add cronJob execution monitoring",
+            "description": "Monitor cronJob execution status, duration, and failure alerting",
             "status": "pending"
           }
         ]
       },
       {
-        "id": 20,
-        "title": "PHASE 2: Implement Caching Layer",
-        "description": "Set up Redis caching without compromising security",
-        "priority": "medium",
-        "status": "pending",
-        "phase": "2-core-features",
-        "details": "Configure Redis with authentication, implement caching with proper TTLs.",
-        "dependencies": [
-          "1",
-          "5",
-          "6"
-        ],
-        "testStrategy": "Test cache doesn't leak data across orgs, verify invalidation works",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Configure Redis connection",
-            "description": "Set up Redis with auth",
-            "status": "pending"
-          },
-          {
-            "id": 2,
-            "title": "Implement cache middleware",
-            "description": "Smart caching layer",
-            "status": "pending"
-          },
-          {
-            "id": 3,
-            "title": "Add cache invalidation",
-            "description": "Invalidate on updates",
-            "status": "pending"
-          },
-          {
-            "id": 4,
-            "title": "Create cache utilities",
-            "description": "Helper functions",
-            "status": "pending"
-          },
-          {
-            "id": 5,
-            "title": "Monitor cache performance",
-            "description": "Hit/miss ratios",
-            "status": "pending"
-          }
-        ]
-      },
-      {
-        "id": 21,
-        "title": "PHASE 2: Create Health Check and Monitoring",
-        "description": "Implement health checks that don't expose sensitive information",
-        "priority": "medium",
-        "status": "pending",
-        "phase": "2-core-features",
-        "details": "Create health check endpoints with no sensitive data, integrate monitoring.",
-        "dependencies": [
-          "1",
-          "5"
-        ],
-        "testStrategy": "Verify health endpoints don't leak information",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Create health endpoints",
-            "description": "GET /health, /ready, /live",
-            "status": "pending"
-          },
-          {
-            "id": 2,
-            "title": "Add dependency checks",
-            "description": "Database, Redis health",
-            "status": "pending"
-          },
-          {
-            "id": 3,
-            "title": "Integrate monitoring",
-            "description": "Datadog/New Relic setup",
-            "status": "pending"
-          },
-          {
-            "id": 4,
-            "title": "Create custom metrics",
-            "description": "Business metrics",
-            "status": "pending"
-          },
-          {
-            "id": 5,
-            "title": "Set up alerting",
-            "description": "Anomaly detection",
-            "status": "pending"
-          }
-        ]
-      },
-      {
-        "id": 22,
+        "id": 29,
         "title": "PHASE 3: Implement Workout Builder Module",
         "description": "Create workout template system with franchise controls",
         "priority": "low",
         "status": "pending",
-        "phase": "3-additional-features",
+        "phase": "3-enterprise-polish",
         "details": "Create workout CRUD with ownership validation, implement exercise library.",
         "dependencies": [
-          "14"
+          "21"
         ],
         "testStrategy": "Test template access controls, verify franchise restrictions",
         "subtasks": [
@@ -1140,16 +1531,16 @@
         ]
       },
       {
-        "id": 23,
+        "id": 30,
         "title": "PHASE 3: Create Achievement System",
         "description": "Implement gamification with privacy considerations",
         "priority": "low",
         "status": "pending",
-        "phase": "3-additional-features",
+        "phase": "3-enterprise-polish",
         "details": "Define achievement criteria securely, implement achievement evaluation.",
         "dependencies": [
-          "14",
-          "16"
+          "21",
+          "23"
         ],
         "testStrategy": "Test achievement logic doesn't leak user behavior",
         "subtasks": [
@@ -1186,18 +1577,18 @@
         ]
       },
       {
-        "id": 24,
+        "id": 31,
         "title": "PHASE 3: Create Admin Tools Module",
         "description": "Implement administrative tools with strict access controls",
         "priority": "low",
         "status": "pending",
-        "phase": "3-additional-features",
+        "phase": "3-enterprise-polish",
         "details": "Create impersonation with full audit trail and time limits.",
         "dependencies": [
           "1",
-          "5",
           "6",
-          "7"
+          "7",
+          "8"
         ],
         "testStrategy": "Test impersonation restrictions, verify audit trail completeness",
         "subtasks": [
@@ -1234,69 +1625,17 @@
         ]
       },
       {
-        "id": 25,
-        "title": "PHASE 3: Implement Document Management",
-        "description": "Create document system with version control, access logging, and download tracking",
-        "priority": "low",
-        "status": "pending",
-        "phase": "3-additional-features",
-        "details": "Create a secure document upload system with virus scanning, implement waiver signing flows, and build tracked download endpoints to support the 'Forms & Documents' UI.",
-        "dependencies": [
-          "11",
-          "14"
-        ],
-        "testStrategy": "Test file upload security (e.g., prevent executable uploads), verify download count is incremented atomically, test access permissions for document management, verify signing audit trail.",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Enrich 'documents' table schema",
-            "description": "Expand the schema to include all UI-required fields: file_type, file_size, uploader_user_id, download_count, description, and status_tag (e.g., 'REQUIRED').",
-            "status": "pending"
-          },
-          {
-            "id": 2,
-            "title": "Build Secure Upload System",
-            "description": "Create POST /documents endpoint with robust validation, file type restrictions, and integrated virus scanning before saving to storage.",
-            "status": "pending"
-          },
-          {
-            "id": 3,
-            "title": "Create Tracked Document Download Endpoint",
-            "description": "Build GET /documents/:id/download endpoint that verifies permissions, atomically increments the download_count, logs the access, and then serves the file.",
-            "status": "pending"
-          },
-          {
-            "id": 4,
-            "title": "Build Document Management CRUD API",
-            "description": "Create GET, PUT, DELETE endpoints for managing document metadata, categories (tags), and status.",
-            "status": "pending"
-          },
-          {
-            "id": 5,
-            "title": "Implement Versioning and Signing Flow",
-            "description": "Add logic for document version history and create endpoints to manage the digital signing process for waivers and agreements.",
-            "status": "pending"
-          },
-          {
-            "id": 6,
-            "title": "INTEGRATION: Connect Forms & Documents UI",
-            "description": "Connect the 'Forms & Documents' page in the CRM Admin frontend to all new document management APIs. Verify upload, list, filter, and download functionality.",
-            "status": "pending"
-          }
-        ]
-      },
-      {
-        "id": 26,
+        "id": 32,
         "title": "PHASE 3: Implement Feature Flag System",
         "description": "Create feature flag infrastructure for safe gradual rollouts",
         "priority": "low",
         "status": "pending",
-        "phase": "3-additional-features",
+        "phase": "3-enterprise-polish",
         "details": "Implement feature flag evaluation with caching, create management interface.",
         "dependencies": [
           "1",
-          "5",
-          "6"
+          "6",
+          "7"
         ],
         "testStrategy": "Test flag evaluation performance, verify org isolation",
         "subtasks": [
@@ -1333,180 +1672,278 @@
         ]
       },
       {
-        "id": 27,
-        "title": "PHASE 1: Implement Kisi Access Control Integration",
-        "description": "Create comprehensive Kisi API integration for physical door access management across all organizations",
-        "details": "Implement complete Kisi integration including API wrapper service, membership-to-group sync, door unlock endpoints, multi-location access management, nightly reconciliation jobs, and mobile app APIs. Critical foundation for the entire access control system.",
-        "testStrategy": "",
+        "id": 33,
+        "title": "PHASE 3: Implement Audit Trail Hardening",
+        "description": "Ensure audit trails meet enterprise-grade retention and immutability requirements",
+        "priority": "low",
         "status": "pending",
+        "phase": "3-enterprise-polish",
+        "details": "Implement strategy for immutable, long-term storage of audit logs to meet 7-year retention requirements for financial and compliance audits. Ensure logs are searchable and tamper-proof.",
         "dependencies": [
-          1,
-          5,
-          6,
-          11
+          "8",
+          "28"
         ],
-        "priority": "medium",
+        "testStrategy": "Test log immutability, verify 7-year retention policies, test search functionality across historical logs",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create Kisi database schema and configuration",
-            "description": "Add kisi_access_log table, organizations.kisi_api_key_encrypted field, kisi_group_mappings table for tracking Kisi groups per organization",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
+            "title": "Implement immutable audit log storage",
+            "description": "Move audit logs to append-only, tamper-proof storage (e.g., AWS S3 with Object Lock)",
+            "status": "pending"
           },
           {
             "id": 2,
-            "title": "Build Kisi API wrapper service",
-            "description": "Create KisiService class with methods: grantAccess, revokeAccess, unlockDoor, createGroup, addToGroup, removeFromGroup, syncGroupMemberships",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
+            "title": "Create 7-year retention automation",
+            "description": "Implement automated archival to long-term storage (e.g., Glacier) with proper lifecycle management",
+            "status": "pending"
           },
           {
             "id": 3,
-            "title": "Implement membership-to-Kisi sync service",
-            "description": "Create service to sync membership status changes to Kisi groups: active → grant access, expired/suspended → revoke access, multi-location → multiple groups",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
+            "title": "Build audit log search interface",
+            "description": "Create searchable interface for compliance officers to query historical audit data",
+            "status": "pending"
           },
           {
             "id": 4,
-            "title": "Create door unlock API endpoints",
-            "description": "Build POST /api/door/unlock endpoint with geofence validation, membership verification, rate limiting, and mobile app integration",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
+            "title": "Implement chain of custody tracking",
+            "description": "Add cryptographic verification for audit log integrity for legal proceedings",
+            "status": "pending"
           },
           {
             "id": 5,
-            "title": "Build multi-location access management",
-            "description": "Implement cross-location access logic, handle multi-org memberships, sync access across multiple Kisi installations per organization",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
-          },
-          {
-            "id": 6,
-            "title": "Implement nightly Kisi reconciliation jobs",
-            "description": "Create scheduled job to sync CRM membership data with Kisi groups, remove orphaned access, grant missing access, handle cross-location consistency",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
-          },
-          {
-            "id": 7,
-            "title": "Create access audit and logging system",
-            "description": "Implement comprehensive logging for all Kisi operations: door unlocks, access grants/revokes, failed attempts, with organization context and audit trails",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
-          },
-          {
-            "id": 8,
-            "title": "Integrate Kisi with membership lifecycle events",
-            "description": "Connect Kisi sync to membership creation, updates, cancellations, and Stripe webhook events. Ensure real-time access control updates when memberships change.",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
-          },
-          {
-            "id": 9,
-            "title": "Implement queued Kisi sync system",
-            "description": "Create Redis-based event queue with timestamps/versions to ensure ordered, idempotent processing of membership changes. Single worker processes events sequentially to eliminate race conditions.",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
-          },
-          {
-            "id": 10,
-            "title": "Implement comprehensive Kisi error handling and retry logic",
-            "description": "Add exponential backoff retry for transient errors (5xx), 3 retry maximum, dead-letter queue for failed operations, graceful degradation when Kisi unavailable, proper error propagation to prevent bad UX.",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
-          },
-          {
-            "id": 11,
-            "title": "Build intelligent reconciliation with conflict detection",
-            "description": "Create reconciliation that generates reports for discrepancies. Auto-fix clear cases (expired memberships), flag ambiguous cases (manual Kisi grants) for admin review rather than destructive automated action.",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
-          },
-          {
-            "id": 12,
-            "title": "Implement outbound Kisi API rate limiting",
-            "description": "Add token bucket or request queue to KisiService ensuring all calls respect Kisi's published rate limits (e.g., max 10 req/sec). Handle bulk operations like franchise onboarding gracefully without triggering API bans.",
-            "details": "",
-            "status": "pending",
-            "dependencies": [],
-            "parentTaskId": 27
-          },
-          {
-            "id": 13,
-            "title": "INTEGRATION: Connect Mobile App Door Unlock UI",
-            "description": "Connect the Mobile App's 'Door Access' tab to the POST /api/v1/door/unlock endpoint.",
+            "title": "Create compliance export functionality",
+            "description": "Build formatted audit exports for regulatory submissions and legal discovery",
             "status": "pending"
           }
         ]
       },
       {
-        "id": 28,
-        "title": "PHASE 2: Build System & Integration Settings Module",
-        "description": "Create a comprehensive and extensible system for managing all organization-specific settings and integration configurations",
-        "priority": "medium",
+        "id": 34,
+        "title": "PHASE 3: Financial Reconciliation System",
+        "description": "Build Convex cronJob to compare Stripe transaction logs with internal transactions for financial accuracy",
+        "priority": "low",
         "status": "pending",
-        "phase": "2-core-features",
-        "details": "Build the centralized backend APIs required to power all administrative settings pages, including 'Classes > Settings', 'People > Settings', and the critical 'Main Settings > Door Access' panel for Kisi configuration.",
+        "phase": "3-enterprise-polish",
+        "details": "Create automated reconciliation using Convex cronJob (defined in convex/crons.ts) that identifies and flags discrepancies between Stripe charges/refunds and internal transaction records. Critical for financial accuracy and audit compliance.",
         "dependencies": [
-          "1",
-          "5",
-          "6",
-          "27"
+          "10",
+          "15"
         ],
-        "testStrategy": "Verify settings are isolated per organization, test validation for all setting values (e.g., fees, API keys), test Kisi API proxy endpoints for correct error handling and data passthrough.",
+        "testStrategy": "Test discrepancy detection with simulated data mismatches, verify manual review workflow, test reconciliation reporting accuracy",
         "subtasks": [
           {
             "id": 1,
-            "title": "Design and Create Extensible Settings Schema",
-            "description": "Create a centralized 'organization_settings' table, likely using a JSONB column for flexibility to store nested settings for classes, financials, and integrations.",
+            "title": "Build Stripe transaction sync",
+            "description": "Create service to regularly fetch and compare Stripe transaction data with internal records",
             "status": "pending"
           },
           {
             "id": 2,
-            "title": "Build Core Settings API",
-            "description": "Create the primary GET /settings and PUT /settings endpoints with comprehensive validation and fine-grained permission checks.",
+            "title": "Implement discrepancy detection logic",
+            "description": "Build algorithms to identify missing transactions, amount mismatches, and timing discrepancies",
             "status": "pending"
           },
           {
             "id": 3,
-            "title": "Build Kisi Configuration API Endpoints",
-            "description": "Create the specific endpoints to power the 'Door Access' settings UI: PUT (to save API key), GET /integrations/kisi/doors (to list available doors), POST /integrations/kisi/test-unlock.",
+            "title": "Create manual review workflow",
+            "description": "Build UI for finance team to review and resolve flagged discrepancies",
             "status": "pending"
           },
           {
             "id": 4,
-            "title": "Build Kisi Access Rule Management API",
-            "description": "Create full CRUD endpoints (GET, POST, DELETE) for `/settings/kisi/access-rules` to manage the membership-to-door mappings stored in the `kisi_group_mappings` table.",
+            "title": "Add financial reconciliation reporting",
+            "description": "Generate daily/monthly reconciliation reports for accounting team",
             "status": "pending"
           },
           {
             "id": 5,
-            "title": "INTEGRATION: Connect All Settings Pages to API",
-            "description": "Connect the 'Classes > Settings', 'People > Settings', and the 'Main Settings > Door Access' UIs in the CRM Admin to the new, centralized settings API endpoints. Verify full functionality.",
+            "title": "Implement automated reconciliation fixes",
+            "description": "Auto-resolve simple discrepancies like timing differences or known fee variations",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 35,
+        "title": "PHASE 3: Intelligent Reconciliation System (General Purpose)",
+        "description": "Build automated data consistency verification and repair system for external integrations",
+        "priority": "low",
+        "status": "pending",
+        "phase": "3-enterprise-polish",
+        "details": "Implement reconciliation system using Convex cronJobs defined in convex/crons.ts that detects and resolves data discrepancies between Convex data and external systems, with comprehensive audit logging.",
+        "dependencies": [
+          "1",
+          "9",
+          "10"
+        ],
+        "testStrategy": "Test discrepancy detection, verify automatic repairs, test manual intervention workflows, ensure audit trail completeness",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design reconciliationLog schema",
+            "description": "Comprehensive logging table for tracking reconciliation runs, discrepancies found, and resolutions applied",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement WorkOS user sync reconciliation",
+            "description": "Detect and resolve user data mismatches between WorkOS and Convex",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Implement Kisi door access reconciliation",
+            "description": "Verify door access permissions match membership status and resolve conflicts",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Implement Convex cronJobs for reconciliation",
+            "description": "Define reconciliation jobs in convex/crons.ts with proper scheduling (daily, hourly, etc.)",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Build reconciliation reporting",
+            "description": "Admin dashboard showing reconciliation health, discrepancies, and resolution history",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 36,
+        "title": "PHASE 3: WCAG 2.1 AA Accessibility Compliance",
+        "description": "Ensure frontend applications comply with WCAG 2.1 AA standards for ADA compliance",
+        "priority": "low",
+        "status": "pending",
+        "phase": "3-enterprise-polish",
+        "details": "Conduct comprehensive accessibility audit and remediation. Primarily frontend work, but backend must provide semantic data via API to support screen readers and accessibility tools.",
+        "dependencies": [
+          "17",
+          "21"
+        ],
+        "testStrategy": "Test with screen readers, verify keyboard navigation, test color contrast ratios, validate ARIA labels and semantic HTML",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Conduct accessibility audit",
+            "description": "Use automated tools (axe, WAVE) and manual testing to identify accessibility violations",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Implement semantic API responses",
+            "description": "Ensure APIs provide proper labels, descriptions, and context for screen reader support",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Add accessibility testing to CI/CD",
+            "description": "Integrate automated accessibility testing into build pipeline",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Create accessibility documentation",
+            "description": "Document accessibility features and provide user guides for assistive technology",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Implement accessibility feedback system",
+            "description": "Create mechanism for users to report accessibility issues and request accommodations",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 37,
+        "title": "PHASE 3: Load Testing and Performance Benchmarking",
+        "description": "Simulate peak hour traffic to identify and resolve performance bottlenecks",
+        "priority": "low",
+        "status": "pending",
+        "phase": "3-enterprise-polish",
+        "details": "Use tools like k6 or Artillery to test API response times and database performance under heavy load. Define and meet SLOs for peak gym hours (6-8am, 5-7pm).",
+        "dependencies": [
+          "26",
+          "18"
+        ],
+        "testStrategy": "Test under 10x normal load, verify graceful degradation, test auto-scaling triggers, validate SLO compliance",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up load testing infrastructure",
+            "description": "Configure k6 or Artillery for comprehensive API load testing",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Create realistic load test scenarios",
+            "description": "Simulate peak hour patterns: class bookings, check-ins, door access requests",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Implement performance monitoring",
+            "description": "Add real-time performance metrics and alerting for response time degradation",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Define and implement auto-scaling",
+            "description": "Configure automatic scaling based on load patterns and resource utilization",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Create performance optimization plan",
+            "description": "Document identified bottlenecks and optimization strategies for future improvements",
+            "status": "pending"
+          }
+        ]
+      },
+      {
+        "id": 38,
+        "title": "PHASE 3: External Penetration Testing Program",
+        "description": "Engage third-party security firm for comprehensive penetration testing",
+        "priority": "low",
+        "status": "pending",
+        "phase": "3-enterprise-polish",
+        "details": "Schedule quarterly penetration testing by external security firm to identify vulnerabilities that internal testing might miss. Include OWASP Top 10 compliance verification.",
+        "dependencies": [
+          "19",
+          "11"
+        ],
+        "testStrategy": "External penetration test, vulnerability assessment, social engineering testing, compliance gap analysis",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Select and engage penetration testing firm",
+            "description": "Research and contract with reputable security firm for quarterly assessments",
+            "status": "pending"
+          },
+          {
+            "id": 2,
+            "title": "Define penetration testing scope",
+            "description": "Specify testing scope: web apps, APIs, infrastructure, social engineering boundaries",
+            "status": "pending"
+          },
+          {
+            "id": 3,
+            "title": "Implement vulnerability remediation process",
+            "description": "Create process for triaging, fixing, and retesting identified vulnerabilities",
+            "status": "pending"
+          },
+          {
+            "id": 4,
+            "title": "Create security compliance reporting",
+            "description": "Generate compliance reports showing security posture improvements over time",
+            "status": "pending"
+          },
+          {
+            "id": 5,
+            "title": "Establish ongoing security program",
+            "description": "Create continuous security improvement program based on pen test findings",
             "status": "pending"
           }
         ]
@@ -1514,8 +1951,8 @@
     ],
     "metadata": {
       "created": "2025-07-31T01:49:15.746Z",
-      "updated": "2025-08-22T22:07:08.638Z",
-      "description": "Security-first task organization with comprehensive subtasks including mockup-revealed features"
+      "updated": "2025-08-28T15:30:00.000Z",
+      "description": "Chronologically ordered enterprise-grade task list with proper dependency management and phase-based progression"
     }
   }
 }

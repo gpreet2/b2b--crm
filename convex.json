@@ -1,0 +1,9 @@
+{
+  "functions": "./convex/",
+  "authInfo": [
+    {
+      "domain": "https://api.workos.com",
+      "applicationID": "client_01J4RF77PVR4TB5ZZG5FPSBF19"
+    }
+  ]
+}

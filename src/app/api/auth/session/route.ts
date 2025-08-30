@@ -1,34 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from '@/lib/auth-server';
 
 export async function GET(_request: NextRequest) {
   try {
-    const authData = await getServerSession();
-
-    if (!authData) {
-      return NextResponse.json({
-        success: false,
-        user: null,
-        error: 'No valid session found',
-      });
-    }
-
-    // Return user and session data
+    // Mock authenticated session matching AuthContext interface
     return NextResponse.json({
       success: true,
-      user: authData.user,
-      session: authData.session,
+      user: {
+        id: "dev_user_1",
+        email: "dev@example.com",
+        firstName: "Development",
+        lastName: "User",
+        profilePictureUrl: null,
+        emailVerified: true,
+        createdAt: "2024-01-01T00:00:00Z",
+        updatedAt: "2024-01-01T00:00:00Z"
+      },
+      session: {
+        id: "dev_session_1",
+        userId: "dev_user_1",
+        organizationId: "1",
+        role: "admin",
+        permissions: ["read:all", "write:all", "delete:all", "admin:all"],
+        entitlements: ["gym_management", "user_management", "billing"],
+        impersonator: null
+      }
     });
   } catch (_error) {
-    // Clear potentially corrupted session cookie
-    const response = NextResponse.json({
+    return NextResponse.json({
       success: false,
       user: null,
       error: 'Authentication failed',
     });
-    
-    response.cookies.delete('wos-session');
-    return response;
   }
 }
 

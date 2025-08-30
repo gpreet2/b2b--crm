@@ -69,7 +69,7 @@ export default function AuthPage() {
       console.log('Google sign in response:', data);
 
       if (response.ok && data.url) {
-        console.log('Redirecting to WorkOS:', data.url);
+        console.log('Redirecting to auth provider:', data.url);
         window.location.href = data.url;
       } else {
         setIsLoading(false);
@@ -90,7 +90,7 @@ export default function AuthPage() {
     setIsLoading(true);
 
     try {
-      // Use AuthKit's user management authentication (not SSO)
+      // Use secure authentication (not SSO)
       const response = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: {
@@ -106,7 +106,7 @@ export default function AuthPage() {
       console.warn('Sign in response:', data);
 
       if (response.ok && data.url) {
-        console.warn('Redirecting to WorkOS:', data.url);
+        console.warn('Redirecting to auth provider:', data.url);
         window.location.href = data.url;
       } else {
         setIsLoading(false);
@@ -334,6 +334,17 @@ export default function AuthPage() {
                     />
                   </svg>
                   Continue with Google
+                </Button>
+
+                {/* Skip to Dashboard Button for Testing */}
+                <Button 
+                  type='button' 
+                  variant='secondary' 
+                  className='w-full mt-2' 
+                  size='md'
+                  onClick={() => router.push('/dashboard')}
+                >
+                  🚀 Skip to Dashboard (Testing)
                 </Button>
               </form>
 

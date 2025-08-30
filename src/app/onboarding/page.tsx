@@ -237,7 +237,7 @@ function OnboardingContent() {
       console.log('Onboarding completion response:', data);
 
       if (response.ok && data.url) {
-        console.log('Redirecting to WorkOS:', data.url);
+        console.log('Redirecting to auth provider:', data.url);
         window.location.href = data.url;
       } else {
         setIsLoading(false);
@@ -293,7 +293,7 @@ function OnboardingContent() {
                 <div className='text-xs text-secondary-text'>
                   <p className='font-medium mb-1'>Personal Information</p>
                   <p className='text-muted'>
-                    Your name and contact details will be collected securely during the account creation process through WorkOS.
+                    Your name and contact details will be collected securely during the account creation process through secure authentication.
                   </p>
                 </div>
               </div>
@@ -405,7 +405,7 @@ function OnboardingContent() {
                 Ready to Create Your Account!
               </h3>
               <p className='text-secondary-text max-w-md mx-auto'>
-                Click continue to set up your account with WorkOS. You'll be able to sign in with
+                Click continue to set up your account with secure authentication. You'll be able to sign in with
                 your email and password.
               </p>
             </div>
@@ -442,7 +442,7 @@ function OnboardingContent() {
                 <div className='text-xs text-secondary-text'>
                   <p className='font-medium mb-1'>Secure Authentication</p>
                   <p className='text-muted'>
-                    You'll be redirected to WorkOS to create your account securely
+                    You'll be redirected to secure authentication to create your account securely
                   </p>
                 </div>
               </div>
@@ -670,7 +670,7 @@ function OnboardingContent() {
                 <span>
                   {currentStep === 3
                     ? isLoading
-                      ? 'Redirecting to WorkOS...'
+                      ? 'Redirecting to auth...'
                       : 'Create Account'
                     : 'Continue'}
                 </span>

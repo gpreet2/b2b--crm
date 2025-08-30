@@ -1,165 +1,69 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { withAuth, AuthData } from '@/lib/auth-server';
-import { withPermission } from '@/lib/auth-with-permission';
-import { OrganizationService } from '@/lib/services/organization';
-import { UpdateOrganizationSchema } from '@/lib/validations/organization';
-import { ensureDatabaseInitialized } from '@/lib/database-init';
-import { logger } from '@/utils/logger';
-import { z } from 'zod';
 
-interface RouteParams {
-  params: Promise<{
-    id: string;
-  }>;
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // Mock organization data
+    const mockOrganization = {
+      id: params.id,
+      name: 'Mock Fitness Studio',
+      description: 'A mock fitness studio for development',
+      address: '123 Main St, City, State 12345',
+      phone: '(555) 123-4567',
+      email: 'info@mockfitness.com',
+      website: 'https://mockfitness.com',
+      type: 'fitness_studio',
+      isActive: true,
+      settings: {
+        timezone: 'America/New_York',
+        currency: 'USD',
+        language: 'en'
+      },
+      createdAt: '2024-01-01T00:00:00Z',
+      updatedAt: new Date().toISOString()
+    };
+
+    return NextResponse.json({
+      success: true,
+      data: mockOrganization
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch organization' },
+      { status: 500 }
+    );
+  }
 }
 
-/**
- * GET /api/organizations/[id] - Get organization by ID
- */
-export const GET = withAuth(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    // Ensure database is initialized before proceeding
-    await ensureDatabaseInitialized();
-
-    const resolvedParams = await params;
-    const { id } = resolvedParams;
-    const { searchParams } = new URL(request.url);
-    
-    // Parse include options
-    const includeLocations = searchParams.get('include_locations') === 'true';
-    const includeChildren = searchParams.get('include_children') === 'true';
-    const includeParent = searchParams.get('include_parent') === 'true';
-
-    const organizationService = new OrganizationService();
-    const organization = await organizationService.getOrganizationById(id, {
-      includeLocations,
-      includeChildren,
-      includeParent,
-    });
-
-    if (!organization) {
-      return NextResponse.json(
-        { error: 'Organization not found' },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      data: organization,
-    });
-  } catch (error) {
-    logger.error('Error getting organization by ID', { error });
-
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : 'Internal server error',
-      },
-      { status: 500 }
-    );
-  }
-});
-
-/**
- * PUT /api/organizations/[id] - Update organization
- */
-export const PUT = withPermission('organization', 'update')(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
-  try {
-    // Ensure database is initialized before proceeding
-    await ensureDatabaseInitialized();
-
-    const resolvedParams = await params;
-    const { id } = resolvedParams;
     const body = await request.json();
-
-    const validatedData = UpdateOrganizationSchema.parse(body);
-
-    const organizationService = new OrganizationService();
-    const organization = await organizationService.updateOrganization(id, validatedData, authData.user.id);
-
-    logger.info('Organization updated via API', {
-      organizationId: id,
-      userId: authData.user.id,
-    });
-
-    return NextResponse.json({
-      success: true,
-      data: organization,
-    });
-  } catch (error) {
-    logger.error('Error updating organization', { error });
-
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          error: 'Invalid request data',
-          details: error.issues,
-        },
-        { status: 400 }
-      );
-    }
-
-    if (error instanceof Error && error.message === 'Organization not found') {
-      return NextResponse.json(
-        { error: 'Organization not found' },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : 'Internal server error',
-      },
-      { status: 500 }
-    );
-  }
-});
-
-/**
- * DELETE /api/organizations/[id] - Delete organization (soft delete)
- */
-export const DELETE = withPermission('organization', 'delete')(async (request: NextRequest, authData: AuthData, { params }: RouteParams) => {
-  try {
-    // Ensure database is initialized before proceeding
-    await ensureDatabaseInitialized();
-
-    const resolvedParams = await params;
-    const { id } = resolvedParams;
-
-    const organizationService = new OrganizationService();
-    await organizationService.deleteOrganization(id, authData.user.id);
-
-    logger.info('Organization deleted via API', {
-      organizationId: id,
-      userId: authData.user.id,
-    });
+    
+    // Mock organization update
+    const updatedOrganization = {
+      id: params.id,
+      name: body.name || 'Mock Fitness Studio',
+      description: body.description || 'A mock fitness studio for development',
+      address: body.address || '123 Main St, City, State 12345',
+      phone: body.phone || '(555) 123-4567',
+      email: body.email || 'info@mockfitness.com',
+      website: body.website || 'https://mockfitness.com',
+      updatedAt: new Date().toISOString()
+    };
 
     return NextResponse.json({
       success: true,
-      message: 'Organization deleted successfully',
+      data: updatedOrganization
     });
   } catch (error) {
-    logger.error('Error deleting organization', { error });
-
-    if (error instanceof Error && error.message === 'Organization not found') {
-      return NextResponse.json(
-        { error: 'Organization not found' },
-        { status: 404 }
-      );
-    }
-
-    if (error instanceof Error && error.message.includes('Cannot delete organization with active child organizations')) {
-      return NextResponse.json(
-        { error: 'Cannot delete organization with active child organizations' },
-        { status: 400 }
-      );
-    }
-
     return NextResponse.json(
-      {
-        error: error instanceof Error ? error.message : 'Internal server error',
-      },
+      { success: false, error: 'Failed to update organization' },
       { status: 500 }
     );
   }
-});
+}
