@@ -481,4 +481,56 @@ export default defineSchema({
     .index("by_check_type", ["checkType"])
     .index("by_status", ["status"])
     .index("by_timestamp", ["timestamp"]),
+
+  // Backup operation logs
+  backupLogs: defineTable({
+    timestamp: v.number(),
+    type: v.union(v.literal("manual"), v.literal("scheduled"), v.literal("emergency")),
+    tier: v.union(v.literal("critical"), v.literal("standard"), v.literal("non-critical")),
+    tables: v.array(v.string()),
+    status: v.union(v.literal("success"), v.literal("failed"), v.literal("partial")),
+    size: v.number(),
+    checksum: v.string(),
+    encrypted: v.boolean(),
+    retentionExpiry: v.number(),
+    errorMessage: v.optional(v.string()),
+    duration: v.optional(v.number()),
+  })
+    .index("by_timestamp", ["timestamp"])
+    .index("by_status", ["status"])
+    .index("by_retention_expiry", ["retentionExpiry"])
+    .index("by_tier", ["tier"]),
+
+  // Daily backup statistics
+  backupStats: defineTable({
+    date: v.string(), // YYYY-MM-DD format
+    totalBackups: v.number(),
+    successfulBackups: v.number(),
+    failedBackups: v.number(),
+    totalSize: v.number(),
+    avgDuration: v.number(),
+    criticalBackups: v.number(),
+    standardBackups: v.number(),
+    nonCriticalBackups: v.number(),
+  })
+    .index("by_date", ["date"]),
+
+  // System alerts
+  alerts: defineTable({
+    type: v.string(), // e.g., "backup_failure", "rpo_violation"
+    level: v.union(v.literal("info"), v.literal("warning"), v.literal("critical")),
+    message: v.string(),
+    details: v.optional(v.any()),
+    timestamp: v.number(),
+    acknowledged: v.boolean(),
+    acknowledgedBy: v.optional(v.id("users")),
+    acknowledgedAt: v.optional(v.number()),
+    resolved: v.boolean(),
+    resolvedBy: v.optional(v.id("users")),
+    resolvedAt: v.optional(v.number()),
+  })
+    .index("by_level", ["level"])
+    .index("by_timestamp", ["timestamp"])
+    .index("by_acknowledged", ["acknowledged"])
+    .index("by_resolved", ["resolved"]),
 });
