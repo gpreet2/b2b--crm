@@ -5,18 +5,8 @@ import { useEffect } from 'react';
 
 export default function GlobalError({ error }: { error: Error & { digest?: string } }) {
   useEffect(() => {
-    // Only capture errors with Sentry in production
-    if (process.env.NODE_ENV === 'production') {
-      try {
-        import('@sentry/nextjs').then(Sentry => {
-          Sentry.captureException(error);
-        });
-      } catch (err) {
-        console.error('Failed to capture error with Sentry:', err);
-      }
-    } else {
-      console.error('Global error:', error);
-    }
+    // Log error to console for now (Sentry integration can be added later)
+    console.error('Global error:', error);
   }, [error]);
 
   return (

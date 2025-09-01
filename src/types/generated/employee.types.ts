@@ -6,7 +6,9 @@ export interface EmployeeDTO {
   role: string;
   is_active: boolean;
   created_at: string;
+  hire_date?: string;
   permissions?: string[];
+  specialties?: string[];
 }
 
 export interface EmployeeWithStats extends EmployeeDTO {
@@ -14,6 +16,12 @@ export interface EmployeeWithStats extends EmployeeDTO {
     total_workouts: number;
     completed_programs: number;
     active_memberships: number;
+    rating: number;
+    totalClassesTaught: number;
+    completedClassesThisMonth: number;
+    upcomingClasses: number;
+    totalStudents: number;
+    totalRevenue: number;
   };
 }
 
@@ -33,4 +41,24 @@ export interface EmployeeQueryParams {
   sort?: string;
   order?: 'asc' | 'desc';
   include_stats?: boolean;
+}
+
+export interface EmployeeListResponse {
+  success: boolean;
+  data: EmployeeDTO[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+}
+
+export interface EmployeeListWithStatsResponse {
+  success: boolean;
+  data: EmployeeWithStats[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+  };
 }

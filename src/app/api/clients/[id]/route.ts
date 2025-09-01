@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
-import { mockClient } from '@/mocks/api/clients';
+import { mockClients } from '@/lib/mock-data';
 
 export async function GET() {
   await new Promise(resolve => setTimeout(resolve, 300));
   
-  return NextResponse.json(mockClient);
+  return NextResponse.json({
+    success: true,
+    data: mockClients[0] // Return first mock client
+  });
 }
 
 export async function PUT() {

@@ -1,15 +1,21 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export function useOrganization() {
-  const { user, organizationId, role, permissions } = useAuth();
+  const currentUser = useQuery(api.auth.getCurrentUserQuery);
   
   return {
-    organizationId,
-    role,
-    permissions,
-    hasPermission: (permission: string) => permissions?.includes(permission) || false,
-    canAccessOrganization: (orgId: string) => organizationId === orgId,
+    organizationId: currentUser?.organizationId,
+    role: currentUser?.role,
+    permissions: currentUser?.permissions,
+    organization: currentUser?.organization,
+    hasPermission: (permission: string) => 
+      currentUser?.permissions?.includes(permission) || false,
+    canAccessOrganization: (orgId: string) => 
+      currentUser?.organizationId === orgId,
+    hasOrganization: currentUser?.hasOrganization || false,
+    loading: currentUser === undefined,
   };
 }

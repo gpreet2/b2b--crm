@@ -53,9 +53,13 @@ export function isValidPhone(phone: string): boolean {
 }
 
 // Additional validation functions expected by UI components
-export function validateField(field: string, value: any, schema?: any): string | null {
+export function validateField(field: string, value: any, schema?: any): ValidationError | null {
   if (!value && schema?.required) {
-    return `${field} is required`;
+    return {
+      field,
+      message: `${field} is required`,
+      type: 'required'
+    };
   }
   return null;
 }
@@ -79,4 +83,22 @@ export function clearAllValidationErrors(): Record<string, any> {
 
 export function validateDragDropData(data: any): boolean {
   return data && typeof data === 'object';
+}
+
+// Types for workout modal
+export interface WorkoutFormData {
+  name: string;
+  title?: string;
+  startTime?: string;
+  description?: string;
+  duration: number;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  exercises?: any[];
+  segments?: any[];
+}
+
+export interface ValidationError {
+  field: string;
+  message: string;
+  type?: string;
 }

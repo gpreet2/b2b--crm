@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+    
     // Mock organization data
     const mockOrganization = {
-      id: params.id,
+      id,
       name: 'Mock Fitness Studio',
       description: 'A mock fitness studio for development',
       address: '123 Main St, City, State 12345',
@@ -39,14 +41,15 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     
     // Mock organization update
     const updatedOrganization = {
-      id: params.id,
+      id,
       name: body.name || 'Mock Fitness Studio',
       description: body.description || 'A mock fitness studio for development',
       address: body.address || '123 Main St, City, State 12345',

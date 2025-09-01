@@ -12,8 +12,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { swaggerSpec } from '@/config/swagger';
-import { logger } from '@/utils/logger';
 
 /**
  * GET /api/docs/openapi.json
@@ -23,13 +21,20 @@ export async function GET(req: NextRequest) {
   const requestId = req.headers.get('x-request-id') || 'unknown';
   
   try {
-    logger.info('OpenAPI spec request', { 
-      requestId,
-      userAgent: req.headers.get('user-agent'),
-    });
+    // Simple mock OpenAPI spec
+    const mockSwaggerSpec = {
+      openapi: "3.0.0",
+      info: {
+        title: "B2B CRM API",
+        version: "1.0.0",
+        description: "Backend under reconstruction - mock data only"
+      },
+      paths: {},
+      components: {}
+    };
 
     // Return the OpenAPI specification
-    return NextResponse.json(swaggerSpec, {
+    return NextResponse.json(mockSwaggerSpec, {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
@@ -38,12 +43,6 @@ export async function GET(req: NextRequest) {
     });
     
   } catch (error) {
-    logger.error('Failed to generate OpenAPI spec', {
-      requestId,
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-    });
-
     return NextResponse.json(
       { error: 'Failed to generate API documentation' },
       { status: 500 }

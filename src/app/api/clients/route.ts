@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { mockClients } from '@/lib/mock-data';
+import { fetchQuery, fetchMutation } from "convex/nextjs";
+import { api } from "../../../../convex/_generated/api";
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,39 +8,37 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const search = searchParams.get('search') || '';
+    const membershipStatus = searchParams.get('membershipStatus') || undefined;
+    
+    // For now, use the seeded dev organization ID since we don't have session management yet
+    const organizationId = "kn7402gvbsk402je80jq3rtk7x7pscq3";
+    
+    const offset = (page - 1) * limit;
 
-    let filteredClients = mockClients;
+    const clients = await fetchQuery(api.clients.getClients, {
+      organizationId: organizationId as any,
+      search: search || undefined,
+      membershipStatus,
+      limit,
+      offset,
+    });
 
-    // Apply search filter
-    if (search) {
-      const searchLower = search.toLowerCase();
-      filteredClients = filteredClients.filter(client =>
-        client.firstName.toLowerCase().includes(searchLower) ||
-        client.lastName.toLowerCase().includes(searchLower) ||
-        client.email.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Apply pagination
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const paginatedClients = filteredClients.slice(startIndex, endIndex);
-
+    // For pagination, we'd need a separate count query in production
+    // For now, return the data with basic pagination info
     return NextResponse.json({
       success: true,
-      data: {
-        clients: paginatedClients,
-        pagination: {
-          page,
-          limit,
-          total: filteredClients.length,
-          totalPages: Math.ceil(filteredClients.length / limit),
-          hasNextPage: endIndex < filteredClients.length,
-          hasPreviousPage: page > 1
-        }
+      data: clients, // Return clients array directly
+      pagination: {
+        page,
+        limit,
+        total: clients.length, // This is simplified - in production we'd have a separate count
+        totalPages: Math.ceil(clients.length / limit),
+        hasNextPage: clients.length === limit,
+        hasPreviousPage: page > 1
       }
     });
   } catch (error) {
+    console.error('Failed to fetch clients:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch clients' },
       { status: 500 }
@@ -51,24 +50,28 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    // Mock creating client
-    const newClient = {
-      id: Math.random().toString(36).substr(2, 9),
+    // For now, use the seeded dev organization ID since we don't have session management yet
+    const organizationId = "kn7402gvbsk402je80jq3rtk7x7pscq3";
+    
+    const newClientId = await fetchMutation(api.clients.createClient, {
       firstName: body.firstName || '',
       lastName: body.lastName || '',
       email: body.email || '',
-      phone: body.phone || '',
-      membershipType: body.membershipType || 'active',
-      membershipStartDate: new Date(body.membershipStartDate || Date.now()),
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+      phone: body.phone || undefined,
+      organizationId: organizationId as any,
+      membershipType: body.membershipType || 'monthly',
+      membershipStartDate: body.membershipStartDate ? new Date(body.membershipStartDate).getTime() : undefined,
+    });
+
+    // Get the created client to return it
+    const newClient = await fetchQuery(api.clients.getClient, { id: newClientId });
 
     return NextResponse.json({
       success: true,
       data: newClient
     }, { status: 201 });
   } catch (error) {
+    console.error('Failed to create client:', error);
     return NextResponse.json(
       { success: false, error: 'Failed to create client' },
       { status: 500 }

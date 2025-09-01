@@ -19,6 +19,20 @@ export interface ClientDTO {
   phone?: string;
   membershipType: string;
   membershipStartDate: Date;
+  membershipStatus: string;
+  accessLevel: string;
+  profileData?: {
+    dateOfBirth?: string;
+    emergencyContact?: {
+      name: string;
+      phone: string;
+      relationship: string;
+    };
+    medicalInfo?: string;
+    goals?: string;
+  };
+  tags?: string[];
+  notes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,4 +44,14 @@ export interface CreateClientRequest {
   phone?: string;
   membershipType: string;
   membershipStartDate: Date;
+}
+
+export interface ClientListResponse {
+  success: boolean;
+  data: ClientDTO[];
+  pagination?: {
+    page: number;
+    limit: number;
+    total: number;
+  };
 }

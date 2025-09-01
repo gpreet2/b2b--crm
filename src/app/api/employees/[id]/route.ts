@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
-import { mockEmployee } from '@/mocks/api/employees';
+import { mockEmployees } from '@/lib/mock-data';
 
 export async function GET() {
   await new Promise(resolve => setTimeout(resolve, 300));
   
-  return NextResponse.json(mockEmployee);
+  return NextResponse.json({
+    success: true,
+    data: mockEmployees[0] // Return first mock employee
+  });
 }
 
 export async function PUT() {

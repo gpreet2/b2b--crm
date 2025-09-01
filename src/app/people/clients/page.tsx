@@ -93,9 +93,10 @@ export default function ClientsPage() {
     }
   };
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A';
-    const date = new Date(dateString);
+  const formatDate = (dateValue: string | number | null | undefined) => {
+    if (!dateValue) return 'N/A';
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) return 'Invalid Date';
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
@@ -103,16 +104,17 @@ export default function ClientsPage() {
     }).format(date);
   };
 
-  const getTimeAgo = (dateString: string | null) => {
-    if (!dateString) return 'Never';
-    const date = new Date(dateString);
+  const getTimeAgo = (dateValue: string | number | null | undefined) => {
+    if (!dateValue) return 'Never';
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) return 'Never';
     const now = new Date();
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
 
     if (diffInHours < 1) return 'Just now';
     if (diffInHours < 24) return `${diffInHours}h ago`;
     if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
-    return formatDate(dateString);
+    return formatDate(dateValue);
   };
 
   const handleManualCheckIn = (clientId: string) => {
@@ -127,7 +129,7 @@ export default function ClientsPage() {
   };
 
   const getClientFullName = (client: ClientDTO) => {
-    return `${client.first_name || ''} ${client.last_name || ''}`.trim() || 'Unknown';
+    return `${client.firstName || ''} ${client.lastName || ''}`.trim() || 'Unknown';
   };
 
   const generateAccessCode = () => {
@@ -282,7 +284,7 @@ export default function ClientsPage() {
                   </tr>
                 ) : (
                   clients.map(client => (
-                    <tr key={client.id} className='hover:bg-gray-50'>
+                    <tr key={client._id} className='hover:bg-gray-50'>
                       <td className='px-6 py-4 whitespace-nowrap'>
                         <div className='flex items-center'>
                           <div className='h-10 w-10 flex-shrink-0'>
@@ -293,29 +295,29 @@ export default function ClientsPage() {
                           <div className='ml-4'>
                             <div className='text-sm font-medium text-gray-900'>{getClientFullName(client)}</div>
                             <div className='text-sm text-gray-500'>
-                              Member since {formatDate(client.joined_at)}
+                              Member since {formatDate(client.membershipStartDate)}
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className='px-6 py-4 whitespace-nowrap'>
                         <div className='text-sm text-gray-900'>{client.email}</div>
-                        <div className='text-sm text-gray-500'>{client.emergency_contact_phone || 'No phone'}</div>
+                        <div className='text-sm text-gray-500'>{client.phone || 'No phone'}</div>
                       </td>
                       <td className='px-6 py-4 whitespace-nowrap'>
-                        <div className='text-sm text-gray-900'>{client.membership_status || 'Unknown'}</div>
+                        <div className='text-sm text-gray-900'>{client.membershipType || 'Unknown'}</div>
                         <div className='text-sm text-gray-500'>
-                          {client.visit_count ? `${client.visit_count} visits` : 'No visits'}
+                          Active membership
                         </div>
                       </td>
                       <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                        {getTimeAgo(client.last_visit_at)}
+                        {getTimeAgo(client.updatedAt)}
                       </td>
                       <td className='px-6 py-4 whitespace-nowrap'>
                         <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(client.membership_status || 'unknown')}`}
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(client.membershipType || 'unknown')}`}
                         >
-                          {client.membership_status || 'unknown'}
+                          {client.membershipType || 'unknown'}
                         </span>
                       </td>
                       <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
@@ -435,25 +437,25 @@ export default function ClientsPage() {
                   </div>
                   <div>
                     <label className='block text-sm font-medium text-gray-700'>Status</label>
-                    <span className={`mt-1 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedClient.membership_status || 'unknown')}`}>
-                      {selectedClient.membership_status || 'unknown'}
+                    <span className={`mt-1 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedClient.membershipType || 'unknown')}`}>
+                      {selectedClient.membershipType || 'unknown'}
                     </span>
                   </div>
                   <div>
                     <label className='block text-sm font-medium text-gray-700'>Joined</label>
-                    <p className='mt-1 text-sm text-gray-900'>{formatDate(selectedClient.joined_at)}</p>
+                    <p className='mt-1 text-sm text-gray-900'>{formatDate(selectedClient.membershipStartDate)}</p>
                   </div>
                   <div>
                     <label className='block text-sm font-medium text-gray-700'>Last Visit</label>
-                    <p className='mt-1 text-sm text-gray-900'>{getTimeAgo(selectedClient.last_visit_at)}</p>
+                    <p className='mt-1 text-sm text-gray-900'>{getTimeAgo(selectedClient.updatedAt)}</p>
                   </div>
                   <div>
                     <label className='block text-sm font-medium text-gray-700'>Total Visits</label>
-                    <p className='mt-1 text-sm text-gray-900'>{selectedClient.visit_count || 0}</p>
+                    <p className='mt-1 text-sm text-gray-900'>0</p>
                   </div>
                   <div>
                     <label className='block text-sm font-medium text-gray-700'>Emergency Contact</label>
-                    <p className='mt-1 text-sm text-gray-900'>{selectedClient.emergency_contact_phone || 'None'}</p>
+                    <p className='mt-1 text-sm text-gray-900'>{selectedClient.phone || 'None'}</p>
                   </div>
                 </div>
                 {selectedClient.notes && (

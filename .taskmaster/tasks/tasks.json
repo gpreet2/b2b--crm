@@ -4,176 +4,268 @@
       {
         "id": 1,
         "title": "PHASE 0: Initialize Convex Schema with Production Resilience Patterns",
-        "description": "Set up Convex TypeScript schema with complete business entities and production-grade resilience tables for circuit breakers, queue processing, and intelligent reconciliation",
+        "description": "Set up Convex TypeScript schema with complete business entities and production-grade resilience tables that supports seamless frontend-backend connection. The schema must align with the data structures expected by the 31 mock API routes in src/app/api/ to enable smooth transition from mock data to real Convex data. Includes real-time features for class calendar, membership status updates, and notification system integration.",
+        "status": "done",
+        "dependencies": [
+          "39"
+        ],
         "priority": "critical",
-        "status": "pending",
-        "phase": "0-secure-bedrock",
-        "details": "Define comprehensive Convex schema with business entities (organizations, users, memberships, events) and resilience infrastructure (apiCallQueue, circuitBreakers, reconciliationLog, auditLog) using TypeScript. No SQL or RLS - Convex handles security at the application level.",
-        "dependencies": [],
-        "testStrategy": "Verify schema compiles and validates correctly, test multi-tenancy isolation, validate all table relationships and indexes work as expected",
+        "details": "Define comprehensive Convex schema with business entities (organizations, users, memberships, events) and resilience infrastructure (dead-letter queue, circuitBreakers, reconciliationLog, auditLog) using TypeScript. Schema must match existing frontend UI expectations from 31 mock API routes for seamless data transition. Implement real-time subscription support for class calendar updates, membership status changes, and notification system. No SQL or RLS - Convex handles security at the application level. Leverage Convex native features first: ctx.scheduler for async work, built-in retries for mutations, crons.ts for recurring tasks.",
+        "testStrategy": "Verify schema compiles and validates correctly, test multi-tenancy isolation, validate all table relationships and indexes work as expected, ensure data structures match frontend API expectations, test real-time subscription functionality for calendar and notifications",
         "subtasks": [
           {
             "id": 1,
             "title": "Set up Convex project and configure environments",
             "description": "Initialize Convex project, configure development/staging/production environments, set up TypeScript",
-            "status": "pending"
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Define core business schema in convex/schema.ts",
-            "description": "ownerAccounts, organizations, users with proper relationships and indexes using defineTable",
-            "status": "pending"
+            "title": "Analyze existing mock API data structures",
+            "description": "Review all 31 mock API routes in src/app/api/ to understand expected data formats, relationships, and response structures that frontend components depend on",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Add resilience infrastructure tables",
-            "description": "apiCallQueue, circuitBreakers, reconciliationLog for production-grade error handling",
-            "status": "pending"
+            "title": "Define core business schema in convex/schema.ts",
+            "description": "Create ownerAccounts, organizations, users tables with proper relationships and indexes using defineTable, ensuring compatibility with frontend expectations",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Implement comprehensive audit trail schema",
-            "description": "auditLog table for tracking all state changes with actor, action, target, timestamp",
-            "status": "pending"
+            "title": "Add resilience infrastructure tables",
+            "description": "dead-letter queue (for failures after Convex retries), circuitBreakers with adaptive thresholds, reconciliationLog",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Add onboarding session management with recovery states",
-            "description": "onboardingSessions table with step tracking, recovery state, and cleanup logic",
-            "status": "pending"
+            "title": "Implement comprehensive audit trail schema",
+            "description": "auditLog table for tracking all state changes with actor, action, target, timestamp",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 6,
-            "title": "Create business entity tables",
-            "description": "events, memberships, subscriptions, notifications with multi-tenancy support",
-            "status": "pending"
+            "title": "Add onboarding session management with recovery states",
+            "description": "onboardingSessions table with step tracking, recovery state, and cleanup logic",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 7,
-            "title": "Create performance indexes and relationships",
-            "description": "Add all necessary indexes for query performance and establish foreign key relationships",
-            "status": "pending"
+            "title": "Create business entity tables with real-time support",
+            "description": "events, memberships, subscriptions, notifications with multi-tenancy support and real-time subscription capabilities for calendar and status updates",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 8,
-            "title": "Add supporting business tables",
-            "description": "workouts, transactions, client_segments, waivers, documents with proper validation",
-            "status": "pending"
+            "title": "Create compound indexes and relationships",
+            "description": "Use compound indexes (e.g., by_org_and_status) to reduce redundancy, avoid duplicate simple indexes, optimize for real-time queries",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 9,
-            "title": "Implement schema validation and types",
-            "description": "Add comprehensive validation using v from convex/values, generate TypeScript types",
-            "status": "pending"
+            "title": "Add supporting business tables",
+            "description": "workouts, transactions, client_segments, waivers, documents with proper validation matching frontend data requirements",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 10,
-            "title": "Document Convex schema patterns and multi-tenancy approach",
-            "description": "Create documentation of schema design, multi-tenancy patterns, and security model",
-            "status": "pending"
+            "title": "Implement schema validation and types",
+            "description": "Add comprehensive validation using v from convex/values, generate TypeScript types that match frontend interface expectations",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 11,
+            "title": "Create schema mapping documentation",
+            "description": "Document how each Convex table maps to existing frontend mock API endpoints, including data transformation patterns for seamless migration",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 12,
             "title": "Add consent management schema fields",
-            "description": "Add users.consent_preferences JSONB field and related tables to support GDPR compliance",
-            "status": "pending"
+            "description": "Add users.consent_preferences as v.object() with ISO8601 timestamp strings for GDPR compliance",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 13,
+            "title": "Set up convex/crons.ts structure",
+            "description": "Initialize file for recurring tasks, cleanup jobs, and reconciliation schedules",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 14,
+            "title": "Validate real-time subscription setup",
+            "description": "Ensure schema supports real-time subscriptions for class calendar updates, membership status changes, and notification delivery that frontend UI expects",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 2,
         "title": "PHASE 0: Implement Enterprise Secret Management System",
-        "description": "Set up secure system for managing all application secrets using dedicated KMS service",
-        "priority": "critical",
-        "status": "pending",
-        "phase": "0-secure-bedrock",
-        "details": "Integrate with secrets manager like Doppler, AWS Secrets Manager, or HashiCorp Vault. Implement automated secret rotation policies. No secrets stored in environment variables in production. All API keys, database credentials, and sensitive configuration must be retrieved from secure storage.",
+        "description": "Set up secure system for managing all application secrets using Convex environment variables and external KMS only for highly sensitive payment processing keys",
+        "status": "done",
         "dependencies": [
           "1"
         ],
-        "testStrategy": "Test secret retrieval from KMS, verify secret rotation works, test fallback mechanisms, ensure no secrets in logs or error messages",
+        "priority": "critical",
+        "details": "Use Convex dashboard environment variables as primary secret storage following Convex best practices. Only integrate external KMS (Doppler, AWS Secrets Manager) for highly sensitive payment processing keys that require additional security layers. Focus on secure patterns within Convex framework rather than complex external systems.",
+        "testStrategy": "Test secret retrieval from Convex environment variables, verify KMS integration for payment keys only, test fallback mechanisms, ensure no secrets in logs or error messages",
         "subtasks": [
           {
             "id": 1,
-            "title": "Choose and configure secrets management service",
-            "description": "Set up Doppler, AWS Secrets Manager, or HashiCorp Vault for production secret storage",
-            "status": "pending"
+            "title": "Set up Convex environment variables for application secrets",
+            "description": "Configure Convex dashboard environment variables for WorkOS keys, database credentials, and other application secrets",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Implement secret retrieval client",
-            "description": "Create secure client for retrieving secrets from KMS with proper error handling and caching",
-            "status": "pending"
+            "title": "Create secret access patterns for Convex functions",
+            "description": "Implement secure patterns for accessing environment variables within Convex functions with proper error handling",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Migrate all secrets from environment variables",
-            "description": "Move WorkOS keys, Convex secrets, database credentials to secure storage",
-            "status": "pending"
+            "title": "Integrate external KMS for payment processing keys only",
+            "description": "Set up Doppler or AWS Secrets Manager specifically for Stripe keys and other payment-related sensitive data",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Implement automated secret rotation",
-            "description": "Set up automatic rotation policies for API keys and database credentials",
-            "status": "pending"
+            "title": "Implement secret validation and fallback mechanisms",
+            "description": "Add validation for required secrets and graceful degradation when secrets are missing or invalid",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Add secret audit logging",
-            "description": "Log all secret access attempts with proper user attribution for compliance",
-            "status": "pending"
+            "title": "Add secret access audit logging",
+            "description": "Log secret access attempts for compliance while ensuring no secret values are exposed in logs",
+            "status": "done",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 3,
         "title": "PHASE 0: Create Database Backup Strategy",
-        "description": "Implement comprehensive backup and disaster recovery strategy with specific RTO/RPO targets",
-        "priority": "critical",
+        "description": "Implement comprehensive backup and disaster recovery strategy leveraging Convex's built-in features with specific RTO/RPO targets",
         "status": "pending",
-        "phase": "0-secure-bedrock",
-        "details": "The strategy must define and test for specific Recovery Time Objectives (RTO) and Recovery Point Objectives (RPO). Backups must be stored encrypted and tested quarterly. Implement cross-region backup replication.",
         "dependencies": [
           "1",
           "2"
         ],
-        "testStrategy": "Test backup restoration procedures, verify RTO/RPO targets are met, test cross-region failover scenarios",
+        "priority": "critical",
+        "details": "The strategy must define and test for specific Recovery Time Objectives (RTO) and Recovery Point Objectives (RPO). Leverage Convex's built-in periodic backups with 99.999999999% (11 9's) durability. Implement automated exports via GitHub Actions and use Convex dashboard for backup management. Test quarterly to verify backup integrity and restoration procedures.",
+        "testStrategy": "Test backup restoration procedures using Convex dashboard, verify RTO/RPO targets are met with built-in backups, test automated export workflows via GitHub Actions",
         "subtasks": [
           {
             "id": 1,
             "title": "Define RTO and RPO requirements",
-            "description": "Establish Recovery Time Objective (4 hours) and Recovery Point Objective (15 minutes) targets",
-            "status": "pending"
+            "description": "Establish Recovery Time Objective (4 hours) and Recovery Point Objective (15 minutes) targets, accounting for Convex's built-in backup capabilities",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Implement automated Convex backup strategy",
-            "description": "Set up automated daily backups of Convex database with proper retention policies",
-            "status": "pending"
+            "title": "Configure Convex periodic backups",
+            "description": "Set up and configure Convex dashboard periodic backups with appropriate retention policies using built-in features",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Configure cross-region backup replication",
-            "description": "Replicate backups to secondary region for disaster recovery protection",
-            "status": "pending"
+            "title": "Implement GitHub Actions automated exports",
+            "description": "Create GitHub Actions workflow to automatically export Convex data for additional backup redundancy",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Implement backup encryption",
-            "description": "Ensure all backups are encrypted both in transit and at rest",
-            "status": "pending"
+            "title": "Verify built-in backup encryption",
+            "description": "Confirm that Convex's built-in backups provide proper encryption both in transit and at rest (11 9's durability)",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
             "title": "Create backup restoration procedures",
-            "description": "Document and test procedures for restoring from backup in various failure scenarios",
-            "status": "pending"
+            "description": "Document and test procedures for restoring from Convex periodic backups and automated exports in various failure scenarios",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 6,
             "title": "Schedule quarterly backup testing",
-            "description": "Implement regular testing schedule to verify backup integrity and restoration procedures",
-            "status": "pending"
+            "description": "Implement regular testing schedule to verify Convex backup integrity and restoration procedures using dashboard tools",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
@@ -271,54 +363,90 @@
       {
         "id": 6,
         "title": "PHASE 0: Implement WorkOS AuthKit with Convex Integration",
-        "description": "Set up WorkOS AuthKit for enterprise authentication integrated with Convex using official AuthKit connector",
-        "priority": "critical",
+        "description": "Set up WorkOS AuthKit for enterprise authentication integrated with Convex using official @workos-inc/authkit-nextjs integration with ConvexProviderWithAuthKit pattern. Implement clean separation between authentication (WorkOS identity verification) and authorization (Convex-based permissions).",
         "status": "pending",
-        "phase": "0-secure-bedrock",
-        "details": "Configure WorkOS AuthKit with @convex-dev/workos connector, set up AuthKitProvider, implement client/server authentication flows, manage organization context through WorkOS.",
         "dependencies": [
           "1",
           "2",
           "4",
-          "5"
+          "5",
+          "39"
         ],
-        "testStrategy": "Test WorkOS AuthKit login/logout flows, test organization switching, verify token validation between WorkOS and Convex, test session persistence",
+        "priority": "critical",
+        "details": "Configure WorkOS AuthKit using @workos-inc/authkit-nextjs with ConvexProviderWithAuthKit pattern following official documentation. WorkOS provides identity verification only (AuthN) while Convex handles all authorization (AuthZ) including roles, permissions, and organization memberships. Implement createOrUpdateUser callback to sync identity data from WorkOS to Convex users table. Maintain multi-tenancy hierarchy (ownerAccounts → organizations → users) entirely in Convex for fast local permission checks.",
+        "testStrategy": "Test WorkOS AuthKit login/logout flows, verify identity sync to Convex users table, test organization switching with Convex-based permissions, validate token validation between WorkOS and Convex, test session persistence, verify authorization checks use Convex data not WorkOS",
         "subtasks": [
           {
             "id": 1,
-            "title": "Set up WorkOS AuthKit and Convex connector",
-            "description": "Install @workos-inc/authkit-react and @convex-dev/workos, configure WorkOS dashboard with redirect URIs",
-            "status": "pending"
+            "title": "Install and configure WorkOS AuthKit Next.js integration",
+            "description": "Install @workos-inc/authkit-nextjs and configure WorkOS dashboard with proper redirect URIs for development and production following official documentation",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Configure auth.config.ts with WorkOS provider",
-            "description": "Set up Convex auth configuration to use WorkOS AuthKit as authentication provider",
-            "status": "pending"
+            "title": "Configure CORS settings in WorkOS dashboard",
+            "description": "Set up CORS configuration in WorkOS dashboard to allow both development (localhost:3000) and production domains",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Implement AuthKit client-side providers",
-            "description": "Wrap app with AuthKitProvider and ConvexProviderWithAuthKit for authentication flow",
-            "status": "pending"
+            "title": "Implement ConvexProviderWithAuthKit pattern",
+            "description": "Set up ConvexProviderWithAuthKit following official integration pattern from https://docs.convex.dev/auth/authkit for identity verification only",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Set up authentication routes and callbacks",
-            "description": "Create authentication routes, handle WorkOS callbacks, implement sign-in/sign-out flows",
-            "status": "pending"
+            "title": "Set up Next.js authentication routes",
+            "description": "Create authentication routes using @workos-inc/authkit-nextjs, handle WorkOS callbacks, implement sign-in/sign-out flows",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Implement server-side authentication",
-            "description": "Access user information in Convex functions, validate tokens, manage user sessions",
-            "status": "pending"
+            "title": "Implement createOrUpdateUser callback for identity sync",
+            "description": "Create callback function to sync WorkOS identity data (email, name, WorkOS user ID) to Convex users table while preserving all application data (roles, memberships, preferences)",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 6,
-            "title": "Configure organization and user management",
-            "description": "Set up organization context switching, user profile management through WorkOS AuthKit",
-            "status": "pending"
+            "title": "Implement Convex-based authorization system",
+            "description": "Store all permissions, roles, and organization memberships in Convex database. Create helper functions for fast local permission checks that don't rely on WorkOS data",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Configure organization context with Convex multi-tenancy",
+            "description": "Implement organization switching using Convex-stored membership data, maintain ownerAccounts → organizations → users hierarchy in Convex for fast permission queries",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Replace frontend auth with Convex hooks",
+            "description": "Migrate frontend authentication from mock API calls to Convex auth hooks",
+            "details": "Replace all fetch('/api/auth/*') calls in AuthContext.tsx, auth pages, and components with Convex auth hooks (useConvexAuth, useAuthActions). Update /app/auth/page.tsx to use WorkOS AuthKit sign-in component. Replace mock session management in contexts/AuthContext.tsx with Convex auth state. Update all components that check authentication status to use Convex auth hooks instead of mock context. Test sign-in/sign-out flows work with WorkOS + Convex integration.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 6
           }
         ]
       },
@@ -378,92 +506,138 @@
         "id": 8,
         "title": "PHASE 0: Implement Convex Security and Compliance Framework",
         "description": "Layer security patterns, rate limiting, audit logging on top of secure Convex auth/permission base",
-        "priority": "critical",
         "status": "pending",
-        "phase": "0-secure-bedrock",
-        "details": "Implement security patterns for Convex functions, set up rate limiting for mutations, implement comprehensive audit logging in Convex tables.",
         "dependencies": [
           "1",
           "6",
           "7"
         ],
-        "testStrategy": "Test rate limiting blocks function abuse, verify audit logs capture all admin mutations, test input sanitization across functions",
+        "priority": "critical",
+        "details": "Implement security patterns for Convex functions using official Convex Rate Limiter component, implement comprehensive audit logging in Convex tables, and configure GDPR/CCPA compliance mutations.",
+        "testStrategy": "Test official Convex Rate Limiter blocks function abuse with configurable limits, verify audit logs capture all admin mutations, test input sanitization across functions, validate GDPR data export/deletion workflows",
         "subtasks": [
           {
             "id": 1,
             "title": "Configure Convex security patterns",
-            "description": "Input validation, XSS prevention, function-level security checks",
-            "status": "pending"
+            "description": "Input validation, XSS prevention, function-level security checks using Convex-specific patterns",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Implement rate limiting for Convex functions",
-            "description": "Per-user function call limiting using Convex rate limiting patterns",
-            "status": "pending"
+            "title": "Implement official Convex Rate Limiter component",
+            "description": "Use @convex-dev/rate-limiter for type-safe, transactional, fair rate limiting with configurable sharding",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Configure Convex CORS settings",
-            "description": "Configure Convex dashboard CORS settings for production domains",
-            "status": "pending"
+            "title": "Create Convex audit logging system",
+            "description": "Log all mutation calls to auditLog table with actor, action, target, timestamp using Convex patterns",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Create Convex audit logging system",
-            "description": "Log all mutation calls to auditLog table with actor, action, target, timestamp",
-            "status": "pending"
+            "title": "Implement GDPR/CCPA mutations",
+            "description": "Data export and deletion mutations with proper authorization checks and audit trails",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Implement GDPR/CCPA mutations",
-            "description": "Data export and deletion mutations with proper authorization checks",
-            "status": "pending"
+            "title": "Configure production security settings",
+            "description": "Configure CORS in WorkOS and Convex dashboards, set up environment-specific security configurations",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 9,
         "title": "PHASE 0: Implement Convex Circuit Breaker System",
-        "description": "Build production-grade circuit breaker system for external API calls with state management and recovery patterns",
-        "priority": "critical",
+        "description": "Build production-grade circuit breaker system for external API calls with modern resilience patterns including exponential backoff, adaptive thresholds, and rate limiting",
         "status": "pending",
-        "phase": "0-secure-bedrock",
-        "details": "Implement circuit breaker pattern using Convex tables to track failure states, implement automatic recovery, integrate with all external API calls (WorkOS, Kisi, Stripe).",
         "dependencies": [
           "1",
           "4"
         ],
-        "testStrategy": "Test circuit breaker triggers on API failures, verify automatic recovery, test fallback mechanisms, ensure state persistence across Convex deployments",
+        "priority": "critical",
+        "details": "Implement modern circuit breaker pattern using Convex tables to track failure states with exponential backoff and jitter, adaptive thresholds based on time windows, Token Bucket algorithm for rate limiting, and automatic recovery. Integrate with all external API calls (WorkOS, Kisi, Stripe) to prevent cascading failures and thundering herd problems.",
+        "testStrategy": "Test circuit breaker triggers on API failures, verify exponential backoff with jitter prevents thundering herd, test adaptive threshold adjustments based on time windows, verify Token Bucket rate limiting, test automatic recovery, ensure state persistence across Convex deployments",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create circuit breaker Convex schema",
-            "description": "Define circuitBreakers table with state tracking, failure counters, timestamps",
-            "status": "pending"
+            "title": "Create circuit breaker Convex schema with modern patterns",
+            "description": "Define circuitBreakers table with time-window based failure tracking, exponential backoff state, jitter configuration, and Token Bucket counters",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Implement circuit breaker logic in Convex functions",
-            "description": "Core circuit breaker patterns with OPEN/HALF_OPEN/CLOSED states and failure thresholds",
-            "status": "pending"
+            "title": "Implement core circuit breaker logic with adaptive thresholds",
+            "description": "Circuit breaker patterns with OPEN/HALF_OPEN/CLOSED states, time-window based failure tracking instead of simple counters, adaptive threshold adjustment",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Integrate with WorkOS API calls",
-            "description": "Wrap all WorkOS authentication calls with circuit breaker protection",
-            "status": "pending"
+            "title": "Add exponential backoff with jitter algorithm",
+            "description": "Implement exponential backoff with random jitter to prevent thundering herd when multiple circuit breakers recover simultaneously",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Integrate with Kisi API calls",
-            "description": "Wrap all Kisi door access calls with circuit breaker protection and fallback modes",
-            "status": "pending"
+            "title": "Implement Token Bucket rate limiting",
+            "description": "Add Token Bucket algorithm for rate limiting external API calls, preventing overload during recovery periods",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Add monitoring and alerting",
-            "description": "Track circuit breaker state changes, alert on sustained failures",
-            "status": "pending"
+            "title": "Integrate with WorkOS API calls",
+            "description": "Wrap all WorkOS authentication calls with modern circuit breaker protection including adaptive thresholds and rate limiting",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Integrate with Kisi API calls",
+            "description": "Wrap all Kisi door access calls with circuit breaker protection, exponential backoff, and fallback modes",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Add monitoring and alerting for modern patterns",
+            "description": "Track circuit breaker state changes, exponential backoff intervals, Token Bucket utilization, and alert on sustained failures with time-window analysis",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
@@ -563,100 +737,123 @@
       {
         "id": 12,
         "title": "PHASE 0: Create Production-Grade CI/CD Pipeline & Testing Framework",
-        "description": "Set up automated testing, linting, type-checking, and Convex deployment with comprehensive testing infrastructure",
-        "priority": "critical",
+        "description": "Set up automated testing, linting, type-checking, and Convex deployment with comprehensive testing infrastructure using Vitest and convex-test library",
         "status": "pending",
-        "phase": "0-secure-bedrock",
-        "details": "Configure GitHub Actions for CI/CD with Convex deployment, set up comprehensive linting, TypeScript checking, testing, security scanning, and automated Convex schema migrations. Configure Jest for Convex function testing.",
         "dependencies": [
           "1",
           "6",
           "7"
         ],
-        "testStrategy": "Verify pipeline blocks PRs with failing tests/lint/typecheck, ensure Convex schema validation runs, test deployment rollback capabilities, ensure tests cover all security scenarios",
+        "priority": "critical",
+        "details": "Configure GitHub Actions for CI/CD with Convex deployment, set up comprehensive linting, TypeScript checking, testing with Vitest, security scanning, and automated Convex schema migrations. Use convex-test library for mocked backend testing and @convex-dev/testing patterns for integration testing of Convex functions.",
+        "testStrategy": "Verify pipeline blocks PRs with failing tests/lint/typecheck, ensure Convex schema validation runs, test deployment rollback capabilities, ensure tests cover all security scenarios using convex-test mocking capabilities",
         "subtasks": [
           {
             "id": 1,
             "title": "Set up GitHub Actions workflow for Convex",
             "description": "Create .github/workflows for CI/CD with Convex deployment integration",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
             "title": "Configure ESLint and Prettier for Convex",
             "description": "Linting and formatting rules optimized for Convex TypeScript patterns",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
             "title": "Set up TypeScript strict mode for Convex",
             "description": "Enable all strict checks with Convex type safety optimizations",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Configure Jest for Convex functions",
-            "description": "Set up Jest with TypeScript support and Convex test client",
-            "status": "pending"
+            "title": "Configure Vitest for Convex functions",
+            "description": "Set up Vitest with TypeScript support and convex-test library for mocked backend testing",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Set up Convex function testing",
-            "description": "Integration test setup for mutations and queries using Convex test framework",
-            "status": "pending"
+            "title": "Set up convex-test integration testing",
+            "description": "Integration test setup for mutations and queries using @convex-dev/testing patterns with complete mocking capabilities",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 6,
-            "title": "Create test Convex environment",
-            "description": "Isolated test Convex deployment with clean data for each test run",
-            "status": "pending"
+            "title": "Build Convex auth test utilities with convex-test",
+            "description": "Helpers for mocking authenticated Convex sessions and organization context using convex-test mocking framework",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 7,
-            "title": "Build Convex auth test utilities",
-            "description": "Helpers for mocking authenticated Convex sessions and organization context",
-            "status": "pending"
+            "title": "Set up Convex function coverage reporting with Vitest",
+            "description": "80% minimum coverage enforcement for mutations and queries using Vitest coverage reporting",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 8,
-            "title": "Set up Convex function coverage reporting",
-            "description": "80% minimum coverage enforcement for mutations and queries",
-            "status": "pending"
+            "title": "Create comprehensive test automation",
+            "description": "Run unit tests, integration tests, Convex schema validation, and type checking on every PR using Vitest and convex-test",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 9,
-            "title": "Create comprehensive test automation",
-            "description": "Run unit tests, integration tests, Convex schema validation, and type checking on every PR",
-            "status": "pending"
+            "title": "Integrate dependency scanning",
+            "description": "Add Snyk, Dependabot, or similar dependency vulnerability scanning to CI/CD pipeline",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 10,
-            "title": "Integrate dependency scanning",
-            "description": "Add Snyk, Dependabot, or similar dependency vulnerability scanning to CI/CD pipeline",
-            "status": "pending"
+            "title": "Integrate Static Application Security Testing (SAST)",
+            "description": "Add CodeQL, SonarQube, or similar SAST tools to CI/CD pipeline for code security scanning",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 11,
-            "title": "Integrate Static Application Security Testing (SAST)",
-            "description": "Add CodeQL, SonarQube, or similar SAST tools to CI/CD pipeline for code security scanning",
-            "status": "pending"
-          },
-          {
-            "id": 12,
             "title": "Implement Convex deployment workflows",
             "description": "Staging auto-deploy with schema migrations, production manual approval with rollback capability",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 13,
         "title": "PHASE 1: Create Multi-Step Onboarding System",
-        "description": "First complex feature - implement stateful onboarding with Convex session management and security",
-        "priority": "high",
+        "description": "Connect existing multi-step onboarding wizard UI to real Convex backend functionality - replace mock API calls with stateful Convex session management while preserving exact UX",
         "status": "pending",
-        "phase": "1-vertical-slice",
-        "details": "Create onboarding session management in Convex tables, implement state persistence with proper validation using Convex reactivity.",
         "dependencies": [
           "1",
           "2",
@@ -670,43 +867,81 @@
           "11",
           "12"
         ],
-        "testStrategy": "Test complete flow with Convex security checks at each step, verify session validation works across functions",
+        "priority": "high",
+        "details": "Transform the existing onboarding wizard in /app/onboarding/page.tsx from mock API calls (/api/onboarding/*) to real Convex functions with persistent session management. Create Convex session tables, implement state persistence with proper validation using Convex reactivity, and ensure seamless frontend-backend connection without changing the existing onboarding UX.",
+        "testStrategy": "Test complete onboarding flow preserves existing UX while using real Convex persistence, verify session state survives browser refresh, validate Convex security checks at each step, ensure mock-to-Convex transition is seamless",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create onboarding session management",
-            "description": "Session creation, storage, expiration",
-            "status": "pending"
+            "title": "Analyze existing onboarding wizard UI structure",
+            "description": "Map current mock API calls in /app/onboarding/page.tsx to required Convex functions",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Implement state persistence",
-            "description": "Save progress between steps securely",
-            "status": "pending"
+            "title": "Create Convex onboarding session schema",
+            "description": "Define onboarding_sessions table with step tracking, expiration, and user association",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Build recovery flows",
-            "description": "Handle browser close, expired sessions",
-            "status": "pending"
+            "title": "Implement Convex onboarding functions",
+            "description": "Create createOnboardingSession, updateOnboardingStep, getOnboardingProgress, completeOnboarding functions",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Create cleanup cronJob for sessions",
-            "description": "Define cronJob in convex/crons.ts to remove orphaned onboarding sessions after 24 hours",
-            "status": "pending"
+            "title": "Replace mock API calls with Convex hooks",
+            "description": "Convert fetch('/api/onboarding/*') calls to useQuery and useMutation hooks in onboarding components",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Integrate with owner/org creation",
-            "description": "Connect to organization creation flow",
-            "status": "pending"
+            "title": "Implement state recovery on page refresh",
+            "description": "Use Convex queries to restore onboarding progress when users return to wizard",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 6,
             "title": "INTEGRATION: Connect Onboarding Wizard UI",
             "description": "Connect the multi-step onboarding wizard in the CRM Admin frontend to the stateful /onboarding/... API endpoints.",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "<info added on 2025-09-01T05:34:03.265Z>\nReplace mock onboarding API calls in /app/onboarding/page.tsx (currently using fetch('/api/onboarding/*')) with Convex useQuery and useMutation hooks. Create required Convex functions: createOnboardingSession, updateOnboardingStep, and completeOnboarding. Update multi-step form components to use useMutation for each step completion instead of REST calls. Replace current mock session management with real Convex-stored session state that persists across browser refreshes. Implement proper state recovery by using Convex queries to restore onboarding progress when users return to the wizard. Test that onboarding wizard maintains state between steps and gracefully handles browser refresh scenarios using Convex real-time data synchronization.\n</info added on 2025-09-01T05:34:03.265Z>",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Create cleanup cronJob for orphaned sessions",
+            "description": "Define cronJob in convex/crons.ts to remove expired onboarding sessions after 24 hours",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Connect to organization creation flow",
+            "description": "Ensure successful onboarding completion triggers organization/owner creation in Convex",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
@@ -757,118 +992,174 @@
             "id": 6,
             "title": "INTEGRATION: Connect Location/Organization Settings UI",
             "description": "Connect the 'Location Settings' page in the CRM Admin frontend to the organization CRUD endpoints.",
-            "status": "pending"
+            "status": "pending",
+            "details": "<info added on 2025-09-01T05:34:39.156Z>\nReplace mock API calls in /app/settings/page.tsx that use fetch('/api/organizations/*') with Convex useQuery and useMutation hooks. Create Convex functions: getOrganizations, updateOrganization, switchCurrentOrganization. Update the Location Settings form to use useMutation for organization updates. Replace the organization context switching logic to use Convex mutations instead of mock API calls. Add real-time organization updates so when settings change, all users see updates immediately via Convex subscriptions. Test organization switching works properly with Convex auth context and permission checks.\n</info added on 2025-09-01T05:34:39.156Z>"
           }
         ]
       },
       {
         "id": 15,
         "title": "PHASE 1: [TEAMMATE] Implement Stripe Integration",
-        "description": "Your teammate's task: Implement complete Stripe payment processing integration",
-        "priority": "high",
+        "description": "Your teammate's task: Implement complete Stripe payment processing integration using latest Convex+Stripe patterns",
         "status": "pending",
-        "phase": "1-vertical-slice",
-        "details": "Complete Stripe integration including payment processing, webhook handling, subscription management, and financial transaction recording. This task is assigned to your teammate.",
         "dependencies": [
           "14"
         ],
-        "testStrategy": "Test payment flows, webhook handling, subscription lifecycle management",
+        "priority": "high",
+        "details": "Complete Stripe integration using Convex HTTP routes for webhook handling, checkout session tracking in Convex tables, and billing_mode[type]: flexible for enhanced subscription behavior (requires Stripe API 2025-06-30.basil or later). Implement resilient payment processing with automatic retry logic and circuit breaker patterns. This task is assigned to your teammate.",
+        "testStrategy": "Test payment flows with latest Stripe API, webhook handling via Convex HTTP routes, subscription lifecycle management with flexible billing mode, resilient payment processing with retry scenarios",
         "subtasks": [
           {
             "id": 1,
-            "title": "Set up Stripe API integration",
-            "description": "Configure Stripe SDK and API keys securely",
-            "status": "pending"
+            "title": "Set up Stripe API integration with 2025-06-30.basil version",
+            "description": "Configure Stripe SDK with latest API version, set up API keys securely in Convex environment",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Implement payment processing endpoints",
-            "description": "Handle one-time payments, subscriptions, refunds",
-            "status": "pending"
+            "title": "Implement payment processing endpoints with resilient patterns",
+            "description": "Handle one-time payments, subscriptions, refunds with automatic retry logic and circuit breaker protection",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Build webhook handling system",
-            "description": "Process Stripe webhooks for payment status updates",
-            "status": "pending"
+            "title": "Build webhook handling system using Convex HTTP routes",
+            "description": "Process Stripe webhooks via Convex HTTP routes for payment status updates, implement proper signature verification",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Create financial transaction logging",
-            "description": "Record all financial transactions for reconciliation",
-            "status": "pending"
+            "title": "Create checkout session tracking in Convex tables",
+            "description": "Store and track Stripe checkout sessions in Convex database for session management and recovery",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Implement subscription management",
-            "description": "Handle subscription lifecycle, upgrades, downgrades",
-            "status": "pending"
+            "title": "Implement flexible subscription management with billing_mode",
+            "description": "Handle subscription lifecycle using billing_mode[type]: flexible for enhanced subscription behavior, upgrades, downgrades",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Create financial transaction logging with audit trail",
+            "description": "Record all financial transactions in Convex with comprehensive audit logging for reconciliation and compliance",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 16,
         "title": "PHASE 1: [TEAMMATE] Implement Kisi Access Control Integration",
-        "description": "Your teammate's task: Create comprehensive Kisi API integration for physical door access management",
-        "priority": "high",
+        "description": "Your teammate's task: Create comprehensive Kisi API integration for physical door access management with single-flight throttling",
         "status": "pending",
-        "phase": "1-vertical-slice",
-        "details": "Implement complete Kisi integration including API wrapper service, membership-to-group sync, door unlock endpoints, multi-location access management, nightly reconciliation jobs, and mobile app APIs. This task is assigned to your teammate.",
         "dependencies": [
           "1",
           "6",
           "7",
           "14"
         ],
-        "testStrategy": "Test door access scenarios, membership sync, reconciliation accuracy",
+        "priority": "high",
+        "details": "Implement complete Kisi integration including API wrapper service, membership-to-group sync, door unlock endpoints with single-flight throttling, multi-location access management, nightly reconciliation jobs, and mobile app APIs. Use Convex's built-in mechanisms to ensure only one door unlock operation is in flight per user at a time, preventing abuse and ensuring reliable access operations. This task is assigned to your teammate.",
+        "testStrategy": "Test door access scenarios with concurrent requests, membership sync, reconciliation accuracy, single-flight throttling behavior",
         "subtasks": [
           {
             "id": 1,
             "title": "Create Kisi database schema and configuration",
-            "description": "Add kisi_access_log table, organizations.kisi_api_key_encrypted field, kisi_group_mappings table",
-            "status": "pending"
+            "description": "Add kisi_access_log table, organizations.kisi_api_key_encrypted field, kisi_group_mappings table, user_door_unlock_state table for throttling",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
             "title": "Build Kisi API wrapper service",
             "description": "Create KisiService class with all necessary methods",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
             "title": "Implement membership-to-Kisi sync service",
             "description": "Sync membership status changes to Kisi groups automatically",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Create door unlock API endpoints",
-            "description": "Build mobile app door unlock endpoints with proper security",
-            "status": "pending"
+            "title": "Create door unlock API endpoints with single-flight throttling",
+            "description": "Build mobile app door unlock endpoints with proper security and single-flight throttling using Convex mechanisms to prevent concurrent requests per user",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
             "title": "Build multi-location access management",
             "description": "Handle cross-location access and multi-org memberships",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 6,
             "title": "Implement nightly reconciliation using Convex cronJobs",
             "description": "Define nightly Kisi sync job in convex/crons.ts to sync CRM data with Kisi groups",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 7,
             "title": "Create comprehensive error handling and retry logic",
             "description": "Handle Kisi API failures gracefully with retry logic",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 8,
             "title": "INTEGRATION: Connect Mobile App Door Unlock UI",
             "description": "Connect the Mobile App's 'Door Access' tab to the door unlock endpoints.",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 9,
+            "title": "Implement single-flight throttling mechanism",
+            "description": "Create Convex mutation to track and prevent concurrent door unlock requests per user, using optimistic concurrency control to ensure only one operation per user at a time",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
@@ -919,7 +1210,8 @@
             "id": 6,
             "title": "INTEGRATION: Populate Client & Employee List UIs from API",
             "description": "Connect the 'Clients' and 'Employees' data tables in the CRM Admin frontend to their respective GET endpoints.",
-            "status": "pending"
+            "status": "pending",
+            "details": "<info added on 2025-09-01T05:35:08.527Z>\nReplace fetch('/api/clients') and fetch('/api/employees') calls in /app/people/clients/page.tsx and /app/people/employees/page.tsx with Convex useQuery hooks. Create Convex queries: getClients, getEmployees with proper organization filtering and pagination. Update data tables to use Convex query results instead of mock data from state. Add real-time updates so when clients/employees are added/modified elsewhere, the lists update automatically. Replace search and filtering logic to use Convex query parameters. Test that permission checks work properly - users only see clients/employees from their authorized organizations.\n</info added on 2025-09-01T05:35:08.527Z>"
           }
         ]
       },
@@ -1110,6 +1402,15 @@
             "title": "INTEGRATION: Connect Client & Employee CRUD UIs",
             "description": "Connect the 'Add/Edit/Delete' modals and 'Specialties' management UI for both Clients and Employees to their respective backend API endpoints.",
             "status": "pending"
+          },
+          {
+            "id": 7,
+            "title": "Migrate frontend CRUD operations to Convex",
+            "description": "Replace all client/employee CRUD operations from REST API to Convex mutations",
+            "details": "Replace POST/PUT/DELETE fetch calls in client management components with Convex useMutation hooks. Create Convex mutations: createClient, updateClient, deleteClient, createEmployee, updateEmployee, deleteEmployee. Update add/edit modal forms to use useMutation for submissions instead of fetch('/api/clients', {method: 'POST'}). Add optimistic updates for better UX. Remove corresponding mock API routes (/api/clients/route.ts, /api/employees/route.ts) once Convex integration is complete. Test that form submissions work with Convex validation and error handling.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 21
           }
         ]
       },
@@ -1162,6 +1463,15 @@
             "title": "INTEGRATION: Connect Membership & 'Sell Day Pass' UI",
             "description": "Connect the client's membership management UI and the 'Sell Day Pass' flow in the CRM to the backend membership endpoints.",
             "status": "pending"
+          },
+          {
+            "id": 7,
+            "title": "Connect membership UI to Convex real-time data",
+            "description": "Replace membership management API calls with Convex queries and mutations with real-time updates",
+            "details": "Update membership management components to use Convex useQuery for loading membership data with real-time updates. Replace 'Sell Day Pass' form submissions with Convex useMutation. Create Convex queries: getMemberships, getActiveMemberships with automatic subscription updates when status changes. Add real-time membership status updates so staff can see when memberships expire or are renewed immediately. Update access verification logic to use Convex queries instead of REST API calls. Test that membership changes propagate in real-time across all connected clients.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 22
           }
         ]
       },
@@ -1213,6 +1523,15 @@
             "title": "INTEGRATION: Connect Class Calendar & Tour Management UI",
             "description": "Connect the 'Classes' calendar, 'Programs' list, and 'Tours' list views in both the CRM and Mobile App to the full suite of event booking APIs.",
             "status": "pending"
+          },
+          {
+            "id": 7,
+            "title": "Implement real-time class calendar with Convex",
+            "description": "Replace class calendar and booking UI with real-time Convex subscriptions",
+            "details": "Update class calendar components (/app/classes/events/page.tsx) to use Convex useQuery with real-time updates. Replace event booking API calls with Convex useMutation for immediate capacity updates. Create Convex queries: getEvents, getEventAttendance with real-time subscriptions so all users see booking changes instantly. Update tour management UI to use Convex mutations for tour_type and lead_source tracking. Add real-time attendance updates - when someone checks in, all staff see the update immediately. Test that calendar shows live capacity changes and booking conflicts are handled properly with Convex's transactional mutations.",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 23
           }
         ]
       },
@@ -1331,104 +1650,174 @@
       {
         "id": 26,
         "title": "PHASE 2: Implement Analytics Module",
-        "description": "Create analytics endpoints with proper data access controls",
-        "priority": "medium",
+        "description": "Create analytics endpoints with proper data access controls and real-time dashboard updates using Convex subscriptions",
         "status": "pending",
-        "phase": "2-core-features",
-        "details": "Implement revenue analytics with permission checks, create attendance reports.",
         "dependencies": [
           "21",
           "22",
           "23"
         ],
-        "testStrategy": "Verify data isolation in reports, test performance with large datasets",
+        "priority": "medium",
+        "details": "Implement revenue analytics with permission checks, create attendance reports, and build real-time dashboard using Convex useQuery hooks. All analytics data should update automatically via Convex subscriptions without manual refresh, providing live business intelligence with charts and KPIs that refresh in real-time as new data comes in.",
+        "testStrategy": "Verify data isolation in reports, test performance with large datasets, validate real-time subscription updates work correctly, ensure dashboard components re-render automatically when underlying data changes",
         "subtasks": [
           {
             "id": 1,
-            "title": "Create revenue analytics",
-            "description": "Revenue reports by location",
-            "status": "pending"
+            "title": "Create revenue analytics with real-time updates",
+            "description": "Revenue reports by location using Convex useQuery hooks for live data updates",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Build attendance reports",
-            "description": "Class utilization metrics",
-            "status": "pending"
+            "title": "Build attendance reports with live metrics",
+            "description": "Class utilization metrics that update in real-time via Convex subscriptions",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Implement client analytics",
-            "description": "Client behavior patterns",
-            "status": "pending"
+            "title": "Implement client analytics with live tracking",
+            "description": "Client behavior patterns with real-time updates using Convex reactive queries",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Add cross-org reporting",
-            "description": "Multi-location dashboards",
-            "status": "pending"
+            "title": "Add cross-org reporting with real-time data",
+            "description": "Multi-location dashboards with live data synchronization via Convex subscriptions",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
             "title": "Create export functionality",
-            "description": "CSV/PDF report exports",
-            "status": "pending"
+            "description": "CSV/PDF report exports with current real-time data snapshots",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 6,
-            "title": "INTEGRATION: Populate Dashboard & Analytics UI",
-            "description": "Connect all charts, graphs, KPIs, and reports on the Dashboard, Analytics, and Financial pages to the backend analytics endpoints.",
-            "status": "pending"
+            "title": "INTEGRATION: Populate Dashboard & Analytics UI with Real-Time Updates",
+            "description": "Connect all charts, graphs, KPIs, and reports on the Dashboard, Analytics, and Financial pages to backend analytics endpoints using Convex useQuery hooks. Implement real-time dashboard updates that automatically refresh without manual intervention.",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Implement real-time dashboard subscriptions",
+            "description": "Set up Convex useQuery hooks for live revenue, attendance, and client metrics updates across all dashboard components",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Configure automatic chart refreshing",
+            "description": "Ensure all charts and graphs automatically re-render when Convex data changes without manual refresh",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 27,
         "title": "PHASE 2: Create Notification Engine",
-        "description": "Implement notification system with user consent and preferences",
-        "priority": "medium",
+        "description": "Implement real-time notification system with user consent, preferences, and Convex subscriptions for immediate delivery",
         "status": "pending",
-        "phase": "2-core-features",
-        "details": "Set up notification templates with sanitization, implement in-app notifications with read/unread status.",
         "dependencies": [
           "21"
         ],
-        "testStrategy": "Test opt-out is respected, verify template injection is prevented",
+        "priority": "medium",
+        "details": "Set up notification templates with sanitization, implement real-time in-app notifications using Convex subscriptions for immediate delivery without page refresh. Use Convex useQuery hooks for live notification bell updates and notification center UI that shows new notifications as they arrive.",
+        "testStrategy": "Test opt-out is respected, verify template injection is prevented, test real-time notification delivery, verify live bell icon updates without refresh",
         "subtasks": [
           {
             "id": 1,
             "title": "Create notification templates",
-            "description": "Email and push templates",
-            "status": "pending"
+            "description": "Email and push templates with sanitization",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Implement in-app notifications",
-            "description": "GET /notifications with unread count, POST /notifications/:id/mark-as-read",
-            "status": "pending"
+            "title": "Implement real-time in-app notifications with Convex subscriptions",
+            "description": "Create Convex queries for notifications with real-time subscriptions, implement live notification delivery without page refresh",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
             "title": "Build preference system",
-            "description": "User notification preferences",
-            "status": "pending"
+            "description": "User notification preferences with real-time updates",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
             "title": "Add delivery tracking",
-            "description": "Track notification delivery",
-            "status": "pending"
+            "description": "Track notification delivery with real-time status updates",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
             "title": "Create unsubscribe flow",
-            "description": "One-click unsubscribe",
-            "status": "pending"
+            "description": "One-click unsubscribe with immediate preference updates",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 6,
-            "title": "INTEGRATION: Connect In-App Notification Center UI",
-            "description": "Connect the notification bell icon and notification center UI in the CRM/App to the in-app notification endpoints.",
-            "status": "pending"
+            "title": "INTEGRATION: Connect In-App Notification Center UI with Real-time Updates",
+            "description": "Connect notification bell icon and notification center UI to use Convex useQuery hooks for real-time notification updates, implement live bell badge updates",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Implement live notification bell icon updates",
+            "description": "Use Convex subscriptions to update notification bell badge count in real-time as new notifications arrive",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 8,
+            "title": "Create real-time notification center UI",
+            "description": "Build notification center component that uses Convex useQuery hooks to show new notifications immediately without refresh",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
@@ -1674,46 +2063,60 @@
       {
         "id": 33,
         "title": "PHASE 3: Implement Audit Trail Hardening",
-        "description": "Ensure audit trails meet enterprise-grade retention and immutability requirements",
-        "priority": "low",
+        "description": "Ensure audit trails meet enterprise-grade retention and immutability requirements using Convex native capabilities",
         "status": "pending",
-        "phase": "3-enterprise-polish",
-        "details": "Implement strategy for immutable, long-term storage of audit logs to meet 7-year retention requirements for financial and compliance audits. Ensure logs are searchable and tamper-proof.",
         "dependencies": [
           "8",
           "28"
         ],
-        "testStrategy": "Test log immutability, verify 7-year retention policies, test search functionality across historical logs",
+        "priority": "low",
+        "details": "Leverage Convex's built-in durability and tamper-proof storage for audit trails. Implement 7-year retention using Convex export capabilities with automated archival patterns. Focus on compliance reporting and searchability using Convex's native backup and export features rather than custom immutable storage solutions.",
+        "testStrategy": "Test Convex export functionality for audit data, verify automated archival processes, test compliance report generation, validate audit log searchability through Convex queries",
         "subtasks": [
           {
             "id": 1,
-            "title": "Implement immutable audit log storage",
-            "description": "Move audit logs to append-only, tamper-proof storage (e.g., AWS S3 with Object Lock)",
-            "status": "pending"
+            "title": "Configure Convex audit log queries for compliance",
+            "description": "Create efficient Convex queries for audit trail data with proper indexes for compliance searches",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Create 7-year retention automation",
-            "description": "Implement automated archival to long-term storage (e.g., Glacier) with proper lifecycle management",
-            "status": "pending"
+            "title": "Implement automated Convex data export for archival",
+            "description": "Set up scheduled functions to export audit logs using Convex export API for long-term storage",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Build audit log search interface",
-            "description": "Create searchable interface for compliance officers to query historical audit data",
-            "status": "pending"
+            "title": "Build compliance reporting interface",
+            "description": "Create searchable interface leveraging Convex queries to access historical audit data for compliance officers",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Implement chain of custody tracking",
-            "description": "Add cryptographic verification for audit log integrity for legal proceedings",
-            "status": "pending"
+            "title": "Implement audit data integrity verification",
+            "description": "Add verification patterns using Convex's built-in data consistency for audit log integrity checks",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Create compliance export functionality",
-            "description": "Build formatted audit exports for regulatory submissions and legal discovery",
-            "status": "pending"
+            "title": "Create regulatory export functionality",
+            "description": "Build formatted audit exports using Convex export capabilities for regulatory submissions and legal discovery",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
@@ -1814,91 +2217,146 @@
         "id": 36,
         "title": "PHASE 3: WCAG 2.1 AA Accessibility Compliance",
         "description": "Ensure frontend applications comply with WCAG 2.1 AA standards for ADA compliance",
-        "priority": "low",
         "status": "pending",
-        "phase": "3-enterprise-polish",
-        "details": "Conduct comprehensive accessibility audit and remediation. Primarily frontend work, but backend must provide semantic data via API to support screen readers and accessibility tools.",
         "dependencies": [
           "17",
           "21"
         ],
-        "testStrategy": "Test with screen readers, verify keyboard navigation, test color contrast ratios, validate ARIA labels and semantic HTML",
+        "priority": "low",
+        "details": "Conduct comprehensive accessibility audit and remediation. Primarily frontend work, but backend must provide semantic data via API to support screen readers and accessibility tools. Convex queries must include accessibility metadata like ARIA labels, descriptions, and semantic context for enhanced frontend accessibility features.",
+        "testStrategy": "Test with screen readers, verify keyboard navigation, test color contrast ratios, validate ARIA labels and semantic HTML, verify Convex API responses include proper accessibility metadata",
         "subtasks": [
           {
             "id": 1,
             "title": "Conduct accessibility audit",
             "description": "Use automated tools (axe, WAVE) and manual testing to identify accessibility violations",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
             "title": "Implement semantic API responses",
             "description": "Ensure APIs provide proper labels, descriptions, and context for screen reader support",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
             "title": "Add accessibility testing to CI/CD",
             "description": "Integrate automated accessibility testing into build pipeline",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
             "title": "Create accessibility documentation",
             "description": "Document accessibility features and provide user guides for assistive technology",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
             "title": "Implement accessibility feedback system",
             "description": "Create mechanism for users to report accessibility issues and request accommodations",
-            "status": "pending"
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Enhance Convex queries with accessibility metadata",
+            "description": "Add structured accessibility data to Convex query responses including ARIA labels, descriptions, semantic context, and role information for screen reader support",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 7,
+            "title": "Create accessibility data schemas in Convex",
+            "description": "Define Convex validators and schemas for accessibility metadata fields that can be included in API responses",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
       {
         "id": 37,
         "title": "PHASE 3: Load Testing and Performance Benchmarking",
-        "description": "Simulate peak hour traffic to identify and resolve performance bottlenecks",
-        "priority": "low",
+        "description": "Simulate peak hour traffic to identify and resolve Convex-specific performance bottlenecks including WebSocket connections and real-time subscriptions",
         "status": "pending",
-        "phase": "3-enterprise-polish",
-        "details": "Use tools like k6 or Artillery to test API response times and database performance under heavy load. Define and meet SLOs for peak gym hours (6-8am, 5-7pm).",
         "dependencies": [
           "26",
           "18"
         ],
-        "testStrategy": "Test under 10x normal load, verify graceful degradation, test auto-scaling triggers, validate SLO compliance",
+        "priority": "low",
+        "details": "Use tools like k6 or Artillery to test Convex function execution times, WebSocket connection limits, and real-time subscription performance under heavy load. Focus on application-level performance issues since Convex auto-scales infrastructure. Define and meet SLOs for peak gym hours (6-8am, 5-7pm) with emphasis on subscription latency and function execution bottlenecks.",
+        "testStrategy": "Test under 10x normal load with focus on WebSocket connection limits, real-time subscription performance, function execution bottlenecks, verify graceful degradation of Convex functions, validate SLO compliance for subscription latency",
         "subtasks": [
           {
             "id": 1,
-            "title": "Set up load testing infrastructure",
-            "description": "Configure k6 or Artillery for comprehensive API load testing",
-            "status": "pending"
+            "title": "Set up Convex-specific load testing infrastructure",
+            "description": "Configure k6 or Artillery for comprehensive Convex function and WebSocket connection testing",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 2,
-            "title": "Create realistic load test scenarios",
-            "description": "Simulate peak hour patterns: class bookings, check-ins, door access requests",
-            "status": "pending"
+            "title": "Create realistic Convex load test scenarios",
+            "description": "Simulate peak hour patterns: concurrent real-time subscriptions, WebSocket connections, function executions for class bookings, check-ins, door access requests",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 3,
-            "title": "Implement performance monitoring",
-            "description": "Add real-time performance metrics and alerting for response time degradation",
-            "status": "pending"
+            "title": "Implement Convex performance monitoring",
+            "description": "Add real-time monitoring for function execution times, subscription latency, and WebSocket connection health",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 4,
-            "title": "Define and implement auto-scaling",
-            "description": "Configure automatic scaling based on load patterns and resource utilization",
-            "status": "pending"
+            "title": "Test WebSocket connection limits and subscription performance",
+            "description": "Identify maximum concurrent WebSocket connections and measure real-time subscription performance degradation under load",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           },
           {
             "id": 5,
-            "title": "Create performance optimization plan",
-            "description": "Document identified bottlenecks and optimization strategies for future improvements",
-            "status": "pending"
+            "title": "Identify function execution bottlenecks",
+            "description": "Profile individual Convex functions to identify performance bottlenecks and optimize application-level code",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
+          },
+          {
+            "id": 6,
+            "title": "Create Convex performance optimization plan",
+            "description": "Document identified application-level bottlenecks and optimization strategies for Convex functions and real-time features",
+            "status": "pending",
+            "dependencies": [],
+            "details": "",
+            "testStrategy": ""
           }
         ]
       },
@@ -1947,11 +2405,22 @@
             "status": "pending"
           }
         ]
+      },
+      {
+        "id": 39,
+        "title": "TASK 0: Initialize Convex in Next.js Frontend",
+        "description": "Set up foundational Convex client integration with WorkOS AuthKit in the Next.js frontend to establish the foundation for all backend functionality. This is the essential first task that must be completed before any other Convex integration work can begin.",
+        "status": "pending",
+        "dependencies": [],
+        "priority": "critical",
+        "details": "1. Install required packages: `npm install convex @convex-dev/auth` 2. Initialize Convex project with `npx convex dev` and configure convex.json with proper deployment settings 3. Set up environment variables for CONVEX_URL and NEXT_PUBLIC_CONVEX_URL in .env.local 4. Create convex/ directory structure with schema.ts, auth.config.ts, and initial function files 5. Replace the existing mock authentication context in src/hooks/useOrganization.tsx with Convex auth hooks 6. Create app layout wrapper using ConvexProviderWithAuthKit, integrating WorkOS AuthKit configuration 7. Update all components currently using mock auth to use Convex auth state 8. Configure WorkOS integration in convex/auth.config.ts with proper domain and client ID settings 9. Test that frontend successfully connects to Convex development server and auth flow works",
+        "testStrategy": "1. Verify `npm run dev` starts without errors and Convex provider initializes 2. Test that `npx convex dev` connects successfully and shows deployment URL 3. Confirm authentication state persists across page reloads using Convex auth hooks 4. Test login/logout flow works with WorkOS AuthKit integration 5. Verify environment variables are properly configured and accessible 6. Check that all existing mock auth-dependent components render without errors 7. Validate that Convex client can execute basic queries/mutations 8. Test that auth context provides expected user data structure matching existing types",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-07-31T01:49:15.746Z",
-      "updated": "2025-08-28T15:30:00.000Z",
+      "updated": "2025-09-01T21:36:38.735Z",
       "description": "Chronologically ordered enterprise-grade task list with proper dependency management and phase-based progression"
     }
   }

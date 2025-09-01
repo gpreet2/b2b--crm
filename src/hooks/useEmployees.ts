@@ -119,9 +119,29 @@ export function useEmployees(options: UseEmployeesOptions = {}): UseEmployeesRet
         throw new Error(data.error || 'Failed to fetch employees');
       }
 
-      const employeeResponse: EmployeeListResponse | EmployeeListWithStatsResponse = data.data;
-      setEmployees(employeeResponse.employees);
-      setPagination(employeeResponse.pagination);
+      const employeeResponse: EmployeeListResponse | EmployeeListWithStatsResponse = data;
+      
+      // Handle the nested data structure from the API
+      const employeesData = Array.isArray(employeeResponse.data) 
+        ? employeeResponse.data 
+        : employeeResponse.data?.employees || [];
+      
+      setEmployees(employeesData);
+      
+      // Transform pagination to match expected format
+      const paginationData = employeeResponse.data?.pagination || employeeResponse.pagination;
+      if (paginationData) {
+        const { page, limit, total } = paginationData;
+        const totalPages = Math.ceil(total / limit);
+        setPagination({
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1
+        });
+      }
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';

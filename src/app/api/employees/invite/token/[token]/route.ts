@@ -11,8 +11,6 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeDatabase, getDatabase } from '@/config/database';
-import { logger } from '@/utils/logger';
 
 interface RouteParams {
   params: Promise<{
@@ -30,70 +28,24 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
   const { token } = await params;
 
   try {
-    logger.info('Invitation token validation request started', { 
-      requestId,
-      token: token.substring(0, 8) + '...' // Log partial token for debugging
-    });
-
-    // Initialize database if not already initialized
-    let db;
-    try {
-      db = getDatabase();
-    } catch (error) {
-      const dbInstance = initializeDatabase({
-        supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      });
-      await dbInstance.initialize();
-      db = dbInstance;
-    }
-
-    // Get invitation details by token
-    const { data: invitation, error: invitationError } = await db
-      .getSupabaseClient()
-      .from('invitation_tokens')
-      .select('*')
-      .eq('token', token)
-      .single();
-
-    if (invitationError || !invitation) {
-      logger.warn('Invitation token not found', { 
-        requestId,
-        token: token.substring(0, 8) + '...',
-        error: invitationError
-      });
-      return NextResponse.json(
-        { error: 'Invalid invitation token.' },
-        { status: 404 }
-      );
-    }
-
-    logger.info('Invitation token validation completed successfully', {
-      requestId,
-      invitationId: invitation.id,
-      email: invitation.email,
-      isAccepted: invitation.is_accepted,
-      isExpired: new Date(invitation.expires_at) <= new Date(),
-      duration: Date.now() - startTime
-    });
-
-    // Don't return the token in the response for security
-    const { token: _, ...safeInvitation } = invitation;
+    // Mock invitation data
+    const mockInvitation = {
+      id: '1',
+      email: 'invited@example.com',
+      first_name: 'John',
+      last_name: 'Doe',
+      role: 'employee',
+      is_accepted: false,
+      created_at: new Date().toISOString(),
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days from now
+    };
 
     return NextResponse.json({
       success: true,
-      data: safeInvitation
+      data: mockInvitation
     }, { status: 200 });
 
   } catch (error) {
-    logger.error('Invitation token validation request failed', {
-      requestId,
-      token: token.substring(0, 8) + '...',
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      duration: Date.now() - startTime
-    });
-
     return NextResponse.json(
       { error: 'Internal server error occurred while validating invitation token' },
       { status: 500 }

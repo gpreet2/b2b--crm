@@ -101,9 +101,22 @@ export function useClients(options: UseClientsOptions = {}): UseClientsReturn {
         throw new Error(data.error || 'Failed to fetch clients');
       }
 
-      const clientResponse: ClientListResponse = data.data;
-      setClients(clientResponse.clients);
-      setPagination(clientResponse.pagination);
+      const clientResponse: ClientListResponse = data;
+      setClients(clientResponse.data);
+      
+      // Transform pagination to match expected format
+      if (clientResponse.pagination) {
+        const { page, limit, total } = clientResponse.pagination;
+        const totalPages = Math.ceil(total / limit);
+        setPagination({
+          page,
+          limit,
+          total,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1
+        });
+      }
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
