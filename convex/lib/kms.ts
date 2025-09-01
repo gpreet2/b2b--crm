@@ -113,7 +113,7 @@ async function getSecretFromProvider(
       return getSecretFromConvexFallback(secretName);
     
     default:
-      throw new ConvexError(`Unknown KMS provider: ${provider}`);
+      throw new ConvexError(`Unknown KMS provider: ${provider as string}`);
   }
 }
 

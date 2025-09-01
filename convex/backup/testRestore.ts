@@ -256,7 +256,7 @@ export const cleanupTestData = mutation({
       // Delete test users
       const testUsers = await ctx.db
         .query('users')
-        .filter(q => q.contains(q.field('workosId'), args.testId))
+        .filter((q) => q.eq(q.field('workosId'), `test_${args.testId}_user`))
         .collect();
 
       for (const user of testUsers) {
@@ -349,7 +349,18 @@ export const runRestorationTest = mutation({
     testName: v.optional(v.string()),
     recordCount: v.optional(v.number()),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{
+    success: boolean;
+    testId: string;
+    phases: {
+      testDataCreation: any;
+      dataValidation: any;
+      cleanup: any;
+    };
+    duration: number;
+    timestamp: number;
+    error?: string;
+  }> => {
     const timestamp = Date.now();
     const testId = `restoration_test_${timestamp}`;
     const testName = args.testName || `Automated Restoration Test ${new Date().toISOString()}`;
@@ -359,7 +370,7 @@ export const runRestorationTest = mutation({
       console.log(`Starting restoration test: ${testId}`);
 
       // Step 1: Create test data
-      const testDataResult = await ctx.runMutation(api.backup.testRestore.createTestData, {
+      const testDataResult: any = await ctx.runMutation(api.backup.testRestore.createTestData, {
         testId,
         recordCount,
       });
@@ -372,7 +383,7 @@ export const runRestorationTest = mutation({
       // In a real test, we would trigger an actual backup and restoration here
       
       // Step 3: Validate the "restored" data (simulated)
-      const validationResult = await ctx.runQuery(api.backup.testRestore.validateRestorationTest, {
+      const validationResult: any = await ctx.runQuery(api.backup.testRestore.validateRestorationTest, {
         testId,
         expectedRecords: recordCount,
       });
@@ -382,7 +393,7 @@ export const runRestorationTest = mutation({
       }
 
       // Step 4: Clean up test data
-      const cleanupResult = await ctx.runMutation(api.backup.testRestore.cleanupTestData, {
+      const cleanupResult: any = await ctx.runMutation(api.backup.testRestore.cleanupTestData, {
         testId,
       });
 
@@ -420,10 +431,14 @@ export const runRestorationTest = mutation({
 
       return {
         success: testSummary.overallSuccess,
-        testSummary,
-        message: testSummary.overallSuccess 
-          ? `Restoration test ${testId} completed successfully`
-          : `Restoration test ${testId} completed with issues`,
+        testId,
+        phases: {
+          testDataCreation: testDataResult,
+          dataValidation: validationResult,
+          cleanup: cleanupResult,
+        },
+        duration: testSummary.duration,
+        timestamp: testSummary.startTime,
       };
 
     } catch (error) {
@@ -448,7 +463,18 @@ export const runRestorationTest = mutation({
         timestamp: Date.now(),
       });
 
-      throw new Error(`Restoration test failed: ${errorMessage}`);
+      return {
+        success: false,
+        testId,
+        phases: {
+          testDataCreation: null,
+          dataValidation: null,
+          cleanup: null,
+        },
+        duration: Date.now() - timestamp,
+        timestamp,
+        error: errorMessage,
+      };
     }
   },
 });

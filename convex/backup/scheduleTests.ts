@@ -403,10 +403,10 @@ export const getQuarterlyTestCompliance = query({
         .collect();
 
       const quarters = {
-        Q1: { expected: true, completed: false, testDate: null, rtoMet: null, rpoMet: null },
-        Q2: { expected: true, completed: false, testDate: null, rtoMet: null, rpoMet: null },
-        Q3: { expected: true, completed: false, testDate: null, rtoMet: null, rpoMet: null },
-        Q4: { expected: true, completed: false, testDate: null, rtoMet: null, rpoMet: null },
+        Q1: { expected: true, completed: false, testDate: null as string | null, rtoMet: null as boolean | null, rpoMet: null as boolean | null },
+        Q2: { expected: true, completed: false, testDate: null as string | null, rtoMet: null as boolean | null, rpoMet: null as boolean | null },
+        Q3: { expected: true, completed: false, testDate: null as string | null, rtoMet: null as boolean | null, rpoMet: null as boolean | null },
+        Q4: { expected: true, completed: false, testDate: null as string | null, rtoMet: null as boolean | null, rpoMet: null as boolean | null },
       };
 
       // Populate completed tests

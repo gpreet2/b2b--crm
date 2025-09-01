@@ -8,6 +8,7 @@
 import { internalMutation, internalQuery } from "../_generated/server";
 import { v } from "convex/values";
 import { SecretType, SecretManager } from "../lib/secrets";
+import { api } from "../_generated/api";
 import { performSystemHealthCheck, getFeatureAvailability } from "../lib/secretValidation";
 
 /**
@@ -185,22 +186,36 @@ export const performAndRecordHealthCheck = internalMutation({
       // Perform comprehensive health check
       const healthSummary = await performSystemHealthCheck({ db: ctx.db });
       
-      // Record the results
-      await ctx.runMutation(api.internal.secrets.recordHealthCheck, {
-        overallStatus: healthSummary.overallStatus,
-        secretsHealthy: healthSummary.secretsHealthy,
-        secretsTotal: healthSummary.secretsTotal,
-        criticalSecretsAvailable: healthSummary.criticalSecretsAvailable,
-        issues: healthSummary.issues,
-        kmsConnectivity: healthSummary.kmsConnectivity
+      // Record the results directly in the database
+      await ctx.db.insert("systemHealth", {
+        checkType: "secret_management",
+        status: healthSummary.overallStatus,
+        details: {
+          secretsHealthy: healthSummary.secretsHealthy,
+          secretsTotal: healthSummary.secretsTotal,
+          criticalSecretsAvailable: healthSummary.criticalSecretsAvailable,
+          issues: healthSummary.issues,
+          kmsConnectivity: healthSummary.kmsConnectivity
+        },
+        timestamp: Date.now(),
+        alertSent: false
       });
       
       // Send alerts if critical issues detected
       if (healthSummary.overallStatus === "critical" || 
           healthSummary.overallStatus === "unhealthy") {
-        await ctx.runMutation(api.internal.secrets.sendHealthAlert, {
-          status: healthSummary.overallStatus,
-          issues: healthSummary.issues
+        // Create alert record directly
+        await ctx.db.insert("alerts", {
+          type: "secret_management_health", 
+          level: healthSummary.overallStatus === "critical" ? "critical" : "warning",
+          message: `Secret Manager health check failed: ${healthSummary.issues.join(', ')}`,
+          details: {
+            status: healthSummary.overallStatus,
+            issues: healthSummary.issues
+          },
+          timestamp: Date.now(),
+          acknowledged: false,
+          resolved: false
         });
       }
       

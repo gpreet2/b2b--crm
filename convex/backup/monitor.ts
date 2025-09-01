@@ -97,7 +97,7 @@ export const logBackupOperation = mutation({
     const timestamp = Date.now();
     
     // Calculate retention expiry based on backup type
-    let retentionDays = BackupConfig.retention.manual;
+    let retentionDays: number = BackupConfig.retention.manual;
     if (args.type === 'scheduled') {
       if (args.tier === 'critical') {
         retentionDays = BackupConfig.retention.daily;
@@ -210,7 +210,7 @@ async function updateBackupStats(
   // Get or create daily stats record
   let stats = await ctx.db
     .query('backupStats')
-    .withIndex('by_date', q => q.eq('date', today))
+    .withIndex('by_date', (q: any) => q.eq('date', today))
     .first();
 
   if (!stats) {
