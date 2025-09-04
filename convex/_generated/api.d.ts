@@ -25,11 +25,18 @@ import type * as crons from "../crons.js";
 import type * as employees from "../employees.js";
 import type * as http from "../http.js";
 import type * as internal_secrets from "../internal/secrets.js";
+import type * as lib_circuitBreaker from "../lib/circuitBreaker.js";
+import type * as lib_errorHandler from "../lib/errorHandler.js";
+import type * as lib_errors from "../lib/errors.js";
 import type * as lib_kms from "../lib/kms.js";
+import type * as lib_resilientAction from "../lib/resilientAction.js";
 import type * as lib_secretValidation from "../lib/secretValidation.js";
 import type * as lib_secrets from "../lib/secrets.js";
+import type * as lib_sentry from "../lib/sentry.js";
+import type * as lib_tracing from "../lib/tracing.js";
 import type * as organizations from "../organizations.js";
 import type * as seed from "../seed.js";
+import type * as test_errorHandling from "../test/errorHandling.js";
 import type * as testSecrets from "../testSecrets.js";
 
 /**
@@ -53,11 +60,18 @@ declare const fullApi: ApiFromModules<{
   employees: typeof employees;
   http: typeof http;
   "internal/secrets": typeof internal_secrets;
+  "lib/circuitBreaker": typeof lib_circuitBreaker;
+  "lib/errorHandler": typeof lib_errorHandler;
+  "lib/errors": typeof lib_errors;
   "lib/kms": typeof lib_kms;
+  "lib/resilientAction": typeof lib_resilientAction;
   "lib/secretValidation": typeof lib_secretValidation;
   "lib/secrets": typeof lib_secrets;
+  "lib/sentry": typeof lib_sentry;
+  "lib/tracing": typeof lib_tracing;
   organizations: typeof organizations;
   seed: typeof seed;
+  "test/errorHandling": typeof test_errorHandling;
   testSecrets: typeof testSecrets;
 }>;
 export declare const api: FilterApi<
