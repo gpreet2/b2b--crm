@@ -2,6 +2,13 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { withErrorHandling, withErrorHandlingMutation, validateRequired, requireResource } from "./lib/errorHandler";
 import { ValidationError, ResourceNotFoundError } from "./lib/errors";
+import { 
+  normalizeEmail, 
+  normalizeName, 
+  normalizePhone,
+  detectXssAttempt,
+  sanitizeInput 
+} from "./lib/sanitization";
 
 // Get all clients for an organization
 export const getClients = query({
@@ -86,11 +93,25 @@ export const createClient = mutation({
     validateRequired(args.email?.trim(), "email");
     validateRequired(args.membershipType?.trim(), "membershipType");
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(args.email)) {
-      throw new ValidationError("Invalid email format", "email");
+    // Check for XSS attempts in text fields
+    if (detectXssAttempt(args.firstName)) {
+      throw new ValidationError("First name contains potentially malicious content", "firstName");
     }
+    if (detectXssAttempt(args.lastName)) {
+      throw new ValidationError("Last name contains potentially malicious content", "lastName");
+    }
+    if (detectXssAttempt(args.membershipType)) {
+      throw new ValidationError("Membership type contains potentially malicious content", "membershipType");
+    }
+    if (args.phone && detectXssAttempt(args.phone)) {
+      throw new ValidationError("Phone contains potentially malicious content", "phone");
+    }
+
+    // Sanitize and normalize inputs
+    const sanitizedFirstName = normalizeName(args.firstName);
+    const sanitizedLastName = normalizeName(args.lastName);
+    const normalizedEmail = normalizeEmail(args.email);
+    const normalizedPhone = args.phone ? normalizePhone(args.phone) : undefined;
 
     // Validate organization exists
     const organization = await ctx.db.get(args.organizationId);
@@ -99,7 +120,7 @@ export const createClient = mutation({
     // Check for duplicate email within organization
     const existingClient = await ctx.db
       .query("clients")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .withIndex("by_email", (q) => q.eq("email", normalizedEmail))
       .filter((q) => q.eq(q.field("organizationId"), args.organizationId))
       .first();
     
@@ -107,18 +128,13 @@ export const createClient = mutation({
       throw new ValidationError("Client with this email already exists in this organization", "email");
     }
 
-    // Validate phone if provided
-    if (args.phone && args.phone.trim().length > 0 && args.phone.trim().length < 10) {
-      throw new ValidationError("Phone number must be at least 10 characters", "phone");
-    }
-
     const now = Date.now();
     
     return await ctx.db.insert("clients", {
-      firstName: args.firstName.trim(),
-      lastName: args.lastName.trim(),
-      email: args.email.trim().toLowerCase(),
-      phone: args.phone?.trim() || undefined,
+      firstName: sanitizedFirstName,
+      lastName: sanitizedLastName,
+      email: normalizedEmail,
+      phone: normalizedPhone,
       organizationId: args.organizationId,
       membershipType: args.membershipType,
       membershipStartDate: args.membershipStartDate || now,
