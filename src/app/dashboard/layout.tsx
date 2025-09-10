@@ -1,48 +1,41 @@
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@workos-inc/authkit-nextjs/components';
-import { useQuery } from 'convex/react';
-import { api } from '../../../convex/_generated/api';
+import { useAuthenticatedUser } from '@/hooks/use-authenticated-user';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user: workosUser } = useAuth();
-  const currentUser = useQuery(api.auth.getCurrentUserQuery);
+  const { user, isLoading, isAuthenticated } = useAuthenticatedUser();
   const router = useRouter();
 
-  const loading = workosUser === undefined;
-  const user = workosUser && currentUser ? {
-    id: (currentUser as any)?._id || currentUser?.id || 'temp-id',
-    email: workosUser.email || '',
-    firstName: workosUser.firstName || '',
-    lastName: workosUser.lastName || '',
-  } : null;
-
   useEffect(() => {
-    if (!loading && !user) {
+    if (!isLoading && !isAuthenticated) {
+      console.log('🔐 Dashboard Layout - User not authenticated, redirecting to auth');
       router.push('/auth');
     }
-  }, [user, loading, router]);
+  }, [isLoading, isAuthenticated, router]);
 
-  if (loading) {
+  // Show loading while checking authentication
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-secondary-text">Loading...</div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
       </div>
     );
   }
 
-  if (!user) {
-    return null; // Will redirect via useEffect
+  // Show nothing while redirecting
+  if (!isAuthenticated) {
+    return null;
   }
 
-  console.log('🔐 Dashboard Layout - Client Auth SUCCESS:', {
-    userId: user?.id,
-    userEmail: user?.email,
+  console.log('🔐 Dashboard Layout - User authenticated:', {
+    userId: user?._id,
+    email: user?.email,
+    organization: user?.organizationId,
     timestamp: new Date().toISOString()
   });
 

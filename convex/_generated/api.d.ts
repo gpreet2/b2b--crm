@@ -39,8 +39,10 @@ import type * as lib_validators from "../lib/validators.js";
 import type * as organizations from "../organizations.js";
 import type * as seed from "../seed.js";
 import type * as test_errorHandling from "../test/errorHandling.js";
+import type * as testAuth from "../testAuth.js";
 import type * as testSecrets from "../testSecrets.js";
 import type * as testValidation from "../testValidation.js";
+import type * as testXssFix from "../testXssFix.js";
 import type * as users from "../users.js";
 
 /**
@@ -78,8 +80,10 @@ declare const fullApi: ApiFromModules<{
   organizations: typeof organizations;
   seed: typeof seed;
   "test/errorHandling": typeof test_errorHandling;
+  testAuth: typeof testAuth;
   testSecrets: typeof testSecrets;
   testValidation: typeof testValidation;
+  testXssFix: typeof testXssFix;
   users: typeof users;
 }>;
 export declare const api: FilterApi<

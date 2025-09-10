@@ -1,20 +1,19 @@
 'use client';
 
-import { useAuth } from '@workos-inc/authkit-nextjs/components';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import { useAuthenticatedUser } from './use-authenticated-user';
 
 export function useEnhancedAuth() {
-  const { user: workosUser } = useAuth();
-  const currentUser = useQuery(api.auth.getCurrentUserQuery);
+  const { user: currentUser, isLoading } = useAuthenticatedUser();
   
-  // Combine WorkOS user with Convex data
-  const user = workosUser && currentUser ? {
-    id: (currentUser as any)._id || (currentUser as any).id,
-    email: workosUser.email || '',
-    firstName: workosUser.firstName || '',
-    lastName: workosUser.lastName || '',
-    profilePictureUrl: workosUser.profilePictureUrl || null,
+  // Use Convex user data directly
+  const user = currentUser ? {
+    id: currentUser._id,
+    email: currentUser.email || '',
+    firstName: currentUser.name?.split(' ')[0] || '',
+    lastName: currentUser.name?.split(' ').slice(1).join(' ') || '',
+    profilePictureUrl: currentUser.picture || null,
   } : null;
 
   const getDisplayName = () => {
@@ -57,6 +56,6 @@ export function useEnhancedAuth() {
     hasAllPermissions,
     hasRole,
     hasAnyRole,
-    loading: false, // Placeholder
+    loading: isLoading
   };
 }
