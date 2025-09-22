@@ -1,45 +1,21 @@
-import { authkitMiddleware } from '@workos-inc/authkit-nextjs';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextFetchEvent, NextResponse } from 'next/server';
 
-console.log('🚀 MIDDLEWARE LOADING - Official WorkOS AuthKit integration...');
+console.log('🚀 MIDDLEWARE LOADING - WorkOS Node SDK implementation (AuthKit bypassed)...');
 
-// Clean middleware with focused debugging for official integration
-function debuggingMiddleware(request: NextRequest) {
-  const baseMiddleware = authkitMiddleware({
-    debug: true,
-    middlewareAuth: {
-      enabled: true,
-      unauthenticatedPaths: ['/', '/auth'], // Simplified - removed custom token endpoint
-    },
-  });
-
-  // Streamlined logging for authentication flow
+// Simple middleware without AuthKit - authentication handled by API routes
+function debuggingMiddleware(request: NextRequest, event: NextFetchEvent) {
+  // Log all requests for debugging
   console.log('🔍 MIDDLEWARE - Processing request:', {
     url: request.url,
     method: request.method,
-    hasSessionCookie: request.cookies.get('wos-session') ? 'YES' : 'NO',
+    hasConvexToken: request.cookies.get('convex-token') ? 'YES' : 'NO',
+    hasUserInfo: request.cookies.get('user-info') ? 'YES' : 'NO',
     timestamp: new Date().toISOString()
   });
 
-  // Call the original middleware
-  const response = baseMiddleware(request);
-
-  // Debug response for authentication flow
-  if (response instanceof Promise) {
-    return response.then(res => {
-      if (res?.status === 307 && res.headers.get('location')?.includes('workos.com')) {
-        console.log('🔐 MIDDLEWARE - Redirecting to WorkOS for authentication:', {
-          redirectUrl: res.headers.get('location'),
-          timestamp: new Date().toISOString()
-        });
-      } else if (res?.headers.get('set-cookie')?.includes('wos-session')) {
-        console.log('🎉 MIDDLEWARE - Session cookie detected, authentication successful');
-      }
-      return res;
-    });
-  }
-
-  return response;
+  // Allow all requests to pass through - no authentication blocking
+  // Authentication is now handled by individual API routes and client-side checks
+  return NextResponse.next();
 }
 
 export default debuggingMiddleware;
@@ -47,9 +23,9 @@ export default debuggingMiddleware;
 // Configure which routes the middleware should run on
 export const config = {
   matcher: [
-    // Run on all routes except static assets and API routes that don't need auth
-    '/((?!_next/static|_next/image|favicon.ico|api/auth).*)',
+    // Run on all routes except static assets, images, and specific API routes
+    '/((?!_next/static|_next/image|favicon.ico|images|.*\\.png|.*\\.jpg|.*\\.jpeg|.*\\.gif|.*\\.svg|.*\\.ico).*)',
   ],
 };
 
-console.log('🚀 MIDDLEWARE LOADED - Ready for WorkOS AuthKit + Convex integration');
+console.log('🚀 MIDDLEWARE LOADED - WorkOS Node SDK + Convex integration ready');

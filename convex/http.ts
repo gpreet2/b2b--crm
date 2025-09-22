@@ -9,6 +9,9 @@ import { performSystemHealthCheck, getFeatureAvailability } from "./lib/secretVa
 
 const http = httpRouter();
 
+// No custom auth routes needed - WorkOS AuthKit handles authentication
+// automatically through ConvexProviderWithAuthKit component
+
 /**
  * Health check endpoint for secret management system
  */

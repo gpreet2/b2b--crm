@@ -2,6 +2,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthenticatedUser } from '@/hooks/use-authenticated-user';
+import { AuthDebug } from '@/components/AuthDebug';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -39,5 +40,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     timestamp: new Date().toISOString()
   });
 
-  return <div>{children}</div>;
+  return (
+    <div>
+      {children}
+      <AuthDebug />
+    </div>
+  );
 }

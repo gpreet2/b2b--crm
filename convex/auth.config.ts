@@ -1,26 +1,27 @@
-// WorkOS JWT Authentication Configuration - Dual Issuer Support
-// This configuration supports both SSO and User Management tokens from WorkOS
+/**
+ * Official Convex authentication configuration for WorkOS AuthKit
+ * 
+ * This configuration tells Convex how to validate JWT tokens from WorkOS
+ * using the official @convex-dev/workos integration.
+ */
+
 const clientId = process.env.WORKOS_CLIENT_ID;
 
-const authConfig = {
+export default {
   providers: [
     {
-      // SSO Provider - for enterprise SSO connections
-      type: 'customJwt',
-      issuer: `https://api.workos.com/`,
-      algorithm: 'RS256',
-      applicationID: clientId,
+      type: "customJwt" as const,
+      issuer: "https://api.workos.com/",
+      algorithm: "RS256" as const,
       jwks: `https://api.workos.com/sso/jwks/${clientId}`,
+      applicationID: clientId,
     },
     {
-      // User Management Provider - for AuthKit authentication
-      type: 'customJwt', 
+      type: "customJwt" as const,
       issuer: `https://api.workos.com/user_management/${clientId}`,
-      algorithm: 'RS256',
-      applicationID: clientId,
+      algorithm: "RS256" as const,
       jwks: `https://api.workos.com/sso/jwks/${clientId}`,
+      applicationID: clientId,
     },
   ],
 };
-
-export default authConfig;

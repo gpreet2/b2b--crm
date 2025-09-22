@@ -1,141 +1,141 @@
-import { query, mutation } from "./_generated/server";
-import { ConvexError } from "convex/values";
-import { v } from "convex/values";
-import { DataModel } from "./_generated/dataModel";
+/**
+ * Authentication functions for WorkOS + Convex integration
+ * 
+ * This uses the @convex-dev/workos package approach where WorkOS AuthKit
+ * handles authentication and passes tokens to Convex through ConvexProviderWithAuthKit
+ */
 
-// Helper function to get current user from JWT auth context
+import { query, mutation } from "./_generated/server";
+import { v } from "convex/values";
+
+// Helper function to get current user from Convex auth context
 export async function getCurrentUser(ctx: any) {
-  console.log('🔍 CONVEX getCurrentUser - Starting...', {
+  console.log('🔍 CONVEX getCurrentUser - Starting with WorkOS token...', {
     hasAuth: !!ctx.auth,
-    authType: typeof ctx.auth,
-    authMethods: ctx.auth ? Object.getOwnPropertyNames(Object.getPrototypeOf(ctx.auth)) : [],
+    authContext: ctx.auth ? 'present' : 'missing',
     timestamp: Date.now()
   });
-  
+
   try {
+    // Log the raw auth context to debug what's available
+    console.log('🔍 CONVEX getCurrentUser - Auth context details:', {
+      authKeys: ctx.auth ? Object.keys(ctx.auth) : 'no auth context',
+      timestamp: Date.now()
+    });
+
     const identity = await ctx.auth.getUserIdentity();
-    console.log('🔍 CONVEX getCurrentUser - Identity:', {
+    console.log('🔍 CONVEX getCurrentUser - Identity from WorkOS:', {
       hasIdentity: !!identity,
-      identityType: typeof identity,
-      identityKeys: identity ? Object.keys(identity) : [],
+      identity: identity ? Object.keys(identity) : 'null',
       subject: identity?.subject,
       email: identity?.email,
       name: identity?.name,
       tokenIdentifier: identity?.tokenIdentifier,
-      issuer: identity?.issuer,
       aud: identity?.aud,
-      exp: identity?.exp,
-      iat: identity?.iat,
-      customClaims: identity ? Object.keys(identity).filter(k => k.startsWith('urn:')) : [],
+      iss: identity?.iss,
       timestamp: Date.now()
     });
-  } catch (authError) {
-    console.error('🔍 CONVEX getCurrentUser - Auth error:', {
-      error: authError instanceof Error ? authError.message : String(authError),
-      errorType: authError instanceof Error ? authError.constructor.name : typeof authError,
-      timestamp: Date.now()
-    });
-    return null;
-  }
 
-  const identity = await ctx.auth.getUserIdentity();
-  
-  if (!identity) {
-    console.log('🔍 CONVEX getCurrentUser - No identity, returning null');
-    return null;
-  }
+    if (!identity || !identity.subject) {
+      console.log('🔍 CONVEX getCurrentUser - No identity or subject, checking for alternative fields');
 
-  // Find user by workosId (the subject from JWT)
-  console.log('🔍 CONVEX getCurrentUser - Querying users by workosId:', identity.subject);
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_workos_id", (q) => q.eq("workosId", identity.subject))
-    .unique();
+      // Check if identity exists but subject is in a different field
+      if (identity) {
+        console.log('🔍 CONVEX getCurrentUser - Raw identity object:', identity);
 
-  // If user doesn't exist, create them from JWT claims
-  if (!user) {
-    console.log('🔍 CONVEX getCurrentUser - User not found, creating new user');
-    const newUserData = {
-      workosId: identity.subject,
-      email: identity.email || identity["urn:myapp:email"],
-      name: identity.name || identity["urn:myapp:full_name"] || identity.email?.split("@")[0] || "Unknown User",
-      role: "member",
-      permissions: ["basic.access"],
-      status: "active",
-      profileData: {},
-      organizationId: null,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    
-    console.log('🔍 CONVEX getCurrentUser - Creating user with data:', newUserData);
-    const newUserId = await ctx.db.insert("users", newUserData);
-    
-    const createdUser = await ctx.db.get(newUserId);
-    console.log('🔍 CONVEX getCurrentUser - Created new user:', createdUser?._id);
-    return createdUser;
-  }
+        // Try common JWT claim names
+        const possibleSubjects = [
+          identity.subject,
+          identity.sub,
+          identity.user_id,
+          identity.id,
+          identity.workos_user_id
+        ].filter(Boolean);
 
-  console.log('🔍 CONVEX getCurrentUser - Found existing user:', user._id);
-  return user;
-}
+        if (possibleSubjects.length > 0) {
+          console.log('🔍 CONVEX getCurrentUser - Found potential subjects:', possibleSubjects);
+          // Use the first available subject
+          const workosId = possibleSubjects[0];
 
-// Mutation to create or update user from auth provider
-export const createOrUpdateUser = mutation({
-  args: {
-    email: v.string(),
-    name: v.optional(v.string()),
-    picture: v.optional(v.string()),
-    providerId: v.string(),
-    providerUserId: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const existingUser = await ctx.db
+          // Find user by workosId
+          const user = await ctx.db
+            .query("users")
+            .withIndex("by_workos_id", (q) => q.eq("workosId", workosId))
+            .unique();
+
+          if (!user) {
+            // Create new user with available identity data
+            const newUserData = {
+              workosId: workosId,
+              email: identity.email || identity.preferred_username || "unknown@example.com",
+              name: identity.name || identity.given_name || identity.email?.split("@")[0] || "Unknown User",
+              role: "member" as const,
+              permissions: ["basic.access"],
+              status: "active" as const,
+              profileData: {},
+              organizationId: null,
+              createdAt: Date.now(),
+              updatedAt: Date.now(),
+            };
+
+            console.log('🔍 CONVEX getCurrentUser - Creating user with alternative subject:', newUserData);
+            const newUserId = await ctx.db.insert("users", newUserData);
+            const createdUser = await ctx.db.get(newUserId);
+            console.log('🔍 CONVEX getCurrentUser - Created new user:', createdUser?._id);
+            return createdUser;
+          }
+
+          console.log('🔍 CONVEX getCurrentUser - Found existing user with alternative subject:', user._id);
+          return user;
+        }
+      }
+
+      console.log('🔍 CONVEX getCurrentUser - No valid identity found, returning null');
+      return null;
+    }
+
+    // Standard flow with identity.subject
+    console.log('🔍 CONVEX getCurrentUser - Querying users by workosId:', identity.subject);
+    const user = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .withIndex("by_workos_id", (q) => q.eq("workosId", identity.subject))
       .unique();
 
-    if (existingUser) {
-      // Update existing user
-      await ctx.db.patch(existingUser._id, {
-        name: args.name || existingUser.name,
-        picture: args.picture || existingUser.picture,
-        updatedAt: Date.now(),
-      });
-      return existingUser._id;
-    } else {
-      // Create new user
-      const userId = await ctx.db.insert("users", {
-        email: args.email,
-        name: args.name || args.email.split("@")[0],
-        picture: args.picture,
-        role: "member",
+    // If user doesn't exist, create them from WorkOS token claims
+    if (!user) {
+      console.log('🔍 CONVEX getCurrentUser - User not found, creating new user');
+      const newUserData = {
+        workosId: identity.subject,
+        email: identity.email || "unknown@example.com",
+        name: identity.name || identity.email?.split("@")[0] || "Unknown User",
+        role: "member" as const,
         permissions: ["basic.access"],
-        status: "active",
+        status: "active" as const,
         profileData: {},
         organizationId: null,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-      });
+      };
 
-      // Log user creation
-      await ctx.db.insert("auditLogs", {
-        userId,
-        organizationId: null,
-        action: "user.created",
-        resourceType: "user",
-        resourceId: userId,
-        details: {
-          provider: args.providerId,
-          email: args.email,
-        },
-        timestamp: Date.now(),
-      });
+      console.log('🔍 CONVEX getCurrentUser - Creating user with data:', newUserData);
+      const newUserId = await ctx.db.insert("users", newUserData);
 
-      return userId;
+      const createdUser = await ctx.db.get(newUserId);
+      console.log('🔍 CONVEX getCurrentUser - Created new user:', createdUser?._id);
+      return createdUser;
     }
-  },
-});
+
+    console.log('🔍 CONVEX getCurrentUser - Found existing user:', user._id);
+    return user;
+  } catch (authError) {
+    console.error('🔍 CONVEX getCurrentUser - Auth error:', {
+      error: authError instanceof Error ? authError.message : String(authError),
+      stack: authError instanceof Error ? authError.stack : undefined,
+      timestamp: Date.now()
+    });
+    return null;
+  }
+}
 
 // Helper function to require authentication
 export async function requireAuth(ctx: any) {

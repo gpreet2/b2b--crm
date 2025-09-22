@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useAuth as useWorkOSAuth } from '@workos-inc/authkit-react';
 
 export interface AuthUser {
   id: string;
@@ -57,57 +58,46 @@ export interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [session, setSession] = useState<AuthSession | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Use WorkOS AuthKit hook for authentication state
+  const workosAuth = useWorkOSAuth();
+  
+  // Transform WorkOS auth state to match our AuthContext interface
+  const user: AuthUser | null = workosAuth.user ? {
+    id: workosAuth.user.id,
+    email: workosAuth.user.email,
+    firstName: workosAuth.user.firstName,
+    lastName: workosAuth.user.lastName,
+    profilePictureUrl: workosAuth.user.profilePictureUrl,
+    emailVerified: workosAuth.user.emailVerified,
+    createdAt: workosAuth.user.createdAt,
+    updatedAt: workosAuth.user.updatedAt,
+  } : null;
+
+  const session: AuthSession | null = workosAuth.user ? {
+    id: `session_${workosAuth.user.id}`,
+    userId: workosAuth.user.id,
+    organizationId: workosAuth.organizationId,
+    role: workosAuth.role,
+    permissions: workosAuth.permissions,
+    entitlements: workosAuth.featureFlags,
+    impersonator: workosAuth.impersonator,
+  } : null;
 
   const refreshAuth = useCallback(async () => {
-    try {
-      const response = await fetch('/api/auth/session', {
-        credentials: 'include',
-      });
-      
-      const data = await response.json();
-      
-      if (data.success && data.user && data.session) {
-        setUser(data.user);
-        setSession(data.session);
-      } else {
-        setUser(null);
-        setSession(null);
-      }
-    } catch (error) {
-      console.error('Failed to refresh auth', { error });
-      setUser(null);
-      setSession(null);
-    } finally {
-      setLoading(false);
-    }
+    // With WorkOS AuthKit, auth state is automatically managed
+    // This could trigger a re-fetch if needed, but typically not required
+    console.log('✅ Auth refresh handled by WorkOS AuthKit');
   }, []);
 
   const signOut = useCallback(async () => {
     try {
-      setLoading(true);
-      
-      const response = await fetch('/api/auth/session', {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        setUser(null);
-        setSession(null);
-        // Redirect to home page
-        window.location.href = '/';
-      } else {
-        console.error('Failed to sign out');
-      }
+      // Use WorkOS AuthKit signOut method
+      await workosAuth.signOut();
+      console.log('✅ Signed out via WorkOS AuthKit');
     } catch (error) {
       console.error('Sign out error', { error });
-    } finally {
-      setLoading(false);
     }
-  }, []);
+  }, [workosAuth]);
 
   // Enhanced utility functions
   const hasPermission = useCallback((permission: string): boolean => {
@@ -159,16 +149,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return (user.email?.[0] || 'U').toUpperCase();
   }, [user]);
 
-  // Load auth state on mount
-  useEffect(() => {
-    refreshAuth();
-  }, [refreshAuth]);
+  // No need to load auth state manually - WorkOS AuthKit handles it
+  // useEffect removed as WorkOS AuthKit manages auth state automatically
 
-  // Computed properties
-  const isAuthenticated = !!user;
-  const hasOrganization = !!session?.organizationId;
-  const hasPermissions = !!(session?.permissions && session.permissions.length > 0);
-  const hasRoles = !!session?.role;
+  // Computed properties using WorkOS AuthKit state
+  const loading = workosAuth.isLoading;
+  const isAuthenticated = !!workosAuth.user;
+  const hasOrganization = !!workosAuth.organizationId;
+  const hasPermissions = !!(workosAuth.permissions && workosAuth.permissions.length > 0);
+  const hasRoles = !!workosAuth.role;
 
   const contextValue: AuthContextType = {
     user,
