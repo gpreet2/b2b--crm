@@ -22,6 +22,7 @@ import type * as backup_verifyEncryption from "../backup/verifyEncryption.js";
 import type * as clients from "../clients.js";
 import type * as compliance from "../compliance.js";
 import type * as crons from "../crons.js";
+import type * as debugAuth from "../debugAuth.js";
 import type * as employees from "../employees.js";
 import type * as http from "../http.js";
 import type * as internal_secrets from "../internal/secrets.js";
@@ -63,6 +64,7 @@ declare const fullApi: ApiFromModules<{
   clients: typeof clients;
   compliance: typeof compliance;
   crons: typeof crons;
+  debugAuth: typeof debugAuth;
   employees: typeof employees;
   http: typeof http;
   "internal/secrets": typeof internal_secrets;

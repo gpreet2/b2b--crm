@@ -27,7 +27,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/hooks/use-authenticated-user';
 
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -1144,7 +1144,7 @@ function LocationSettings() {
   // Use try-catch to handle authentication context gracefully
   let user = null;
   try {
-    const authContext = useAuth();
+    const authContext = useAuthenticatedUser();
     user = authContext.user;
   } catch (error) {
     console.warn('Authentication context not available:', error);

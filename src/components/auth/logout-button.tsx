@@ -1,9 +1,9 @@
 'use client';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuthenticatedUser } from '@/hooks/use-authenticated-user';
 
 export function LogoutButton() {
-  const { signOut } = useAuth();
+  const { signOut } = useAuthenticatedUser();
 
   const handleLogout = async () => {
     await signOut();
