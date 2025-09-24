@@ -21,6 +21,7 @@ export const testCreateWorkOSUser = mutation({
       role: "member",
       permissions: [],
       status: "active",
+      // organizationId is optional and will be set during onboarding
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
@@ -78,7 +79,8 @@ export const testXSSUserCreation = mutation({
         },
         role: "member",
         permissions: [],
-        status: "active", 
+        status: "active",
+        // organizationId is optional and will be set during onboarding
         createdAt: Date.now(),
         updatedAt: Date.now(),
       });

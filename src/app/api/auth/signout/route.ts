@@ -1,68 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { logger } from '@/utils/logger';
+
 export async function POST(request: NextRequest) {
   try {
-    // Get form data from the request
-    const formData = await request.formData();
-    const returnTo = formData.get('returnTo') as string || '/auth';
+    // Get returnTo from form data or default to home
+    const formData = await request.formData().catch(() => null);
+    const returnTo = formData?.get('returnTo')?.toString() ?? '/';
 
-    // Create response with redirect
-    const response = NextResponse.redirect(new URL(returnTo, request.url));
+    // Log sign out attempt
+    logger.info('User signing out', { returnTo });
 
-    // Clear all auth-related cookies
-    const cookieNames = [
-      'workos-session',
-      'workos-token',
-      'session',
-      'auth-token',
-      'access-token',
-      'refresh-token'
-    ];
+    // For creating new account flow, we need to ensure complete logout
+    if (returnTo === '/onboarding') {
+      // Create a response that clears all cookies and redirects
+      const response = NextResponse.redirect(new URL(returnTo, request.url));
 
-    cookieNames.forEach(name => {
-      response.cookies.set(name, '', {
-        expires: new Date(0),
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax'
-      });
-    });
+      // Clear all auth-related cookies
+      response.cookies.delete('wos-session');
+      response.cookies.delete('b2b_session');
+      response.cookies.delete('workos-session');
+      response.cookies.delete('workos-token');
+      response.cookies.delete('session');
+      response.cookies.delete('auth-token');
+      response.cookies.delete('access-token');
+      response.cookies.delete('refresh-token');
+
+      // Set headers to clear browser data
+      response.headers.set('Clear-Site-Data', '"cookies", "storage"');
+      response.headers.set(
+        'Cache-Control',
+        'no-store, no-cache, must-revalidate, proxy-revalidate'
+      );
+      response.headers.set('Pragma', 'no-cache');
+      response.headers.set('Expires', '0');
+
+      return response;
+    }
+
+    // Normal sign out flow - just clear cookies and redirect to home
+    const response = NextResponse.redirect(new URL('/', request.url));
+
+    // Clear all auth-related cookies for normal signout too
+    response.cookies.delete('wos-session');
+    response.cookies.delete('b2b_session');
+    response.cookies.delete('workos-session');
+    response.cookies.delete('workos-token');
 
     return response;
   } catch (error) {
-    console.error('Signout error:', error);
-    // Fallback redirect to auth page
-    return NextResponse.redirect(new URL('/auth', request.url));
+    logger.error('Sign out error', { error });
+    return new Response('Failed to sign out', { status: 500 });
   }
-}
-
-// Also handle GET requests for direct signout links
-export async function GET(request: NextRequest) {
-  const url = new URL(request.url);
-  const returnTo = url.searchParams.get('returnTo') || '/auth';
-
-  const response = NextResponse.redirect(new URL(returnTo, request.url));
-
-  // Clear cookies same as POST
-  const cookieNames = [
-    'workos-session',
-    'workos-token',
-    'session',
-    'auth-token',
-    'access-token',
-    'refresh-token'
-  ];
-
-  cookieNames.forEach(name => {
-    response.cookies.set(name, '', {
-      expires: new Date(0),
-      path: '/',
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax'
-    });
-  });
-
-  return response;
 }

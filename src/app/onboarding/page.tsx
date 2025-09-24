@@ -15,6 +15,7 @@ import {
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState, useEffect, Suspense } from 'react';
+import { useAuth } from '@workos-inc/authkit-react';
 
 interface Location {
   id: string;
@@ -25,6 +26,7 @@ interface Location {
 function OnboardingContent() {
   const _router = useRouter();
   const searchParams = useSearchParams();
+  const { signIn } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [sessionData, setSessionData] = useState({
@@ -236,7 +238,26 @@ function OnboardingContent() {
       const data = await response.json();
       console.log('Onboarding completion response:', data);
 
-      if (response.ok && data.url) {
+      if (response.ok && data.needsAuth) {
+        console.log('Onboarding completed, initiating WorkOS authentication...');
+
+        // Store onboarding data in session storage to preserve across auth flow
+        sessionStorage.setItem('onboarding_data', JSON.stringify({
+          organizationName: formData.organizationName,
+          locations: locations.filter(loc => loc.name && loc.address),
+          completedAt: Date.now()
+        }));
+
+        // Use WorkOS SDK to properly initiate authentication
+        try {
+          await signIn();
+        } catch (authError) {
+          console.error('WorkOS authentication error:', authError);
+          setIsLoading(false);
+          setErrors({ general: 'Failed to start authentication. Please try again.' });
+        }
+      } else if (response.ok && data.url) {
+        // Fallback for direct URL redirect (keeping for compatibility)
         console.log('Redirecting to auth provider:', data.url);
         window.location.href = data.url;
       } else {

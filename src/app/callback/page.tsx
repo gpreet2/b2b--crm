@@ -3,41 +3,71 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '@workos-inc/authkit-react';
 import { useRouter } from 'next/navigation';
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 export default function CallbackPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const [authStatus, setAuthStatus] = useState('processing');
+  const [syncStatus, setSyncStatus] = useState('pending');
+  const syncUser = useMutation(api.auth.syncUser);
 
   useEffect(() => {
     console.log('🔄 Callback Page: Authentication status check', {
       user: !!user,
       isLoading,
+      syncStatus,
       userDetails: user ? { id: user.id, email: user.email } : null
     });
 
-    if (!isLoading) {
-      if (user) {
-        // Successful authentication - redirect to dashboard
-        console.log('✅ WorkOS AuthKit: User authenticated successfully', {
-          userId: user.id,
-          email: user.email,
-          redirecting: 'to dashboard'
-        });
+    if (!isLoading && user && syncStatus === 'pending') {
+      // User is authenticated, now sync to Convex
+      console.log('✅ WorkOS AuthKit: User authenticated successfully, syncing to Convex...', {
+        userId: user.id,
+        email: user.email,
+        name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || user.lastName
+      });
+
+      setSyncStatus('syncing');
+
+      syncUser({
+        workosId: user.id,
+        email: user.email,
+        name: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.firstName || user.lastName || undefined
+      })
+      .then((result) => {
+        console.log('🔗 Callback Page: User sync successful', result);
+        setSyncStatus('completed');
         setAuthStatus('success');
-        setTimeout(() => router.replace('/dashboard'), 1000);
-      } else {
-        // Authentication failed or still processing
-        console.log('❌ WorkOS AuthKit: No user found, checking if still processing...');
+
+        // Check if onboarding data exists in session storage
+        const onboardingData = sessionStorage.getItem('onboarding_data');
+        if (onboardingData) {
+          console.log('📋 Callback Page: Found onboarding data, redirecting to dashboard with setup');
+          // TODO: Associate onboarding data with the synced user
+          sessionStorage.removeItem('onboarding_data');
+        }
+
+        setTimeout(() => router.replace('/dashboard'), 1500);
+      })
+      .catch((error) => {
+        console.error('❌ Callback Page: User sync failed', error);
+        setSyncStatus('failed');
         setAuthStatus('failed');
         setTimeout(() => router.replace('/auth'), 2000);
-      }
+      });
+    } else if (!isLoading && !user) {
+      // Authentication failed or still processing
+      console.log('❌ WorkOS AuthKit: No user found');
+      setAuthStatus('failed');
+      setTimeout(() => router.replace('/auth'), 2000);
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, syncStatus, syncUser]);
 
   const statusMessages = {
-    processing: 'Completing authentication...',
-    success: 'Authentication successful! Redirecting to dashboard...',
+    processing: syncStatus === 'syncing' ? 'Syncing user to Convex...' : 'Completing authentication...',
+    success: 'Authentication and sync successful! Redirecting to dashboard...',
     failed: 'Authentication failed. Redirecting to login...'
   };
 
@@ -59,7 +89,10 @@ export default function CallbackPage() {
         </p>
         {authStatus === 'processing' && (
           <p className="mt-2 text-gray-500 text-sm">
-            Processing JWT token with Convex...
+            {syncStatus === 'syncing'
+              ? 'Creating user record in Convex database...'
+              : 'Processing JWT token with Convex...'
+            }
           </p>
         )}
       </div>

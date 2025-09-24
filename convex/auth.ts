@@ -60,29 +60,12 @@ export async function getCurrentUser(ctx: any) {
           // Find user by workosId
           const user = await ctx.db
             .query("users")
-            .withIndex("by_workos_id", (q) => q.eq("workosId", workosId))
+            .withIndex("by_workos_id", (q: any) => q.eq("workosId", workosId))
             .unique();
 
           if (!user) {
-            // Create new user with available identity data
-            const newUserData = {
-              workosId: workosId,
-              email: identity.email || identity.preferred_username || "unknown@example.com",
-              name: identity.name || identity.given_name || identity.email?.split("@")[0] || "Unknown User",
-              role: "member" as const,
-              permissions: ["basic.access"],
-              status: "active" as const,
-              profileData: {},
-              organizationId: null,
-              createdAt: Date.now(),
-              updatedAt: Date.now(),
-            };
-
-            console.log('🔍 CONVEX getCurrentUser - Creating user with alternative subject:', newUserData);
-            const newUserId = await ctx.db.insert("users", newUserData);
-            const createdUser = await ctx.db.get(newUserId);
-            console.log('🔍 CONVEX getCurrentUser - Created new user:', createdUser?._id);
-            return createdUser;
+            console.log('🔍 CONVEX getCurrentUser - User with alternative subject not found, returning null (needs sync)');
+            return null;
           }
 
           console.log('🔍 CONVEX getCurrentUser - Found existing user with alternative subject:', user._id);
@@ -98,31 +81,13 @@ export async function getCurrentUser(ctx: any) {
     console.log('🔍 CONVEX getCurrentUser - Querying users by workosId:', identity.subject);
     const user = await ctx.db
       .query("users")
-      .withIndex("by_workos_id", (q) => q.eq("workosId", identity.subject))
+      .withIndex("by_workos_id", (q: any) => q.eq("workosId", identity.subject))
       .unique();
 
-    // If user doesn't exist, create them from WorkOS token claims
+    // If user doesn't exist, return null (user needs to be synced via mutation)
     if (!user) {
-      console.log('🔍 CONVEX getCurrentUser - User not found, creating new user');
-      const newUserData = {
-        workosId: identity.subject,
-        email: identity.email || "unknown@example.com",
-        name: identity.name || identity.email?.split("@")[0] || "Unknown User",
-        role: "member" as const,
-        permissions: ["basic.access"],
-        status: "active" as const,
-        profileData: {},
-        organizationId: null,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      };
-
-      console.log('🔍 CONVEX getCurrentUser - Creating user with data:', newUserData);
-      const newUserId = await ctx.db.insert("users", newUserData);
-
-      const createdUser = await ctx.db.get(newUserId);
-      console.log('🔍 CONVEX getCurrentUser - Created new user:', createdUser?._id);
-      return createdUser;
+      console.log('🔍 CONVEX getCurrentUser - User not found, returning null (needs sync)');
+      return null;
     }
 
     console.log('🔍 CONVEX getCurrentUser - Found existing user:', user._id);
@@ -348,7 +313,7 @@ export const getOrganizationMembers = query({
     
     const members = await ctx.db
       .query("users")
-      .withIndex("by_organization", q => q.eq("organizationId", args.organizationId))
+      .withIndex("by_organization", (q: any) => q.eq("organizationId", args.organizationId))
       .collect();
 
     return members.map(user => ({
@@ -362,5 +327,217 @@ export const getOrganizationMembers = query({
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     }));
+  },
+});
+
+// Mutation to sync WorkOS user to Convex database
+export const syncUser = mutation({
+  args: {
+    workosId: v.string(),
+    email: v.optional(v.string()),
+    name: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    console.log('🔗 CONVEX syncUser - Starting user sync:', {
+      workosId: args.workosId,
+      email: args.email,
+      name: args.name,
+      timestamp: Date.now()
+    });
+
+    try {
+      // Check if user already exists
+      const existingUser = await ctx.db
+        .query("users")
+        .withIndex("by_workos_id", (q: any) => q.eq("workosId", args.workosId))
+        .unique();
+
+      if (existingUser) {
+        console.log('🔗 CONVEX syncUser - User exists, updating data:', existingUser._id);
+
+        // Update user with any new information
+        const updates: any = {
+          updatedAt: Date.now()
+        };
+
+        if (args.email && args.email !== existingUser.email) {
+          updates.email = args.email;
+        }
+
+        if (args.name && args.name !== existingUser.name) {
+          updates.name = args.name;
+        }
+
+        if (Object.keys(updates).length > 1) { // More than just updatedAt
+          await ctx.db.patch(existingUser._id, updates);
+          console.log('🔗 CONVEX syncUser - Updated user data');
+        }
+
+        return {
+          success: true,
+          user: existingUser,
+          action: 'updated'
+        };
+      }
+
+      // Create new user
+      console.log('🔗 CONVEX syncUser - Creating new user');
+      const newUserData = {
+        workosId: args.workosId,
+        email: args.email || "unknown@example.com",
+        name: args.name || args.email?.split("@")[0] || "Unknown User",
+        role: "member" as const,
+        permissions: ["basic.access"],
+        status: "active" as const,
+        // organizationId is optional and will be set during onboarding
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      };
+
+      const newUserId = await ctx.db.insert("users", newUserData);
+      const createdUser = await ctx.db.get(newUserId);
+
+      console.log('🔗 CONVEX syncUser - Created new user:', createdUser?._id);
+
+      // Log the user creation
+      await ctx.db.insert("auditLogs", {
+        userId: createdUser?._id,
+        // organizationId is optional for global actions
+        action: "user.created",
+        resourceType: "user",
+        resourceId: createdUser?._id,
+        details: {
+          source: "workos_sync",
+          workosId: args.workosId,
+          email: args.email,
+        },
+        timestamp: Date.now(),
+      });
+
+      return {
+        success: true,
+        user: createdUser,
+        action: 'created'
+      };
+
+    } catch (error) {
+      console.error('🔗 CONVEX syncUser - Error syncing user:', error);
+      throw new Error(`Failed to sync user: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  },
+});
+
+// Complete onboarding by assigning user to organization
+export const completeOnboarding = mutation({
+  args: {
+    organizationName: v.string(),
+    ownerInfo: v.object({
+      firstName: v.string(),
+      lastName: v.string(),
+      phone: v.optional(v.string()),
+    }),
+    businessInfo: v.object({
+      type: v.string(),
+      size: v.string(),
+      timezone: v.string(),
+    }),
+  },
+  handler: async (ctx, args) => {
+    console.log('🏢 CONVEX completeOnboarding - Starting onboarding completion:', {
+      organizationName: args.organizationName,
+      ownerInfo: args.ownerInfo,
+      businessInfo: args.businessInfo,
+      timestamp: Date.now()
+    });
+
+    try {
+      // Get current user
+      const user = await requireAuth(ctx);
+
+      if (user.organizationId) {
+        console.log('🏢 CONVEX completeOnboarding - User already has organization:', user.organizationId);
+        throw new Error("User is already associated with an organization");
+      }
+
+      // Import ownerAccounts function
+      const { createOrSyncOwnerAccount } = await import("./ownerAccounts");
+
+      // Create or get owner account
+      const ownerResult = await createOrSyncOwnerAccount(ctx, {
+        workosId: user.workosId,
+        email: user.email,
+        name: `${args.ownerInfo.firstName} ${args.ownerInfo.lastName}`,
+      });
+
+      if (!ownerResult.success || !ownerResult.ownerAccount) {
+        throw new Error("Failed to create or sync owner account");
+      }
+
+      console.log('🏢 CONVEX completeOnboarding - Owner account ready:', ownerResult.ownerAccount._id);
+
+      // Create organization
+      const { createOrganization } = await import("./organizations");
+
+      const organizationId = await createOrganization(ctx, {
+        name: args.organizationName,
+        ownerAccountId: ownerResult.ownerAccount._id,
+        settings: {
+          timezone: args.businessInfo.timezone,
+          businessHours: {
+            monday: { open: "06:00", close: "22:00", enabled: true },
+            tuesday: { open: "06:00", close: "22:00", enabled: true },
+            wednesday: { open: "06:00", close: "22:00", enabled: true },
+            thursday: { open: "06:00", close: "22:00", enabled: true },
+            friday: { open: "06:00", close: "22:00", enabled: true },
+            saturday: { open: "08:00", close: "20:00", enabled: true },
+            sunday: { open: "08:00", close: "20:00", enabled: true },
+          },
+        },
+      });
+
+      console.log('🏢 CONVEX completeOnboarding - Organization created:', organizationId);
+
+      // Update user with organization and owner role
+      await ctx.db.patch(user._id, {
+        organizationId: organizationId,
+        role: "owner",
+        permissions: ["*"], // Owner has all permissions
+        profileData: {
+          firstName: args.ownerInfo.firstName,
+          lastName: args.ownerInfo.lastName,
+          phone: args.ownerInfo.phone,
+        },
+        updatedAt: Date.now(),
+      });
+
+      console.log('🏢 CONVEX completeOnboarding - User updated with organization');
+
+      // Log the completion
+      await ctx.db.insert("auditLogs", {
+        userId: user._id,
+        organizationId: organizationId,
+        action: "onboarding.completed",
+        resourceType: "user",
+        resourceId: user._id,
+        details: {
+          organizationName: args.organizationName,
+          businessInfo: args.businessInfo,
+          ownerInfo: args.ownerInfo,
+        },
+        timestamp: Date.now(),
+      });
+
+      console.log('🏢 CONVEX completeOnboarding - Onboarding completed successfully');
+
+      return {
+        success: true,
+        organizationId: organizationId,
+        message: "Onboarding completed successfully"
+      };
+
+    } catch (error) {
+      console.error('🏢 CONVEX completeOnboarding - Error completing onboarding:', error);
+      throw new Error(`Failed to complete onboarding: ${error instanceof Error ? error.message : String(error)}`);
+    }
   },
 });
